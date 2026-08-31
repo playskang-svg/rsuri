@@ -1,0 +1,6 @@
+{
+  "name": "수리위키 - 대한민국 1등 집수리 백과사전 & 지역별 수리 포털",
+  "description": "공사명 메인과 지역 키워드가 결합된 SEO/GEO 최적화 집수리 정보, 동네별 실시간 수리 시세, 검증 수리기사 및 시공 사례 위키 플랫폼",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
