@@ -27,7 +27,7 @@
 |---|---|---|
 | 프레임워크 | **Next.js 14 App Router**, `output: 'export'` (완전 정적 export) | `keyword-tree` 스킬에서 실제 pSEO 사이트(`pseo-site/`)로 이미 검증된 패턴. 서버 없이 지역×키워드 수만 페이지를 안정적으로 생성 |
 | 데이터 | **Supabase Postgres** (아래 4번 스키마) | 키워드/지역/콘텐츠를 코드 밖 데이터로 분리 → 코드 수정 없이 콘텐츠만 갈아끼울 수 있음. anon key로 빌드 시 읽기, `service_role`은 로컬 Node 스크립트에서만 |
-| 배포 | **Cloudflare Pages**, GitHub Actions가 `main` push를 감지해 빌드+배포 | CLAUDE.md 규칙 "배포는 `git push origin main`으로만 한다"를 지키면서, `keyword-tree`의 `wrangler pages deploy`/파일수 샤딩 스크립트(`split-by-keyword.mjs`, `deploy-all.mjs`)를 CI가 대신 실행. Cloudflare 대시보드의 기본 Git 연동만으로는 키워드별 프로젝트 분할·증분 배포를 못 다뤄서 Actions로 감싼다 |
+| 배포 | **Cloudflare Workers 정적 자산**, GitHub Actions가 `main` push를 감지해 빌드+배포 | CLAUDE.md 규칙 "배포는 `git push origin main`으로만 한다"를 지키면서 CI가 `wrangler deploy`를 실행. **keyword-tree는 Pages를 쓰지만 채택하지 않았다** — Cloudflare 공식 문서가 신규 프로젝트는 Workers로 시작하라고 안내하고, 파일 한도가 유료 기준 Pages 2만 vs Workers 10만이라 keyword-tree가 쓰던 "키워드별 프로젝트 분할 배포"(`split-by-keyword.mjs`/`deploy-all.mjs`)를 아예 안 만들어도 된다. 자세한 근거는 [DEPLOY.md](DEPLOY.md) |
 | 콘텐츠 생성 | **Node 시딩 스크립트**(`scripts/*.mjs`) + AI 보조 초안, 별도 어드민 UI는 만들지 않음 | `keyword-tree`가 이미 이 패턴으로 데이터를 채운다. 지금 단계에서 커스텀 대시보드를 새로 만드는 것보다 데이터 파이프라인이 우선순위가 높음 ("효율적인 스택") |
 | 스타일 | Tailwind CSS | 기존 스캐폴드와 CT·MOD 가이드 문서 스타일 모두 Tailwind 전제와 자연스럽게 맞음(기존 `src/`도 Tailwind 사용 중) |
 
@@ -135,8 +135,10 @@
    - **빌드 검증**: 임시 테스트 페이지(LANDING/CASE/WIKI 각 1개, `[TEST]` 접두사로 표시)를 잠깐 넣어 `npm run build` → 16개 정적 페이지 전부 생성 확인(지역 조상 체인 breadcrumb, 섹션 본문 렌더링까지 실제 HTML에서 확인) 후 바로 삭제 — DB는 다시 구조 데이터만 있는 빈 상태
    - **아직 안 한 것**: OG 썸네일 이미지 생성(`api/og/...`, next/og+sharp+로컬 폰트) — mock 데이터에 실제 이미지가 없어 후순위로 미룸. 실제 CASE 콘텐츠(`npm run seed`)도 여전히 service_role 키 대기 중
    - 빌드 중 "multiple lockfiles" 경고 발생(루트의 구 Vite 앱 lockfile과 `web/`의 lockfile이 둘 다 잡힘) — 에러는 아니고 무시 가능, 나중에 구 스캐폴드 정리 시 자연히 없어짐
-5. Cloudflare Pages + GitHub Actions 배포 파이프라인 — **워크플로 작성 완료, 시크릿 등록 대기**
-   - `.github/workflows/deploy.yml`: `main` push(및 수동 `workflow_dispatch`)로 `web/`를 빌드하고 `wrangler-action`으로 Cloudflare Pages에 배포. CLAUDE.md의 "배포는 `git push origin main`으로만" 규칙 준수
+5. Cloudflare Workers + GitHub Actions 배포 파이프라인 — **워크플로 작성 완료, 시크릿 등록 대기**
+   - `.github/workflows/deploy.yml`: `main` push(및 수동 `workflow_dispatch`)로 `web/`를 빌드하고 `wrangler-action`으로 Cloudflare Workers에 배포. CLAUDE.md의 "배포는 `git push origin main`으로만" 규칙 준수
+   - `web/wrangler.jsonc`: 자산 전용 Worker(`main` 없음 → `assets.binding`도 두지 않음). Pages와 달리 Workers는 라우팅을 명시해야 해서 `not_found_handling: "404-page"`(SPA 아님) + `html_handling: "auto-trailing-slash"` 지정. `npx wrangler deploy --dry-run`으로 설정 검증 완료(자산 206개 인식)
+   - Worker는 대시보드에서 미리 만들 필요가 없다 — 첫 배포 때 `name`으로 자동 생성됨
    - 설정 절차와 필요한 GitHub Secrets 4개는 [DEPLOY.md](DEPLOY.md) 참고. `service_role` 키는 CI에 넣지 않는다(빌드는 읽기 전용이라 anon으로 충분)
    - **정적 export의 함정**: Supabase 데이터만 바꾸면 사이트에 반영되지 않는다. 콘텐츠 변경 후에는 코드 push가 없어도 `workflow_dispatch`로 재빌드해야 한다 — 그래서 수동 트리거를 넣어둠
    - **`/wiki/{slug}` 라우트는 현재 비활성**: `output:'export'`는 동적 라우트마다 최소 1개 경로를 요구하는데 WIKI/TOPIC 페이지가 아직 0개라 활성 상태면 빌드가 통째로 깨진다. Next.js의 private 폴더 규칙을 이용해 `web/app/_pending/wiki/`로 옮겨둠(코드는 그대로 보존, 검증 완료). 첫 WIKI 페이지가 생기면 `git mv web/app/_pending/wiki web/app/wiki` 한 번이면 복구됨

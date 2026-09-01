@@ -1,33 +1,41 @@
-# 배포 설정 (Cloudflare Pages + GitHub Actions)
+# 배포 설정 (Cloudflare Workers + GitHub Actions)
 
 배포는 **`git push origin main`으로만** 한다 (CLAUDE.md 규칙). 로컬에서 `wrangler`로
 직접 배포하지 않는다 — `.github/workflows/deploy.yml`이 push를 받아 빌드하고 배포한다.
 
 정적 export라서 **Supabase 데이터만 바꾸면 사이트에 반영되지 않는다.** 콘텐츠를 바꾼 뒤에는
-코드 push가 없더라도 GitHub Actions에서 `Deploy to Cloudflare Pages` 워크플로를
+코드 push가 없더라도 GitHub Actions에서 `Deploy to Cloudflare Workers` 워크플로를
 `Run workflow`(workflow_dispatch)로 한 번 돌려야 새 콘텐츠가 나간다.
+
+## 왜 Pages가 아니라 Workers인가
+
+Cloudflare 공식 문서가 Pages 문서 최상단에 "새 프로젝트는 Workers로 시작하라"고 직접
+안내한다 (Workers가 주력 플랫폼이고 Pages 사용 사례를 대부분 커버). 실무적으로도:
+
+| | 무료 | 유료 |
+|---|---|---|
+| **Workers** 정적 자산 (버전당 파일 수) | 20,000 | **100,000** |
+| **Pages** (배포당 파일 수) | 20,000 | 20,000 (프로젝트 100개 한도) |
+
+파일 10만 개 한도를 쓰려면 **Wrangler 4.34.0 이상**이어야 한다 (`web/package.json`에
+`wrangler` devDependency로 고정해 둠).
+
+이 차이가 중요한 이유: keyword-tree 스킬은 Pages의 2만 개 한도 때문에 "키워드별로 별도
+프로젝트에 나눠 배포"하는 복잡한 구조(`split-by-keyword.mjs`, `deploy-all.mjs`)를 써야 했다.
+Workers 유료 플랜이면 그 분할 없이 훨씬 오래 버틸 수 있다.
 
 ---
 
 ## 최초 1회 설정 (사람이 해야 하는 것)
 
-### 1. Cloudflare Pages 프로젝트 생성
+### 1. ~~프로젝트 생성~~ — 불필요
 
-Cloudflare 대시보드 > Workers & Pages > Create > Pages > **Upload assets** 쪽으로 만들거나,
-CLI가 있다면:
-
-```bash
-npx wrangler pages project create suriwiki --production-branch main
-```
-
-프로젝트 이름은 워크플로의 `--project-name=suriwiki`와 반드시 같아야 한다.
-(주의: Cloudflare 프로젝트명은 연결할 도메인과 별개다. 커스텀 도메인을 붙였다고 해서
-프로젝트명이 `suriwiki.com`이 되지 않는다 — keyword-tree 스킬에서 확인된 함정.)
+Workers는 대시보드에서 미리 만들어 둘 필요가 없다. 첫 배포 때
+`web/wrangler.jsonc`의 `name`(`suriwiki`)으로 Worker가 자동 생성된다.
 
 ### 2. Cloudflare API 토큰 발급
 
-대시보드 > My Profile > API Tokens > Create Token > **Edit Cloudflare Workers** 템플릿
-(또는 커스텀으로 `Account / Cloudflare Pages / Edit` 권한).
+대시보드 > My Profile > API Tokens > Create Token > **Edit Cloudflare Workers** 템플릿.
 
 Account ID는 대시보드 우측 사이드바 또는 Workers & Pages 개요에서 확인.
 
@@ -47,22 +55,33 @@ service_role은 로컬 시딩 스크립트 전용이다.
 
 ### 4. 도메인 연결 (suriwiki.com)
 
-Cloudflare Pages 프로젝트 > Custom domains > Set up a domain > `suriwiki.com`.
-도메인이 Cloudflare에 등록되어 있으면 DNS가 자동 설정되고, 외부 등록기관이면
-안내되는 CNAME을 해당 등록기관에 추가한다.
+Workers & Pages > `suriwiki` Worker > Settings > Domains & Routes > **Add** > Custom domain
+에서 `suriwiki.com`을 추가한다. 도메인이 Cloudflare에 등록되어 있으면 DNS가 자동 설정된다.
 
 ---
 
 ## 확인
 
 첫 push 후 Actions 탭에서 워크플로가 초록색으로 끝나는지 확인하고,
-Cloudflare Pages 프로젝트의 배포 URL(`suriwiki.pages.dev`)로 접속해 본다.
+`suriwiki.<계정서브도메인>.workers.dev`로 접속해 본다.
 
-## 알려진 제약 — 파일 수 상한
+로컬에서 설정만 미리 검증하려면(업로드 없음):
 
-Cloudflare Pages 무료 플랜은 **배포 1건당 파일 2만 개**가 상한이다.
-지금은 페이지가 십여 개라 한참 여유가 있지만, 지역×키워드 조합이 늘어나면
-페이지당 3개 파일(html + RSC 페이로드 + OG 이미지)이 붙어 빠르게 증가한다.
-상한에 근접하면 keyword-tree 스킬 5번의 **키워드별 프로젝트 분할 배포**
-(`split-by-keyword.mjs` / `deploy-all.mjs` 패턴)로 전환한다 — 나중에 붙이는 것보다
-미리 설계하는 편이 훨씬 쉽다.
+```bash
+cd web && npm run build && npx wrangler deploy --dry-run
+```
+
+## 정적 자산 라우팅
+
+`web/wrangler.jsonc`에서 명시적으로 설정한다. Pages는 `404.html`/`index.html`을 보고
+알아서 추측했지만 Workers는 오설정을 막으려고 명시를 요구한다:
+
+- `not_found_handling: "404-page"` — 매칭 안 되는 경로에 Next가 만든 `404.html`을 반환.
+  (SPA가 아니므로 `single-page-application`을 쓰면 안 된다)
+- `html_handling: "auto-trailing-slash"` — `/foo` → `/foo.html` 매핑과 후행 슬래시 정규화
+
+## 파일 수 감시
+
+현재 정적 자산 **206개** (페이지 30개 기준 — HTML 외에 Next.js 청크·RSC 페이로드 포함).
+페이지가 늘면 파일도 함께 늘어나므로, 배포 로그의 "Read N files from the assets directory"
+숫자를 가끔 확인한다. 무료 2만 / 유료 10만에 근접하면 그때 분할 배포를 검토한다.
