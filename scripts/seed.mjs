@@ -39,9 +39,11 @@ import { INITIAL_WIKI_PAGES } from '../src/data/mockWikiData.ts'
 
 const EMIT_SQL = process.argv.includes('--emit-sql')
 
-// SQL 출력 모드에서는 DB에 접속하지 않으므로 키가 필요 없다.
+// 클라이언트는 실제로 쓸 때만 만든다 — SQL 출력 모드에서는 키가 필요 없고,
+// verify-seed.mjs가 buildPlan만 쓰려고 이 파일을 import할 때도 키를 요구하면 안 된다.
 let db = null
-if (!EMIT_SQL) {
+function getDb() {
+  if (db) return db
   const SUPABASE_URL = process.env.SUPABASE_URL
   const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
@@ -52,6 +54,7 @@ if (!EMIT_SQL) {
     process.exit(1)
   }
   db = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  return db
 }
 
 // mockWikiData.ts의 region.neighborhood(동 이름) → 이미 시딩된 suri_regions dong slug
@@ -80,7 +83,7 @@ const SAFETY_REQUIRED_CATEGORIES = new Set(['누수/방수', '전기/조명/설�
 async function getRegionId(dongName) {
   const slug = DONG_SLUG_BY_NAME[dongName]
   if (!slug) throw new Error(`지역 매핑 없음: ${dongName}`)
-  const { data, error } = await db
+  const { data, error } = await getDb()
     .from('suri_regions')
     .select('id')
     .eq('slug', slug)
@@ -93,7 +96,7 @@ async function getRegionId(dongName) {
 async function getKeyword(repairMainName) {
   const slug = KEYWORD_SLUG_BY_NAME[repairMainName]
   if (!slug) throw new Error(`키워드 매핑 없음: ${repairMainName}`)
-  const { data, error } = await db
+  const { data, error } = await getDb()
     .from('suri_repair_keywords')
     .select('id, category_id')
     .eq('slug', slug)
@@ -202,7 +205,14 @@ function buildCaseSections(mock) {
 const LANDING_REQUIRED = ['M01', 'M03', 'M04', 'M09']
 const CASE_REQUIRED = ['M02', 'M03', 'M06', 'M08', 'M18']
 
-function buildPlan(mock) {
+// 이 mock이 시딩 대상인지(지역·키워드 매핑이 있는지). verify-seed.mjs도 같은 기준을 쓴다.
+export function MAPPED(mock) {
+  return Boolean(
+    KEYWORD_SLUG_BY_NAME[mock.repairMainName] && DONG_SLUG_BY_NAME[mock.region.neighborhood],
+  )
+}
+
+export function buildPlan(mock) {
   const c = mock.caseStudies[0]
   const landingSections = buildLandingSections(mock)
   const caseSections = buildCaseSections(mock)
@@ -275,17 +285,17 @@ function buildPlan(mock) {
 // 백엔드 A: Supabase 직접 쓰기 (service_role 키 필요)
 // ─────────────────────────────────────────────────────────────
 async function replaceSections(pageId, sections) {
-  const { error: delErr } = await db.from('suri_page_sections').delete().eq('page_id', pageId)
+  const { error: delErr } = await getDb().from('suri_page_sections').delete().eq('page_id', pageId)
   if (delErr) throw delErr
   if (sections.length === 0) return
-  const { error: insErr } = await db
+  const { error: insErr } = await getDb()
     .from('suri_page_sections')
     .insert(sections.map((s) => ({ ...s, page_id: pageId })))
   if (insErr) throw insErr
 }
 
 async function upsertPage(fields) {
-  const { data, error } = await db
+  const { data, error } = await getDb()
     .from('suri_pages')
     .upsert(fields, { onConflict: 'repair_keyword_id,region_id,page_type' })
     .select('id')
@@ -297,7 +307,7 @@ async function upsertPage(fields) {
 async function upsertCase(regionId, keywordId, caseRow) {
   const fields = { ...caseRow, region_id: regionId, repair_keyword_id: keywordId }
 
-  const { data: existing } = await db
+  const { data: existing } = await getDb()
     .from('suri_cases')
     .select('id')
     .eq('region_id', regionId)
@@ -305,25 +315,25 @@ async function upsertCase(regionId, keywordId, caseRow) {
     .maybeSingle()
 
   if (existing) {
-    const { error } = await db.from('suri_cases').update(fields).eq('id', existing.id)
+    const { error } = await getDb().from('suri_cases').update(fields).eq('id', existing.id)
     if (error) throw error
     return existing.id
   }
-  const { data, error } = await db.from('suri_cases').insert(fields).select('id').single()
+  const { data, error } = await getDb().from('suri_cases').insert(fields).select('id').single()
   if (error) throw error
   return data.id
 }
 
 async function upsertLocalPros(regionId, pros) {
   for (const pro of pros) {
-    const { data: existing } = await db
+    const { data: existing } = await getDb()
       .from('suri_local_pros')
       .select('id')
       .eq('region_id', regionId)
       .eq('phone', pro.phone)
       .maybeSingle()
     if (existing) continue
-    const { error } = await db.from('suri_local_pros').insert({ ...pro, region_id: regionId })
+    const { error } = await getDb().from('suri_local_pros').insert({ ...pro, region_id: regionId })
     if (error) throw error
   }
 }
@@ -432,7 +442,7 @@ where ${R}
 async function main() {
   const plans = []
   for (const mock of INITIAL_WIKI_PAGES) {
-    if (!KEYWORD_SLUG_BY_NAME[mock.repairMainName] || !DONG_SLUG_BY_NAME[mock.region.neighborhood]) {
+    if (!MAPPED(mock)) {
       console.warn(`⚠ 매핑 없음, 건너뜀: ${mock.combinedKeyword}`)
       continue
     }
@@ -455,7 +465,11 @@ async function main() {
   console.log('시딩 완료.')
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+// verify-seed.mjs가 buildPlan을 재사용하려고 이 파일을 import하는데,
+// 그때 시딩이 실행되면 안 되므로 직접 실행일 때만 main()을 돈다.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
