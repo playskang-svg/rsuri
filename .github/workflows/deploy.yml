@@ -1,0 +1,52 @@
+# CLAUDE.md 배포 규칙: "배포는 git push origin main으로만 한다."
+# 로컬에서 wrangler로 직접 배포하지 않고, main 브랜치 push를 이 워크플로가 받아
+# 빌드 + Cloudflare 배포를 대신 수행한다.
+#
+# Pages가 아니라 Workers 정적 자산(Workers Static Assets)으로 배포한다 —
+# Cloudflare가 신규 프로젝트는 Workers로 시작할 것을 공식 권장하고,
+# 유료 플랜 기준 파일 한도가 Pages 2만 개 대비 10만 개라 지역×키워드가
+# 늘어나도 keyword-tree식 "키워드별 프로젝트 분할" 없이 버틸 수 있다.
+on:
+  push:
+    branches: [main]
+  # 콘텐츠(Supabase)만 바뀌고 코드는 그대로일 때 수동으로 다시 굽기 위한 트리거.
+  # 정적 export라 DB가 바뀌어도 재빌드 전까지는 사이트에 반영되지 않는다.
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      # generate-sitemap.mjs와 next build 모두 이 두 값으로 Supabase를 읽는다.
+      # anon 키라 RLS로 보호되지만, 값 자체는 GitHub Secrets로 관리한다.
+      - name: Build (static export)
+        working-directory: web
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL: https://suriwiki.com
+        run: npm run build
+
+      # Worker는 미리 만들어 둘 필요가 없다 — 첫 deploy 때 web/wrangler.jsonc의
+      # name(suriwiki)으로 자동 생성된다.
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: web
+          command: deploy

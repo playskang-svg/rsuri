@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "suriwiki",
+  "compatibility_date": "2026-09-01",
+
+  // 정적 자산만 배포하는 Worker다. Worker 스크립트(main)가 없으므로
+  // assets.binding("ASSETS")도 두지 않는다 — main이 있을 때만 유효한 필드.
+  "assets": {
+    // next build --output:'export'의 결과물
+    "directory": "./out/",
+
+    // Pages는 404.html/index.html을 보고 SPA인지 정적 사이트인지 알아서 추측했지만,
+    // Workers는 오설정을 막으려고 이걸 명시하게 한다.
+    // 우리는 SSG라 매칭 안 되는 경로에 Next가 만든 404.html을 돌려준다.
+    "not_found_handling": "404-page",
+
+    // /foo → /foo.html 매핑 + 후행 슬래시 정규화
+    "html_handling": "auto-trailing-slash"
+  }
+}
