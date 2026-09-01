@@ -38,6 +38,9 @@ interface Rg {
 
 const ACTIONS_URL = 'https://github.com/playskang-svg/rsuri/actions/workflows/deploy.yml'
 
+// 아이디만 입력했을 때 붙일 계정 도메인 (admin → admin@suriwiki.com)
+const ADMIN_DOMAIN = 'suriwiki.com'
+
 export default function AdminPage() {
   const [session, setSession] = useState<Session | null>(null)
   const [email, setEmail] = useState('')
@@ -103,10 +106,20 @@ export default function AdminPage() {
       .filter((x) => !q || x.kw.includes(q) || x.rg.includes(q))
   }, [rows, filter, kwById, rgById])
 
+  // Supabase Auth는 이메일만 받지만 운영자는 'admin'처럼 짧은 아이디로 들어온다.
+  // @가 없으면 기본 도메인을 붙여 계정 이메일로 되돌린다.
+  function toEmail(id: string) {
+    const v = id.trim()
+    return v.includes('@') ? v : `${v}@${ADMIN_DOMAIN}`
+  }
+
   async function signIn(e: React.FormEvent) {
     e.preventDefault()
     setAuthErr('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({
+      email: toEmail(email),
+      password,
+    })
     if (error) setAuthErr(error.message)
   }
 
@@ -174,9 +187,13 @@ export default function AdminPage() {
         <h1 className="font-serif-kr text-2xl font-black">관리 로그인</h1>
         <form onSubmit={signIn} className="card mt-6 space-y-3 p-5">
           <input
-            type="email"
+            type="text"
             required
-            placeholder="이메일"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="username"
+            placeholder="아이디"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-lg border border-[var(--line)] px-3 py-2.5"
@@ -194,8 +211,8 @@ export default function AdminPage() {
             로그인
           </button>
           <p className="text-xs text-[var(--ink-soft)]">
-            계정은 Supabase 대시보드 → Authentication → Add user 로 만듭니다. 쓰기 권한은
-            운영자 이메일에만 있습니다.
+            아이디만 입력하면 @{ADMIN_DOMAIN}이 자동으로 붙습니다. 계정은 Supabase 대시보드 →
+            Authentication → Add user 로 만들고, 쓰기 권한은 운영자 계정에만 있습니다.
           </p>
         </form>
       </main>
