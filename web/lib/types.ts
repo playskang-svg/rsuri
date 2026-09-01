@@ -80,6 +80,18 @@ export interface Page {
   guide: PageGuide | null
 }
 
+// 운영자가 관리 화면에서 올린 실제 현장 사진. 없으면 lib/photos.ts의 대체 이미지를 쓴다.
+export type PageImageRole = 'BEFORE' | 'PROCESS' | 'AFTER' | 'MATERIAL' | 'TOOL' | 'EXCLUDE'
+
+export interface PageImage {
+  id: number
+  page_id: number
+  role: PageImageRole
+  url: string
+  overlay_note: string | null
+  sort_order: number
+}
+
 export interface PageSection {
   id: number
   page_id: number
