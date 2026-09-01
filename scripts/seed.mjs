@@ -25,7 +25,8 @@
 //   - suri_pages는 (repair_keyword_id, region_id, page_type) 유니크 제약으로 upsert
 //   - suri_cases는 (region_id, repair_keyword_id)로 존재 여부를 확인 후 update/insert
 //   - suri_page_sections는 매번 해당 page_id의 기존 행을 지우고 다시 쓴다(전량 교체)
-//   - suri_local_pros는 (region_id, phone)로 중복 삽입을 막는다
+//   - suri_local_pros는 (region_id, name)으로 중복 삽입을 막는다
+//     (phone은 전 지역이 대표번호 하나를 공유하므로 식별자로 못 쓴다)
 //
 // CASE 1개 → 페이지 2개 생성:
 //   LANDING (CT1, 문제·해결형) — wikiGuide.* 기반, 검색자가 바로 보는 페이지
@@ -417,7 +418,7 @@ async function upsertLocalPros(regionId, pros) {
       .from('suri_local_pros')
       .select('id')
       .eq('region_id', regionId)
-      .eq('phone', pro.phone)
+      .eq('name', pro.name)
       .maybeSingle()
     if (existing) continue
     const { error } = await getDb().from('suri_local_pros').insert({ ...pro, region_id: regionId })
@@ -542,13 +543,13 @@ where ${R};`)
 select r.id, ${cols.map((c) => qAuto(pro[c])).join(', ')}
 from public.suri_regions r
 where ${R}
-  and not exists (select 1 from public.suri_local_pros lp where lp.region_id = r.id and lp.phone = ${q(pro.phone)});`)
+  and not exists (select 1 from public.suri_local_pros lp where lp.region_id = r.id and lp.name = ${q(pro.name)});`)
 
     // 이미 있던 행에도 새 필드가 채워지도록 항상 갱신한다
     out.push(`update public.suri_local_pros lp
 set distance = ${q(pro.distance)}
 from public.suri_regions r
-where lp.region_id = r.id and lp.phone = ${q(pro.phone)} and ${R};`)
+where lp.region_id = r.id and lp.name = ${q(pro.name)} and ${R};`)
   }
 
   return out.join('\n\n')
