@@ -31,6 +31,17 @@ jobs:
         working-directory: web
         run: npm ci
 
+      # Next는 .next/cache에 컴파일 결과를 남긴다. 이게 없으면 매 배포가 콜드 빌드라
+      # 소스가 한 줄만 바뀌어도 전체를 다시 컴파일한다. 소스 해시가 같으면 그대로
+      # 재사용하고, 달라지면 같은 의존성의 직전 캐시를 받아 증분 빌드한다.
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: web/.next/cache
+          key: nextjs-${{ hashFiles('web/package-lock.json') }}-${{ hashFiles('web/app/**', 'web/lib/**') }}
+          restore-keys: |
+            nextjs-${{ hashFiles('web/package-lock.json') }}-
+
       # generate-sitemap.mjs와 next build 모두 이 두 값으로 Supabase를 읽는다.
       # anon 키라 RLS로 보호되지만, 값 자체는 GitHub Secrets로 관리한다.
       - name: Build (static export)
