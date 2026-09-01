@@ -11,6 +11,7 @@ export interface Region {
   display_name: string
   lat: number | null
   lng: number | null
+  housing_characteristics: string | null
 }
 
 export interface Category {
@@ -34,6 +35,27 @@ export type PageType = 'CATEGORY' | 'TOPIC' | 'CASE' | 'WIKI' | 'AREA' | 'LANDIN
 export type ContentType = 'CT1' | 'CT2' | 'CT3' | 'CT4' | 'CT5' | 'CT6'
 export type Decision = 'CREATE' | 'UPDATE' | 'MERGE' | 'HOLD'
 
+export interface GuideStep {
+  num: number
+  title: string
+  desc: string
+  tip: string | null
+}
+
+export interface GuideFaq {
+  q: string
+  a: string
+}
+
+/** 표·목록·단계처럼 구조가 살아야 렌더링되는 본문 (suri_pages.guide jsonb) */
+export interface PageGuide {
+  summary: string
+  symptoms: string[]
+  steps: GuideStep[]
+  prevention_tips: string[]
+  faqs: GuideFaq[]
+}
+
 export interface Page {
   id: number
   page_type: PageType
@@ -51,6 +73,11 @@ export interface Page {
   meta_description: string | null
   decision: Decision
   merged_into_page_id: number | null
+  diy_vs_pro: string | null
+  area_served: string | null
+  seo_keywords: string[]
+  lsi_keywords: string[]
+  guide: PageGuide | null
 }
 
 export interface PageSection {
@@ -75,4 +102,5 @@ export interface LocalPro {
   intro: string | null
   master_grade: string | null
   safety_certified: boolean
+  distance: string | null
 }

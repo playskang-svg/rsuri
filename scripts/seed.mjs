@@ -34,6 +34,7 @@
 //            검색 의도가 다른 페이지를 파생"의 최소 구현.
 
 import 'dotenv/config'
+import { pathToFileURL } from 'node:url'
 import { createClient } from '@supabase/supabase-js'
 import { INITIAL_WIKI_PAGES } from '../src/data/mockWikiData.ts'
 
@@ -79,6 +80,52 @@ const KEYWORD_SLUG_BY_NAME = {
 
 // 전기·가스·구조·심한누수·고소작업이면 M16을 자동 필수로 올린다 (CT·MOD 가이드 07장)
 const SAFETY_REQUIRED_CATEGORIES = new Set(['누수/방수', '전기/조명/설비'])
+
+// ─────────────────────────────────────────────────────────────
+// 시세·보증 문구 제거 (사용자 지시)
+//
+// 원본 pageTitle/metaDescription에는 "비용 시세", "시세표(8만~18만원)"처럼
+// 가격이 박혀 있고, 이건 검색결과에 그대로 노출된다. 필드만 빼고 문장을 두면
+// 의미가 없으므로 제목·설명도 함께 정리한다.
+//
+// 정규식으로 뭉개지 않고 6건을 명시적으로 치환한다 — 무엇이 바뀌는지 검토 가능하고,
+// 한국어 마케팅 카피를 패턴으로 자르다 문장이 깨지는 사고를 피할 수 있다.
+// ─────────────────────────────────────────────────────────────
+const TITLE_OVERRIDES = {
+  '강남구 역삼동 싱크대 수리 및 배수구 교체 비용 시세 & 표준 공정 가이드 | 수리위키':
+    '강남구 역삼동 싱크대 수리 및 배수구 교체 표준 공정 가이드 | 수리위키',
+  '성남시 분당구 정자동 누수 탐지 및 배관 수리 비용 시세 & 표준 공정 가이드 | 수리위키':
+    '성남시 분당구 정자동 누수 탐지 및 배관 수리 표준 공정 가이드 | 수리위키',
+  '서초구 반포동 화장실 욕실 부분 리모델링 & 변기/세면대 교체 시세표 | 수리위키':
+    '서초구 반포동 화장실 욕실 부분 리모델링 및 변기·세면대 교체 가이드 | 수리위키',
+  '마포구 공덕동 샷시 롤러/모헤어 교체 및 외풍 차단 비용 시세 | 수리위키':
+    '마포구 공덕동 샷시 롤러·모헤어 교체 및 외풍 차단 가이드 | 수리위키',
+  '송파구 잠실동 친환경 실크 부분 도배 & 방 곰팡이 단열벽지 시세표 | 수리위키':
+    '송파구 잠실동 친환경 실크 부분 도배 및 방 곰팡이 단열벽지 가이드 | 수리위키',
+  '영등포구 여의도동 두꺼비집 누전 차단기 교체 & LED 조명 출장 수리 시세표 | 수리위키':
+    '영등포구 여의도동 두꺼비집 누전 차단기 교체 및 LED 조명 출장 수리 가이드 | 수리위키',
+}
+
+const DESC_OVERRIDES = {
+  '서울 강남구 역삼동 싱크대 수리, 배수구 악취 차단 트랩 및 원홀 수전 교체 견적 시세표(8만~18만원). 역삼동 20분 내 출장 검증 마스터 및 실제 아파트 시공사례.':
+    '서울 강남구 역삼동 싱크대 수리, 배수구 악취 차단 트랩 및 원홀 수전 교체 방법. 역삼동 출장 검증 마스터와 실제 아파트 시공사례를 정리했습니다.',
+  '분당 정자동 1기 신도시 아파트 누수 탐지, 청음/가스식 첨단 장비 검사 비용(25만~55만원). 아랫집 천장 물샘 책임 규명 및 일상생활배상책임보험 서류 무료 지원.':
+    '분당 정자동 1기 신도시 아파트 누수 탐지, 청음·가스식 장비 검사 방법. 아랫집 천장 물샘 책임 규명과 일상생활배상책임보험 서류를 안내합니다.',
+  '서울 서초구 반포동 아파트 욕실 부분 수리, 아메리칸스탠다드 치마형 양변기/세면기 교체 및 샤워 수전 시공 견적(18만~45만원). 반포동 당일 시공 검증 기사.':
+    '서울 서초구 반포동 아파트 욕실 부분 수리, 치마형 양변기·세면기 교체 및 샤워 수전 시공 방법. 반포동 검증 기사의 실제 시공사례를 정리했습니다.',
+  '마포구 공덕동 샷시 창문 뻑뻑함 해결, 롤러 교체 및 삭은 모헤어 털갈이 시세표(12만~35만원). 베란다 찬바람 소음 완벽 차단 및 당일 시공.':
+    '마포구 공덕동 샷시 창문 뻑뻑함 해결, 롤러 교체 및 삭은 모헤어 털갈이 방법. 베란다 찬바람과 소음을 줄이는 시공 절차를 정리했습니다.',
+  '송파구 잠실 엘스/리센츠/트리지움 친환경 실크 도배, 누수 천장 1면 부분 도배 견적(20만~60만원). 먼지 없는 보양 및 당일 원데이 시공.':
+    '송파구 잠실 엘스·리센츠·트리지움 친환경 실크 도배, 누수 천장 1면 부분 도배 방법. 보양부터 마감까지 원데이 시공 절차를 정리했습니다.',
+  '여의도 구축 아파트 두꺼비집 차단기 떨어짐 원인 메거 검측 및 교체(7만~18만원). 24시간 긴급 전기 출동 및 플리커프리 LED 조명 시공.':
+    '여의도 구축 아파트 두꺼비집 차단기 떨어짐 원인, 메거 절연저항 검측 및 교체 방법. 긴급 전기 출동과 LED 조명 시공 절차를 정리했습니다.',
+}
+
+// 보증·비용 약속이 답변인 FAQ는 발행하지 않는다
+const FAQ_DROP = /보증|무상\s*A\/S|0원|비용을 내야/
+
+const cleanTitle = (t) => TITLE_OVERRIDES[t] ?? t
+const cleanDesc = (d) => DESC_OVERRIDES[d] ?? d
 
 async function getRegionId(dongName) {
   const slug = DONG_SLUG_BY_NAME[dongName]
@@ -143,11 +190,14 @@ function buildLandingSections(mock) {
     heading: '재발 방지',
     body: g.preventionTips.map((t) => `- ${t}`).join('\n'),
   })
-  list.push({
-    module_code: 'M21',
-    heading: 'FAQ',
-    body: mock.faqs.map((f) => `Q. ${f.question}\nA. ${f.answer}`).join('\n\n'),
-  })
+  const publishableFaqs = mock.faqs.filter((f) => !FAQ_DROP.test(f.answer))
+  if (publishableFaqs.length > 0) {
+    list.push({
+      module_code: 'M21',
+      heading: 'FAQ',
+      body: publishableFaqs.map((f) => `Q. ${f.question}\nA. ${f.answer}`).join('\n\n'),
+    })
+  }
   const pro = mock.localPros[0]
   list.push({
     module_code: 'M24',
@@ -186,9 +236,8 @@ function buildCaseSections(mock) {
     heading: '결과',
     body: [
       c.afterTechnicalData?.inspectionResult,
-      c.afterTechnicalData?.certifiedValue
-        ? `${c.afterTechnicalData.certifiedValue} (보증코드 ${c.afterTechnicalData.warrantyCode ?? ''})`
-        : null,
+      // 보증코드(warrantyCode)는 보증 약속에 해당하므로 발행하지 않는다 — 검측값만 남긴다
+      c.afterTechnicalData?.certifiedValue ?? null,
       c.reviewText ? `\n"${c.reviewText}" — ${c.author}` : null,
     ]
       .filter(Boolean)
@@ -217,6 +266,29 @@ export function buildPlan(mock) {
   const landingSections = buildLandingSections(mock)
   const caseSections = buildCaseSections(mock)
 
+  const g = mock.wikiGuide
+
+  // 표·목록·단계처럼 구조가 살아야 렌더링되는 데이터. 산문 모듈(sections)과 달리
+  // 문자열로 합쳐버리면 화면에서 되살릴 수 없어 원본 형태 그대로 보관한다.
+  //
+  // 원본(mockWikiData)에는 estimatedCost(시세), diyDifficulty(난이도),
+  // warrantyPeriod(보증)도 있지만 사용자 지시로 발행 대상에서 제외한다.
+  const guide = {
+    summary: g.summary,
+    symptoms: g.commonSymptoms,
+    steps: g.steps.map((s) => ({
+      num: s.stepNum,
+      title: s.title,
+      desc: s.desc,
+      tip: s.tip ?? null,
+    })),
+    prevention_tips: g.preventionTips,
+    // 보증·비용 약속이 담긴 FAQ는 발행 제외 (사용자 지시)
+    faqs: mock.faqs
+      .filter((f) => !FAQ_DROP.test(f.answer))
+      .map((f) => ({ q: f.question, a: f.answer })),
+  }
+
   const pages = [
     {
       page_type: 'LANDING',
@@ -228,10 +300,18 @@ export function buildPlan(mock) {
         .map((s) => s.module_code)
         .filter((m) => !LANDING_REQUIRED.includes(m)),
       module_order: landingSections.map((s) => s.module_code),
-      meta_title: mock.pageTitle,
-      meta_description: mock.metaDescription,
+      meta_title: cleanTitle(mock.pageTitle),
+      meta_description: cleanDesc(mock.metaDescription),
       decision: 'CREATE',
       sections: landingSections,
+
+      // 자가수리 vs 전문가 판단 — 가격·보증 약속이 아니라 판단 기준이라 유지한다
+      diy_vs_pro: g.diyVsProGuide,
+      // 지역/SEO
+      area_served: mock.geoMeta.areaServed,
+      seo_keywords: mock.geoMeta.keywords,
+      lsi_keywords: mock.geoMeta.lsiKeywords,
+      guide,
     },
   ]
 
@@ -244,8 +324,8 @@ export function buildPlan(mock) {
       required_modules: CASE_REQUIRED,
       selected_modules: caseSections.map((s) => s.module_code).filter((m) => !CASE_REQUIRED.includes(m)),
       module_order: caseSections.map((s) => s.module_code),
-      meta_title: c?.title ?? mock.pageTitle,
-      meta_description: mock.metaDescription,
+      meta_title: c?.title ?? cleanTitle(mock.pageTitle),
+      meta_description: cleanDesc(mock.metaDescription),
       decision: 'CREATE',
       sections: caseSections,
     })
@@ -266,6 +346,12 @@ export function buildPlan(mock) {
       is_approved: true,
     },
     pages,
+    // 지역 자체의 부가 정보. 페이지가 아니라 지역에 붙는 값이라 따로 갱신한다.
+    region: {
+      lat: mock.region.lat ?? null,
+      lng: mock.region.lng ?? null,
+      housing_characteristics: mock.region.housingCharacteristics ?? null,
+    },
     pros: mock.localPros.map((pro) => ({
       name: pro.name,
       shop_name: pro.shopName,
@@ -277,6 +363,7 @@ export function buildPlan(mock) {
       intro: pro.intro ?? null,
       master_grade: pro.masterGrade ?? null,
       safety_certified: !!pro.safetyCertified,
+      distance: pro.distance ?? null,
     })),
   }
 }
@@ -375,6 +462,14 @@ function qArr(arr) {
   return `array[${arr.map(q).join(', ')}]::text[]`
 }
 
+// 값 타입을 보고 알아서 SQL 리터럴로 바꾼다. 컬럼이 늘어나도 이 함수만 통과하면 되므로
+// 새 필드를 추가할 때 emitPlanSql을 손볼 필요가 없다.
+function qAuto(v) {
+  if (Array.isArray(v)) return qArr(v)
+  if (v !== null && typeof v === 'object') return `${q(JSON.stringify(v))}::jsonb`
+  return q(v)
+}
+
 function emitPlanSql(plan) {
   const { dongSlug, keywordSlug } = plan
   const R = `r.slug = ${q(dongSlug)} and r.level = 'DONG'`
@@ -393,19 +488,24 @@ where ${R} and k.slug = ${q(keywordSlug)}
   for (const page of plan.pages) {
     const P = `p.page_type = ${q(page.page_type)} and k.slug = ${q(keywordSlug)} and ${R}`
 
+    // 컬럼 목록을 page 객체에서 뽑아 쓴다 — 필드가 늘어도 여기를 고칠 필요가 없다.
+    const { sections: _ignored, ...fields } = page
+    const cols = Object.keys(fields)
+    const vals = cols.map((c) => qAuto(fields[c]))
+    // 충돌 키(repair_keyword_id, region_id, page_type)는 갱신 대상에서 뺀다
+    const updatable = cols.filter((c) => c !== 'page_type')
+
     out.push(`insert into public.suri_pages
-  (page_type, content_type, slug, region_id, repair_keyword_id, category_id, source_case_id, search_intent, required_modules, selected_modules, module_order, meta_title, meta_description, decision)
-select ${q(page.page_type)}, ${q(page.content_type)}, ${q(page.slug)}, r.id, k.id, k.category_id, c.id, ${q(page.search_intent)}, ${qArr(page.required_modules)}, ${qArr(page.selected_modules)}, ${qArr(page.module_order)}, ${q(page.meta_title)}, ${q(page.meta_description)}, ${q(page.decision)}
+  (${cols.join(', ')}, region_id, repair_keyword_id, category_id, source_case_id)
+select ${vals.join(', ')}, r.id, k.id, k.category_id, c.id
 from public.suri_regions r
 join public.suri_repair_keywords k on k.slug = ${q(keywordSlug)}
 join public.suri_cases c on c.region_id = r.id and c.repair_keyword_id = k.id
 where ${R}
 on conflict (repair_keyword_id, region_id, page_type) do update set
-  content_type = excluded.content_type, slug = excluded.slug, category_id = excluded.category_id,
-  source_case_id = excluded.source_case_id, search_intent = excluded.search_intent,
-  required_modules = excluded.required_modules, selected_modules = excluded.selected_modules,
-  module_order = excluded.module_order, meta_title = excluded.meta_title,
-  meta_description = excluded.meta_description, decision = excluded.decision, updated_at = now();`)
+  ${updatable.map((c) => `${c} = excluded.${c}`).join(',\n  ')},
+  category_id = excluded.category_id, source_case_id = excluded.source_case_id,
+  updated_at = now();`)
 
     // 섹션은 전량 교체 — Supabase 백엔드의 replaceSections와 같은 의미
     out.push(`delete from public.suri_page_sections s
@@ -427,13 +527,28 @@ ${values}
 where ${P};`)
   }
 
+  // 지역 부가정보(좌표·주거특성) — 페이지가 아니라 지역에 붙는 값
+  const rg = plan.region
+  out.push(`update public.suri_regions r
+set lat = ${q(rg.lat)}, lng = ${q(rg.lng)},
+    housing_characteristics = ${q(rg.housing_characteristics)},
+    updated_at = now()
+where ${R};`)
+
   for (const pro of plan.pros) {
+    const cols = Object.keys(pro)
     out.push(`insert into public.suri_local_pros
-  (region_id, name, shop_name, phone, rating, review_count, completed_jobs, badges, intro, master_grade, safety_certified)
-select r.id, ${q(pro.name)}, ${q(pro.shop_name)}, ${q(pro.phone)}, ${q(pro.rating)}, ${q(pro.review_count)}, ${q(pro.completed_jobs)}, ${qArr(pro.badges)}, ${q(pro.intro)}, ${q(pro.master_grade)}, ${q(pro.safety_certified)}
+  (region_id, ${cols.join(', ')})
+select r.id, ${cols.map((c) => qAuto(pro[c])).join(', ')}
 from public.suri_regions r
 where ${R}
   and not exists (select 1 from public.suri_local_pros lp where lp.region_id = r.id and lp.phone = ${q(pro.phone)});`)
+
+    // 이미 있던 행에도 새 필드가 채워지도록 항상 갱신한다
+    out.push(`update public.suri_local_pros lp
+set distance = ${q(pro.distance)}
+from public.suri_regions r
+where lp.region_id = r.id and lp.phone = ${q(pro.phone)} and ${R};`)
   }
 
   return out.join('\n\n')
@@ -467,7 +582,12 @@ async function main() {
 
 // verify-seed.mjs가 buildPlan을 재사용하려고 이 파일을 import하는데,
 // 그때 시딩이 실행되면 안 되므로 직접 실행일 때만 main()을 돈다.
-if (import.meta.url === `file://${process.argv[1]}`) {
+//
+// pathToFileURL을 쓰는 이유: 이 저장소 경로에는 한글과 공백이 있어서
+// import.meta.url은 퍼센트 인코딩되지만 process.argv[1]은 원본 그대로다.
+// `file://${process.argv[1]}`로 문자열 비교하면 영원히 false가 되어
+// 스크립트가 아무 출력 없이 조용히 끝난다(실제로 겪음).
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => {
     console.error(err)
     process.exit(1)
