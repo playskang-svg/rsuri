@@ -53,35 +53,60 @@ Account ID는 대시보드 우측 사이드바 또는 Workers & Pages 개요에�
 `service_role` 키는 **여기 넣지 않는다.** 빌드는 읽기만 하므로 anon 키면 충분하고,
 service_role은 로컬 시딩 스크립트 전용이다.
 
-### 4. 도메인 연결 (suriwiki.com) — **아직 연결 안 됨**
+### 4. 도메인 연결 (suriwiki.com) — **연결 완료** (2026-09-01)
 
-현재 사이트는 `https://suriwiki.playskang.workers.dev`에서만 서비스된다.
-`suriwiki.com`은 여전히 기존 Vercel 사이트를 가리킨다.
+`web/wrangler.jsonc`의 `routes`에 `custom_domain`으로 선언되어 있어 배포 시
+자동 연결된다. DNS 레코드와 SSL 인증서는 Cloudflare가 자동 생성·갱신한다.
 
-**시도했다가 실패한 이유** (2026-09-01): `wrangler.jsonc`에 `custom_domain`을 켜고
-배포했더니 Cloudflare가 거부했다.
+검증 결과: `server: cloudflare`, 인증서 `CN=suriwiki.com`(Google Trust Services),
+전 페이지 200 / 없는 경로 404.
+
+#### 연결하면서 겪은 함정 두 가지 (재발 방지용 기록)
+
+**1. `custom_domain`은 기존 DNS 레코드를 덮어쓰지 않는다.**
+
+Vercel을 가리키던 apex 레코드가 남아 있는 동안 배포가 거부됐다:
 
 ```
 Hostname 'suriwiki.com' already has externally managed DNS records
 (A, CNAME, etc). Delete them first. [code: 100117]
 ```
 
-`custom_domain`은 **기존 DNS 레코드를 자동으로 덮어쓰지 않는다.** 실수로 남의
-사이트를 가로채는 걸 막는 안전장치다. 그래서 수동 삭제가 선행되어야 한다.
+실수로 남의 사이트를 가로채는 걸 막는 안전장치다. **Cloudflare DNS에서 해당
+레코드를 수동 삭제해야** 연결이 가능하다. 참고로 apex에 CNAME이 있으면 Cloudflare가
+조회 응답에서만 A 레코드로 변환해 보여주므로(CNAME 플래트닝), `dig`로는 A가 보여도
+대시보드에는 CNAME으로 떠 있을 수 있다.
 
-**같이 겪은 함정**: `routes`를 선언하는 순간 wrangler가 `workers_dev`를 기본으로
-비활성화해서, 커스텀 도메인은 실패하고 workers.dev도 꺼져 **사이트가 완전히
-접속 불가(404)가 됐다.** 그래서 지금은 `workers_dev: true`를 명시해 두었다.
+**2. `routes`를 선언하면 `workers_dev`가 자동으로 꺼진다.**
 
-#### 연결 절차
+```
+Because 'workers_dev' is not in your Wrangler file, it will be disabled
+for this deployment by default.
+```
 
-1. Cloudflare **DNS > Records**에서 `suriwiki.com`의 `A` 레코드 2개
-   (`64.29.17.65`, `216.198.79.65` — Vercel) 삭제
-   > ⚠️ 삭제하는 순간 기존 Vercel 사이트는 이 도메인에서 내려간다.
-2. `web/wrangler.jsonc`에서 주석 처리된 `routes` 블록의 주석을 해제
-3. 같은 파일의 `workers_dev`를 `false`로 변경
-   (apex와 workers.dev에 같은 콘텐츠가 노출되면 중복 콘텐츠가 되어 SEO에 불리)
-4. 커밋 → `main` 머지 → 배포. Cloudflare가 DNS 레코드와 인증서를 자동 생성한다.
+커스텀 도메인 연결이 실패한 배포에서 workers.dev까지 함께 꺼져 **사이트가 통째로
+404**가 된 적이 있다. 그래서 `workers_dev`를 항상 명시적으로 적어둔다.
+
+도메인을 새로 붙이거나 옮길 때는 **두 단계로 나눈다**: 먼저 `workers_dev: true`인
+상태로 커스텀 도메인을 붙여 동작을 확인하고, 그 다음 커밋에서 `false`로 끈다.
+검증 전에 끄면 실패 시 접속 경로가 하나도 남지 않는다.
+
+#### www.suriwiki.com 처리 (별도 작업 필요)
+
+`www`는 **일부러 Worker에 붙이지 않았다.** 같은 Worker에 apex와 www를 둘 다 붙이면
+동일 콘텐츠가 두 주소로 색인돼 중복 콘텐츠가 되고, SEO가 목적인 이 사이트에는 해롭다.
+대신 www를 apex로 301 리다이렉트시킨다.
+
+현재 `www`는 DNS 레코드가 없어 접속 불가 상태다. Cloudflare 대시보드에서:
+
+1. **DNS > Records** > Add record
+   - Type `AAAA`, Name `www`, IPv6 address `100::`, Proxy status **Proxied(주황 구름)**
+   - `100::`는 실제 오리진이 없을 때 쓰는 Cloudflare 표준 placeholder다. 리다이렉트
+     규칙이 트래픽을 가로챌 수 있게 하는 용도이며, 실제로 이 주소로 연결되지 않는다.
+2. **Rules > Redirect Rules** > Create rule
+   - 조건: `Hostname` equals `www.suriwiki.com`
+   - 동작: Dynamic redirect,
+     `concat("https://suriwiki.com", http.request.uri.path)`, 상태 코드 **301**
 
 #### www.suriwiki.com 처리 (별도 작업 필요)
 
@@ -104,8 +129,11 @@ Hostname 'suriwiki.com' already has externally managed DNS records
 
 ## 확인
 
-첫 push 후 Actions 탭에서 워크플로가 초록색으로 끝나는지 확인하고,
-`suriwiki.<계정서브도메인>.workers.dev`로 접속해 본다.
+push 후 Actions 탭에서 워크플로가 초록색으로 끝나는지 확인하고,
+https://suriwiki.com 으로 접속해 본다.
+
+`workers_dev: false`이므로 `*.workers.dev` 주소는 더 이상 동작하지 않는다
+(의도된 동작 — 중복 콘텐츠 방지).
 
 로컬에서 설정만 미리 검증하려면(업로드 없음):
 

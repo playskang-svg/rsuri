@@ -3,15 +3,14 @@
   "name": "suriwiki",
   "compatibility_date": "2026-09-01",
 
-  // routes를 선언하면 wrangler가 workers.dev를 기본으로 꺼버린다(실제로 겪음 —
-  // 커스텀 도메인 연결이 실패한 배포에서 workers.dev까지 함께 꺼져 사이트가
-  // 통째로 404가 됐다). 그래서 명시적으로 켜둔다.
+  // suriwiki.com이 정상 동작하는 것을 확인했으므로 workers.dev를 끈다.
+  // 같은 콘텐츠가 apex와 workers.dev 양쪽에서 서비스되면 중복 콘텐츠가 되어
+  // SEO에 불리하다(이 사이트는 검색 노출이 존재 이유다).
   //
-  // TODO: suriwiki.com이 정상 동작하는 것을 확인한 뒤 false로 바꾼다.
-  //       같은 콘텐츠가 workers.dev와 apex 양쪽에 노출되면 중복 콘텐츠가 되어
-  //       SEO에 불리하다. 다만 도메인 연결이 확실히 검증되기 전에 끄면
-  //       실패 시 접속 경로가 사라지므로, 순서를 지켜 두 단계로 나눈다.
-  "workers_dev": true,
+  // 명시적으로 false를 적어두는 이유: 이 값을 생략하면 wrangler가 routes 유무에
+  // 따라 알아서 켜고 끄는데, 그 암묵적 동작 때문에 과거 배포에서 커스텀 도메인
+  // 실패와 겹쳐 사이트가 통째로 404가 된 적이 있다. 의도를 파일에 남겨둔다.
+  "workers_dev": false,
 
   // 커스텀 도메인. custom_domain:true면 Worker 자체가 오리진이 되고
   // Cloudflare가 DNS 레코드와 인증서를 자동 생성·관리한다.
