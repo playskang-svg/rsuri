@@ -85,6 +85,7 @@ export default function AdminPage() {
   // 지역 붙이기 패널을 연 키워드 id, 그리고 그 안에서 고른 지역들
   const [attachKw, setAttachKw] = useState<number | null>(null)
   const [picked, setPicked] = useState<Set<number>>(new Set())
+  const [customRgText, setCustomRgText] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -262,6 +263,61 @@ export default function AdminPage() {
     ).then(() => {
       setPicked(new Set())
       setAttachKw(null)
+    })
+  }
+
+  // 자유 텍스트(또는 파일 복붙)로 지역을 일괄 생성해서 붙인다.
+  const attachCustomRegions = (kwId: number) => {
+    if (customRgText.trim() === '') return
+    const kw = kwById.get(kwId)!
+    const regionNames = customRgText
+      .split(/[\n,]+/)
+      .map((r) => r.trim())
+      .filter(Boolean)
+
+    if (regionNames.length === 0) return
+
+    run(`${regionNames.length}개 커스텀 지역 붙이기`, async () => {
+      for (const rName of regionNames) {
+        let regionId = 0
+        const { data: existing } = await supabase
+          .from('suri_regions')
+          .select('id')
+          .eq('display_name', rName)
+          .maybeSingle()
+
+        if (existing) {
+          regionId = existing.id
+        } else {
+          const slug = `custom-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+          const { data: newReg, error: regErr } = await supabase
+            .from('suri_regions')
+            .insert({ display_name: rName, level: 'CUSTOM', slug })
+            .select('id')
+            .single()
+          
+          if (regErr) return { error: regErr }
+          regionId = newReg.id
+        }
+
+        const label = `${rName} ${kw.display_name}`
+        const { error: pageErr } = await supabase.from('suri_pages').insert({
+          page_type: 'LANDING',
+          content_type: 'CT1',
+          repair_keyword_id: kwId,
+          region_id: regionId,
+          search_intent: `${label} 안내`,
+          required_modules: ['M01', 'M24'],
+          module_order: ['M01', 'M24'],
+          meta_title: `${label} | 수리위키`,
+          meta_description: `${label} 출장 상담 안내. 사진과 수리 내용을 남겨 주시면 확인 후 안내드립니다.`,
+          decision: 'CREATE',
+        })
+        if (pageErr && pageErr.code !== '23505') return { error: pageErr }
+      }
+      return { error: null }
+    }).then(() => {
+      setCustomRgText('')
     })
   }
 
@@ -457,6 +513,23 @@ export default function AdminPage() {
                         className="btn-call mt-2 w-full !py-2 text-xs disabled:opacity-40"
                       >
                         선택한 {picked.size}개 지역 붙이기
+                      </button>
+                      
+                      <hr className="my-3 border-[var(--line)]" />
+                      
+                      <textarea
+                        value={attachKw === k.id ? customRgText : ''}
+                        onChange={(e) => setCustomRgText(e.target.value)}
+                        placeholder="자유 지역명 입력 (예: 천안 불당, 천안 쌍용)&#10;콤마(,) 또는 줄바꿈으로 일괄 추가 가능"
+                        rows={3}
+                        className="w-full rounded border border-[var(--line)] px-2 py-1 text-xs"
+                      />
+                      <button
+                        onClick={() => attachCustomRegions(k.id)}
+                        disabled={busy || customRgText.trim() === '' || attachKw !== k.id}
+                        className="mt-2 w-full rounded bg-[var(--teal-soft)] py-2 text-xs font-bold text-[var(--teal)] hover:opacity-80 disabled:opacity-40"
+                      >
+                        입력한 새 지역 붙이기
                       </button>
                     </div>
                   )}
