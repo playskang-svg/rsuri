@@ -3,10 +3,17 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '수리위키 — 대한민국 집수리 표준 가이드',
+  title: '수리위키 — 우리 동네 집수리',
   description:
-    '지역별 실제 시공 기록으로 정리한 집수리 표준 가이드. 증상 진단부터 시공 절차, 재발 방지까지 검증 마스터의 현장 노하우를 담았습니다.',
+    '누수·배수구·창호·전기·도배까지, 지역별 검증 마스터의 집수리 서비스. 사진 한 장이면 진단을 시작할 수 있습니다.',
 }
+
+const NAV = [
+  { href: '/#services', label: '수리 분야' },
+  { href: '/#regions', label: '지역별 안내' },
+  { href: '/#cases', label: '시공 기록' },
+  { href: '/admin', label: '관리' },
+]
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,9 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--paper)]/92 backdrop-blur">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
             <Link href="/" className="flex items-center gap-2.5">
-              {/* 로고: 렌치 단면을 단순화한 마크 */}
               <span
                 aria-hidden
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--ink)] text-[var(--paper)]"
@@ -40,21 +46,41 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="font-serif-kr text-xl font-black tracking-tight">수리위키</span>
             </Link>
 
-            <nav className="hidden items-center gap-6 sm:flex" aria-label="주요 메뉴">
-              <Link href="/#services" className="nav-link">
-                수리 분야
-              </Link>
-              <Link href="/#regions" className="nav-link">
-                지역별 가이드
-              </Link>
-              <Link href="/#cases" className="nav-link">
-                시공 기록
-              </Link>
+            {/* 데스크톱 내비 */}
+            <nav className="hidden items-center gap-6 md:flex" aria-label="주요 메뉴">
+              {NAV.map((n) => (
+                <Link key={n.href} href={n.href} className="nav-link">
+                  {n.label}
+                </Link>
+              ))}
             </nav>
 
-            <Link href="/#services" className="btn-call !px-4 !py-2 text-sm">
-              사진 상담
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/#services" className="btn-call hidden !px-4 !py-2 text-sm sm:inline-flex">
+                사진 상담
+              </Link>
+
+              {/* 삼선 메뉴 — JS 없이 details로 동작 */}
+              <details className="menu-drop md:hidden">
+                <summary aria-label="메뉴 열기">
+                  <span aria-hidden className="menu-bars">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                </summary>
+                <nav className="menu-panel" aria-label="모바일 메뉴">
+                  {NAV.map((n) => (
+                    <Link key={n.href} href={n.href}>
+                      {n.label}
+                    </Link>
+                  ))}
+                  <Link href="/#services" className="btn-call mt-2 !py-2.5 text-sm">
+                    사진 상담
+                  </Link>
+                </nav>
+              </details>
+            </div>
           </div>
         </header>
 
@@ -66,24 +92,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div>
                 <p className="font-serif-kr text-lg font-black">수리위키</p>
                 <p className="mt-1 max-w-md text-sm text-[var(--ink-soft)]">
-                  지역별 실제 시공 기록으로 정리한 집수리 표준 가이드. 작업 중에는 통화가
-                  어려우니 사진과 지역, 수리 내용을 남겨 주시면 확인 후 안내드립니다.
+                  작업 중에는 통화가 어려우니 사진과 지역, 수리 내용을 남겨 주시면 확인 후
+                  안내드립니다.
                 </p>
               </div>
-              <nav className="flex gap-5 text-sm font-semibold text-[var(--ink-soft)]" aria-label="푸터 메뉴">
-                <Link href="/#services" className="hover:text-[var(--ink)]">
-                  수리 분야
-                </Link>
-                <Link href="/#regions" className="hover:text-[var(--ink)]">
-                  지역별
-                </Link>
-                <Link href="/#cases" className="hover:text-[var(--ink)]">
-                  시공 기록
-                </Link>
+              <nav className="flex flex-wrap gap-5 text-sm font-semibold text-[var(--ink-soft)]" aria-label="푸터 메뉴">
+                {NAV.slice(0, 3).map((n) => (
+                  <Link key={n.href} href={n.href} className="hover:text-[var(--ink)]">
+                    {n.label}
+                  </Link>
+                ))}
               </nav>
             </div>
             <p className="mt-8 text-xs text-[var(--ink-soft)]">
-              © 수리위키 (SuriWiki) · 본 가이드는 실제 시공 사례를 바탕으로 작성되었습니다.
+              © 수리위키 (SuriWiki) · 지역별 집수리 시공 안내
             </p>
           </div>
         </footer>

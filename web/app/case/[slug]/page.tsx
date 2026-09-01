@@ -61,6 +61,9 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
   const pros = page.region_id ? localPros.filter((p) => p.region_id === page.region_id) : []
   const mainPro = pros[0]
 
+  // 사람 이름 미노출(운영 방침): 후기 서명("— 홍*동 고객님 …")을 본문에서 떼어낸다
+  const stripNames = (t: string) => t.replace(/\s*—\s*[^\n]*님[^\n]*$/gm, '').trimEnd()
+
   const summary = pageSections.find((s) => s.module_code === 'M02')
   const body = pageSections.filter((s) => s.module_code !== 'M02' && s.module_code !== 'M24')
 
@@ -110,7 +113,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
                 {STAGE_LABEL[section.module_code] ?? section.heading ?? section.module_code}
               </h2>
               <div className="whitespace-pre-line border-l-2 border-[var(--line)] pl-4 text-[15px] leading-relaxed sm:border-l sm:pl-6">
-                {section.body}
+                {stripNames(section.body)}
               </div>
             </section>
           ))}

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
+import { categoryPhoto } from '@/lib/photos'
 
 export const dynamicParams = false
 
@@ -92,7 +93,10 @@ export default async function LandingPage({
     .filter((x) => x.kw && x.chain.length > 0)
     .slice(0, 6)
 
-  const bg = blueprintBg(category?.slug ?? '', `${keyword.slug}/${region.slug}`)
+  const seed = `${keyword.slug}/${region.slug}`
+  const bg = blueprintBg(category?.slug ?? '', seed)
+  const photoA = categoryPhoto(category?.slug ?? '', seed, 0)
+  const photoB = categoryPhoto(category?.slug ?? '', seed, 1)
 
   return (
     <main className="pb-24 md:pb-0">
@@ -146,7 +150,9 @@ export default async function LandingPage({
             <h1 className="font-serif-kr mt-3 text-3xl font-black leading-[1.25] sm:text-4xl">
               {region.display_name} {keyword.display_name}
             </h1>
-            {guide && <p className="prose-kr mt-5 max-w-xl text-[15px] text-[var(--ink-soft)]">{guide.summary}</p>}
+            <p className="prose-kr mt-5 max-w-xl text-[15px] text-[var(--ink-soft)]">
+              {guide ? guide.summary : keyword.description ?? `${region.display_name} 지역 ${keyword.display_name} 출장 안내 페이지입니다.`}
+            </p>
 
             {region.housing_characteristics && (
               <div className="mt-6 rounded-xl border border-[var(--line)] bg-[var(--teal-soft)]/60 p-4 text-sm">
@@ -176,9 +182,15 @@ export default async function LandingPage({
             </p>
           </div>
 
-          {/* 진단 체크카드 — 시그니처 */}
+          {/* 사진 + 진단 체크카드 */}
+          <div className="space-y-5 self-start">
+            <div className="hero-photo aspect-[16/10]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoA.src} alt={`${category?.display_name ?? ''} 작업 참고 이미지`} style={photoA.style} loading="eager" />
+              <span className="tag">참고 이미지</span>
+            </div>
           {guide && guide.symptoms.length > 0 && (
-            <aside className="diag-card self-start rounded-2xl p-6" aria-labelledby="diag-title">
+            <aside className="diag-card rounded-2xl p-6" aria-labelledby="diag-title">
               <p className="eyebrow">Self Check</p>
               <h2 id="diag-title" className="mt-1 text-lg font-extrabold">
                 이런 증상이면 의심하세요
@@ -196,6 +208,7 @@ export default async function LandingPage({
               </p>
             </aside>
           )}
+          </div>
         </div>
       </section>
 
@@ -209,6 +222,12 @@ export default async function LandingPage({
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
             {region.display_name} 현장에서 실제로 진행되는 순서입니다.
           </p>
+
+          <div className="hero-photo mt-6 aspect-[16/7]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photoB.src} alt="" style={photoB.style} loading="lazy" />
+            <span className="tag">참고 이미지</span>
+          </div>
 
           <ol className="step-rail mt-8 space-y-7">
             {guide.steps.map((step) => (
@@ -318,10 +337,7 @@ export default async function LandingPage({
               <div key={pro.id} className="card p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-extrabold">{pro.name}</h3>
-                    {pro.shop_name && (
-                      <p className="text-sm text-[var(--ink-soft)]">{pro.shop_name}</p>
-                    )}
+                    <h3 className="font-extrabold">{pro.shop_name ?? `${region.display_name} 담당 마스터`}</h3>
                   </div>
                   {pro.master_grade && (
                     <span className="rounded-full bg-[var(--teal-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--teal)]">
@@ -400,9 +416,7 @@ export default async function LandingPage({
             <p className="truncate text-[13px] font-bold">
               {region.display_name} {category?.display_name}
             </p>
-            <p className="truncate text-[11px] text-[#aeb9be]">
-              사진·문자 상담 환영 · {mainPro.name}
-            </p>
+            <p className="truncate text-[11px] text-[#aeb9be]">사진·문자 상담 환영</p>
           </div>
           <a href={telHref} className="btn-call flex-none !px-4 !py-2 text-sm">
             <PhoneIcon />

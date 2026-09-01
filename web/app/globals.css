@@ -139,6 +139,48 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
 .nav-link { font-weight: 600; font-size: 0.9rem; color: var(--ink-soft); }
 .nav-link:hover { color: var(--ink); }
 
+/* 삼선(햄버거) 메뉴 — details 기반, JS 불필요 */
+.menu-drop { position: relative; }
+.menu-drop summary { list-style: none; cursor: pointer; padding: 0.5rem; border-radius: 0.6rem; display: block; }
+.menu-drop summary::-webkit-details-marker { display: none; }
+.menu-drop summary:hover { background: rgb(32 49 58 / 0.06); }
+.menu-bars { display: flex; flex-direction: column; gap: 4.5px; width: 1.3rem; }
+.menu-bars i { display: block; height: 2px; background: var(--ink); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
+.menu-drop[open] .menu-bars i:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.menu-drop[open] .menu-bars i:nth-child(2) { opacity: 0; }
+.menu-drop[open] .menu-bars i:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+.menu-panel {
+  position: absolute; right: 0; top: calc(100% + 0.6rem); z-index: 50;
+  min-width: 12rem; padding: 0.6rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 0.9rem;
+  box-shadow: 0 16px 40px -16px rgb(32 49 58 / 0.35);
+  display: flex; flex-direction: column;
+}
+.menu-panel > a:not(.btn-call) {
+  padding: 0.65rem 0.8rem; border-radius: 0.6rem; font-weight: 700; font-size: 0.95rem;
+}
+.menu-panel > a:not(.btn-call):hover { background: var(--teal-soft); }
+
+/* 모바일 가독성: 터치 타깃·행간 */
+@media (max-width: 640px) {
+  body { font-size: 16px; line-height: 1.75; }
+  .font-serif-kr { letter-spacing: -0.02em; }
+}
+
+/* 히어로 참고 사진 */
+.hero-photo {
+  border-radius: 1.1rem; overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 14px 36px -18px rgb(32 49 58 / 0.35);
+  position: relative;
+}
+.hero-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hero-photo .tag {
+  position: absolute; left: 0.7rem; bottom: 0.7rem;
+  background: rgb(32 49 58 / 0.82); color: var(--paper);
+  font-size: 11px; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 999px;
+}
+
 /* 접근성: 키보드 포커스 */
 a:focus-visible, summary:focus-visible, button:focus-visible {
   outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 0.25rem;
