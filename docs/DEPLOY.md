@@ -53,21 +53,35 @@ Account ID는 대시보드 우측 사이드바 또는 Workers & Pages 개요에�
 `service_role` 키는 **여기 넣지 않는다.** 빌드는 읽기만 하므로 anon 키면 충분하고,
 service_role은 로컬 시딩 스크립트 전용이다.
 
-### 4. 도메인 연결 (suriwiki.com)
+### 4. 도메인 연결 (suriwiki.com) — **아직 연결 안 됨**
 
-`web/wrangler.jsonc`의 `routes`에 선언되어 있어 **배포하면 자동으로 연결된다.**
-대시보드에서 따로 추가할 필요가 없다:
+현재 사이트는 `https://suriwiki.playskang.workers.dev`에서만 서비스된다.
+`suriwiki.com`은 여전히 기존 Vercel 사이트를 가리킨다.
 
-```jsonc
-"routes": [{ "pattern": "suriwiki.com", "custom_domain": true }]
+**시도했다가 실패한 이유** (2026-09-01): `wrangler.jsonc`에 `custom_domain`을 켜고
+배포했더니 Cloudflare가 거부했다.
+
+```
+Hostname 'suriwiki.com' already has externally managed DNS records
+(A, CNAME, etc). Delete them first. [code: 100117]
 ```
 
-`custom_domain: true`면 Worker 자체가 오리진이 되고 Cloudflare가 DNS 레코드와
-인증서를 자동 생성·관리한다.
+`custom_domain`은 **기존 DNS 레코드를 자동으로 덮어쓰지 않는다.** 실수로 남의
+사이트를 가로채는 걸 막는 안전장치다. 그래서 수동 삭제가 선행되어야 한다.
 
-> **주의**: 이 설정은 `suriwiki.com`의 기존 A 레코드를 교체한다. 이 도메인에서
-> Vercel로 서비스되던 이전 수리위키 사이트는 더 이상 노출되지 않는다
-> (2026-09-01, 사용자 확인 후 교체).
+**같이 겪은 함정**: `routes`를 선언하는 순간 wrangler가 `workers_dev`를 기본으로
+비활성화해서, 커스텀 도메인은 실패하고 workers.dev도 꺼져 **사이트가 완전히
+접속 불가(404)가 됐다.** 그래서 지금은 `workers_dev: true`를 명시해 두었다.
+
+#### 연결 절차
+
+1. Cloudflare **DNS > Records**에서 `suriwiki.com`의 `A` 레코드 2개
+   (`64.29.17.65`, `216.198.79.65` — Vercel) 삭제
+   > ⚠️ 삭제하는 순간 기존 Vercel 사이트는 이 도메인에서 내려간다.
+2. `web/wrangler.jsonc`에서 주석 처리된 `routes` 블록의 주석을 해제
+3. 같은 파일의 `workers_dev`를 `false`로 변경
+   (apex와 workers.dev에 같은 콘텐츠가 노출되면 중복 콘텐츠가 되어 SEO에 불리)
+4. 커밋 → `main` 머지 → 배포. Cloudflare가 DNS 레코드와 인증서를 자동 생성한다.
 
 #### www.suriwiki.com 처리 (별도 작업 필요)
 
