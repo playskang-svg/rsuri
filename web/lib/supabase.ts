@@ -1,6 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import { cache } from 'react'
-import type { Region, Category, RepairKeyword, Page, PageSection, LocalPro } from './types'
+import type {
+  Region,
+  Category,
+  RepairKeyword,
+  Page,
+  PageSection,
+  LocalPro,
+  PageImage,
+} from './types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -29,19 +37,20 @@ async function fetchAllRows<T>(table: string): Promise<T[]> {
   return rows
 }
 
-// 페이지가 수만 개가 되어도 Supabase 쿼리 횟수는 항상 이 6번으로 고정된다.
+// 페이지가 수만 개가 되어도 Supabase 쿼리 횟수는 항상 이 7번으로 고정된다.
 // 이후 모든 조회는 이 결과를 메모리 안에서 조립한다 (keyword-tree 3번 "데이터 페칭 전략").
 // React.cache()로 같은 렌더 트리 안의 중복 호출을 제거한다.
 export const getAllData = cache(async () => {
-  const [regions, categories, keywords, pages, sections, localPros] = await Promise.all([
+  const [regions, categories, keywords, pages, sections, localPros, pageImages] = await Promise.all([
     fetchAllRows<Region>('suri_regions'),
     fetchAllRows<Category>('suri_categories'),
     fetchAllRows<RepairKeyword>('suri_repair_keywords'),
     fetchAllRows<Page>('suri_pages'),
     fetchAllRows<PageSection>('suri_page_sections'),
     fetchAllRows<LocalPro>('suri_local_pros'),
+    fetchAllRows<PageImage>('suri_page_images'),
   ])
-  return { regions, categories, keywords, pages, sections, localPros }
+  return { regions, categories, keywords, pages, sections, localPros, pageImages }
 })
 
 // decision이 HOLD(또는 MERGE — 별도 리다이렉트 처리 전까지)면 아직 사이트에 존재하지

@@ -4,6 +4,16 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
+import type { PageImageRole } from '@/lib/types'
+
+const ROLE_LABEL: Record<PageImageRole, string> = {
+  BEFORE: '시공 전',
+  PROCESS: '시공 중',
+  AFTER: '시공 후',
+  MATERIAL: '사용 자재',
+  TOOL: '사용 장비',
+  EXCLUDE: '',
+}
 
 export const dynamicParams = false
 
@@ -45,7 +55,7 @@ export default async function LandingPage({
   params: Promise<{ keyword: string; path: string[] }>
 }) {
   const { keyword: keywordSlug, path } = await params
-  const { keywords, categories, pages, regions, localPros } = await getAllData()
+  const { keywords, categories, pages, regions, localPros, pageImages } = await getAllData()
 
   const keyword = keywords.find((k) => k.slug === keywordSlug)
   const region = resolveRegionByPath(path, regions)
@@ -95,8 +105,29 @@ export default async function LandingPage({
 
   const seed = `${keyword.slug}/${region.slug}`
   const bg = blueprintBg(category?.slug ?? '', seed)
-  const photoA = categoryPhoto(category?.slug ?? '', seed, 0)
-  const photoB = categoryPhoto(category?.slug ?? '', seed, 1)
+
+  // 운영자가 올린 실제 현장 사진이 있으면 대체 이미지를 밀어낸다.
+  // 스톡 사진에 걸던 색 변형 필터는 실사에는 적용하지 않는다(원본 그대로 보여야 한다).
+  const shots = pageImages
+    .filter((i) => i.page_id === page.id && i.role !== 'EXCLUDE')
+    .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+
+  const pick = (slot: number) => {
+    const shot = shots[slot]
+    if (shot) {
+      return {
+        src: shot.url,
+        style: undefined,
+        label: ROLE_LABEL[shot.role] ?? '현장 사진',
+        note: shot.overlay_note,
+      }
+    }
+    const fallback = categoryPhoto(category?.slug ?? '', seed, slot)
+    return { src: fallback.src, style: fallback.style, label: '참고 이미지', note: null }
+  }
+
+  const photoA = pick(0)
+  const photoB = pick(1)
 
   return (
     <main className="pb-24 md:pb-0">
@@ -186,8 +217,13 @@ export default async function LandingPage({
           <div className="space-y-5 self-start">
             <div className="hero-photo aspect-[16/10]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photoA.src} alt={`${category?.display_name ?? ''} 작업 참고 이미지`} style={photoA.style} loading="eager" />
-              <span className="tag">참고 이미지</span>
+              <img
+                src={photoA.src}
+                alt={photoA.note ?? `${category?.display_name ?? ''} ${photoA.label}`}
+                style={photoA.style}
+                loading="eager"
+              />
+              <span className="tag">{photoA.label}</span>
             </div>
           {guide && guide.symptoms.length > 0 && (
             <aside className="diag-card rounded-2xl p-6" aria-labelledby="diag-title">
@@ -225,8 +261,8 @@ export default async function LandingPage({
 
           <div className="hero-photo mt-6 aspect-[16/7]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photoB.src} alt="" style={photoB.style} loading="lazy" />
-            <span className="tag">참고 이미지</span>
+            <img src={photoB.src} alt={photoB.note ?? ''} style={photoB.style} loading="lazy" />
+            <span className="tag">{photoB.label}</span>
           </div>
 
           <ol className="step-rail mt-8 space-y-7">
