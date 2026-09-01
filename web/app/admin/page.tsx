@@ -10,6 +10,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { createClient, type Session } from '@supabase/supabase-js'
+import { toSlug } from '@/lib/romanize'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -86,6 +87,12 @@ export default function AdminPage() {
   const [attachKw, setAttachKw] = useState<number | null>(null)
   const [picked, setPicked] = useState<Set<number>>(new Set())
   const [customRgText, setCustomRgText] = useState('')
+
+  // 새 수리명(키워드) 만들기 패널
+  const [newKwOpen, setNewKwOpen] = useState(false)
+  const [newKwName, setNewKwName] = useState('')
+  const [newKwDesc, setNewKwDesc] = useState('')
+  const [newKwCat, setNewKwCat] = useState<number | ''>('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -266,6 +273,46 @@ export default function AdminPage() {
     })
   }
 
+  // 새 수리명(키워드)을 만든다. 슬러그가 그대로 URL의 첫 구간이 되므로
+  // 한글 이름을 로마자로 옮겨 쓴다 (비둘기 퇴치 → bidulgi-toechi).
+  // 여러 줄을 넣으면 한 번에 여러 개를 만든다.
+  const createKeywords = () => {
+    if (newKwCat === '' || newKwName.trim() === '') return
+    const names = newKwName
+      .split(/[\n,]+/)
+      .map((n) => n.trim())
+      .filter(Boolean)
+    if (names.length === 0) return
+
+    run(`수리명 ${names.length}개 추가`, async () => {
+      for (const name of names) {
+        const base = toSlug(name) || 'keyword'
+        let slug = base
+        for (let n = 2; ; n++) {
+          const { data: taken } = await supabase
+            .from('suri_repair_keywords')
+            .select('id')
+            .eq('slug', slug)
+            .maybeSingle()
+          if (!taken) break
+          slug = `${base}-${n}`
+        }
+        const { error } = await supabase.from('suri_repair_keywords').insert({
+          category_id: newKwCat,
+          slug,
+          display_name: name,
+          description: names.length === 1 && newKwDesc.trim() ? newKwDesc.trim() : null,
+        })
+        if (error) return { error }
+      }
+      return { error: null }
+    }).then(() => {
+      setNewKwName('')
+      setNewKwDesc('')
+      setNewKwOpen(false)
+    })
+  }
+
   // 자유 텍스트(또는 파일 복붙)로 지역을 일괄 생성해서 붙인다.
   const attachCustomRegions = (kwId: number) => {
     if (customRgText.trim() === '') return
@@ -289,13 +336,26 @@ export default function AdminPage() {
         if (existing) {
           regionId = existing.id
         } else {
-          const slug = `custom-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+          // 슬러그가 그대로 URL 경로가 된다. 타임스탬프를 쓰면
+          // /pigeon-control/custom-1788251196-4821 같은 주소가 검색에 노출된다.
+          const base = toSlug(rName) || 'region'
+          let slug = base
+          for (let n = 2; ; n++) {
+            const { data: taken } = await supabase
+              .from('suri_regions')
+              .select('id')
+              .eq('slug', slug)
+              .is('parent_id', null)
+              .maybeSingle()
+            if (!taken) break
+            slug = `${base}-${n}`
+          }
           const { data: newReg, error: regErr } = await supabase
             .from('suri_regions')
             .insert({ display_name: rName, level: 'CUSTOM', slug })
             .select('id')
             .single()
-          
+
           if (regErr) return { error: regErr }
           regionId = newReg.id
         }
@@ -414,12 +474,63 @@ export default function AdminPage() {
         </p>
       )}
 
-      <input
-        placeholder="수리명·지역 검색"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="mt-5 w-full rounded-lg border border-[var(--line)] px-3 py-2.5 text-sm"
-      />
+      <div className="mt-5 flex gap-2">
+        <input
+          placeholder="수리명·지역 검색"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="flex-1 rounded-lg border border-[var(--line)] px-3 py-2.5 text-sm"
+        />
+        <button
+          onClick={() => setNewKwOpen((v) => !v)}
+          className="btn-ghost shrink-0 !py-2 text-sm"
+        >
+          {newKwOpen ? '닫기' : '+ 수리명 만들기'}
+        </button>
+      </div>
+
+      {newKwOpen && (
+        <div className="card mt-3 space-y-2 p-4">
+          <p className="text-sm font-bold">새 수리명 만들기</p>
+          <select
+            value={newKwCat}
+            onChange={(e) => setNewKwCat(e.target.value ? Number(e.target.value) : '')}
+            className="w-full rounded-lg border border-[var(--line)] px-3 py-2.5 text-sm"
+          >
+            <option value="">분야 선택…</option>
+            {cats.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.display_name}
+              </option>
+            ))}
+          </select>
+          <textarea
+            rows={3}
+            placeholder={'수리명 (여러 개는 줄바꿈 또는 쉼표로 구분)\n예: 비둘기 퇴치, 욕조 트랩 교체'}
+            value={newKwName}
+            onChange={(e) => setNewKwName(e.target.value)}
+            className="w-full rounded-lg border border-[var(--line)] px-3 py-2.5 text-sm"
+          />
+          <input
+            placeholder="한 줄 설명 (선택 — 페이지 상단에 나옵니다. 1개만 만들 때 적용)"
+            value={newKwDesc}
+            onChange={(e) => setNewKwDesc(e.target.value)}
+            className="w-full rounded-lg border border-[var(--line)] px-3 py-2.5 text-sm"
+          />
+          {newKwName.trim() && (
+            <p className="text-xs text-[var(--ink-soft)]">
+              주소: <code>/{toSlug(newKwName.split(/[\n,]+/)[0].trim()) || 'keyword'}</code>
+            </p>
+          )}
+          <button
+            onClick={createKeywords}
+            disabled={busy || newKwCat === '' || newKwName.trim() === ''}
+            className="btn-call w-full !py-2 text-sm disabled:opacity-40"
+          >
+            만들기
+          </button>
+        </div>
+      )}
 
       {blocks.map(({ cat, items }) => (
         <section key={cat?.id ?? 0} className="mt-8">

@@ -1,7 +1,7 @@
 // docs/PRD.md 4번 "데이터 모델" / supabase/schema.sql 과 1:1로 맞춘 타입.
 // 스키마를 바꾸면 이 파일도 같이 바꾼다.
 
-export type RegionLevel = 'SIDO' | 'SIGUNGU' | 'DONG'
+export type RegionLevel = 'SIDO' | 'SIGUNGU' | 'DONG' | 'CUSTOM'
 
 export interface Region {
   id: number
