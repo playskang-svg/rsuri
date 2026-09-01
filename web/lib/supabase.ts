@@ -19,6 +19,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
+// ⚠️ 빌드 캐시 주의.
+// supabase-js는 내부적으로 fetch를 쓰고, Next는 그 응답을 .next/cache/fetch-cache에
+// 저장한다. 한 번의 빌드 안에서 343개 페이지가 이 응답을 공유하는 건 의도한 동작이지만,
+// 그 디렉터리를 빌드 사이에 보존하면 DB를 고쳐도 옛 데이터로 사이트가 구워진다
+// (실제로 신규 페이지가 통째로 누락된 배포가 있었다).
+//
+// 여기서 cache:'no-store'로 막을 수는 없다 — 라우트가 동적으로 바뀌어 output:'export'가
+// 실패한다. 그래서 CI에서 fetch-cache를 캐시하지 않는 것으로 막는다.
+// .github/workflows/deploy.yml의 "Cache Next.js compiler output" 참고.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Supabase/PostgREST는 .range() 없이 .select()만 쓰면 결과가 에러 없이 1000행에서

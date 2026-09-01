@@ -31,13 +31,14 @@ jobs:
         working-directory: web
         run: npm ci
 
-      # Next는 .next/cache에 컴파일 결과를 남긴다. 이게 없으면 매 배포가 콜드 빌드라
-      # 소스가 한 줄만 바뀌어도 전체를 다시 컴파일한다. 소스 해시가 같으면 그대로
-      # 재사용하고, 달라지면 같은 의존성의 직전 캐시를 받아 증분 빌드한다.
-      - name: Cache Next.js build
+      # 컴파일러 캐시만 남긴다. .next/cache 전체를 캐시하면 fetch-cache까지 딸려오는데,
+      # supabase-js가 fetch로 동작해서 DB 응답이 거기 저장된다 — 그 상태로 캐시를
+      # 복원하면 DB를 고쳐도 옛 데이터로 사이트가 구워진다(실제로 겪은 사고).
+      # 콘텐츠 변경만으로 재배포하는 흐름이 이 저장소의 기본이라 특히 위험하다.
+      - name: Cache Next.js compiler output
         uses: actions/cache@v4
         with:
-          path: web/.next/cache
+          path: web/.next/cache/turbopack
           key: nextjs-${{ hashFiles('web/package-lock.json') }}-${{ hashFiles('web/app/**', 'web/lib/**') }}
           restore-keys: |
             nextjs-${{ hashFiles('web/package-lock.json') }}-
