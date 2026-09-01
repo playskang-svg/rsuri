@@ -15,6 +15,9 @@ const NAV = [
   { href: '/admin', label: '관리' },
 ]
 
+// 상담 CTA는 카카오톡 채널로 보낸다. 외부 도메인이라 next/link가 아니라 <a>를 쓴다.
+const KAKAO_CHANNEL_URL = 'https://pf.kakao.com/_bcVPX'
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
@@ -56,9 +59,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
 
             <div className="flex items-center gap-2">
-              <Link href="/#services" className="btn-call hidden !px-4 !py-2 text-sm sm:inline-flex">
-                사진 상담
-              </Link>
+              <a
+                href={KAKAO_CHANNEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-call hidden !px-4 !py-2 text-sm sm:inline-flex"
+              >
+                빠른 상담하기
+              </a>
 
               {/* 삼선 메뉴 — JS 없이 details로 동작 */}
               <details className="menu-drop md:hidden">
@@ -75,9 +83,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       {n.label}
                     </Link>
                   ))}
-                  <Link href="/#services" className="btn-call mt-2 !py-2.5 text-sm">
-                    사진 상담
-                  </Link>
+                  <a
+                    href={KAKAO_CHANNEL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-call mt-2 !py-2.5 text-sm"
+                  >
+                    빠른 상담하기
+                  </a>
                 </nav>
               </details>
             </div>

@@ -83,8 +83,6 @@ export default function AdminPage() {
 
   const kwById = useMemo(() => new Map(kws.map((k) => [k.id, k])), [kws])
   const rgById = useMemo(() => new Map(rgs.map((r) => [r.id, r])), [rgs])
-  const dongs = useMemo(() => rgs.filter((r) => r.level === 'DONG'), [rgs])
-
   const regionLabel = (id: number) => {
     const parts: string[] = []
     let cur = rgById.get(id)
@@ -94,6 +92,14 @@ export default function AdminPage() {
     }
     return parts.join(' ')
   }
+
+  // 동까지 나눈 지역(서울·경기)과 시·군 단위로만 운영하는 지역(대구·경북)이 섞여 있다.
+  // 레벨로 거르면 후자를 조합에 못 쓰므로 전 레벨을 노출하고 전체 경로로 구분한다.
+  const selectableRegions = useMemo(
+    () =>
+      [...rgs].sort((a, b) => regionLabel(a.id).localeCompare(regionLabel(b.id), 'ko')),
+    [rgs, rgById],
+  )
 
   const view = useMemo(() => {
     const q = filter.trim()
@@ -262,8 +268,8 @@ export default function AdminPage() {
           onChange={(e) => setNewRg(e.target.value ? Number(e.target.value) : '')}
           className="min-w-44 rounded-lg border border-[var(--line)] px-3 py-2.5 text-sm"
         >
-          <option value="">지역(동) 선택…</option>
-          {dongs.map((d) => (
+          <option value="">지역 선택…</option>
+          {selectableRegions.map((d) => (
             <option key={d.id} value={d.id}>
               {regionLabel(d.id)}
             </option>
