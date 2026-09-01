@@ -118,7 +118,7 @@ async function main() {
     }
 
     for (const exp of plan.pros) {
-      const act = pros.find((p) => p.region_id === regionId && p.phone === exp.phone)
+      const act = pros.find((p) => p.region_id === regionId && p.name === exp.name)
       if (!act) {
         fail(`지역 마스터 없음: ${exp.name} (${exp.phone})`)
         continue

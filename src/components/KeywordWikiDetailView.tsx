@@ -107,7 +107,7 @@ export const KeywordWikiDetailView: React.FC<KeywordWikiDetailViewProps> = ({
         "@id": page.geoMeta.canonicalUrl + "#business",
         "name": `수리위키 ${page.region.neighborhood} ${page.repairMainName} 전문센터`,
         "url": page.geoMeta.canonicalUrl,
-        "telephone": page.localPros[0]?.phone || "0507-1300-8899",
+        "telephone": page.localPros[0]?.phone || "010-4684-8838",
         "priceRange": `₩${page.estimatedCost.min.toLocaleString()} ~ ₩${page.estimatedCost.max.toLocaleString()}`,
         "address": {
           "@type": "PostalAddress",
