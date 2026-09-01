@@ -55,8 +55,36 @@ service_role은 로컬 시딩 스크립트 전용이다.
 
 ### 4. 도메인 연결 (suriwiki.com)
 
-Workers & Pages > `suriwiki` Worker > Settings > Domains & Routes > **Add** > Custom domain
-에서 `suriwiki.com`을 추가한다. 도메인이 Cloudflare에 등록되어 있으면 DNS가 자동 설정된다.
+`web/wrangler.jsonc`의 `routes`에 선언되어 있어 **배포하면 자동으로 연결된다.**
+대시보드에서 따로 추가할 필요가 없다:
+
+```jsonc
+"routes": [{ "pattern": "suriwiki.com", "custom_domain": true }]
+```
+
+`custom_domain: true`면 Worker 자체가 오리진이 되고 Cloudflare가 DNS 레코드와
+인증서를 자동 생성·관리한다.
+
+> **주의**: 이 설정은 `suriwiki.com`의 기존 A 레코드를 교체한다. 이 도메인에서
+> Vercel로 서비스되던 이전 수리위키 사이트는 더 이상 노출되지 않는다
+> (2026-09-01, 사용자 확인 후 교체).
+
+#### www.suriwiki.com 처리 (별도 작업 필요)
+
+`www`는 **일부러 Worker에 붙이지 않았다.** 같은 Worker에 apex와 www를 둘 다 붙이면
+동일 콘텐츠가 두 주소로 색인돼 중복 콘텐츠가 되고, SEO가 목적인 이 사이트에는 해롭다.
+대신 www를 apex로 301 리다이렉트시킨다.
+
+`www`의 DNS는 **Cloudflare가 관리**한다(네임서버가 Cloudflare). 따라서 Vercel 쪽에서
+도메인을 제거해도 이 CNAME은 사라지지 않는다 — Cloudflare에서 직접 손봐야 한다:
+
+1. **DNS** > Records에서 기존 `www` CNAME(Vercel 대상)을 삭제
+2. 같은 자리에 프록시(주황 구름) 켠 `AAAA` 레코드 `www` → `100::` 추가
+   (실제 오리진이 없을 때 쓰는 Cloudflare 표준 placeholder — 리다이렉트 룰이
+   트래픽을 가로챌 수 있게 하는 용도)
+3. **Rules** > Redirect Rules에서 규칙 생성:
+   - 조건: `Hostname` equals `www.suriwiki.com`
+   - 동작: Dynamic redirect, `concat("https://suriwiki.com", http.request.uri.path)`, 상태 코드 **301**
 
 ---
 
