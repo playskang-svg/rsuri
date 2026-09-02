@@ -4,7 +4,8 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
-import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
+import { getKeywordImages, groupSetsByKeyword, type PhotoSet } from '@/lib/keyword-images'
+import { buildKeywordContent } from '@/lib/keyword-guide'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
 import type { Page, PageImageRole, Region } from '@/lib/types'
 
@@ -20,6 +21,10 @@ const ROLE_LABEL: Record<PageImageRole, string> = {
 // 거미줄 링크 한 줄 스타일 — globals.css는 다른 담당 파일이라 클래스 추가 대신 여기서 묶는다.
 const ROW =
   'group flex items-baseline justify-between gap-2 rounded-lg border border-transparent px-3 py-2.5 hover:border-[var(--line)] hover:bg-[var(--paper)]'
+
+// 본문 앵커 칩 — 긴 페이지에서 핵심 블록으로 바로 뛰게 한다.
+const CHIP =
+  'inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-3.5 py-1.5 text-[13px] font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]'
 
 export const dynamicParams = false
 
@@ -85,20 +90,6 @@ export default async function LandingPage({
     .map((r) => r.display_name)
     .join(' ')
 
-  const guide = page.guide
-  const pros = localPros.filter((p) => p.region_id === region.id)
-  const mainPro = pros[0]
-  const telHref = mainPro ? `tel:${mainPro.phone.replace(/-/g, '')}` : undefined
-
-  const casePage = pages.find(
-    (p) =>
-      p.page_type === 'CASE' &&
-      p.repair_keyword_id === keyword.id &&
-      p.region_id === region.id &&
-      isPublished(p) &&
-      p.slug,
-  )
-
   // ── 거미줄 내부링크용 인덱스 ──
   // 곧 지역 페이지 1,300건 · 키워드 76개다. 페이지 한 장을 그릴 때마다 pages 전체를
   // 블록 수만큼 훑으면 빌드가 터지므로, 요청 스코프에서 인덱스를 한 번만 만들어
@@ -115,6 +106,33 @@ export default async function LandingPage({
     if (rgList) rgList.push(p)
     else landingsByRegion.set(p.region_id, [p])
   }
+
+  // 본문. 이 페이지의 guide가 우선이고, 비어 있으면 같은 키워드의 다른 지역 페이지에서
+  // 물려받는다(guide는 지역이 아니라 수리 종류 단위로 쓰였다). 그것도 없으면 공통 상담 흐름.
+  // 이렇게 해야 허브(/{keyword})와 지역 페이지가 같은 내용을 보여준다.
+  const content = buildKeywordContent(
+    page.guide ? [page] : (landingsByKeyword.get(keyword.id) ?? []),
+    keyword.description,
+  )
+
+  const pros = localPros.filter((p) => p.region_id === region.id)
+  const mainPro = pros[0]
+  const telHref = mainPro
+    ? `tel:${mainPro.phone.replace(/-/g, '')}`
+    : keyword.default_phone
+      ? `tel:${keyword.default_phone.replace(/-/g, '')}`
+      : undefined
+  const telLabel = mainPro?.phone ?? keyword.default_phone ?? null
+
+  const casePage = pages.find(
+    (p) =>
+      p.page_type === 'CASE' &&
+      p.repair_keyword_id === keyword.id &&
+      p.region_id === region.id &&
+      isPublished(p) &&
+      p.slug,
+  )
+
   const chainCache = new Map<number, Region[]>([[region.id, chain]])
   const chainOf = (regionId: number) => {
     const hit = chainCache.get(regionId)
@@ -182,10 +200,26 @@ export default async function LandingPage({
     .filter((i) => i.page_id === page.id && i.role !== 'EXCLUDE')
     .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
 
+  // 페이지 고유 사진에 전/후가 있으면 그것도 비교 슬라이더로 보여준다 —
+  // 예전에는 첫 장 한 컷만 걸어서, 애써 올린 '후' 사진이 화면에 나오지 않았다.
+  const shotBefore = shots.find((s) => s.role === 'BEFORE')
+  const shotAfter = shots.find((s) => s.role === 'AFTER')
+  const shotSet: PhotoSet | null =
+    shotBefore || shotAfter
+      ? {
+          setNo: 0,
+          before: shotBefore?.url ?? null,
+          after: shotAfter?.url ?? null,
+          process: shots.filter((s) => s.role === 'PROCESS').map((s) => s.url),
+          caption: shotBefore?.overlay_note ?? shotAfter?.overlay_note ?? null,
+        }
+      : null
+
   // 키워드 사진 상속: 키워드 × 지역 조합이 1,300건이라 조합마다 사진을 따로 넣을 수 없다.
   // 이 페이지 고유 사진이 있으면 그것이 우선하고, 없을 때만 키워드 세트를 물려받는다.
   const inheritedSets =
     shots.length > 0 ? [] : (groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? [])
+  const heroSets = shotSet ? [shotSet] : inheritedSets
 
   const pick = (slot: number) => {
     const shot = shots[slot]
@@ -203,6 +237,15 @@ export default async function LandingPage({
 
   const photoA = pick(0)
   const photoB = pick(1)
+
+  // 본문이 길어졌으므로 핵심 블록으로 바로 가는 칩을 단다. 실제로 그린 섹션만 넣는다.
+  const jumps = [
+    content.symptoms.length > 0 ? { href: '#symptoms', label: '이런 증상' } : null,
+    content.steps.length > 0 ? { href: '#process', label: '수리 과정' } : null,
+    content.preventionTips.length > 0 ? { href: '#prevention', label: '재발 방지' } : null,
+    content.faqs.length > 0 ? { href: '#faq', label: '자주 묻는 질문' } : null,
+    { href: '#area', label: '출장 지역' },
+  ].filter((x): x is { href: string; label: string } => x !== null)
 
   return (
     <main className="pb-24 md:pb-0">
@@ -231,107 +274,137 @@ export default async function LandingPage({
         </ol>
       </nav>
 
-      {/* ── 히어로 + 진단 카드 ── */}
+      {/* ── 히어로: 제목 → 시공 전/후 사진 → 증상. 사진이 본문 맨 앞에 온다 ── */}
       <section className="relative mt-4 border-y border-[var(--line)] bg-white">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.08]"
           style={{ backgroundImage: bg }}
         />
-        <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-16">
-          <div>
-            <p className="eyebrow">
-              {upperName || keyword.display_name} · {region.display_name}
-            </p>
-            <h1 className="font-serif-kr mt-3 text-3xl font-black leading-[1.25] sm:text-4xl">
-              {region.display_name} {keyword.display_name}
-            </h1>
-            <p className="prose-kr mt-5 max-w-xl text-[15px] text-[var(--ink-soft)]">
-              {guide ? guide.summary : keyword.description ?? `${region.display_name} 지역 ${keyword.display_name} 출장 안내 페이지입니다.`}
-            </p>
+        <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+          <p className="eyebrow">
+            {upperName || keyword.display_name} · {region.display_name}
+          </p>
+          <h1 className="font-serif-kr mt-3 text-3xl font-black leading-[1.25] sm:text-4xl">
+            {region.display_name} {keyword.display_name}
+          </h1>
+          <p className="prose-kr mt-4 max-w-2xl text-[15px] text-[var(--ink-soft)]">
+            {content.summary ??
+              `${region.display_name} 지역 ${keyword.display_name} 출장 안내 페이지입니다.`}
+          </p>
 
-            {region.housing_characteristics && (
-              <div className="mt-6 rounded-xl border border-[var(--line)] bg-[var(--teal-soft)]/60 p-4 text-sm">
-                <span className="font-bold text-[var(--teal)]">
-                  {region.display_name} 주거 특성
-                </span>
-                <p className="mt-1 text-[var(--ink-soft)]">{region.housing_characteristics}</p>
-              </div>
-            )}
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              {telHref && (
-                <a href={telHref} className="btn-call">
-                  <PhoneIcon />
-                  {mainPro!.phone} 상담
-                </a>
-              )}
-              {casePage?.slug && (
-                <Link href={`/case/${casePage.slug}`} className="btn-ghost">
-                  이 동네 시공 기록 보기
-                </Link>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+            {/* 왼쪽 — 시공 전/후. 실사가 없을 때만 참고 이미지로 대체한다. */}
+            <div>
+              {heroSets.length > 0 ? (
+                <>
+                  <BeforeAfterSlider
+                    sets={heroSets}
+                    alt={`${keyword.display_name} 시공 전후 사진`}
+                  />
+                  <p className="mt-2.5 text-[13px] text-[var(--ink-soft)]">
+                    실제 {keyword.display_name} 현장입니다. 손잡이를 좌우로 움직이면 같은 자리의
+                    시공 전과 후가 겹쳐 보입니다.
+                  </p>
+                </>
+              ) : (
+                <div className="hero-photo aspect-[4/3]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoA.src}
+                    alt={photoA.note ?? `${keyword.display_name} ${photoA.label}`}
+                    style={photoA.style}
+                    loading="eager"
+                  />
+                  <span className="tag">{photoA.label}</span>
+                </div>
               )}
             </div>
-            <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-              <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
-              연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후 안내드립니다.
-            </p>
+
+            {/* 오른쪽 — 무엇이 문제인지 먼저, 그다음 상담 버튼 */}
+            <div className="space-y-5">
+              {content.symptoms.length > 0 ? (
+                <aside
+                  id="symptoms"
+                  className="diag-card rounded-2xl p-6"
+                  aria-labelledby="symptoms-title"
+                >
+                  <p className="eyebrow">Self Check</p>
+                  <h2 id="symptoms-title" className="mt-1 text-lg font-extrabold">
+                    이런 증상이면 의심하세요
+                  </h2>
+                  <ul className="mt-4 space-y-3.5">
+                    {content.symptoms.map((s, i) => (
+                      <li key={i} className="diag-item text-[15px] leading-snug">
+                        <span aria-hidden className="diag-box" />
+                        <span>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
+                    한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
+                  </p>
+                </aside>
+              ) : (
+                <aside className="diag-card rounded-2xl p-6">
+                  <p className="eyebrow">How it works</p>
+                  <h2 className="mt-1 text-lg font-extrabold">사진 한 장이면 상담이 시작됩니다</h2>
+                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
+                    손상된 자리와 그 주변이 함께 나온 사진, {region.display_name}이라는 지역,
+                    언제부터 그랬는지 — 이 세 가지만 보내 주시면 담당 마스터가 원인과 작업 범위를
+                    잡아 회신드립니다.
+                  </p>
+                </aside>
+              )}
+
+              {region.housing_characteristics && (
+                <div className="rounded-xl border border-[var(--line)] bg-[var(--teal-soft)]/60 p-4 text-sm">
+                  <span className="font-bold text-[var(--teal)]">
+                    {region.display_name} 주거 특성
+                  </span>
+                  <p className="mt-1 text-[var(--ink-soft)]">{region.housing_characteristics}</p>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-3">
+                {telHref && telLabel && (
+                  <a href={telHref} className="btn-call">
+                    <PhoneIcon />
+                    {telLabel} 상담
+                  </a>
+                )}
+                {casePage?.slug && (
+                  <Link href={`/case/${casePage.slug}`} className="btn-ghost">
+                    이 동네 시공 기록 보기
+                  </Link>
+                )}
+              </div>
+              <p className="text-[13px] text-[var(--ink-soft)]">
+                <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
+                연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후 안내드립니다.
+              </p>
+            </div>
           </div>
 
-          {/* 사진 + 진단 체크카드 */}
-          <div className="space-y-5 self-start">
-            {inheritedSets.length > 0 ? (
-              <div>
-                <BeforeAfterSlider
-                  sets={inheritedSets}
-                  alt={`${keyword.display_name} 시공 전후 사진`}
-                />
-                <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
-                  {keyword.display_name} 실제 시공 전 · 후 사진입니다. 손잡이를 좌우로 움직여
-                  비교해 보세요.
-                </p>
-              </div>
-            ) : (
-              <div className="hero-photo aspect-[16/10]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photoA.src}
-                  alt={photoA.note ?? `${keyword.display_name} ${photoA.label}`}
-                  style={photoA.style}
-                  loading="eager"
-                />
-                <span className="tag">{photoA.label}</span>
-              </div>
-            )}
-          {guide && guide.symptoms.length > 0 && (
-            <aside className="diag-card rounded-2xl p-6" aria-labelledby="diag-title">
-              <p className="eyebrow">Self Check</p>
-              <h2 id="diag-title" className="mt-1 text-lg font-extrabold">
-                이런 증상이면 의심하세요
-              </h2>
-              <ul className="mt-4 space-y-3.5">
-                {guide.symptoms.map((s, i) => (
-                  <li key={i} className="diag-item text-[15px] leading-snug">
-                    <span aria-hidden className="diag-box" />
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
-                한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
-              </p>
-            </aside>
-          )}
-          </div>
+          {/* 본문 바로가기 */}
+          <nav aria-label="본문 바로가기" className="mt-8 flex flex-wrap gap-2">
+            {jumps.map((j) => (
+              <a key={j.href} href={j.href} className={CHIP}>
+                {j.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </section>
 
-      {/* ── 표준 시공 절차 ── */}
-      {guide && guide.steps.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      {/* ── 수리 과정 ── */}
+      {content.steps.length > 0 && (
+        <section id="process" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Process</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            표준 시공 절차
+            {content.generic
+              ? '상담부터 시공까지, 이 순서로 진행합니다'
+              : `${keyword.display_name}, 이렇게 진행합니다`}
           </h2>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
             {region.display_name} 현장에서 실제로 진행되는 순서입니다.
@@ -344,7 +417,7 @@ export default async function LandingPage({
           </div>
 
           <ol className="step-rail mt-8 space-y-7">
-            {guide.steps.map((step) => (
+            {content.steps.map((step) => (
               <li key={step.num} className="flex gap-4">
                 <span className="step-num" aria-hidden>
                   {String(step.num).padStart(2, '0')}
@@ -365,26 +438,26 @@ export default async function LandingPage({
       )}
 
       {/* ── 자가수리 vs 전문가 ── */}
-      {page.diy_vs_pro && (
+      {content.diyVsPro && (
         <section className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
             <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#e8b34c]">
               직접 할까, 맡길까
             </p>
             <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[#d7dde0]">
-              {page.diy_vs_pro}
+              {content.diyVsPro}
             </p>
           </div>
         </section>
       )}
 
       {/* ── 재발 방지 ── */}
-      {guide && guide.prevention_tips.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      {content.preventionTips.length > 0 && (
+        <section id="prevention" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Prevention</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">시공 후 재발 방지</h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-1">
-            {guide.prevention_tips.map((tip, i) => (
+            {content.preventionTips.map((tip, i) => (
               <li key={i} className="card flex gap-3 p-4 text-sm">
                 <span aria-hidden className="mt-0.5 font-black text-[var(--teal)]">
                   ✓
@@ -424,12 +497,14 @@ export default async function LandingPage({
       )}
 
       {/* ── FAQ ── */}
-      {guide && guide.faqs.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      {content.faqs.length > 0 && (
+        <section id="faq" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">FAQ</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">자주 묻는 질문</h2>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">
+            {region.display_name} {keyword.display_name} 자주 묻는 질문
+          </h2>
           <div className="mt-6">
-            {guide.faqs.map((f, i) => (
+            {content.faqs.map((f, i) => (
               <details key={i} className="faq">
                 <summary>{f.q}</summary>
                 <div className="text-sm">{f.a}</div>
@@ -492,11 +567,11 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 거미줄 내부링크 ── */}
-      <section className="border-t border-[var(--line)] bg-white">
+      {/* ── 출장 지역 · 거미줄 내부링크 ── */}
+      <section id="area" className="border-t border-[var(--line)] bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <p className="eyebrow">Related</p>
-          <h2 className="font-serif-kr mt-2 text-xl font-black">이어서 볼 페이지</h2>
+          <p className="eyebrow">Service Area</p>
+          <h2 className="font-serif-kr mt-2 text-xl font-black">출장 지역 · 이어서 볼 페이지</h2>
 
           {/* (a) 같은 키워드 · 다른 지역 */}
           {sameKeyword.length > 0 && (
@@ -621,7 +696,7 @@ export default async function LandingPage({
       </section>
 
       {/* ── 모바일 고정 상담바 ── */}
-      {mainPro && telHref && (
+      {telHref && (
         <div className="callbar">
           <div className="min-w-0">
             <p className="truncate text-[13px] font-bold">
