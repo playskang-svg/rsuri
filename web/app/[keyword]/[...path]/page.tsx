@@ -197,7 +197,7 @@ export default async function LandingPage({
         note: shot.overlay_note,
       }
     }
-    const fallback = categoryPhoto(category?.slug ?? '', seed, slot)
+    const fallback = categoryPhoto(category?.slug ?? '', seed, slot, keyword.display_name)
     return { src: fallback.src, style: fallback.style, label: '참고 이미지', note: null }
   }
 

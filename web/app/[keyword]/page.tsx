@@ -87,7 +87,7 @@ export default async function KeywordHubPage({
   const sets = groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? []
   // 스톡 사진은 분위기용이라 "시공 전/후"로 부르면 안 된다(lib/photos.ts 규칙).
   // 운영자가 올린 실사가 없을 때만, "참고 이미지"로 명시해 히어로에 쓴다.
-  const stock = categoryPhoto(category?.slug ?? '', keyword.slug)
+  const stock = categoryPhoto(category?.slug ?? '', keyword.slug, 0, keyword.display_name)
 
   // 이 키워드가 가장 촘촘히 깔린 지역을 하나 골라, 그 지역의 다른 키워드로 건너뛰게 한다.
   // 이 블록이 없으면 키워드끼리는 홈을 거치지 않고는 연결되지 않는다.

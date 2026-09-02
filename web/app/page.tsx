@@ -132,7 +132,7 @@ export default async function HomePage() {
             // 운영자가 키워드에 넣은 실제 사진이 우선. 없을 때만 참고 이미지로 폴백한다
             // (해시 변형 style도 폴백 사진에만 쓴다 — 실제 사진은 색을 건드리지 않는다).
             const cover = coverImage(setsByKeyword.get(keyword.id))
-            const fallback = categoryPhoto(category?.slug ?? '', keyword.slug)
+            const fallback = categoryPhoto(category?.slug ?? '', keyword.slug, 0, keyword.display_name)
             return (
               <Link
                 key={keyword.id}
@@ -224,7 +224,7 @@ export default async function HomePage() {
             const casePage = caseByKey.get(`${page.repair_keyword_id}:${page.region_id}`)
             if (!casePage?.slug) return null
             const dong = chain[chain.length - 1]
-            const photo = categoryPhoto(cat?.slug ?? '', `${kw!.slug}/${dong.slug}`, 1)
+            const photo = categoryPhoto(cat?.slug ?? '', `${kw!.slug}/${dong.slug}`, 1, kw!.display_name)
             return (
               <Link
                 key={casePage.id}
