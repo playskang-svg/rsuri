@@ -4,7 +4,9 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
-import type { PageImageRole } from '@/lib/types'
+import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
+import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
+import type { Page, PageImageRole, Region } from '@/lib/types'
 
 const ROLE_LABEL: Record<PageImageRole, string> = {
   BEFORE: '시공 전',
@@ -14,6 +16,10 @@ const ROLE_LABEL: Record<PageImageRole, string> = {
   TOOL: '사용 장비',
   EXCLUDE: '',
 }
+
+// 거미줄 링크 한 줄 스타일 — globals.css는 다른 담당 파일이라 클래스 추가 대신 여기서 묶는다.
+const ROW =
+  'group flex items-baseline justify-between gap-2 rounded-lg border border-transparent px-3 py-2.5 hover:border-[var(--line)] hover:bg-[var(--paper)]'
 
 export const dynamicParams = false
 
@@ -73,6 +79,11 @@ export default async function LandingPage({
   const category = categories.find((c) => c.id === keyword.category_id)
   const { byId } = buildRegionIndex(regions)
   const chain = getAncestorChain(region.id, byId)
+  const pathStr = chain.map((r) => r.slug).join('/')
+  const upperName = chain
+    .slice(0, -1)
+    .map((r) => r.display_name)
+    .join(' ')
 
   const guide = page.guide
   const pros = localPros.filter((p) => p.region_id === region.id)
@@ -88,20 +99,79 @@ export default async function LandingPage({
       p.slug,
   )
 
-  // 다른 지역·다른 공종 크로스링크
-  const keywordSlugById = new Map(keywords.map((k) => [k.id, k.slug]))
+  // ── 거미줄 내부링크용 인덱스 ──
+  // 곧 지역 페이지 1,300건 · 키워드 76개다. 페이지 한 장을 그릴 때마다 pages 전체를
+  // 블록 수만큼 훑으면 빌드가 터지므로, 요청 스코프에서 인덱스를 한 번만 만들어
+  // 아래 네 블록이 함께 쓴다(getAllData 자체는 React.cache로 빌드당 1회).
   const keywordById = new Map(keywords.map((k) => [k.id, k]))
-  const otherLandings = pages
-    .filter(
-      (p) =>
-        p.page_type === 'LANDING' && isPublished(p) && p.id !== page.id && p.region_id && p.repair_keyword_id,
-    )
-    .map((p) => {
-      const c = getAncestorChain(p.region_id!, byId)
-      return { p, chain: c, kw: keywordById.get(p.repair_keyword_id!) }
+  const landingsByKeyword = new Map<number, Page[]>()
+  const landingsByRegion = new Map<number, Page[]>()
+  for (const p of pages) {
+    if (p.page_type !== 'LANDING' || !isPublished(p) || !p.region_id || !p.repair_keyword_id) continue
+    const kwList = landingsByKeyword.get(p.repair_keyword_id)
+    if (kwList) kwList.push(p)
+    else landingsByKeyword.set(p.repair_keyword_id, [p])
+    const rgList = landingsByRegion.get(p.region_id)
+    if (rgList) rgList.push(p)
+    else landingsByRegion.set(p.region_id, [p])
+  }
+  const chainCache = new Map<number, Region[]>([[region.id, chain]])
+  const chainOf = (regionId: number) => {
+    const hit = chainCache.get(regionId)
+    if (hit) return hit
+    const c = getAncestorChain(regionId, byId)
+    chainCache.set(regionId, c)
+    return c
+  }
+
+  // (a) 같은 키워드 · 다른 지역. 조상 체인이 비면 주소를 못 만드니 건너뛴다 —
+  //     링크 집합은 generateStaticParams가 만드는 집합과 정확히 같아야 한다.
+  const sameKeywordAll = (landingsByKeyword.get(keyword.id) ?? [])
+    .filter((p) => p.id !== page.id)
+    .map((p) => ({ page: p, chain: chainOf(p.region_id!), region: byId.get(p.region_id!) }))
+    .filter((x) => x.chain.length > 0 && x.region)
+  const sameKeyword = [...sameKeywordAll]
+    .sort((a, b) => {
+      // 같은 부모를 둔 형제 지역을 앞에 — 사용자가 실제로 다음에 볼 확률이 가장 높다.
+      const as = a.region!.parent_id === region.parent_id ? 0 : 1
+      const bs = b.region!.parent_id === region.parent_id ? 0 : 1
+      if (as !== bs) return as - bs
+      return a.region!.display_name.localeCompare(b.region!.display_name, 'ko')
     })
-    .filter((x) => x.kw && x.chain.length > 0)
-    .slice(0, 6)
+    .slice(0, 24)
+
+  // (b) 같은 지역 · 다른 키워드. 이 블록이 없으면 키워드끼리는 홈을 거치지 않고는
+  //     서로 연결되지 않는다.
+  const sameRegion = (landingsByRegion.get(region.id) ?? [])
+    .filter((p) => p.repair_keyword_id !== keyword.id)
+    .map((p) => ({ page: p, kw: keywordById.get(p.repair_keyword_id!) }))
+    .filter((x) => x.kw)
+    .sort((a, b) => a.kw!.menu_order - b.kw!.menu_order)
+    .slice(0, 12)
+
+  // (c) 상위로 — 조상 지역도 이 키워드로 발행돼 있을 때만 링크한다.
+  const myRegionIds = new Set((landingsByKeyword.get(keyword.id) ?? []).map((p) => p.region_id))
+  const ancestorLinks = chain
+    .slice(0, -1)
+    .map((r, i) => ({
+      region: r,
+      path: chain
+        .slice(0, i + 1)
+        .map((x) => x.slug)
+        .join('/'),
+    }))
+    .filter((x) => myRegionIds.has(x.region.id))
+
+  // (d) 다른 수리 분야 — 지역 페이지가 많은 순. 이제 모든 키워드에 허브가 생기므로
+  //     지역이 0개인 키워드로 링크해도 404가 아니다.
+  const otherHubs = keywords
+    .filter((k) => k.id !== keyword.id)
+    .sort(
+      (a, b) =>
+        (landingsByKeyword.get(b.id)?.length ?? 0) - (landingsByKeyword.get(a.id)?.length ?? 0) ||
+        a.menu_order - b.menu_order,
+    )
+    .slice(0, 8)
 
   const seed = `${keyword.slug}/${region.slug}`
   const bg = blueprintBg(category?.slug ?? '', seed)
@@ -111,6 +181,11 @@ export default async function LandingPage({
   const shots = pageImages
     .filter((i) => i.page_id === page.id && i.role !== 'EXCLUDE')
     .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+
+  // 키워드 사진 상속: 키워드 × 지역 조합이 1,300건이라 조합마다 사진을 따로 넣을 수 없다.
+  // 이 페이지 고유 사진이 있으면 그것이 우선하고, 없을 때만 키워드 세트를 물려받는다.
+  const inheritedSets =
+    shots.length > 0 ? [] : (groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? [])
 
   const pick = (slot: number) => {
     const shot = shots[slot]
@@ -139,16 +214,6 @@ export default async function LandingPage({
               수리위키
             </Link>
           </li>
-          {category && (
-            <>
-              <li aria-hidden>›</li>
-              <li>
-                <Link href={`/category/${category.slug}`} className="hover:text-[var(--ink)]">
-                  {category.display_name}
-                </Link>
-              </li>
-            </>
-          )}
           <li aria-hidden>›</li>
           <li>
             <Link href={`/${keyword.slug}`} className="hover:text-[var(--ink)]">
@@ -176,7 +241,7 @@ export default async function LandingPage({
         <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-16">
           <div>
             <p className="eyebrow">
-              {category?.display_name} · {region.display_name}
+              {upperName || keyword.display_name} · {region.display_name}
             </p>
             <h1 className="font-serif-kr mt-3 text-3xl font-black leading-[1.25] sm:text-4xl">
               {region.display_name} {keyword.display_name}
@@ -215,16 +280,29 @@ export default async function LandingPage({
 
           {/* 사진 + 진단 체크카드 */}
           <div className="space-y-5 self-start">
-            <div className="hero-photo aspect-[16/10]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photoA.src}
-                alt={photoA.note ?? `${category?.display_name ?? ''} ${photoA.label}`}
-                style={photoA.style}
-                loading="eager"
-              />
-              <span className="tag">{photoA.label}</span>
-            </div>
+            {inheritedSets.length > 0 ? (
+              <div>
+                <BeforeAfterSlider
+                  sets={inheritedSets}
+                  alt={`${keyword.display_name} 시공 전후 사진`}
+                />
+                <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
+                  {keyword.display_name} 실제 시공 전 · 후 사진입니다. 손잡이를 좌우로 움직여
+                  비교해 보세요.
+                </p>
+              </div>
+            ) : (
+              <div className="hero-photo aspect-[16/10]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photoA.src}
+                  alt={photoA.note ?? `${keyword.display_name} ${photoA.label}`}
+                  style={photoA.style}
+                  loading="eager"
+                />
+                <span className="tag">{photoA.label}</span>
+              </div>
+            )}
           {guide && guide.symptoms.length > 0 && (
             <aside className="diag-card rounded-2xl p-6" aria-labelledby="diag-title">
               <p className="eyebrow">Self Check</p>
@@ -414,43 +492,140 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 다른 지역·공종 가이드 ── */}
-      {otherLandings.length > 0 && (
-        <section className="border-t border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <p className="eyebrow">More Guides</p>
-            <h2 className="font-serif-kr mt-2 text-xl font-black">다른 지역 가이드</h2>
-            <ul className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {otherLandings.map(({ p, chain: c, kw }) => {
-                const dong = c[c.length - 1]
-                return (
+      {/* ── 거미줄 내부링크 ── */}
+      <section className="border-t border-[var(--line)] bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <p className="eyebrow">Related</p>
+          <h2 className="font-serif-kr mt-2 text-xl font-black">이어서 볼 페이지</h2>
+
+          {/* (a) 같은 키워드 · 다른 지역 */}
+          {sameKeyword.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-sm font-extrabold">{keyword.display_name} · 다른 지역</h3>
+              <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
+                안내 중인 {sameKeywordAll.length + 1}개 지역 중 {sameKeyword.length}곳입니다.
+              </p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {sameKeyword.map((x) => {
+                  const dong = x.chain[x.chain.length - 1]
+                  const upper = x.chain
+                    .slice(0, -1)
+                    .map((r) => r.display_name)
+                    .join(' ')
+                  return (
+                    <li key={x.page.id}>
+                      <Link
+                        href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
+                        className={ROW}
+                      >
+                        <span className="text-sm">
+                          <b>{dong.display_name}</b>{' '}
+                          <span className="text-[var(--ink-soft)]">{upper}</span>
+                        </span>
+                        <span aria-hidden className="text-[var(--copper)]">
+                          →
+                        </span>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+              {sameKeywordAll.length > sameKeyword.length && (
+                <Link
+                  href={`/${keyword.slug}`}
+                  className="mt-3 inline-block text-sm font-bold text-[var(--teal)] hover:underline"
+                >
+                  {keyword.display_name} 전체 지역 보기 →
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* (b) 같은 지역 · 다른 키워드 */}
+          {sameRegion.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-sm font-extrabold">
+                {region.display_name}에서 함께 가능한 수리
+              </h3>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {sameRegion.map(({ page: p, kw }) => (
                   <li key={p.id}>
-                    <Link
-                      href={`/${kw!.slug}/${c.map((r) => r.slug).join('/')}`}
-                      className="group flex items-baseline justify-between gap-2 rounded-lg border border-transparent px-3 py-2.5 hover:border-[var(--line)] hover:bg-[var(--paper)]"
-                    >
+                    <Link href={`/${kw!.slug}/${pathStr}`} className={ROW}>
                       <span className="text-sm">
-                        <b>{dong.display_name}</b>{' '}
-                        <span className="text-[var(--ink-soft)]">{kw!.display_name}</span>
+                        <b>{kw!.display_name}</b>{' '}
+                        <span className="text-[var(--ink-soft)]">{region.display_name}</span>
                       </span>
                       <span aria-hidden className="text-[var(--copper)]">
                         →
                       </span>
                     </Link>
                   </li>
-                )
-              })}
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* (c) 상위로 */}
+          <div className="mt-8">
+            <h3 className="text-sm font-extrabold">상위 페이지</h3>
+            <ul className="mt-3 flex flex-wrap gap-2.5">
+              <li>
+                <Link
+                  href={`/${keyword.slug}`}
+                  className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                >
+                  {keyword.display_name} 전체
+                </Link>
+              </li>
+              {ancestorLinks.map((a) => (
+                <li key={a.region.id}>
+                  <Link
+                    href={`/${keyword.slug}/${a.path}`}
+                    className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                  >
+                    {a.region.display_name} {keyword.display_name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
-        </section>
-      )}
+
+          {/* (d) 다른 수리 분야 */}
+          {otherHubs.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-sm font-extrabold">다른 수리 항목</h3>
+              <ul className="mt-3 flex flex-wrap gap-2.5">
+                {otherHubs.map((k) => (
+                  <li key={k.id}>
+                    <Link
+                      href={`/${k.slug}`}
+                      className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                    >
+                      {k.display_name}
+                      <span className="ml-1.5 text-[11px] font-semibold text-[var(--ink-soft)]">
+                        {landingsByKeyword.get(k.id)?.length ?? 0}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
+                숫자는 해당 항목에서 안내 중인 지역 수입니다. ·{' '}
+                <Link href="/" className="font-bold text-[var(--teal)] hover:underline">
+                  전체 수리 항목 보기
+                </Link>
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* ── 모바일 고정 상담바 ── */}
       {mainPro && telHref && (
         <div className="callbar">
           <div className="min-w-0">
             <p className="truncate text-[13px] font-bold">
-              {region.display_name} {category?.display_name}
+              {region.display_name} {keyword.display_name}
             </p>
             <p className="truncate text-[11px] text-[#aeb9be]">사진·문자 상담 환영</p>
           </div>

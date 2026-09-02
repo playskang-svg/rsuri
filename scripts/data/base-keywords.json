@@ -1,0 +1,1077 @@
+{
+  "_note": "koreajipsurimaster.com 24개 사이트에서 발라낸 기본 키워드 + 지역. regions는 각 사이트 페이지 제목에서 키워드를 뗀 앞부분(지역명). extras는 지역이 아닌 증상형/유형형 키워드라 시드에서 제외하고 관리 화면에서 필요할 때 키워드로 추가한다.",
+  "keywords": [
+    {
+      "name": "방문복원",
+      "slug": "door-restoration",
+      "desc": "찍힘·구멍·들뜸을 원래 문짝 그대로 되살립니다.",
+      "regions": "분당,강남,인천,마포,노원,송파",
+      "extras": "방문복원 상담문의"
+    },
+    {
+      "name": "방문필름시공",
+      "slug": "door-film",
+      "desc": "문짝만 필름으로 새것처럼 감쌉니다.",
+      "regions": "안산,안양,부천,분당,부평,은평,강동,강남,건대,김포,고양,구리,구로,광명,계양,하남,화성,인천,마곡,마포,목동,남양주,노원,파주,평택,사당,서초,성북,시흥,신림,송도,송파,수원,의정부,영등포,용인",
+      "extras": "방문필름시공 상담"
+    },
+    {
+      "name": "도배복원",
+      "slug": "wallpaper-restoration",
+      "desc": "찢김·곰팡이 자국을 이음매 없이 되살립니다.",
+      "regions": "안산,안성,안양,부천,분당,부평,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,김포,고양,군포,구리,구로,과천,관악,광진,광명,경기 광주,하남,이천,일산,인천 청라,인천,인천 동구,인천 검단,인천 계양,인천 주안,인천 남동구,인천 영종,중구,중랑,마포,남양주,노원,오산,파주,평택,서초,성북,성동,성남,서울,시흥,송파,수원,의정부,의왕,양천,양주,영등포,연수,용인,용산",
+      "extras": "상담 안내"
+    },
+    {
+      "name": "보수도배",
+      "slug": "wallpaper-patch",
+      "desc": "전체 도배 없이 상한 면만 골라 보수합니다.",
+      "regions": "안산,안양,부천,분당,부평,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,금천,김포,고양,군포,구리,구로,과천,관악,광진,광주,광명,하남,화성,이천,인천,인천 청라,인천 검단,인천 구월,인천 계양,인천 주안,인천 송도,인천 연수,종로,중랑,마포,남양주,노원,오산,파주,평택,서초,서대문,성북,성동,성남,시흥,송파,수지,수원,의정부,양천구,양주,영등포,용인,용산",
+      "extras": "보수도배업체,에어컨 자국 도배,벽지 부분교체,천장도배,석고보드 보수도배,깨진벽복원도배"
+    },
+    {
+      "name": "문틀교체",
+      "slug": "doorframe-replacement",
+      "desc": "썩거나 물먹은 문틀을 통째로 교체합니다.",
+      "regions": "안산,안양,부천,분당,별내,다산,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,금천,김포,고양,군포,구리,구로,과천,관악,광진,광명,하남,화성,일산,인천,중랑,마포,미사,남양주,노원,오산,파주,평택,서초,서대문,성북,성동,성남,시흥,송도,송파,수원,의정부,의왕,운정,위례,양천,양주,영등포,용인,용산",
+      "extras": "화장실문지방,누수문틀수리,썩은문지방교체,욕실문지방,물먹은문틀수리"
+    },
+    {
+      "name": "문틀수리",
+      "slug": "doorframe-repair",
+      "desc": "교체 없이 상한 부분만 살려 쓰는 문틀 수리.",
+      "regions": "안산시,안양시,부천시,부평구,도봉구,동대문구,동작구,은평구,강북구,강동구,강남구,강서구,김포시,고양시,군포시,구리시,구로구,과천시,관악구,광진구,경기광주,광명시,계양구,하남시,화성시,이천시,동구,인천중구,서구,종로구,중랑구,마포구,미추홀구,남동구,남양주시,노원구,오산시,파주시,평택시,서초구,서대문구,성북구,성동구,성남시,시흥시,송파구,수원시,의정부시,의왕시,양천구,양주시,영등포구,연수구,용인시,용산구",
+      "extras": "아파트문틀수리,문틀보수,문틀교체,문틀수리업체,나무문틀수리"
+    },
+    {
+      "name": "나무문수리",
+      "slug": "wood-door-repair",
+      "desc": "원목·무늬목 문의 깨짐과 들뜸을 되살립니다.",
+      "regions": "안산,안양,부천,부평구,도봉,동대문,동작구,동탄,은평,강북,강동,강남구,강서구,금천,김포,고양시,군포,구리,구로,관악구,광진,광명,경기광주,하남,화성,인천 동구,인천 계양,인천 주안,인천 중구,인천 미추홀,인천 서구,인천 연수,종로,중구,중랑,마포구,남동구,남양주,노원구,오산,파주,평택,서초,서대문,성북구,성동,성남시,시흥,송파구,수원시,의정부,양천구,영등포구,용인,용산",
+      "extras": "욕실문수리,깨진나무문,구멍난문복원,들뜬나무문,나무문몰딩"
+    },
+    {
+      "name": "문수리",
+      "slug": "door-repair",
+      "desc": "문짝·경첩·손잡이까지 문 전반을 손봅니다.",
+      "regions": "안산,안양,부천,부평구,도봉구,동두천,동작구,은평구,강북구,강동구,강남구,강서구,금천,김포시,고양,군포,구리,구로구,과천,관악구,광진구,경기 광주,광명,하남,화성시,이천,인천 동구,인천 계양,인천 미추홀,인천,인천 서구,종로,중구,중랑구,마포구,남동구,남양주,노원구,오산,파주시,포천,평택,서초구,서대문구,성북구,성동구,성남,시흥시,송파구,수원,의정부,의왕,양천구,양평,영등포구,연수구,용인,용산,대전,목포,서산,세종,제주,진주,춘천,충주,판교",
+      "extras": "아파트문수리,방문보수,방문수리,화장실문수리,문짝수리"
+    },
+    {
+      "name": "필름시공",
+      "slug": "film-wrapping",
+      "desc": "문·몰딩·샤시를 필름으로 새것처럼 리폼합니다.",
+      "regions": "안산,안양,부천,부평구,도봉,동대문,동작,동탄,은평구,강북,강동,강남,강서,금천,김포,고양,군포,구리,구로,과천,관악,광진,광주,광명,계양,하남,화성,이천,인천서구,종로,중랑,마포,미추홀구,남동구,남양주,노원,오산,파주,평택,서초,서대문,성북,성동,성남,시흥,송파,수지,수원,의정부,의왕,양천구,영등포,연수구,용인,용산",
+      "extras": "방문필름시공,부분필름시공,몰딩필름시공,문틀필름시공,샤시필름시공,시트지리폼"
+    },
+    {
+      "name": "마루복원",
+      "slug": "floor-restoration",
+      "desc": "찍힘·긁힘 난 마루를 부분만 골라 복원합니다.",
+      "regions": "안산,안양,부천,분당,부평,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,금천,김포,고양,군포,구리,구로,관악,광진,광명,하남,화성,일산,인천 청라,인천,인천 검단,인천 계양,인천 미추홀,인천 남동,인천 송도,인천 연수,중랑,마포,남양주,노원,오산,파주,판교,평택,서초,서대문,성북,성동,성남,시흥,송파,수원,의정부,의왕,양천구,양주,영등포,용인,용산",
+      "extras": "바닥수리,전세집마루복원,마루찍힘복원,강마루복원,마루부분복원"
+    },
+    {
+      "name": "문틀보수",
+      "slug": "doorframe-touchup",
+      "desc": "긁힘·모서리 깨짐만 잡는 문틀 부분 보수.",
+      "regions": "분당,강동,강남,강서,김포,일산,인천,노원,송파,수원",
+      "extras": ""
+    },
+    {
+      "name": "강마루보수",
+      "slug": "laminate-floor-repair",
+      "desc": "강마루 찍힘·변색·들뜸을 판 교체 없이 보수합니다.",
+      "regions": "안산,안양,부천,분당,부평,창동,동탄,은평,강동,강남,강서,김포,고양,건대,군포,구리,구로,과천,관악,광주,광명,하남,화성,일산,인천청라,인천검단,인천구월,인천계양,인천주안,인천논현,인천연수,잠실,마포,미아,목동,남양주,노원,오산,파주,판교,평촌,평택,사당,서초,성남,성수,시흥,송도,송파,수원,의정부,의왕,위례,영등포,용인",
+      "extras": "강마루보수업체,강마루부분교체,강마루변색복원,강마루찍힘보수,강마루스크래치 보수,물먹은강마루 복원"
+    },
+    {
+      "name": "문필름시공",
+      "slug": "door-film-wrapping",
+      "desc": "문짝·문틀·문지방을 필름으로 함께 감쌉니다.",
+      "regions": "안산,안성,안양,부천,분당,부평,창동,청량리,다산,도봉,동탄,강동,강남,강서,금천,길음,김포,군포,구리,구로,광진구,광명,하남,화정,일산,인천청라,인천검단,인천구월,인천계양,인천주안,인천연수,종로,마포,미아,목동,노원,오산,파주,판교,평택,사당,상봉,서초,서대문,성수,시흥,신림,신도림,송도,송파,수원,의정부,의왕,영등포,연신내,용인,용산",
+      "extras": "방문필름시공 비용,문틀필름시공,방문필름시공,썩은문필름시공,문지방필름시공"
+    },
+    {
+      "name": "문지방수리",
+      "slug": "threshold-repair",
+      "desc": "물먹고 썩은 문지방을 잘라내고 새로 앉힙니다.",
+      "regions": "안산,안양,부천,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,기흥,김포,고양,군포,구리,과천,관악,광진,광명,광교,경기광주,하남,화성,이천,인천부평,인천계양,인천미추홀,인천남동,인천서구,인천연수,인천,종로,중랑,마포,목동,남양주,노원,오산,파주,포천,평택,서초,성북,성동,성남,서울,시흥,송파,수지,수원,의정부,의왕,양주,양평,여주,용인,용산",
+      "extras": "문지방수리 상담"
+    },
+    {
+      "name": "부분도배",
+      "slug": "partial-wallpapering",
+      "desc": "한 면·한 폭만 골라 티 안 나게 도배합니다.",
+      "regions": "안산,안양,부천,부평,도봉,동작,동탄,은평,강북,강동,강남,강서,인천 검단,김포,고양,군포,구리,구로,과천,관악,광진,경기 광주,광명,계양,하남,화성,인천,중랑,마포,미추홀,미사,남동,남양주,노원,오산,파주,판교,평택,서대문,서구,성북,성동,성남,서울,시흥,인천 송도,송파,수원,의정부,의왕,위례,양천,영등포,연수,용인,용산",
+      "extras": "아파트 부분도배,도배 전문업체,이사 도배 보수"
+    },
+    {
+      "name": "깨진문수리",
+      "slug": "broken-door-repair",
+      "desc": "구멍 나고 깨진 문을 교체 없이 메워 복원합니다.",
+      "regions": "안산,안양,부천,분당,인천 부평,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,김포,군포,구리,구로,과천,관악,광진,광명,하남,화성,일산,인천,중랑,마포,목동,남양주,노원,파주,평택,서초,성북,성동,성남,시흥,인천 송도,송파,수원,의정부,영등포,용인,용산",
+      "extras": ""
+    },
+    {
+      "name": "원목마루복원",
+      "slug": "hardwood-floor-restoration",
+      "desc": "원목마루 결을 살려 부분만 되살립니다.",
+      "regions": "안산,안양,부천,분당,부평,동작,동탄,은평,강북,강동,강남,강서,김포,군포,구로,관악,광진,광명,하남,일산,마포,남양주,노원,오산,파주,평택,서초,성북,시흥,송도,송파,수원,의정부,영등포,용인,인천",
+      "extras": "상담 안내"
+    },
+    {
+      "name": "복층계단복원",
+      "slug": "duplex-stair-restoration",
+      "desc": "복층·다락 계단의 긁힘과 벌어짐을 복원합니다.",
+      "regions": "부천,고양,인천,성남,서울,수원",
+      "extras": ""
+    },
+    {
+      "name": "계단수리",
+      "slug": "stair-repair",
+      "desc": "삐걱임·벌어짐·모서리 깨짐을 잡습니다.",
+      "regions": "안산,안양,부천,도봉,동대문,동작,은평,강북,강동,강남,강서,김포,고양,군포,구리,구로,과천,관악,광진,광명,하남,동탄,인천 부평,인천 계양,인천 미추홀,인천 남동,인천 서구,인천,인천 연수,종로,중구,중랑,마포,남양주,노원,오산,파주,포천,평택,서초,서대문,성북,성동,성남,서울,시흥,송파,수원,의정부,의왕,양천,양주,영등포,용인,용산",
+      "extras": "복층계단보수,계단이빨자국복원,계단수리 상담 안내,계단 코팅,계단 모서리 수리,나무계단 수리"
+    },
+    {
+      "name": "나무계단수리",
+      "slug": "wood-stair-repair",
+      "desc": "나무계단 갈라짐·논슬립까지 함께 봅니다.",
+      "regions": "안산,안양,부천,분당,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,금천,김포,고양,구리,구로,관악,광진,광명,하남,화성,일산,인천 부평,인천 청라,인천 미추홀,인천 남동,인천,인천 서구,인천 송도,종로,중랑,마포,목동,남양주,노원,파주,평택,서초,서대문,성북,성동,성남,시흥,신당동,송파,수원,의정부,양주,영등포,용인,용산",
+      "extras": "복층계단수리,계단보수,계단긁힘수리,계단교체,계단논슬립,계단리모델링,원목계단수리"
+    },
+    {
+      "name": "계단복원",
+      "slug": "stair-restoration",
+      "desc": "계단 디딤판 표면을 통째로 되살립니다.",
+      "regions": "안산,안성,안양,부천,분당,도봉,동대문,동작,동탄,은평,강북,강동,강남,강서,금천,김포,군포,구리,구로,과천,관악,광진,경기광주,광명,하남,이천,일산,인천,인천부평,인천청라,인천검단,인천계양,인천미추홀,인천남동,인천송도,인천연수,종로,중구,중랑,마포,남양주,노원,오산,파주,포천,평택,서초,서대문,성북,성동,시흥,송파,수원,의정부,의왕,양천,양주,영등포,용인,용산",
+      "extras": "계단복원 상담"
+    },
+    {
+      "name": "문턱수리",
+      "slug": "doorsill-repair",
+      "desc": "걸리고 파인 문턱을 평평하게 잡습니다.",
+      "regions": "안양,부천,부평,도봉,동대문,동작,은평,강남,강서,김포,고양,구리,광진,광명,계양,하남,화성,인천,중구,마포,남동,남양주,노원,파주,서초,성북,성동,성남,시흥,송파,수원,의정부,양천,연수,용인,용산",
+      "extras": ""
+    },
+    {
+      "name": "부분필름작업",
+      "slug": "partial-film-work",
+      "desc": "상한 자리만 골라 필름으로 마감합니다.",
+      "regions": "강남,건대,광명,구로,구리,군포,김포,남양주,노원,마포,목동,부천,분당,서초,성수,송파,수원,시흥,신촌,안산,안양,여의도,영등포,오산,용산,용인,의왕,의정부,인천,일산,잠실,파주,평택,하남,홍대,화성",
+      "extras": ""
+    },
+    {
+      "name": "벽지복원",
+      "slug": "wallpaper-recovery",
+      "desc": "찢기고 뜬 벽지를 같은 무늬로 맞춰 복원합니다.",
+      "regions": "안산,안양,부천,도봉,동작,은평,강북,강남,강서,군포,구리,구로,관악,광진,광명,하남,화성,일산,인천,중랑,마포,남양주,노원,오산,파주,평택,서초,성북,성남,시흥,송파,수원,의정부,양천,영등포,용인",
+      "extras": ""
+    },
+    {
+      "name": "ABS도어깨짐",
+      "slug": "absdoeokkaejim",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "ABS문구멍",
+      "slug": "absmungumeong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "실내문구멍",
+      "slug": "silnaemungumeong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "실내문깨짐",
+      "slug": "silnaemunkkaejim",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "원룸문구멍",
+      "slug": "wonrummungumeong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문구멍수리",
+      "slug": "mungumeongsuri",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "방문구멍",
+      "slug": "bangmungumeong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문깨짐",
+      "slug": "bangmunkkaejim",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문복원수리",
+      "slug": "munbokwonsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "깨진방문",
+      "slug": "kkaejinbangmun",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문수리",
+      "slug": "banghwamunsuri",
+      "desc": "",
+      "regions": "부천,천안",
+      "extras": ""
+    },
+    {
+      "name": "문교체",
+      "slug": "mungyoche",
+      "desc": "",
+      "regions": "대구,평택,창원",
+      "extras": ""
+    },
+    {
+      "name": "방화문교체",
+      "slug": "banghwamungyoche",
+      "desc": "",
+      "regions": "부산,대구",
+      "extras": ""
+    },
+    {
+      "name": "문고리교체비용",
+      "slug": "mungorigyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문짝교체비용",
+      "slug": "munjjakgyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문교체비용",
+      "slug": "banghwamungyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "화장실문수리",
+      "slug": "hwajangsilmunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문수리",
+      "slug": "bangmunsuri",
+      "desc": "",
+      "regions": "창원",
+      "extras": ""
+    },
+    {
+      "name": "문교체비용",
+      "slug": "mungyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "대문교체",
+      "slug": "daemungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문설치비용",
+      "slug": "banghwamunseolchibiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "미닫이문수리",
+      "slug": "midatimunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문교체공사",
+      "slug": "bangmungyochegongsa",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "상가문교체",
+      "slug": "sanggamungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "아파트현관문가격",
+      "slug": "apateuhyeongwanmungagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문틀교체",
+      "slug": "bangmunteulgyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "아파트방화문교체",
+      "slug": "apateubanghwamungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "화장실문보수",
+      "slug": "hwajangsilmunbosu",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문턱제거",
+      "slug": "munteokjegeo",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문수리비용",
+      "slug": "munsuribiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "철문수리",
+      "slug": "cheolmunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문교체",
+      "slug": "bangmungyoche",
+      "desc": "",
+      "regions": "대구,부산",
+      "extras": ""
+    },
+    {
+      "name": "화장실문교체",
+      "slug": "hwajangsilmungyoche",
+      "desc": "",
+      "regions": "부산,대전",
+      "extras": ""
+    },
+    {
+      "name": "상가유리문가격",
+      "slug": "sanggayurimungagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "자동문수리비용",
+      "slug": "jadongmunsuribiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문짝교체",
+      "slug": "bangmunjjakgyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문수리업체",
+      "slug": "munsurieopche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문수리박사",
+      "slug": "munsuribaksa",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "미닫이문교체",
+      "slug": "midatimungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문설치가격",
+      "slug": "banghwamunseolchigagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문교체",
+      "slug": "hyeongwanmungyoche",
+      "desc": "",
+      "regions": "대전,창원",
+      "extras": ""
+    },
+    {
+      "name": "현관문수리",
+      "slug": "hyeongwanmunsuri",
+      "desc": "",
+      "regions": "대구,분당,시흥",
+      "extras": ""
+    },
+    {
+      "name": "방화문보수",
+      "slug": "banghwamunbosu",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "다용도실문교체",
+      "slug": "dayongdosilmungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문수리비용",
+      "slug": "hyeongwanmunsuribiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "대문수리",
+      "slug": "daemunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문리모델링",
+      "slug": "bangmunrimodelring",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "매장문수리",
+      "slug": "maejangmunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "삼성현관문",
+      "slug": "samseonghyeongwanmun",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문설치",
+      "slug": "banghwamunseolchi",
+      "desc": "",
+      "regions": "부산",
+      "extras": ""
+    },
+    {
+      "name": "방문보수",
+      "slug": "bangmunbosu",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "주택현관문교체",
+      "slug": "jutaekhyeongwanmungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문",
+      "slug": "banghwamun",
+      "desc": "",
+      "regions": "대전,평택,화성,속초,오산,이천,포천,경기,안산",
+      "extras": ""
+    },
+    {
+      "name": "방화문수리비용",
+      "slug": "banghwamunsuribiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문교체가격",
+      "slug": "bangmungyochegagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "미닫이문설치가격",
+      "slug": "midatimunseolchigagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문틀수리비용",
+      "slug": "munteulsuribiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문짝경첩수리",
+      "slug": "munjjakgyeongcheopsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문손잡이교체방법",
+      "slug": "munsonjapigyochebangbeop",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문교체가격",
+      "slug": "banghwamungyochegagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "유리문수리",
+      "slug": "yurimunsuri",
+      "desc": "",
+      "regions": "부천,성남,파주,강남",
+      "extras": ""
+    },
+    {
+      "name": "사무실미닫이문",
+      "slug": "samusilmidatimun",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문설치",
+      "slug": "munseolchi",
+      "desc": "",
+      "regions": "대구",
+      "extras": ""
+    },
+    {
+      "name": "문고리설치",
+      "slug": "mungoriseolchi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문고리교체업체",
+      "slug": "mungorigyocheeopche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "자동문수리",
+      "slug": "jadongmunsuri",
+      "desc": "",
+      "regions": "서울,평택",
+      "extras": ""
+    },
+    {
+      "name": "자동문설치",
+      "slug": "jadongmunseolchi",
+      "desc": "",
+      "regions": "대전,수원",
+      "extras": ""
+    },
+    {
+      "name": "문경첩교체",
+      "slug": "mungyeongcheopgyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문교체견적",
+      "slug": "bangmungyochegyeonjeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문교체업체",
+      "slug": "bangmungyocheeopche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "목문설치",
+      "slug": "mokmunseolchi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문부분수리",
+      "slug": "bangmunbubunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문문짝교체",
+      "slug": "bangmunmunjjakgyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방화문공사",
+      "slug": "banghwamungongsa",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "ABS문수리",
+      "slug": "absmunsuri",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "화장실문교체비용",
+      "slug": "hwajangsilmungyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "강화도어수리",
+      "slug": "ganghwadoeosuri",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "중문수리",
+      "slug": "jungmunsuri",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "강화도어",
+      "slug": "ganghwadoeo",
+      "desc": "",
+      "regions": "평택,수원",
+      "extras": ""
+    },
+    {
+      "name": "현관",
+      "slug": "hyeongwan",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문업체",
+      "slug": "hyeongwanmuneopche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "중문",
+      "slug": "jungmun",
+      "desc": "",
+      "regions": "천안,수원,동탄,오산,화성,의정부,부천,성남,남양주,안성",
+      "extras": ""
+    },
+    {
+      "name": "출입문설치",
+      "slug": "chulipmunseolchi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "주택현관문교체비용",
+      "slug": "jutaekhyeongwanmungyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문견적",
+      "slug": "hyeongwanmungyeonjeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "철문시공",
+      "slug": "cheolmunsigong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문",
+      "slug": "hyeongwanmun",
+      "desc": "",
+      "regions": "청주,속초,평택",
+      "extras": ""
+    },
+    {
+      "name": "자동문",
+      "slug": "jadongmun",
+      "desc": "",
+      "regions": "평택,고양시,동탄,시흥,양평",
+      "extras": ""
+    },
+    {
+      "name": "창고문수리",
+      "slug": "changgomunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "강화유리수리",
+      "slug": "ganghwayurisuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "싱크대",
+      "slug": "singkeudae",
+      "desc": "",
+      "regions": "평택,양평",
+      "extras": ""
+    },
+    {
+      "name": "수전교체",
+      "slug": "sujeongyoche",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "집수리",
+      "slug": "jipsuri",
+      "desc": "",
+      "regions": "송탄",
+      "extras": ""
+    },
+    {
+      "name": "철문교체비용",
+      "slug": "cheolmungyochebiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "화장실문설치",
+      "slug": "hwajangsilmunseolchi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "철대문제작",
+      "slug": "cheoldaemunjejak",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "출입문시공",
+      "slug": "chulipmunsigong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "폴딩도어",
+      "slug": "poldingdoeo",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "출입문공사",
+      "slug": "chulipmungongsa",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "주택대문수리",
+      "slug": "jutaekdaemunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "강화도어유리문",
+      "slug": "ganghwadoeoyurimun",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "철문보수",
+      "slug": "cheolmunbosu",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "수도공사",
+      "slug": "sudogongsa",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "현관문설치비용",
+      "slug": "hyeongwanmunseolchibiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "변기교체",
+      "slug": "byeongigyoche",
+      "desc": "",
+      "regions": "포항",
+      "extras": ""
+    },
+    {
+      "name": "샷시",
+      "slug": "syatsi",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "화장실문짝수리",
+      "slug": "hwajangsilmunjjaksuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문복원",
+      "slug": "hyeongwanmunbokwon",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "집방문교체",
+      "slug": "jipbangmungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "처진문수리",
+      "slug": "cheojinmunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "방문만들기",
+      "slug": "bangmunmandeulgi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "창고문교체",
+      "slug": "changgomungyoche",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "화장실문수리비용",
+      "slug": "hwajangsilmunsuribiyong",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "주택현관문수리",
+      "slug": "jutaekhyeongwanmunsuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문수리비",
+      "slug": "hyeongwanmunsuribi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문수리가격",
+      "slug": "hyeongwanmunsurigagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "문틀크기",
+      "slug": "munteulkeugi",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관문교체가격",
+      "slug": "hyeongwanmungyochegagyeok",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "드레스룸문제작",
+      "slug": "deureseurummunjejak",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "거울",
+      "slug": "geoul",
+      "desc": "",
+      "regions": "평택",
+      "extras": ""
+    },
+    {
+      "name": "현관중문",
+      "slug": "hyeongwanjungmun",
+      "desc": "",
+      "regions": "인천",
+      "extras": ""
+    },
+    {
+      "name": "씽크대교체",
+      "slug": "ssingkeudaegyoche",
+      "desc": "",
+      "regions": "인천",
+      "extras": ""
+    },
+    {
+      "name": "샤워장공사",
+      "slug": "syawojanggongsa",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "유리제작",
+      "slug": "yurijejak",
+      "desc": "",
+      "regions": "인천",
+      "extras": ""
+    },
+    {
+      "name": "씽크대공장",
+      "slug": "ssingkeudaegongjang",
+      "desc": "",
+      "regions": "남양주,용인",
+      "extras": ""
+    },
+    {
+      "name": "싱크대공장",
+      "slug": "singkeudaegongjang",
+      "desc": "",
+      "regions": "오산",
+      "extras": ""
+    },
+    {
+      "name": "씽크대",
+      "slug": "ssingkeudae",
+      "desc": "",
+      "regions": "광명,이천",
+      "extras": ""
+    },
+    {
+      "name": "설비업체",
+      "slug": "seolbieopche",
+      "desc": "",
+      "regions": "경기광주",
+      "extras": ""
+    },
+    {
+      "name": "농가주택수리",
+      "slug": "nonggajutaeksuri",
+      "desc": "",
+      "regions": "",
+      "extras": ""
+    }
+  ],
+  "_note2": "2차 추가(2026-09-02): 사용자 제공 186개 키워드에서 지역명을 앞에서 걷어내고 키워드/지역으로 분리해 병합. 지역이 없는 항목은 regions 빈 문자열 = 지역 0개 키워드로 생성된다."
+}
