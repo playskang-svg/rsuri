@@ -803,7 +803,7 @@
       "name": "싱크대",
       "slug": "singkeudae",
       "desc": "",
-      "regions": "평택,양평",
+      "regions": "평택,양평,광명,이천",
       "extras": ""
     },
     {
@@ -1017,8 +1017,8 @@
       "extras": ""
     },
     {
-      "name": "씽크대교체",
-      "slug": "ssingkeudaegyoche",
+      "name": "싱크대교체",
+      "slug": "singkeudaegyoche",
       "desc": "",
       "regions": "인천",
       "extras": ""
@@ -1038,24 +1038,10 @@
       "extras": ""
     },
     {
-      "name": "씽크대공장",
-      "slug": "ssingkeudaegongjang",
-      "desc": "",
-      "regions": "남양주,용인",
-      "extras": ""
-    },
-    {
       "name": "싱크대공장",
       "slug": "singkeudaegongjang",
       "desc": "",
-      "regions": "오산",
-      "extras": ""
-    },
-    {
-      "name": "씽크대",
-      "slug": "ssingkeudae",
-      "desc": "",
-      "regions": "광명,이천",
+      "regions": "남양주,용인,오산",
       "extras": ""
     },
     {
