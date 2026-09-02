@@ -12,7 +12,8 @@
     "lint": "tsc --noEmit",
     "seed": "tsx scripts/seed.mjs",
     "seed:sql": "tsx scripts/seed.mjs --emit-sql",
-    "seed:verify": "tsx scripts/verify-seed.mjs"
+    "seed:verify": "tsx scripts/verify-seed.mjs",
+    "seed:base": "tsx scripts/seed-base-keywords.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

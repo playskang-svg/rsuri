@@ -6,6 +6,10 @@ import { blueprintBg } from '@/lib/blueprint'
 
 export const dynamicParams = false
 
+// 지역이 177곳까지 늘어난다 — 키워드마다 전부 펼치면 이 페이지가 칩 수천 개가 된다.
+// 앞쪽만 보여주고 나머지는 키워드 허브로 넘긴다.
+const REGION_CHIP_LIMIT = 24
+
 export async function generateStaticParams() {
   const { categories } = await getAllData()
   return categories.map((c) => ({ category: c.slug }))
@@ -47,6 +51,10 @@ export default async function CategoryPage({
     landingsByKeyword.set(p.repair_keyword_id, list)
   }
 
+  const otherCategories = categories
+    .filter((c) => c.id !== category.id)
+    .sort((a, b) => a.sort_order - b.sort_order)
+
   return (
     <main>
       <section className="relative border-b border-[var(--line)] bg-white">
@@ -72,18 +80,17 @@ export default async function CategoryPage({
         <ul className="space-y-4">
           {categoryKeywords.map((keyword) => {
             const live = landingsByKeyword.get(keyword.id) ?? []
+            const shown = live.slice(0, REGION_CHIP_LIMIT)
+            const hidden = live.length - shown.length
             return (
               <li key={keyword.id} className="card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
+                    {/* 지역이 0곳이어도 허브 페이지는 항상 생긴다 — 죽은 회색 텍스트로 두지 않는다 */}
                     <h2 className="text-lg font-extrabold">
-                      {live.length > 0 ? (
-                        <Link href={`/${keyword.slug}`} className="hover:text-[var(--copper)]">
-                          {keyword.display_name}
-                        </Link>
-                      ) : (
-                        <span className="text-[var(--ink-soft)]">{keyword.display_name}</span>
-                      )}
+                      <Link href={`/${keyword.slug}`} className="hover:text-[var(--copper)]">
+                        {keyword.display_name}
+                      </Link>
                     </h2>
                     {keyword.description && (
                       <p className="mt-1 text-sm text-[var(--ink-soft)]">{keyword.description}</p>
@@ -95,9 +102,9 @@ export default async function CategoryPage({
                     </span>
                   )}
                 </div>
-                {live.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {live.map((l) => (
+                {shown.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {shown.map((l) => (
                       <Link
                         key={l.path}
                         href={`/${keyword.slug}/${l.path}`}
@@ -106,12 +113,47 @@ export default async function CategoryPage({
                         {l.dong}
                       </Link>
                     ))}
+                    {hidden > 0 && (
+                      <Link
+                        href={`/${keyword.slug}`}
+                        className="text-[13px] font-bold text-[var(--ink-soft)] hover:text-[var(--copper)]"
+                      >
+                        외 {hidden}곳 →
+                      </Link>
+                    )}
                   </div>
                 )}
               </li>
             )
           })}
         </ul>
+      </section>
+
+      {/* ── 거미줄 링크: 홈 · 다른 분야 ── */}
+      <section className="border-t border-[var(--line)] bg-white">
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          <p className="eyebrow">More</p>
+          <h2 className="font-serif-kr mt-2 text-xl font-black">다른 분야 둘러보기</h2>
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            {otherCategories.map((c) => (
+              <Link
+                key={c.id}
+                href={`/category/${c.slug}`}
+                className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+              >
+                {c.display_name}
+              </Link>
+            ))}
+          </div>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link href="/#services" className="btn-call">
+              수리 항목 전체 보기
+            </Link>
+            <Link href="/" className="btn-ghost">
+              홈으로
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   )

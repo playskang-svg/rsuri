@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { SiteFooter } from './_components/SiteFooter'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -99,29 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {children}
 
-        <footer className="mt-20 border-t border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-              <div>
-                <p className="font-serif-kr text-lg font-black">수리위키</p>
-                <p className="mt-1 max-w-md text-sm text-[var(--ink-soft)]">
-                  작업 중에는 통화가 어려우니 사진과 지역, 수리 내용을 남겨 주시면 확인 후
-                  안내드립니다.
-                </p>
-              </div>
-              <nav className="flex flex-wrap gap-5 text-sm font-semibold text-[var(--ink-soft)]" aria-label="푸터 메뉴">
-                {NAV.slice(0, 3).map((n) => (
-                  <Link key={n.href} href={n.href} className="hover:text-[var(--ink)]">
-                    {n.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-            <p className="mt-8 text-xs text-[var(--ink-soft)]">
-              © 수리위키 (SuriWiki) · 지역별 집수리 시공 안내
-            </p>
-          </div>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   )

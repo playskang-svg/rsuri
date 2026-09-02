@@ -2,10 +2,19 @@ import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { categoryPhoto } from '@/lib/photos'
+import { getKeywordImages, groupSetsByKeyword, coverImage } from '@/lib/keyword-images'
+
+// 지역이 177곳까지 늘어난다. 전부 칩으로 깔면 홈이 링크 덤프가 되고 본문이 밀린다 —
+// 안내 항목이 많은 순으로 이만큼만 노출하고, 잘라낸 개수는 화면에 밝힌다.
+const REGION_CHIP_LIMIT = 60
+
+// 카드 부제에 적는 대표 지역 개수
+const CARD_REGION_SAMPLE = 3
 
 export default async function HomePage() {
   const { categories, keywords, pages, regions } = await getAllData()
   const { byId } = buildRegionIndex(regions)
+  const setsByKeyword = groupSetsByKeyword(await getKeywordImages())
 
   const categoryById = new Map(categories.map((c) => [c.id, c]))
   const keywordById = new Map(keywords.map((k) => [k.id, k]))
@@ -25,12 +34,33 @@ export default async function HomePage() {
   const cases = pages.filter((p) => p.page_type === 'CASE' && isPublished(p) && p.slug)
   const caseByKey = new Map(cases.map((c) => [`${c.repair_keyword_id}:${c.region_id}`, c]))
 
-  const sortedCategories = [...categories].sort((a, b) => a.sort_order - b.sort_order)
   const heroPhoto = categoryPhoto('leak-waterproof', 'home-hero')
+
+  // 키워드별 발행 지역 수 + 대표 지역 이름
+  const keywordStats = new Map<number, { count: number; dongs: string[] }>()
+  for (const { kw, chain } of landings) {
+    const stat = keywordStats.get(kw!.id) ?? { count: 0, dongs: [] as string[] }
+    stat.count += 1
+    const dong = chain[chain.length - 1].display_name
+    if (stat.dongs.length < CARD_REGION_SAMPLE && !stat.dongs.includes(dong)) stat.dongs.push(dong)
+    keywordStats.set(kw!.id, stat)
+  }
+
+  // 지역 0곳 키워드도 카드로 낸다 — 허브는 항상 생기고, 배지로 "준비 중"을 밝힌다.
+  const keywordCards = keywords
+    .map((keyword) => ({
+      keyword,
+      ...(keywordStats.get(keyword.id) ?? { count: 0, dongs: [] as string[] }),
+    }))
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        a.keyword.display_name.localeCompare(b.keyword.display_name, 'ko'),
+    )
 
   // 지역 색인: 동별로 발행 키워드 수 집계
   const dongStats = new Map<number, { dong: string; upper: string; count: number; href: string }>()
-  for (const { page, chain, kw } of landings) {
+  for (const { chain, kw } of landings) {
     const dong = chain[chain.length - 1]
     const cur = dongStats.get(dong.id)
     if (cur) cur.count += 1
@@ -42,6 +72,11 @@ export default async function HomePage() {
         href: `/${kw!.slug}/${chain.map((r) => r.slug).join('/')}`,
       })
   }
+  const regionChips = [...dongStats.values()].sort(
+    (a, b) => b.count - a.count || a.dong.localeCompare(b.dong, 'ko'),
+  )
+  const shownRegions = regionChips.slice(0, REGION_CHIP_LIMIT)
+  const hiddenRegionCount = regionChips.length - shownRegions.length
 
   return (
     <main>
@@ -82,45 +117,48 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 수리 분야 (사진 카드) ── */}
+      {/* ── 수리 분야 (키워드 사진 카드) ── */}
       <section id="services" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <p className="eyebrow">Services</p>
         <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">수리 분야</h2>
         <p className="mt-2 text-sm text-[var(--ink-soft)]">
-          분야를 고르면 지역별 안내 페이지로 이동합니다.
+          수리 항목 {keywordCards.length}종. 항목을 고르면 그 항목의 지역별 안내 페이지로
+          이동합니다.
         </p>
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {sortedCategories.map((category) => {
-            const kws = keywords
-              .filter((k) => k.category_id === category.id)
-              .sort((a, b) => a.menu_order - b.menu_order)
-            const photo = categoryPhoto(category.slug, category.slug)
+          {keywordCards.map(({ keyword, count, dongs }) => {
+            const category = categoryById.get(keyword.category_id)
+            // 운영자가 키워드에 넣은 실제 사진이 우선. 없을 때만 참고 이미지로 폴백한다
+            // (해시 변형 style도 폴백 사진에만 쓴다 — 실제 사진은 색을 건드리지 않는다).
+            const cover = coverImage(setsByKeyword.get(keyword.id))
+            const fallback = categoryPhoto(category?.slug ?? '', keyword.slug, 0, keyword.display_name)
             return (
               <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
+                key={keyword.id}
+                href={`/${keyword.slug}`}
                 className="card group overflow-hidden transition-shadow hover:shadow-xl"
               >
                 <div className="relative aspect-[16/9] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={photo.src}
+                    src={cover ?? fallback.src}
                     alt=""
-                    style={photo.style}
+                    style={cover ? undefined : fallback.style}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
+                  <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
+                    {count > 0 ? `지역 ${count}곳` : '준비 중'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between gap-3 p-4">
-                  <div>
-                    <h3 className="text-lg font-extrabold">{category.display_name}</h3>
-                    <p className="mt-0.5 text-[13px] text-[var(--ink-soft)]">
-                      {kws
-                        .slice(0, 2)
-                        .map((k) => k.display_name.split(' ')[0])
-                        .join(' · ')}{' '}
-                      외 {Math.max(kws.length - 2, 0)}종
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-extrabold">{keyword.display_name}</h3>
+                    <p className="mt-0.5 truncate text-[13px] text-[var(--ink-soft)]">
+                      {dongs.length > 0
+                        ? `${dongs.join(' · ')}${count > dongs.length ? ` 외 ${count - dongs.length}곳` : ''}`
+                        : '지역 페이지 준비 중입니다'}
                     </p>
                   </div>
                   <span aria-hidden className="text-[var(--copper)]">
@@ -138,11 +176,16 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Regions</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">지역별 안내</h2>
+          <p className="mt-2 text-sm text-[var(--ink-soft)]">
+            안내 중인 지역 {regionChips.length}곳
+            {hiddenRegionCount > 0 && <> 가운데 항목이 많은 {shownRegions.length}곳</>}.
+          </p>
           <div className="mt-6 flex flex-wrap gap-2.5">
-            {[...dongStats.values()].map((d) => (
+            {shownRegions.map((d) => (
               <Link
                 key={d.href}
                 href={d.href}
+                title={d.upper ? `${d.upper} ${d.dong}` : d.dong}
                 className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
               >
                 {d.dong}
@@ -154,6 +197,16 @@ export default async function HomePage() {
           </div>
           <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
             숫자는 해당 동네에서 안내 중인 수리 항목 수입니다.
+            {hiddenRegionCount > 0 && (
+              <>
+                {' '}
+                나머지 {hiddenRegionCount}곳은{' '}
+                <a href="#services" className="font-bold text-[var(--teal)] hover:underline">
+                  수리 항목
+                </a>
+                에서 항목을 고르면 볼 수 있습니다.
+              </>
+            )}
           </p>
         </div>
       </section>
@@ -171,7 +224,7 @@ export default async function HomePage() {
             const casePage = caseByKey.get(`${page.repair_keyword_id}:${page.region_id}`)
             if (!casePage?.slug) return null
             const dong = chain[chain.length - 1]
-            const photo = categoryPhoto(cat?.slug ?? '', `${kw!.slug}/${dong.slug}`, 1)
+            const photo = categoryPhoto(cat?.slug ?? '', `${kw!.slug}/${dong.slug}`, 1, kw!.display_name)
             return (
               <Link
                 key={casePage.id}
@@ -188,7 +241,7 @@ export default async function HomePage() {
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
                   <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
-                    {cat?.display_name} · {dong.display_name}
+                    {kw!.display_name} · {dong.display_name}
                   </span>
                 </div>
                 <div className="p-4">

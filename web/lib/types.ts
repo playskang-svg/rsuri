@@ -92,6 +92,21 @@ export interface PageImage {
   sort_order: number
 }
 
+// 키워드 단위 사진 세트(suri_keyword_images). 조합 페이지가 1,300건을 넘어 페이지마다
+// 사진을 넣을 수 없으므로, 키워드에 한 번 올리면 그 키워드의 모든 지역 페이지가 물려받는다.
+// 같은 set_no끼리 한 세트(전/후 + 과정)이고 caption은 세트 안에서 같은 값을 쓴다.
+export type KeywordImageRole = 'BEFORE' | 'AFTER' | 'PROCESS'
+
+export interface KeywordImage {
+  id: number
+  repair_keyword_id: number
+  set_no: number
+  role: KeywordImageRole
+  url: string
+  caption: string | null
+  sort_order: number
+}
+
 export interface PageSection {
   id: number
   page_id: number

@@ -37,7 +37,16 @@ async function fetchAllRows<T>(table: string): Promise<T[]> {
   let rows: T[] = []
   let from = 0
   for (;;) {
-    const { data, error } = await supabase.from(table).select('*').range(from, from + pageSize - 1)
+    // .order()가 반드시 있어야 한다. Postgres는 ORDER BY 없는 LIMIT/OFFSET의 행 순서를
+    // 보장하지 않아서, 1000행을 넘는 순간 두 range 요청 사이에 순서가 갈리면 어떤 행은
+    // 두 번 오고 어떤 행은 아예 안 온다. 안 온 행은 generateStaticParams에서도 빠져
+    // 그 페이지가 통째로 빌드되지 않는다 — 조용히 일부만 배포되는 사고가 된다.
+    // id는 모든 테이블의 PK(bigint identity)라 동점이 없어 이 한 줄로 순서가 못박힌다.
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .order('id')
+      .range(from, from + pageSize - 1)
     if (error) throw new Error(`${table} 조회 실패: ${error.message}`)
     rows = rows.concat((data ?? []) as T[])
     if (!data || data.length < pageSize) break
