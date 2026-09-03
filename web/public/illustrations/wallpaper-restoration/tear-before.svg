@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="찢기고 들뜬 벽지 개념도">
+  <defs>
+    <linearGradient id="tw" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2ede4"/><stop offset="1" stop-color="#e0dacd"/>
+    </linearGradient>
+    <linearGradient id="peel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf8f2"/><stop offset="1" stop-color="#d9d1c2"/>
+    </linearGradient>
+    <filter id="tt" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9 0.9" numOctaves="3" seed="6"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.12"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="rip" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="4" seed="17"/>
+      <feDisplacementMap in="SourceGraphic" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="sf3"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#tw)"/>
+  <rect width="1200" height="900" fill="url(#tw)" filter="url(#tt)" opacity="0.9"/>
+  <g stroke="#d5cec1" stroke-width="2" opacity="0.7">
+    <path d="M400 0 V900"/><path d="M800 0 V900"/>
+  </g>
+
+  <!-- 가구가 눌린 자국(색 변화) -->
+  <rect x="120" y="430" width="300" height="330" fill="#e9e1cf" opacity="0.75"/>
+  <rect x="120" y="430" width="300" height="330" fill="none" stroke="#d8cfba" stroke-width="2"/>
+
+  <!-- ▼ 손상: 찢겨 벌어진 자리 + 말려 올라간 조각 -->
+  <g transform="translate(700 470)">
+    <!-- 벌어진 틈 (석고 바탕 노출) -->
+    <g filter="url(#rip)">
+      <path d="M-30 -190 l58 74 l-40 96 l64 110 l-34 92 l-70 -66 l40 -104 l-52 -92 Z" fill="#a99b86"/>
+      <path d="M-24 -178 l46 66 l-34 90 l56 100 l-28 78 l-52 -50 l36 -96 l-44 -84 Z" fill="#8d7f6c"/>
+    </g>
+    <!-- 말려 올라간 벽지 조각 -->
+    <path d="M28 -116 q66 26 54 92 q-10 58 -70 74 q42 -46 34 -92 q-8 -46 -18 -74 Z" fill="url(#peel)"/>
+    <path d="M28 -116 q66 26 54 92 q-10 58 -70 74" fill="none" stroke="#b5ac9b" stroke-width="3"/>
+    <path d="M-84 62 q-60 34 -44 96 q10 40 56 52 q-34 -46 -24 -88 q8 -34 12 -60 Z" fill="url(#peel)"/>
+    <path d="M-84 62 q-60 34 -44 96 q10 40 56 52" fill="none" stroke="#b5ac9b" stroke-width="3"/>
+  </g>
+
+  <!-- 이음매 들뜸 -->
+  <path d="M800 120 q16 40 -6 84 q-20 42 4 86" fill="none" stroke="#bdb4a3" stroke-width="7" stroke-linecap="round" opacity="0.85"/>
+
+  <rect y="820" width="1200" height="80" fill="#dad3c5"/>
+  <rect y="820" width="1200" height="14" fill="#c6bdac"/>
+  <ellipse cx="700" cy="836" rx="200" ry="16" fill="#6a6558" opacity="0.24" filter="url(#sf3)"/>
+</svg>

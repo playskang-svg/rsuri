@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="창가 결로 곰팡이가 번진 벽지 개념도">
+  <defs>
+    <linearGradient id="wp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2eee6"/><stop offset="1" stop-color="#e2ddd2"/>
+    </linearGradient>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe0e8"/><stop offset="1" stop-color="#9fb9c6"/>
+    </linearGradient>
+    <linearGradient id="damp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7d8570" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#5c6350" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#33372a" stop-opacity="0.8"/>
+    </linearGradient>
+    <filter id="wtex" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9 0.9" numOctaves="3" seed="4"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.13"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="spore" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="5" seed="21"/>
+      <feDisplacementMap in="SourceGraphic" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <filter id="dot" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.22" numOctaves="4" seed="33"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.12  0 0 0 0 0.13  0 0 0 0 0.09  0 0 0 -1.4 0.85"/>
+    </filter>
+    <filter id="sf"><feGaussianBlur stdDeviation="14"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#wp)"/>
+  <rect width="1200" height="900" fill="url(#wp)" filter="url(#wtex)" opacity="0.9"/>
+  <!-- 벽지 이음매 -->
+  <g stroke="#d3ccc0" stroke-width="2" opacity="0.7">
+    <path d="M420 0 V900"/><path d="M840 0 V900"/>
+  </g>
+
+  <!-- 창 -->
+  <rect x="700" y="120" width="420" height="420" rx="4" fill="#b9c9d2"/>
+  <rect x="712" y="132" width="396" height="396" fill="url(#win)"/>
+  <g stroke="#8fa5b1" stroke-width="8" fill="none">
+    <path d="M910 132 V528"/><path d="M712 330 H1108"/>
+  </g>
+  <rect x="700" y="120" width="420" height="420" rx="4" fill="none" stroke="#8c9ba3" stroke-width="10"/>
+  <!-- 유리 물방울 -->
+  <g fill="#eaf3f7" opacity="0.75">
+    <ellipse cx="770" cy="470" rx="7" ry="11"/><ellipse cx="800" cy="500" rx="5" ry="9"/>
+    <ellipse cx="960" cy="480" rx="6" ry="10"/><ellipse cx="1040" cy="505" rx="8" ry="12"/>
+  </g>
+  <!-- 창틀 아래 젖은 자국 -->
+  <rect x="700" y="540" width="420" height="230" fill="url(#damp)"/>
+
+  <!-- ▼ 손상: 곰팡이 번짐 -->
+  <g filter="url(#spore)" opacity="0.9">
+    <ellipse cx="770" cy="620" rx="120" ry="86" fill="#2e3325"/>
+    <ellipse cx="930" cy="660" rx="150" ry="72" fill="#3a3f2e"/>
+    <ellipse cx="1070" cy="600" rx="86" ry="96" fill="#262a1d"/>
+    <ellipse cx="640" cy="700" rx="76" ry="54" fill="#434936"/>
+  </g>
+  <rect x="560" y="520" width="600" height="320" filter="url(#dot)" opacity="0.55"/>
+
+  <!-- 들뜬 벽지 가장자리 -->
+  <path d="M560 560 q40 -22 74 4 q34 26 70 0 q36 -24 72 6"
+        fill="none" stroke="#b9b1a2" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+  <path d="M566 566 q40 -22 74 4 q34 26 70 0 q36 -24 72 6 l0 26 q-38 -24 -74 2 q-34 24 -70 -2 q-32 -24 -72 -4 Z"
+        fill="#efeae0" opacity="0.75"/>
+
+  <!-- 바닥 걸레받이 -->
+  <rect y="820" width="1200" height="80" fill="#dcd5c8"/>
+  <rect y="820" width="1200" height="14" fill="#c8c0b0"/>
+  <ellipse cx="880" cy="838" rx="230" ry="18" fill="#4a4d3c" opacity="0.3" filter="url(#sf)"/>
+</svg>

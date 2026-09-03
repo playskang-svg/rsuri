@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="앞코 보강과 색 맞춤으로 복원한 계단 개념도">
+  <defs>
+    <linearGradient id="sbg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1eb"/><stop offset="1" stop-color="#e4dfd5"/>
+    </linearGradient>
+    <linearGradient id="tread2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dcb17a"/><stop offset="1" stop-color="#bd9260"/>
+    </linearGradient>
+    <linearGradient id="riser2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a17c53"/><stop offset="1" stop-color="#83603d"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="wood2" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.014 0.6" numOctaves="4" seed="37"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="ssf2"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#sbg2)"/>
+
+  <g>
+    <path d="M120 300 L820 300 L820 348 L120 348 Z" fill="url(#riser2)"/>
+    <path d="M120 252 L820 252 L900 300 L200 300 Z" fill="url(#tread2)"/>
+    <path d="M200 448 L900 448 L900 496 L200 496 Z" fill="url(#riser2)"/>
+    <path d="M200 400 L900 400 L980 448 L280 448 Z" fill="url(#tread2)"/>
+    <path d="M280 596 L980 596 L980 644 L280 644 Z" fill="url(#riser2)"/>
+    <path d="M280 548 L980 548 L1060 596 L360 596 Z" fill="url(#tread2)"/>
+    <path d="M360 744 L1060 744 L1060 792 L360 792 Z" fill="url(#riser2)"/>
+    <path d="M360 696 L1060 696 L1140 744 L440 744 Z" fill="url(#tread2)"/>
+  </g>
+  <g filter="url(#wood2)" opacity="0.6">
+    <path d="M120 252 L820 252 L900 300 L200 300 Z" fill="#d0a674"/>
+    <path d="M200 400 L900 400 L980 448 L280 448 Z" fill="#d0a674"/>
+    <path d="M280 548 L980 548 L1060 596 L360 596 Z" fill="#d0a674"/>
+    <path d="M360 696 L1060 696 L1140 744 L440 744 Z" fill="#d0a674"/>
+  </g>
+
+  <!-- 되살린 앞코 — 각이 살아 있고 하이라이트가 선명하다 -->
+  <g>
+    <path d="M200 296 L900 296 L900 306 L200 306 Z" fill="url(#edge)"/>
+    <path d="M280 444 L980 444 L980 454 L280 454 Z" fill="url(#edge)"/>
+    <path d="M360 592 L1060 592 L1060 602 L360 602 Z" fill="url(#edge)"/>
+    <path d="M440 740 L1140 740 L1140 750 L440 750 Z" fill="url(#edge)"/>
+  </g>
+  <g stroke="#8d6b45" stroke-width="2.5" opacity="0.8">
+    <path d="M200 300 H900"/><path d="M280 448 H980"/>
+    <path d="M360 596 H1060"/><path d="M440 744 H1140"/>
+  </g>
+
+  <!-- 논슬립 (미끄럼 방지) -->
+  <g fill="#6f6f6f" opacity="0.55">
+    <rect x="230" y="284" width="640" height="6" rx="3"/>
+    <rect x="310" y="432" width="640" height="6" rx="3"/>
+    <rect x="390" y="580" width="640" height="6" rx="3"/>
+  </g>
+
+  <ellipse cx="700" cy="812" rx="340" ry="16" fill="#7b7362" opacity="0.18" filter="url(#ssf2)"/>
+</svg>

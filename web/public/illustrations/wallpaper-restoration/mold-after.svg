@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="항균 처리 후 부분 도배로 복원한 벽면 개념도">
+  <defs>
+    <linearGradient id="wp2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8f5ef"/><stop offset="1" stop-color="#ebe6dc"/>
+    </linearGradient>
+    <linearGradient id="win2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dcecf3"/><stop offset="1" stop-color="#b3cad5"/>
+    </linearGradient>
+    <filter id="wtex2" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9 0.9" numOctaves="3" seed="8"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.09"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="sf2"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#wp2)"/>
+  <rect width="1200" height="900" fill="url(#wp2)" filter="url(#wtex2)" opacity="0.85"/>
+  <g stroke="#ded8cd" stroke-width="2" opacity="0.6">
+    <path d="M420 0 V900"/><path d="M840 0 V900"/>
+  </g>
+
+  <!-- 새로 이어 붙인 면 — 경계가 결을 따라 반듯하게 서 있다 -->
+  <rect x="560" y="520" width="600" height="300" fill="#f9f6f0"/>
+  <rect x="560" y="520" width="600" height="300" fill="#f6f2ea" filter="url(#wtex2)" opacity="0.7"/>
+  <path d="M560 520 V820" stroke="#e6e0d5" stroke-width="2"/>
+  <path d="M1160 520 V820" stroke="#e6e0d5" stroke-width="2"/>
+  <path d="M560 522 H1160" stroke="#e6e0d5" stroke-width="2"/>
+
+  <!-- 창 -->
+  <rect x="700" y="120" width="420" height="420" rx="4" fill="#c9d7de"/>
+  <rect x="712" y="132" width="396" height="396" fill="url(#win2)"/>
+  <g stroke="#a3b6c0" stroke-width="8" fill="none">
+    <path d="M910 132 V528"/><path d="M712 330 H1108"/>
+  </g>
+  <rect x="700" y="120" width="420" height="420" rx="4" fill="none" stroke="#9aa8b0" stroke-width="10"/>
+  <!-- 창틀 아래 깨끗한 코킹 라인 -->
+  <rect x="700" y="536" width="420" height="10" fill="#fbf9f5"/>
+
+  <!-- 걸레받이 -->
+  <rect y="820" width="1200" height="80" fill="#e6e0d4"/>
+  <rect y="820" width="1200" height="14" fill="#d4ccbc"/>
+  <ellipse cx="880" cy="838" rx="200" ry="12" fill="#6d6a5c" opacity="0.16" filter="url(#sf2)"/>
+</svg>

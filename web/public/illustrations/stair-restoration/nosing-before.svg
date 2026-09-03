@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="앞코가 닳고 찍힌 계단 개념도">
+  <defs>
+    <linearGradient id="sbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eeeae2"/><stop offset="1" stop-color="#ddd8cd"/>
+    </linearGradient>
+    <linearGradient id="tread" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c69a67"/><stop offset="1" stop-color="#a87f50"/>
+    </linearGradient>
+    <linearGradient id="riser" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f6b45"/><stop offset="1" stop-color="#705233"/>
+    </linearGradient>
+    <filter id="wood" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.014 0.6" numOctaves="4" seed="15"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.24"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="wear" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.2" numOctaves="4" seed="27"/>
+      <feDisplacementMap in="SourceGraphic" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="ssf"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#sbg)"/>
+
+  <!-- 계단 4단 (측면 사선 투시) -->
+  <g>
+    <!-- 4단 -->
+    <path d="M120 300 L820 300 L820 348 L120 348 Z" fill="url(#riser)"/>
+    <path d="M120 252 L820 252 L900 300 L200 300 Z" fill="url(#tread)"/>
+    <!-- 3단 -->
+    <path d="M200 448 L900 448 L900 496 L200 496 Z" fill="url(#riser)"/>
+    <path d="M200 400 L900 400 L980 448 L280 448 Z" fill="url(#tread)"/>
+    <!-- 2단 -->
+    <path d="M280 596 L980 596 L980 644 L280 644 Z" fill="url(#riser)"/>
+    <path d="M280 548 L980 548 L1060 596 L360 596 Z" fill="url(#tread)"/>
+    <!-- 1단 -->
+    <path d="M360 744 L1060 744 L1060 792 L360 792 Z" fill="url(#riser)"/>
+    <path d="M360 696 L1060 696 L1140 744 L440 744 Z" fill="url(#tread)"/>
+  </g>
+  <!-- 나뭇결 -->
+  <g filter="url(#wood)" opacity="0.7">
+    <path d="M120 252 L820 252 L900 300 L200 300 Z" fill="#b98d5c"/>
+    <path d="M200 400 L900 400 L980 448 L280 448 Z" fill="#b98d5c"/>
+    <path d="M280 548 L980 548 L1060 596 L360 596 Z" fill="#b98d5c"/>
+    <path d="M360 696 L1060 696 L1140 744 L440 744 Z" fill="#b98d5c"/>
+  </g>
+
+  <!-- ▼ 손상: 앞코가 둥글게 닳음 (모서리가 뭉개진 하이라이트) -->
+  <g filter="url(#wear)" opacity="0.9">
+    <path d="M200 296 L900 296 L900 312 L200 312 Z" fill="#8a6a45"/>
+    <path d="M280 444 L980 444 L980 460 L280 460 Z" fill="#8a6a45"/>
+    <path d="M360 592 L1060 592 L1060 608 L360 608 Z" fill="#8a6a45"/>
+    <path d="M440 740 L1140 740 L1140 756 L440 756 Z" fill="#8a6a45"/>
+  </g>
+  <!-- 코팅 벗겨져 맨나무 드러남 -->
+  <g fill="#d9b98e" opacity="0.8" filter="url(#wear)">
+    <ellipse cx="540" cy="288" rx="150" ry="12"/>
+    <ellipse cx="620" cy="436" rx="170" ry="12"/>
+    <ellipse cx="700" cy="584" rx="150" ry="12"/>
+  </g>
+  <!-- 디딤판 찍힘 자국 -->
+  <g fill="#5f472e" opacity="0.85">
+    <ellipse cx="430" cy="276" rx="26" ry="7"/>
+    <ellipse cx="760" cy="424" rx="20" ry="6"/>
+    <ellipse cx="880" cy="572" rx="30" ry="8"/>
+  </g>
+  <!-- 챌판 벌어진 틈 -->
+  <g stroke="#3a2b1a" stroke-width="5" opacity="0.75">
+    <path d="M200 302 H900"/><path d="M280 450 H980"/><path d="M360 598 H1060"/>
+  </g>
+
+  <ellipse cx="700" cy="812" rx="380" ry="20" fill="#6b6252" opacity="0.28" filter="url(#ssf)"/>
+</svg>
