@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
@@ -232,146 +233,138 @@ export default async function LandingPage({
 
   return (
     <main className="pb-24 md:pb-0">
-      {/* ── 브레드크럼 ── */}
-      <nav aria-label="현재 위치" className="mx-auto max-w-6xl px-4 pt-5 sm:px-6">
-        <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[var(--ink-soft)]">
-          <li>
-            <Link href="/" className="hover:text-[var(--ink)]">
-              수리위키
-            </Link>
-          </li>
-          <li aria-hidden>›</li>
-          <li>
-            <Link href={`/${keyword.slug}`} className="hover:text-[var(--ink)]">
-              {keyword.display_name}
-            </Link>
-          </li>
-          {chain.map((r) => (
-            <li key={r.id} className="flex items-center gap-1.5">
-              <span aria-hidden>›</span>
-              <span className={r.id === region.id ? 'font-bold text-[var(--ink)]' : ''}>
-                {r.display_name}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </nav>
-
-      {/* ── 히어로 + 진단 카드 ── */}
-      <section className="relative mt-4 border-y border-[var(--line)] bg-white">
+      {/* ── 히어로 (풀블리드 사진 + 오버레이) ──
+          사진을 오른쪽 칸에 가둬 두면 첫 화면이 텍스트 덩어리로 보인다. 배경으로 깔고
+          그 위에 지역+키워드를 크게 얹어, 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다. */}
+      <section className="relative isolate overflow-hidden bg-[var(--ink)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photoA.src}
+          alt={photoA.note ?? `${region.display_name} ${keyword.display_name}`}
+          style={photoA.style}
+          loading="eager"
+          className="absolute inset-0 -z-10 h-full w-full object-cover"
+        />
+        {/* 사진 위 글자의 대비를 고정한다 — 어떤 사진이 와도 읽히게. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.08]"
-          style={{ backgroundImage: bg }}
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-[rgba(16,24,28,0.92)] via-[rgba(16,24,28,0.78)] to-[rgba(16,24,28,0.45)]"
         />
-        <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-16">
-          <div>
-            <p className="eyebrow">
-              {upperName || keyword.display_name} · {region.display_name}
-            </p>
-            <h1 className="font-serif-kr mt-3 text-3xl font-black leading-[1.25] sm:text-4xl">
-              {region.display_name} {keyword.display_name}
-            </h1>
-            <p className="prose-kr mt-5 max-w-xl text-[15px] text-[var(--ink-soft)]">
-              {local?.hero_line ??
-                guide?.summary ??
-                kc?.tagline ??
-                keyword.description ??
-                `${region.display_name} 지역 ${keyword.display_name} 출장 안내 페이지입니다.`}
-            </p>
-
-            {region.housing_characteristics && (
-              <div className="mt-6 rounded-xl border border-[var(--line)] bg-[var(--teal-soft)]/60 p-4 text-sm">
-                <span className="font-bold text-[var(--teal)]">
-                  {region.display_name} 주거 특성
-                </span>
-                <p className="mt-1 text-[var(--ink-soft)]">{region.housing_characteristics}</p>
-              </div>
-            )}
-
-            {/* 후킹 문구에 지역 + 키워드를 그대로 넣는다 — 검색어와 화면의 말이 같아야 한다. */}
-            <p className="mt-6 text-lg font-extrabold leading-snug sm:text-xl">
-              {region.display_name} {keyword.display_name}, 사진 한 장이면
-              <br className="hidden sm:block" /> 오늘 방문 가능한지 바로 알려드립니다.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              {telHref && (
-                <a href={telHref} className="btn-call">
-                  <PhoneIcon />
-                  {phone} {region.display_name} 상담
-                </a>
-              )}
-              {casePage?.slug && (
-                <Link href={`/case/${casePage.slug}`} className="btn-ghost">
-                  이 동네 시공 기록 보기
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
+          <nav aria-label="현재 위치">
+            <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[#aeb9be]">
+              <li>
+                <Link href="/" className="hover:text-white">
+                  홈
                 </Link>
-              )}
-            </div>
-            <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-              <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
-              연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후 안내드립니다.
-            </p>
+              </li>
+              <li aria-hidden>›</li>
+              <li>
+                <Link href={`/${keyword.slug}`} className="hover:text-white">
+                  {keyword.display_name}
+                </Link>
+              </li>
+              {chain.map((r) => (
+                <li key={r.id} className="flex items-center gap-1.5">
+                  <span aria-hidden>›</span>
+                  <span className={r.id === region.id ? 'font-bold text-white' : ''}>
+                    {r.display_name}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </nav>
 
-            {/* 히어로 왼쪽 아래가 비어 있었다. 스크롤하지 않고도 "무엇을 어떻게 고치는지"가
-                한눈에 들어와야 하는 자리라, 키워드 자산의 세부 항목을 압축해서 채운다. */}
-            {kc && kc.services.length > 0 && (
-              <div className="mt-6 rounded-xl border border-[var(--line)] bg-white/80 p-4">
-                <p className="text-[13px] font-extrabold text-[var(--teal)]">
-                  {region.display_name}에서 이런 걸 고칩니다
-                </p>
-                <ul className="mt-2.5 flex flex-wrap gap-1.5">
-                  {kc.services.map((s, i) => (
-                    <li
-                      key={i}
-                      className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1 text-[12px] font-semibold text-[var(--ink-soft)]"
-                    >
-                      {s.title}
+          <p className="mt-5 inline-block rounded-full border border-[#e8b34c]/60 px-4 py-1.5 text-[13px] font-extrabold text-[#e8b34c]">
+            {region.display_name} {keyword.display_name} 출장 시공
+          </p>
+
+          <h1 className="font-serif-kr mt-4 text-4xl font-black leading-[1.15] text-white sm:text-5xl">
+            {region.display_name} {keyword.display_name}
+          </h1>
+
+          <p className="prose-kr mt-5 max-w-2xl text-[15px] leading-relaxed text-[#d7dde0] sm:text-base">
+            {region.profile?.dongs && `${region.profile.dongs} 등 전 동 출장 ${region.display_name} ${keyword.display_name}. `}
+            {local?.hero_line ??
+              guide?.summary ??
+              kc?.tagline ??
+              keyword.description ??
+              `${region.display_name} 지역 ${keyword.display_name} 출장 안내입니다.`}
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            {telHref && (
+              <a
+                href={telHref}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[15px] font-extrabold text-[var(--ink)] transition-transform hover:scale-[1.03]"
+              >
+                <PhoneIcon />
+                {phone} 상담문의
+              </a>
+            )}
+            <Link
+              href={`/${keyword.slug}`}
+              className="inline-flex items-center rounded-full border border-white/45 px-6 py-3 text-[15px] font-extrabold text-white hover:border-white"
+            >
+              {keyword.display_name} 전체 지역
+            </Link>
+          </div>
+
+          <p className="mt-5 text-[13px] text-[#aeb9be]">
+            작업 중에는 전화 연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후
+            안내드립니다.
+          </p>
+        </div>
+      </section>
+
+      {/* ── 이런 증상이면 + 이런 걸 고칩니다 ──
+          히어로에서 밀려난 자가진단 카드. 사진 배경 위에 두면 체크리스트가 안 읽힌다. */}
+      {(symptoms.length > 0 || (kc && kc.services.length > 0)) && (
+        <section className="border-b border-[var(--line)] bg-white">
+          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-2">
+            {symptoms.length > 0 && (
+              <div className="diag-card rounded-2xl p-6">
+                <p className="eyebrow">Self Check</p>
+                <h2 className="font-serif-kr mt-2 text-2xl font-black">
+                  이런 증상이면 {region.display_name} {keyword.display_name}가 필요합니다
+                </h2>
+                <ul className="mt-5 space-y-3.5">
+                  {symptoms.map((s, i) => (
+                    <li key={i} className="diag-item text-[15px] leading-snug">
+                      <span aria-hidden className="diag-box" />
+                      <span>{s}</span>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">
-                  {kc.tagline}
+                <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
+                  한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
                 </p>
               </div>
             )}
+            {kc && kc.services.length > 0 && (
+              <div className="self-start rounded-2xl border border-[var(--line)] p-6">
+                <p className="eyebrow">What We Fix</p>
+                <h2 className="font-serif-kr mt-2 text-2xl font-black">
+                  {region.display_name} {keyword.display_name}, 이런 걸 고칩니다
+                </h2>
+                <ul className="mt-5 space-y-3">
+                  {kc.services.map((s, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span aria-hidden className="mt-0.5 font-black text-[var(--teal)]">
+                        ·
+                      </span>
+                      <span className="text-[15px] leading-snug">
+                        <b>{s.title}</b>{' '}
+                        <span className="text-[var(--ink-soft)]">{s.desc}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-
-          {/* 사진 + 진단 체크카드 */}
-          <div className="space-y-5 self-start">
-            {/* 전/후 슬라이더는 아래 "시공 사례" 섹션이 전담한다 — 히어로에도 두면
-                같은 사진이 한 화면에 두 번 나온다. 여기는 대표 사진 한 장만. */}
-            <div className="hero-photo aspect-[16/10]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photoA.src}
-                alt={photoA.note ?? `${keyword.display_name} ${photoA.label}`}
-                style={photoA.style}
-                loading="eager"
-              />
-              <span className="tag">{photoA.label}</span>
-            </div>
-          {symptoms.length > 0 && (
-            <aside className="diag-card rounded-2xl p-6" aria-labelledby="diag-title">
-              <p className="eyebrow">Self Check</p>
-              <h2 id="diag-title" className="mt-1 text-lg font-extrabold">
-                이런 증상이면 의심하세요
-              </h2>
-              <ul className="mt-4 space-y-3.5">
-                {symptoms.map((s, i) => (
-                  <li key={i} className="diag-item text-[15px] leading-snug">
-                    <span aria-hidden className="diag-box" />
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
-                한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
-              </p>
-            </aside>
-          )}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── 시공 사례 (전/후) ──
           실제 사진이 등록된 키워드에서만 나온다. 스톡 사진으로는 전후 비교가 성립하지
@@ -381,10 +374,10 @@ export default async function LandingPage({
           <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
             <p className="eyebrow">Field Work</p>
             <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-              {region.display_name} {keyword.display_name} 작업 사진
+              {region.display_name} {keyword.display_name} 시공사례
             </h2>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              실제 시공 전 · 후 사진입니다. 손잡이를 좌우로 움직여 비교해 보세요.
+              전·후 사진을 한 자리에 두어 시공 결과를 한눈에 비교하실 수 있습니다.
             </p>
             <div className="mt-6">
               <BeforeAfterSlider
@@ -396,48 +389,89 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 이 지역에서 많이 받는 의뢰 ──
+      {/* ── AREA · 핵심 포인트 ──
           지역 페이지가 서로 다른 글이 되는 첫 번째 자리. 같은 키워드라도 동네마다
-          실제로 들어오는 의뢰 유형이 다르다. */}
+          실제로 들어오는 의뢰 유형이 다르다. 앞의 3개만 카드로 크게 세우고,
+          나머지는 아래 "자주 발생하는 상황" 목록이 받는다. */}
       {local && local.top_requests.length > 0 && (
-        <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">{region.display_name} 시공 요약</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            {region.display_name}에서 많이 받는 의뢰
-          </h2>
-          <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            의뢰 빈도 기준 주요 작업 유형입니다.
-          </p>
-          <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {local.top_requests.map((r, i) => (
-              <li key={i} className="card p-5">
-                <h3 className="font-extrabold text-[var(--teal)]">{r.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{r.desc}</p>
-              </li>
-            ))}
-          </ul>
+        <section className="border-y border-[var(--line)] bg-[var(--paper)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <Pill>AREA</Pill>
+            <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
+              {region.display_name} {keyword.display_name}의 핵심 포인트
+            </h2>
+            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
+              시공 전 미리 알아두면 좋은 부분을 정리했습니다.
+            </p>
+            <ul className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {local.top_requests.slice(0, 3).map((r, i) => (
+                <li key={i} className="rounded-lg border border-[var(--line)] bg-white p-7">
+                  <h3 className="text-lg font-extrabold">{r.title}</h3>
+                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
+                    {r.desc}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
       {/* ── 지역 롱폼 본문 ──
-          검색 엔진이 이 페이지를 "지역명만 바꾼 복붙"이 아니라고 판단하는 근거가 되는 본문. */}
+          검색 엔진이 이 페이지를 "지역명만 바꾼 복붙"이 아니라고 판단하는 근거가 되는 본문.
+          소제목마다 지역+키워드를 붙인다 — 목차만 훑어도 이 페이지가 무엇에 대한 글인지
+          드러나야 하고, 그게 곧 타겟 키워드다. */}
       {local && (
-        <section className="border-y border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-            <h2 className="font-serif-kr text-2xl font-black sm:text-[1.7rem]">
-              {region.display_name} {keyword.display_name}, 어떻게 진행되나요
-            </h2>
-            <p className="prose-kr mt-5 text-[15px] leading-relaxed text-[var(--ink-soft)]">
-              {local.longform.lead}
-            </p>
+        <section className="bg-white">
+          <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+            <p className="prose-kr text-[17px] font-bold leading-relaxed">{local.longform.lead}</p>
+
             {local.longform.sections.map((s, i) => (
-              <div key={i} className="mt-8">
-                <h3 className="font-extrabold">{s.title}</h3>
-                <p className="prose-kr mt-2 text-[15px] leading-relaxed text-[var(--ink-soft)]">
+              <div key={i} className="mt-12">
+                <h3 className="font-serif-kr text-xl font-black sm:text-2xl">
+                  {region.display_name} {keyword.display_name} — {s.title}
+                </h3>
+                <hr className="mt-3 border-[var(--line)]" />
+                <p className="prose-kr mt-5 text-[15px] leading-relaxed text-[var(--ink-soft)]">
                   {s.body}
                 </p>
+                {/* 첫 소제목 아래에만 상황 목록을 붙인다. 문단마다 반복하면 목록이 본문을 덮는다. */}
+                {i === 0 && local.top_requests.length > 3 && (
+                  <ul className="mt-6 space-y-2.5">
+                    {local.top_requests.slice(3).map((r, j) => (
+                      <li
+                        key={j}
+                        className="flex gap-3 rounded-lg bg-[var(--paper)] px-5 py-3.5 text-[15px]"
+                      >
+                        <span aria-hidden className="font-black text-[var(--copper)]">
+                          ✔
+                        </span>
+                        <span>
+                          <b>{r.title}</b>{' '}
+                          <span className="text-[var(--ink-soft)]">— {r.desc}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
+
+            {/* 본문을 다 읽은 사람이 갈 곳을 만들어 준다 — 여기서 끊기면 이탈이다. */}
+            <div className="mt-12 flex flex-wrap items-center justify-between gap-4 rounded-lg border-l-4 border-[var(--ink)] bg-[var(--paper)] px-6 py-6">
+              <div>
+                <p className="text-[15px] text-[var(--ink-soft)]">다른 지역도 함께 보세요</p>
+                <p className="mt-1 font-bold">
+                  {keyword.display_name} 지역별 안내를 한 번에 확인하실 수 있습니다.
+                </p>
+              </div>
+              <Link
+                href={`/${keyword.slug}`}
+                className="inline-flex flex-none items-center gap-2 rounded-full bg-[var(--ink)] px-6 py-3 text-[15px] font-extrabold text-[var(--paper)]"
+              >
+                {keyword.display_name} 전체 →
+              </Link>
+            </div>
           </div>
         </section>
       )}
@@ -447,7 +481,7 @@ export default async function LandingPage({
         <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Services</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            {keyword.display_name} 세부 항목
+            {region.display_name} {keyword.display_name} 세부 항목
           </h2>
           <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {kc.services.map((s, i) => (
@@ -465,7 +499,7 @@ export default async function LandingPage({
         <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Process</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            표준 시공 절차
+            {region.display_name} {keyword.display_name} 진행 절차
           </h2>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
             {region.display_name} 현장에서 실제로 진행되는 순서입니다.
@@ -516,7 +550,9 @@ export default async function LandingPage({
       {guide && guide.prevention_tips.length > 0 && (
         <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Prevention</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">시공 후 재발 방지</h2>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">
+            {region.display_name} 시공 후 관리·재발 방지
+          </h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-1">
             {guide.prevention_tips.map((tip, i) => (
               <li key={i} className="card flex gap-3 p-4 text-sm">
@@ -534,7 +570,9 @@ export default async function LandingPage({
       {kc && kc.why_pro.length > 0 && (
         <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6">
           <p className="eyebrow">Why Pro</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">전문 업체 시공이 유리한 이유</h2>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">
+            {region.display_name} {keyword.display_name}, 전문 업체가 유리한 이유
+          </h2>
           <ul className="mt-6 grid gap-3">
             {kc.why_pro.map((r, i) => (
               <li key={i} className="card flex gap-3 p-4 text-sm">
@@ -553,7 +591,9 @@ export default async function LandingPage({
         <section className="border-y border-[var(--line)] bg-white">
           <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
             <p className="eyebrow">Field Record</p>
-            <h2 className="font-serif-kr mt-2 text-2xl font-black">이 동네 실제 시공 기록</h2>
+            <h2 className="font-serif-kr mt-2 text-2xl font-black">
+              {region.display_name} {keyword.display_name} 시공 기록
+            </h2>
             <Link
               href={`/case/${casePage.slug}`}
               className="card group mt-6 flex items-center justify-between gap-4 p-5 transition-shadow hover:shadow-lg"
@@ -579,7 +619,9 @@ export default async function LandingPage({
       {faqs.length > 0 && (
         <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">FAQ</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">자주 묻는 질문</h2>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">
+            {region.display_name} {keyword.display_name} 자주 묻는 질문
+          </h2>
           <div className="mt-6">
             {faqs.map((f, i) => (
               <details key={i} className="faq">
@@ -596,7 +638,7 @@ export default async function LandingPage({
         <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6">
           <p className="eyebrow">Local Masters</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {region.display_name} 담당 마스터
+            {region.display_name} {keyword.display_name} 담당 마스터
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {pros.map((pro) => (
@@ -648,7 +690,7 @@ export default async function LandingPage({
       <section className="border-t border-[var(--line)] bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <p className="eyebrow">Related</p>
-          <h2 className="font-serif-kr mt-2 text-xl font-black">이어서 볼 페이지</h2>
+          <h2 className="font-serif-kr mt-2 text-xl font-black">관련 서비스 페이지</h2>
 
           {/* (a) 같은 키워드 · 다른 지역 */}
           {sameKeyword.length > 0 && (
@@ -784,6 +826,15 @@ export default async function LandingPage({
         </div>
       )}
     </main>
+  )
+}
+
+/** 섹션 머리의 영문 라벨 알약. eyebrow(민무늬 소문자)보다 구획이 또렷하다. */
+function Pill({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-block rounded-full border border-[var(--copper)]/40 bg-[var(--copper)]/10 px-4 py-1.5 text-[12px] font-extrabold tracking-[0.14em] text-[var(--copper)]">
+      {children}
+    </span>
   )
 }
 

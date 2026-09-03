@@ -4,7 +4,7 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
-import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
+import { getKeywordImages, groupSetsByKeyword, coverImage } from '@/lib/keyword-images'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
 import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import type { Page, Region } from '@/lib/types'
@@ -101,6 +101,8 @@ export default async function KeywordHubPage({
 
   // 사진은 키워드 단위로 등록하고 하위 지역 페이지가 전부 물려받는다.
   const sets = groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? []
+  // 지역 카드 썸네일용 표지. 실제 시공 사진이 있으면 그것, 없으면 카드마다 참고 이미지.
+  const cover = coverImage(sets)
   // 스톡 사진은 분위기용이라 "시공 전/후"로 부르면 안 된다(lib/photos.ts 규칙).
   // 운영자가 올린 실사가 없을 때만, "참고 이미지"로 명시해 히어로에 쓴다.
   const stock = categoryPhoto(category?.slug ?? '', keyword.slug, 0, keyword.display_name)
@@ -337,7 +339,9 @@ export default async function KeywordHubPage({
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
               동네를 고르면 그 지역의 {keyword.display_name} 안내로 이동합니다.
             </p>
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {/* 지역명만 나열하면 어느 항목의 지역인지가 카드에서 사라진다.
+                제목을 "강남구 문수리"로 두어 카드 하나만 봐도 목적지가 드러나게 한다. */}
+            <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {myLandings.map(({ page, chain }) => {
                 const path = chain.map((r) => r.slug).join('/')
                 const dong = chain[chain.length - 1]
@@ -345,22 +349,57 @@ export default async function KeywordHubPage({
                   .slice(0, -1)
                   .map((r) => r.display_name)
                   .join(' ')
+                // 실제 시공 사진이 등록돼 있으면 그 표지를 쓰고, 없을 때만 참고 이미지로
+                // 떨어진다. 참고 이미지는 지역 slug를 섞어 카드마다 조금씩 달라진다.
+                const fallback = categoryPhoto(
+                  category?.slug ?? '',
+                  `${keyword.slug}/${dong.slug}`,
+                  0,
+                  keyword.display_name,
+                )
+                const src = cover ?? fallback.src
                 return (
                   <li key={page.id}>
                     <Link
                       href={`/${keyword.slug}/${path}`}
-                      className="card group flex items-center justify-between gap-3 p-5 transition-shadow hover:shadow-lg"
+                      className="card group block overflow-hidden transition-shadow hover:shadow-xl"
                     >
-                      <div>
-                        <p className="text-xs text-[var(--ink-soft)]">{upper}</p>
-                        <p className="mt-0.5 text-lg font-extrabold">{dong.display_name}</p>
+                      <div className="relative aspect-[16/9] overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={src}
+                          alt=""
+                          style={cover ? undefined : fallback.style}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                        />
+                        {!cover && (
+                          <span className="absolute left-2.5 top-2.5 rounded-full bg-[var(--ink)]/75 px-2 py-0.5 text-[10px] font-bold text-[var(--paper)]">
+                            참고 이미지
+                          </span>
+                        )}
                       </div>
-                      <span
-                        aria-hidden
-                        className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-[var(--line)] text-[var(--copper)] group-hover:border-[var(--copper)]"
-                      >
-                        →
-                      </span>
+                      <div className="flex items-center justify-between gap-3 p-4">
+                        <div className="min-w-0">
+                          {upper && (
+                            <p className="truncate text-[11px] text-[var(--ink-soft)]">{upper}</p>
+                          )}
+                          <p className="mt-0.5 truncate text-base font-extrabold">
+                            {dong.display_name} {keyword.display_name}
+                          </p>
+                          {dong.profile?.near && (
+                            <p className="mt-1 truncate text-[12px] text-[var(--ink-soft)]">
+                              {dong.profile.near}
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          aria-hidden
+                          className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-[var(--line)] text-[var(--copper)] group-hover:border-[var(--copper)]"
+                        >
+                          →
+                        </span>
+                      </div>
                     </Link>
                   </li>
                 )
