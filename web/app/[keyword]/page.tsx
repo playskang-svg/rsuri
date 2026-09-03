@@ -6,7 +6,21 @@ import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
 import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
+import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import type { Page, Region } from '@/lib/types'
+
+function PhoneIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
 
 export const dynamicParams = false
 
@@ -39,7 +53,7 @@ export default async function KeywordHubPage({
   params: Promise<{ keyword: string }>
 }) {
   const { keyword: keywordSlug } = await params
-  const { keywords, categories, pages, regions } = await getAllData()
+  const { keywords, categories, pages, regions, localPros } = await getAllData()
   const keyword = keywords.find((k) => k.slug === keywordSlug)
   if (!keyword) notFound()
 
@@ -125,7 +139,9 @@ export default async function KeywordHubPage({
     )
     .slice(0, 18)
 
-  const telHref = keyword.default_phone ? `tel:${keyword.default_phone.replace(/-/g, '')}` : undefined
+  // 키워드에 전용 번호가 지정돼 있으면 그것, 없으면 등록된 지역 마스터의 대표 번호.
+  const phone = keyword.default_phone ?? fallbackPhone(localPros)
+  const telHref = telHrefOf(phone)
 
   return (
     <main>
@@ -157,10 +173,17 @@ export default async function KeywordHubPage({
                 {keyword.description}
               </p>
             )}
-            <div className="mt-7 flex flex-wrap gap-3">
+            {/* 전환 경로는 전화 한 가지뿐이다 — 히어로에서 번호를 숨기지 않는다.
+                후킹 문구에 키워드를 그대로 넣어 검색어와 화면의 말이 어긋나지 않게 한다. */}
+            <p className="mt-6 text-lg font-extrabold leading-snug sm:text-xl">
+              {keyword.display_name}, 사진 한 장이면
+              <br className="hidden sm:block" /> 오늘 처리 가능한지 바로 알려드립니다.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
               {telHref && (
                 <a href={telHref} className="btn-call">
-                  {keyword.default_phone} 상담
+                  <PhoneIcon />
+                  {phone} {keyword.display_name} 상담
                 </a>
               )}
               <a href="#regions" className="btn-ghost">
@@ -171,6 +194,27 @@ export default async function KeywordHubPage({
               <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
               연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후 안내드립니다.
             </p>
+
+            {/* 히어로 왼쪽 아래가 비어 있었다. 스크롤하지 않고도 "무엇을 어떻게 고치는지"가
+                한눈에 들어와야 하는 자리라, 키워드 자산의 세부 항목을 압축해서 채운다. */}
+            {kc && kc.services.length > 0 && (
+              <div className="mt-6 rounded-xl border border-[var(--line)] bg-white/80 p-4">
+                <p className="text-[13px] font-extrabold text-[var(--teal)]">이런 걸 고칩니다</p>
+                <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                  {kc.services.map((s, i) => (
+                    <li
+                      key={i}
+                      className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1 text-[12px] font-semibold text-[var(--ink-soft)]"
+                    >
+                      {s.title}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                  {kc.tagline}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 실사가 없을 때만 참고 이미지를 건다 — 실제 시공 사진 옆에 스톡을 섞지 않는다. */}

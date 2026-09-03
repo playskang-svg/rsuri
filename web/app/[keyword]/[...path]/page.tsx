@@ -6,6 +6,7 @@ import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
 import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
 import { composeLocal } from '@/lib/compose-local'
+import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
 import type { Page, PageImageRole, Region } from '@/lib/types'
 
@@ -110,7 +111,10 @@ export default async function LandingPage({
 
   const pros = localPros.filter((p) => p.region_id === region.id)
   const mainPro = pros[0]
-  const telHref = mainPro ? `tel:${mainPro.phone.replace(/-/g, '')}` : undefined
+  // 담당 마스터가 지정된 지역은 7곳뿐이다. 나머지 지역에서 전화번호가 통째로 사라지면
+  // 전환 경로가 없는 페이지가 되므로 대표 번호로 떨어뜨린다.
+  const phone = mainPro?.phone ?? keyword.default_phone ?? fallbackPhone(localPros)
+  const telHref = telHrefOf(phone)
 
   const casePage = pages.find(
     (p) =>
@@ -285,11 +289,16 @@ export default async function LandingPage({
               </div>
             )}
 
-            <div className="mt-7 flex flex-wrap gap-3">
+            {/* 후킹 문구에 지역 + 키워드를 그대로 넣는다 — 검색어와 화면의 말이 같아야 한다. */}
+            <p className="mt-6 text-lg font-extrabold leading-snug sm:text-xl">
+              {region.display_name} {keyword.display_name}, 사진 한 장이면
+              <br className="hidden sm:block" /> 오늘 방문 가능한지 바로 알려드립니다.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
               {telHref && (
                 <a href={telHref} className="btn-call">
                   <PhoneIcon />
-                  {mainPro!.phone} 상담
+                  {phone} {region.display_name} 상담
                 </a>
               )}
               {casePage?.slug && (
@@ -302,6 +311,29 @@ export default async function LandingPage({
               <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
               연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후 안내드립니다.
             </p>
+
+            {/* 히어로 왼쪽 아래가 비어 있었다. 스크롤하지 않고도 "무엇을 어떻게 고치는지"가
+                한눈에 들어와야 하는 자리라, 키워드 자산의 세부 항목을 압축해서 채운다. */}
+            {kc && kc.services.length > 0 && (
+              <div className="mt-6 rounded-xl border border-[var(--line)] bg-white/80 p-4">
+                <p className="text-[13px] font-extrabold text-[var(--teal)]">
+                  {region.display_name}에서 이런 걸 고칩니다
+                </p>
+                <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                  {kc.services.map((s, i) => (
+                    <li
+                      key={i}
+                      className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1 text-[12px] font-semibold text-[var(--ink-soft)]"
+                    >
+                      {s.title}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                  {kc.tagline}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 사진 + 진단 체크카드 */}
