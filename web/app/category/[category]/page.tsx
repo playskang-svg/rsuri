@@ -118,7 +118,7 @@ export default async function CategoryPage({
                         href={`/${keyword.slug}`}
                         className="text-[13px] font-bold text-[var(--ink-soft)] hover:text-[var(--copper)]"
                       >
-                        외 {hidden}곳 →
+                        지역 전체 보기 →
                       </Link>
                     )}
                   </div>

@@ -148,17 +148,19 @@ export default async function HomePage() {
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
-                  <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
-                    {count > 0 ? `지역 ${count}곳` : '준비 중'}
-                  </span>
+                  {/* 지역 수는 내부 재고일 뿐 방문자에게 의미가 없다 — 아직 준비 중인
+                      항목만 그렇다고 밝힌다. */}
+                  {count === 0 && (
+                    <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
+                      준비 중
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
                     <h3 className="text-lg font-extrabold">{keyword.display_name}</h3>
                     <p className="mt-0.5 truncate text-[13px] text-[var(--ink-soft)]">
-                      {dongs.length > 0
-                        ? `${dongs.join(' · ')}${count > dongs.length ? ` 외 ${count - dongs.length}곳` : ''}`
-                        : '지역 페이지 준비 중입니다'}
+                      {dongs.length > 0 ? dongs.join(' · ') : '지역 페이지 준비 중입니다'}
                     </p>
                   </div>
                   <span aria-hidden className="text-[var(--copper)]">
@@ -177,8 +179,7 @@ export default async function HomePage() {
           <p className="eyebrow">Regions</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">지역별 안내</h2>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            안내 중인 지역 {regionChips.length}곳
-            {hiddenRegionCount > 0 && <> 가운데 항목이 많은 {shownRegions.length}곳</>}.
+            동네를 고르면 그 동네에서 안내 중인 수리로 바로 이동합니다.
           </p>
           <div className="mt-6 flex flex-wrap gap-2.5">
             {shownRegions.map((d) => (
@@ -189,25 +190,18 @@ export default async function HomePage() {
                 className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
               >
                 {d.dong}
-                <span className="ml-1.5 text-[11px] font-semibold text-[var(--ink-soft)]">
-                  {d.count}
-                </span>
               </Link>
             ))}
           </div>
-          <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-            숫자는 해당 동네에서 안내 중인 수리 항목 수입니다.
-            {hiddenRegionCount > 0 && (
-              <>
-                {' '}
-                나머지 {hiddenRegionCount}곳은{' '}
-                <a href="#services" className="font-bold text-[var(--teal)] hover:underline">
-                  수리 항목
-                </a>
-                에서 항목을 고르면 볼 수 있습니다.
-              </>
-            )}
-          </p>
+          {hiddenRegionCount > 0 && (
+            <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
+              찾는 동네가 없다면{' '}
+              <a href="#services" className="font-bold text-[var(--teal)] hover:underline">
+                수리 항목
+              </a>
+              에서 항목을 먼저 고르시면 그 항목의 전체 지역을 볼 수 있습니다.
+            </p>
+          )}
         </div>
       </section>
 
