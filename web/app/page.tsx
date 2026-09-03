@@ -205,50 +205,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 시공 기록 ── */}
-      <section id="cases" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <p className="eyebrow">Field Records</p>
-        <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">실제 시공 기록</h2>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">
-          문제 → 판단 → 작업 → 검측 결과, 현장 순서 그대로 기록했습니다.
-        </p>
-
-        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {featured.map(({ page, chain, kw, cat }) => {
-            const casePage = caseByKey.get(`${page.repair_keyword_id}:${page.region_id}`)
-            if (!casePage?.slug) return null
-            const dong = chain[chain.length - 1]
-            const photo = categoryPhoto(cat?.slug ?? '', `${kw!.slug}/${dong.slug}`, 1, kw!.display_name)
-            return (
-              <Link
-                key={casePage.id}
-                href={`/case/${casePage.slug}`}
-                className="card group overflow-hidden transition-shadow hover:shadow-xl"
-              >
-                <div className="relative aspect-[16/8] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo.src}
-                    alt=""
-                    style={photo.style}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                  />
-                  <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
-                    {kw!.display_name} · {dong.display_name}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-extrabold leading-snug">{casePage.meta_title}</h3>
-                  <p className="mt-1.5 text-sm text-[var(--ink-soft)] line-clamp-2">
-                    {page.guide?.summary}
-                  </p>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      </section>
+      {/* 홈의 "실제 시공 기록" 섹션은 걷어냈다. 초기 CASE 6건에만 걸려 있어서 사이트 전체를
+          대표하지 못하고, 실사가 아니라 참고 이미지가 시공 결과인 것처럼 보였다.
+          시공 전/후는 각 키워드·지역 페이지의 CASES 섹션이 전담한다. */}
     </main>
   )
 }

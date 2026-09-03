@@ -389,55 +389,6 @@ export default async function LandingPage({
         </div>
       </section>
 
-      {/* ── 이런 증상이면 + 이런 걸 고칩니다 ──
-          히어로에서 밀려난 자가진단 카드. 사진 배경 위에 두면 체크리스트가 안 읽힌다. */}
-      {(symptoms.length > 0 || (kc && kc.services.length > 0)) && (
-        <section className="border-b border-[var(--line)] bg-white">
-          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-2">
-            {symptoms.length > 0 && (
-              <div className="diag-card rounded-2xl p-6">
-                <p className="eyebrow">Self Check</p>
-                <h2 className="font-serif-kr mt-2 text-2xl font-black">
-                  이런 증상이면 {region.display_name} {keyword.display_name}가 필요합니다
-                </h2>
-                <ul className="mt-5 space-y-3.5">
-                  {symptoms.map((s, i) => (
-                    <li key={i} className="diag-item text-[15px] leading-snug">
-                      <span aria-hidden className="diag-box" />
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
-                  한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
-                </p>
-              </div>
-            )}
-            {kc && kc.services.length > 0 && (
-              <div className="self-start rounded-2xl border border-[var(--line)] p-6">
-                <p className="eyebrow">What We Fix</p>
-                <h2 className="font-serif-kr mt-2 text-2xl font-black">
-                  {region.display_name} {keyword.display_name}, 이런 걸 고칩니다
-                </h2>
-                <ul className="mt-5 space-y-3">
-                  {kc.services.map((s, i) => (
-                    <li key={i} className="flex gap-3">
-                      <span aria-hidden className="mt-0.5 font-black text-[var(--teal)]">
-                        ·
-                      </span>
-                      <span className="text-[15px] leading-snug">
-                        <b>{s.title}</b>{' '}
-                        <span className="text-[var(--ink-soft)]">{s.desc}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
       {/* ── 시공 사례 (전/후) ──
           실제 사진이 등록된 키워드에서만 나온다. 스톡 사진으로는 전후 비교가 성립하지
           않으므로(같은 현장이 아니다) 사진이 없으면 이 섹션 자체를 만들지 않는다. */}
@@ -485,6 +436,36 @@ export default async function LandingPage({
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+      )}
+
+      {/* ── 자가진단 ──
+          히어로에서 밀려난 체크리스트. 사진 배경 위에 두면 안 읽힌다.
+          서비스 항목은 아래 SERVICE 섹션이 전담한다 — 여기에도 두면 같은 내용이 두 번 나온다. */}
+      {symptoms.length > 0 && (
+        <section className="border-b border-[var(--line)] bg-white">
+          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+            <Pill>SELF CHECK</Pill>
+            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
+              이런 증상이면 {region.display_name} {keyword.display_name}가 필요합니다
+            </h2>
+            <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+              {symptoms.map((sym, i) => (
+                <li
+                  key={i}
+                  className="flex gap-3 rounded-lg bg-[var(--paper)] px-5 py-3.5 text-[15px] leading-snug"
+                >
+                  <span aria-hidden className="font-black text-[var(--copper)]">
+                    ✔
+                  </span>
+                  <span>{sym}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-sm text-[var(--ink-soft)]">
+              한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
+            </p>
           </div>
         </section>
       )}
@@ -578,19 +559,26 @@ export default async function LandingPage({
 
       {/* ── 서비스 안내 (키워드 자산) ── */}
       {kc && kc.services.length > 0 && (
-        <section id="services" className="scroll-mt-20 mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <Pill>SERVICE</Pill>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            {region.display_name} {keyword.display_name} 세부 항목
-          </h2>
-          <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {kc.services.map((s, i) => (
-              <li key={i} className="card p-5">
-                <h3 className="font-extrabold">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{s.desc}</p>
-              </li>
-            ))}
-          </ul>
+        <section id="services" className="scroll-mt-20 border-y border-[var(--line)] bg-[var(--paper)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <Pill>SERVICE</Pill>
+            <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
+              {keyword.display_name}, 어떤 상태든 살펴봅니다
+            </h2>
+            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
+              단순 외관 보수가 아니라 원인을 살펴 다음에도 같은 문제가 반복되지 않도록 마감합니다.
+            </p>
+            <ul className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {kc.services.map((sv, i) => (
+                <li key={i} className="rounded-lg border border-[var(--line)] bg-white p-7">
+                  <h3 className="text-lg font-extrabold">{sv.title}</h3>
+                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
+                    {sv.desc}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
