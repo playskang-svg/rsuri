@@ -185,3 +185,25 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
 a:focus-visible, summary:focus-visible, button:focus-visible {
   outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 0.25rem;
 }
+
+/* 플로팅 상담 버튼의 확산 링.
+   정지된 원은 장식으로 읽혀서 안 눌린다 — 테두리가 번져 나가며 "누를 수 있다"고 알린다.
+   ::after를 쓰는 이유: 버튼 자체를 키우면 레이아웃과 히트영역이 같이 흔들린다. */
+@keyframes suri-pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.75; }
+  70%  { transform: scale(1.55); opacity: 0; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 2px solid #e8b34c;
+  animation: suri-pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+/* 애니메이션을 꺼 둔 사용자에게는 깜빡임을 보내지 않는다. */
+@media (prefers-reduced-motion: reduce) {
+  .pulse-ring::after { animation: none; opacity: 0.5; }
+}

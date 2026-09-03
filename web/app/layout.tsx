@@ -9,11 +9,15 @@ export const metadata: Metadata = {
     '누수·배수구·창호·전기·도배까지, 지역별 검증 마스터의 집수리 서비스. 사진 한 장이면 진단을 시작할 수 있습니다.',
 }
 
+// 해시만 쓰는 이유: 지역·허브·홈이 같은 id(cases/services/process/sitemap)를 쓰므로
+// 어느 페이지에 있든 지금 보고 있는 문서의 해당 영역으로 스크롤된다.
+// '/#...'로 두면 다른 페이지에서 누를 때 홈으로 튕겨 현재 맥락이 끊긴다.
 const NAV = [
-  { href: '/#services', label: '수리 분야' },
-  { href: '/#regions', label: '지역별 안내' },
-  { href: '/#cases', label: '시공 기록' },
-  { href: '/admin', label: '관리' },
+  { href: '/', label: '홈' },
+  { href: '#cases', label: '시공사례' },
+  { href: '#services', label: '서비스' },
+  { href: '#process', label: '진행 과정' },
+  { href: '#sitemap', label: '사이트맵' },
 ]
 
 // 상담 CTA는 카카오톡 채널로 보낸다. 외부 도메인이라 next/link가 아니라 <a>를 쓴다.

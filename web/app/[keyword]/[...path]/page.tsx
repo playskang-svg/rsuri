@@ -9,6 +9,8 @@ import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
 import { composeLocal } from '@/lib/compose-local'
 import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
+import { HeroSlider } from '@/app/_components/HeroSlider'
+import { FloatingActions } from '@/app/_components/FloatingActions'
 import type { Page, PageImageRole, Region } from '@/lib/types'
 
 const ROLE_LABEL: Record<PageImageRole, string> = {
@@ -231,19 +233,25 @@ export default async function LandingPage({
   const photoA = pick(0)
   const photoB = pick(1)
 
+  // 히어로 배경 슬라이드. 운영자가 올린 실사가 있으면 그것만 돌리고,
+  // 없을 때만 키워드 주제에 맞는 참고 이미지를 여러 장 뽑아 쓴다.
+  const heroImages =
+    shots.length > 0
+      ? shots.slice(0, 4).map((sh) => ({ src: sh.url }))
+      : [0, 1, 2].map((slot) => {
+          const ph = categoryPhoto(category?.slug ?? '', seed, slot, keyword.display_name)
+          return { src: ph.src, style: ph.style }
+        })
+
   return (
     <main className="pb-24 md:pb-0">
       {/* ── 히어로 (풀블리드 사진 + 오버레이) ──
           사진을 오른쪽 칸에 가둬 두면 첫 화면이 텍스트 덩어리로 보인다. 배경으로 깔고
           그 위에 지역+키워드를 크게 얹어, 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다. */}
       <section className="relative isolate overflow-hidden bg-[var(--ink)]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photoA.src}
-          alt={photoA.note ?? `${region.display_name} ${keyword.display_name}`}
-          style={photoA.style}
-          loading="eager"
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+        <HeroSlider
+          images={heroImages}
+          alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
         />
         {/* 사진 위 글자의 대비를 고정한다 — 어떤 사진이 와도 읽히게. */}
         <div
@@ -370,21 +378,49 @@ export default async function LandingPage({
           실제 사진이 등록된 키워드에서만 나온다. 스톡 사진으로는 전후 비교가 성립하지
           않으므로(같은 현장이 아니다) 사진이 없으면 이 섹션 자체를 만들지 않는다. */}
       {inheritedSets.length > 0 && (
-        <section className="border-b border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-            <p className="eyebrow">Field Work</p>
-            <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-              {region.display_name} {keyword.display_name} 시공사례
+        <section id="cases" className="scroll-mt-20 border-b border-[var(--line)] bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <Pill>CASES</Pill>
+            <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
+              {region.display_name} {keyword.display_name} 전후사진
             </h2>
-            <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              전·후 사진을 한 자리에 두어 시공 결과를 한눈에 비교하실 수 있습니다.
+            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
+              전·후를 나란히 놓아 시공 결과를 한눈에 비교하실 수 있습니다.
             </p>
-            <div className="mt-6">
-              <BeforeAfterSlider
-                sets={inheritedSets}
-                alt={`${keyword.display_name} 시공 전후 사진`}
-              />
-            </div>
+            {/* 슬라이더로 겹쳐 두면 한 번에 한 장만 보여 비교가 안 된다 — 나란히 건다. */}
+            <ul className="mt-9 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {inheritedSets.map((set) => (
+                <li
+                  key={set.setNo}
+                  className="overflow-hidden rounded-lg border border-[var(--line)] bg-white"
+                >
+                  <div className="grid grid-cols-2">
+                    {([['BEFORE', set.before], ['AFTER', set.after]] as const).map(
+                      ([label, src]) =>
+                        src && (
+                          <div key={label} className="relative aspect-[3/4] overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={src}
+                              alt={`${keyword.display_name} 시공 ${label === 'BEFORE' ? '전' : '후'}`}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                            <span className="absolute left-2.5 top-2.5 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-extrabold tracking-wider text-[#e8b34c]">
+                              {label}
+                            </span>
+                          </div>
+                        ),
+                    )}
+                  </div>
+                  {set.caption && (
+                    <div className="p-5">
+                      <p className="text-[15px] font-extrabold">{set.caption}</p>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       )}
@@ -478,8 +514,8 @@ export default async function LandingPage({
 
       {/* ── 서비스 안내 (키워드 자산) ── */}
       {kc && kc.services.length > 0 && (
-        <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">Services</p>
+        <section id="services" className="scroll-mt-20 mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <Pill>SERVICE</Pill>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
             {region.display_name} {keyword.display_name} 세부 항목
           </h2>
@@ -496,8 +532,8 @@ export default async function LandingPage({
 
       {/* ── 표준 시공 절차 ── */}
       {steps.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">Process</p>
+        <section id="process" className="scroll-mt-20 mx-auto max-w-3xl px-4 py-14 sm:px-6">
+          <Pill>PROCESS</Pill>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
             {region.display_name} {keyword.display_name} 진행 절차
           </h2>
@@ -618,7 +654,7 @@ export default async function LandingPage({
       {/* ── FAQ ── */}
       {faqs.length > 0 && (
         <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">FAQ</p>
+          <Pill>FAQ</Pill>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
             {region.display_name} {keyword.display_name} 자주 묻는 질문
           </h2>
@@ -735,26 +771,79 @@ export default async function LandingPage({
             </div>
           )}
 
-          {/* (b) 같은 지역 · 다른 키워드 */}
+          {/* (b) 같은 지역 · 다른 키워드 — 이동해도 같은 틀에 키워드·내용만 바뀐 페이지가 나온다.
+                 지금 보고 있는 페이지를 맨 앞에 배지로 세워, 어디에서 어디로 가는지 보이게 한다. */}
           {sameRegion.length > 0 && (
             <div className="mt-8">
               <h3 className="text-sm font-extrabold">
                 {region.display_name}에서 함께 가능한 수리
               </h3>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {sameRegion.map(({ page: p, kw }) => (
-                  <li key={p.id}>
-                    <Link href={`/${kw!.slug}/${pathStr}`} className={ROW}>
-                      <span className="text-sm">
-                        <b>{kw!.display_name}</b>{' '}
-                        <span className="text-[var(--ink-soft)]">{region.display_name}</span>
+              <ul className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {/* 첫 칸은 지금 보고 있는 페이지. 링크가 아니라 현재 위치 표시다 —
+                    어디에서 어디로 가는지 보여야 옆 카드를 누를 이유가 생긴다. */}
+                <li>
+                  <div className="card overflow-hidden border-[var(--ink)]">
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoA.src}
+                        alt=""
+                        style={photoA.style}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                      />
+                      <span className="absolute right-2.5 top-2.5 rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
+                        현재 페이지
                       </span>
-                      <span aria-hidden className="text-[var(--copper)]">
-                        →
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+                    </div>
+                    <div className="p-4">
+                      <p className="text-base font-extrabold">
+                        {region.display_name} {keyword.display_name}
+                      </p>
+                      <p className="mt-1.5 line-clamp-2 text-[13px] text-[var(--ink-soft)]">
+                        {kc?.tagline ?? keyword.description ?? ''}
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                {sameRegion.map(({ page: p, kw }) => {
+                  const ph = categoryPhoto(
+                    categories.find((c) => c.id === kw!.category_id)?.slug ?? '',
+                    `${kw!.slug}/${region.slug}`,
+                    0,
+                    kw!.display_name,
+                  )
+                  return (
+                    <li key={p.id}>
+                      <Link
+                        href={`/${kw!.slug}/${pathStr}`}
+                        className="card group block overflow-hidden transition-shadow hover:shadow-xl"
+                      >
+                        <div className="aspect-[16/9] overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={ph.src}
+                            alt=""
+                            style={ph.style}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <p className="text-base font-extrabold">
+                            {region.display_name} {kw!.display_name}
+                          </p>
+                          <p className="mt-1.5 line-clamp-2 text-[13px] text-[var(--ink-soft)]">
+                            {kw!.content?.tagline ?? kw!.description ?? ''}
+                          </p>
+                          <p className="mt-3 text-[13px] font-extrabold text-[var(--copper)]">
+                            바로가기 →
+                          </p>
+                        </div>
+                      </Link>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           )}
@@ -809,6 +898,82 @@ export default async function LandingPage({
           )}
         </div>
       </section>
+
+      {/* ── 최하단 CTA 밴드 ──
+          본문을 끝까지 읽은 사람이 마지막으로 만나는 화면이다. 여기서 아무 것도 제시하지
+          않으면 그대로 닫는다. */}
+      <section className="bg-[var(--ink)]">
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
+          <h2 className="font-serif-kr text-2xl font-black text-white sm:text-3xl">
+            {keyword.display_name} 상태 사진 한 장이면 충분합니다
+          </h2>
+          <p className="mt-4 text-[15px] leading-relaxed text-[#aeb9be]">
+            현장 상태에 맞춰 시공 가능 여부와 일정을 안내드립니다. 작업 중에는 통화가 어려우니
+            사진과 지역, 수리 내용을 남겨 주세요.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {telHref && (
+              <a
+                href={telHref}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-[15px] font-extrabold text-[var(--ink)] transition-transform hover:scale-[1.03]"
+              >
+                <PhoneIcon />
+                {phone} 상담문의
+              </a>
+            )}
+            <Link
+              href="/"
+              className="inline-flex items-center rounded-full border border-white/45 px-7 py-3.5 text-[15px] font-extrabold text-white hover:border-white"
+            >
+              메인페이지
+            </Link>
+          </div>
+          <ul className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-2 text-[13px] text-[#8f9ba1]">
+            <li>{region.display_name} 전 지역 출장</li>
+            <li>진단부터 마감까지 한 번에</li>
+            <li>사진·문자 상담 환영</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* ── 사이트맵 ── */}
+      {(sameRegion.length > 0 || otherHubs.length > 0) && (
+        <section id="sitemap" className="scroll-mt-20 border-t border-[var(--line)] bg-[var(--paper)]">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <Pill>SITEMAP</Pill>
+            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-3xl">
+              {region.display_name}에서 볼 수 있는 페이지
+            </h2>
+            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
+              아래 페이지들이 서로 연결되어 있습니다. 필요한 정보로 바로 이동해 보세요.
+            </p>
+            <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {sameRegion.map(({ page: p, kw }) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/${kw!.slug}/${pathStr}`}
+                    className="block truncate rounded-md border border-[var(--line)] bg-white px-5 py-4 text-[15px] font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                  >
+                    {region.display_name} {kw!.display_name}
+                  </Link>
+                </li>
+              ))}
+              {otherHubs.slice(0, 6).map((k) => (
+                <li key={`hub-${k.id}`}>
+                  <Link
+                    href={`/${k.slug}`}
+                    className="block truncate rounded-md border border-[var(--line)] bg-white px-5 py-4 text-[15px] font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                  >
+                    {k.display_name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <FloatingActions telHref={telHref} />
 
       {/* ── 모바일 고정 상담바 ── */}
       {mainPro && telHref && (
