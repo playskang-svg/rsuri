@@ -207,3 +207,72 @@ a:focus-visible, summary:focus-visible, button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .pulse-ring::after { animation: none; opacity: 0.5; }
 }
+
+/* ── 브레드크럼 드롭다운 ──
+   형제(같은 키워드 다른 지역)·사촌(같은 지역 다른 키워드)으로 건너뛰는 장치.
+   본문에 링크를 깔면 페이지를 잡아먹으므로 이동은 여기서 처리하고 화면은 0줄을 쓴다.
+   JS 없이 <details>로 동작한다 — 정적 export라 클라이언트 번들을 늘릴 이유가 없다. */
+.crumb-drop { position: relative; display: inline-block; }
+.crumb-drop > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.crumb-drop > summary::-webkit-details-marker { display: none; }
+.crumb-drop > summary::after {
+  content: '▾';
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+.crumb-panel {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: max-content;
+  max-width: min(88vw, 34rem);
+  max-height: 60vh;
+  overflow-y: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 0.75rem;
+  box-shadow: 0 18px 40px rgba(16, 24, 28, 0.22);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.125rem;
+}
+@media (min-width: 640px) {
+  .crumb-panel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.crumb-panel a {
+  display: block;
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.crumb-panel a:hover { background: var(--paper); color: var(--copper); }
+
+/* ── 권역별 접이식 지역 색인 ──
+   접혀 있어도 링크는 HTML에 그대로 있다. 크롤러는 전부 읽고, 화면은 한 줄만 쓴다. */
+.area-fold { border-bottom: 1px solid var(--line); }
+.area-fold > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 0.25rem;
+  font-weight: 800;
+}
+.area-fold > summary::-webkit-details-marker { display: none; }
+.area-fold > summary::after { content: '＋'; color: var(--copper); font-weight: 900; }
+.area-fold[open] > summary::after { content: '－'; }

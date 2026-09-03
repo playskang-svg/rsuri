@@ -167,7 +167,34 @@ export default async function LandingPage({
       if (as !== bs) return as - bs
       return a.region!.display_name.localeCompare(b.region!.display_name, 'ko')
     })
-    .slice(0, 24)
+    .slice(0, 6)
+
+  // 권역별 접이식 색인용 묶음. 형제 링크를 본문에 다 깔면 페이지를 잡아먹고, 6개만
+  // 남기면 나머지가 크롤러에서 끊긴다. 접어 두면 화면은 한 줄, HTML에는 전부 남는다.
+  const CLUSTER_OF: Record<string, string> = {
+    'seoul-gangnam': '서울',
+    'seoul-apt': '서울',
+    'seoul-old': '서울',
+    newtown1: '경기',
+    newtown2: '경기',
+    'gyeonggi-mixed': '경기',
+    incheon: '인천',
+    province: '그 외 지역',
+  }
+  const CLUSTER_ORDER = ['서울', '경기', '인천', '그 외 지역']
+  const byCluster = new Map<string, { name: string; href: string }[]>()
+  for (const x of [...sameKeywordAll].sort((a, b) =>
+    a.region!.display_name.localeCompare(b.region!.display_name, 'ko'),
+  )) {
+    const cluster = CLUSTER_OF[x.region!.profile?.type ?? ''] ?? '그 외 지역'
+    const entry = {
+      name: x.region!.display_name,
+      href: `/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`,
+    }
+    const list = byCluster.get(cluster)
+    if (list) list.push(entry)
+    else byCluster.set(cluster, [entry])
+  }
 
   // (b) 같은 지역 · 다른 키워드. 이 블록이 없으면 키워드끼리는 홈을 거치지 않고는
   //     서로 연결되지 않는다.
@@ -259,6 +286,9 @@ export default async function LandingPage({
           className="absolute inset-0 -z-10 bg-gradient-to-r from-[rgba(16,24,28,0.92)] via-[rgba(16,24,28,0.78)] to-[rgba(16,24,28,0.45)]"
         />
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
+          {/* 브레드크럼이 곧 이동 장치다. 두 세그먼트를 열면 사촌(같은 지역 다른 수리)과
+              형제(같은 수리 다른 지역)로 바로 건너뛴다 — 본문에 링크를 깔지 않고도
+              페이지끼리 얽히게 만드는 자리이고, 화면은 한 줄만 쓴다. */}
           <nav aria-label="현재 위치">
             <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[#aeb9be]">
               <li>
@@ -268,18 +298,52 @@ export default async function LandingPage({
               </li>
               <li aria-hidden>›</li>
               <li>
-                <Link href={`/${keyword.slug}`} className="hover:text-white">
-                  {keyword.display_name}
-                </Link>
+                {sameRegion.length > 0 ? (
+                  <details className="crumb-drop">
+                    <summary className="font-semibold hover:text-white">
+                      {keyword.display_name}
+                    </summary>
+                    <div className="crumb-panel">
+                      <Link href={`/${keyword.slug}`}>{keyword.display_name} 전체 지역</Link>
+                      {sameRegion.map(({ page: p, kw }) => (
+                        <Link key={p.id} href={`/${kw!.slug}/${pathStr}`}>
+                          {region.display_name} {kw!.display_name}
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
+                ) : (
+                  <Link href={`/${keyword.slug}`} className="hover:text-white">
+                    {keyword.display_name}
+                  </Link>
+                )}
               </li>
-              {chain.map((r) => (
+              {chain.slice(0, -1).map((r) => (
                 <li key={r.id} className="flex items-center gap-1.5">
                   <span aria-hidden>›</span>
-                  <span className={r.id === region.id ? 'font-bold text-white' : ''}>
-                    {r.display_name}
-                  </span>
+                  <span>{r.display_name}</span>
                 </li>
               ))}
+              <li className="flex items-center gap-1.5">
+                <span aria-hidden>›</span>
+                {sameKeywordAll.length > 0 ? (
+                  <details className="crumb-drop">
+                    <summary className="font-bold text-white">{region.display_name}</summary>
+                    <div className="crumb-panel">
+                      {sameKeywordAll.slice(0, 60).map((x) => (
+                        <Link
+                          key={x.page.id}
+                          href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
+                        >
+                          {x.region!.display_name} {keyword.display_name}
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
+                ) : (
+                  <span className="font-bold text-white">{region.display_name}</span>
+                )}
+              </li>
             </ol>
           </nav>
 
@@ -731,43 +795,55 @@ export default async function LandingPage({
           {/* (a) 같은 키워드 · 다른 지역 */}
           {sameKeyword.length > 0 && (
             <div className="mt-8">
-              <h3 className="text-sm font-extrabold">{keyword.display_name} · 다른 지역</h3>
+              <h3 className="text-sm font-extrabold">
+                {keyword.display_name} · 인근 지역
+              </h3>
               <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
-                가까운 동네부터 보여드립니다.
+                실제로 다음에 보실 만한 동네부터 골랐습니다. 전체는 아래 사이트맵에 있습니다.
               </p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {sameKeyword.map((x) => {
                   const dong = x.chain[x.chain.length - 1]
-                  const upper = x.chain
-                    .slice(0, -1)
-                    .map((r) => r.display_name)
-                    .join(' ')
+                  const ph = categoryPhoto(
+                    category?.slug ?? '',
+                    `${keyword.slug}/${dong.slug}`,
+                    0,
+                    keyword.display_name,
+                  )
                   return (
                     <li key={x.page.id}>
                       <Link
                         href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
-                        className={ROW}
+                        className="card group block overflow-hidden transition-shadow hover:shadow-xl"
                       >
-                        <span className="text-sm">
-                          <b>{dong.display_name}</b>{' '}
-                          <span className="text-[var(--ink-soft)]">{upper}</span>
-                        </span>
-                        <span aria-hidden className="text-[var(--copper)]">
-                          →
-                        </span>
+                        <div className="aspect-[16/9] overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={ph.src}
+                            alt=""
+                            style={ph.style}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <p className="text-base font-extrabold">
+                            {dong.display_name} {keyword.display_name}
+                          </p>
+                          {dong.profile?.near && (
+                            <p className="mt-1 truncate text-[12px] text-[var(--ink-soft)]">
+                              {dong.profile.near}
+                            </p>
+                          )}
+                          <p className="mt-3 text-[13px] font-extrabold text-[var(--copper)]">
+                            바로가기 →
+                          </p>
+                        </div>
                       </Link>
                     </li>
                   )
                 })}
               </ul>
-              {sameKeywordAll.length > sameKeyword.length && (
-                <Link
-                  href={`/${keyword.slug}`}
-                  className="mt-3 inline-block text-sm font-bold text-[var(--teal)] hover:underline"
-                >
-                  {keyword.display_name} 전체 지역 보기 →
-                </Link>
-              )}
             </div>
           )}
 
@@ -969,6 +1045,48 @@ export default async function LandingPage({
                 </li>
               ))}
             </ul>
+
+            {/* 권역별 전체 지역 색인 — 접혀 있어도 링크는 HTML에 그대로 남는다.
+                화면은 권역 수(4줄)만 쓰고, 크롤러는 형제 전부를 읽는다. */}
+            {byCluster.size > 0 && (
+              <div className="mt-10">
+                <p className="text-sm font-extrabold">
+                  {keyword.display_name} 전체 지역
+                </p>
+                <div className="mt-3 border-t border-[var(--line)]">
+                  {CLUSTER_ORDER.filter((c) => byCluster.has(c)).map((cluster) => (
+                    <details key={cluster} className="area-fold">
+                      <summary>
+                        <span>
+                          {cluster}{' '}
+                          <span className="text-[13px] font-semibold text-[var(--ink-soft)]">
+                            {byCluster.get(cluster)!.length}
+                          </span>
+                        </span>
+                      </summary>
+                      <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 pb-5 sm:grid-cols-3 lg:grid-cols-4">
+                        {byCluster.get(cluster)!.map((e) => (
+                          <li key={e.href}>
+                            <Link
+                              href={e.href}
+                              className="block truncate py-1 text-[13px] font-semibold text-[var(--ink-soft)] hover:text-[var(--copper)]"
+                            >
+                              {e.name} {keyword.display_name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ))}
+                </div>
+                <Link
+                  href={`/${keyword.slug}`}
+                  className="mt-5 inline-block text-sm font-extrabold text-[var(--teal)] hover:underline"
+                >
+                  {keyword.display_name} 대표 페이지로 →
+                </Link>
+              </div>
+            )}
           </div>
         </section>
       )}
