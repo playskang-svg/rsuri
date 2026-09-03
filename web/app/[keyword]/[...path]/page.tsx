@@ -254,7 +254,7 @@ export default async function LandingPage({
       }
     }
     const fallback = categoryPhoto(category?.slug ?? '', seed, slot, keyword.display_name)
-    return { src: fallback.src, style: fallback.style, label: '참고 이미지', note: null }
+    return { src: fallback.src, style: fallback.style, label: '', note: null }
   }
 
   const photoA = pick(0)
@@ -390,52 +390,26 @@ export default async function LandingPage({
       </section>
 
       {/* ── 시공 사례 (전/후) ──
-          실제 사진이 등록된 키워드에서만 나온다. 스톡 사진으로는 전후 비교가 성립하지
-          않으므로(같은 현장이 아니다) 사진이 없으면 이 섹션 자체를 만들지 않는다. */}
+          히어로 다음 첫 섹션. 두 사진을 겹쳐 두고 가운데 손잡이를 좌우로 밀면 '전'이 잘리고
+          '후'가 드러난다 — 나란히 놓는 것보다 같은 자리·같은 각도라는 게 드러나 비교가 된다.
+          실제 사진이 등록된 키워드에서만 나온다. 스톡 두 장을 전/후로 붙이면 서로 다른 현장을
+          같은 집의 시공 결과인 것처럼 보이게 되므로 사진이 없으면 섹션을 만들지 않는다. */}
       {inheritedSets.length > 0 && (
         <section id="cases" className="scroll-mt-20 border-b border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
             <Pill>CASES</Pill>
             <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
-              {region.display_name} {keyword.display_name} 전후사진
+              {region.display_name} {keyword.display_name} 시공 전후
             </h2>
             <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
-              전·후를 나란히 놓아 시공 결과를 한눈에 비교하실 수 있습니다.
+              가운데 손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다.
             </p>
-            {/* 슬라이더로 겹쳐 두면 한 번에 한 장만 보여 비교가 안 된다 — 나란히 건다. */}
-            <ul className="mt-9 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {inheritedSets.map((set) => (
-                <li
-                  key={set.setNo}
-                  className="overflow-hidden rounded-lg border border-[var(--line)] bg-white"
-                >
-                  <div className="grid grid-cols-2">
-                    {([['BEFORE', set.before], ['AFTER', set.after]] as const).map(
-                      ([label, src]) =>
-                        src && (
-                          <div key={label} className="relative aspect-[3/4] overflow-hidden">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={src}
-                              alt={`${keyword.display_name} 시공 ${label === 'BEFORE' ? '전' : '후'}`}
-                              loading="lazy"
-                              className="h-full w-full object-cover"
-                            />
-                            <span className="absolute left-2.5 top-2.5 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-extrabold tracking-wider text-[#e8b34c]">
-                              {label}
-                            </span>
-                          </div>
-                        ),
-                    )}
-                  </div>
-                  {set.caption && (
-                    <div className="p-5">
-                      <p className="text-[15px] font-extrabold">{set.caption}</p>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <div className="mt-8">
+              <BeforeAfterSlider
+                sets={inheritedSets}
+                alt={`${region.display_name} ${keyword.display_name} 시공 전후`}
+              />
+            </div>
           </div>
         </section>
       )}

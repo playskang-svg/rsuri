@@ -189,7 +189,7 @@ export default async function KeywordHubPage({
                 </a>
               )}
               <a href="#regions" className="btn-ghost">
-                {myLandings.length > 0 ? '지역 고르기' : '다른 수리 항목 보기'}
+                {myLandings.length > 0 ? '서비스 지역' : '다른 수리 항목 보기'}
               </a>
             </div>
             <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
@@ -224,7 +224,6 @@ export default async function KeywordHubPage({
             <div className="hero-photo aspect-[16/10]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={stock.src} alt="" style={stock.style} loading="eager" />
-              <span className="tag">참고 이미지</span>
             </div>
           )}
         </div>
@@ -333,7 +332,7 @@ export default async function KeywordHubPage({
       {/* ── 지역별 가이드 ── */}
       <section id="regions" className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <p className="eyebrow">Regions</p>
-        <h2 className="font-serif-kr mt-2 text-xl font-black">지역별 가이드</h2>
+        <h2 className="font-serif-kr mt-2 text-xl font-black">서비스 지역</h2>
         {myLandings.length > 0 ? (
           <>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
@@ -373,11 +372,6 @@ export default async function KeywordHubPage({
                           loading="lazy"
                           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                         />
-                        {!cover && (
-                          <span className="absolute left-2.5 top-2.5 rounded-full bg-[var(--ink)]/75 px-2 py-0.5 text-[10px] font-bold text-[var(--paper)]">
-                            참고 이미지
-                          </span>
-                        )}
                       </div>
                       <div className="flex items-center justify-between gap-3 p-4">
                         <div className="min-w-0">

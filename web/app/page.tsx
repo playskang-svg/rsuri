@@ -112,7 +112,6 @@ export default async function HomePage() {
           <div className="hero-photo aspect-[4/3] lg:aspect-[5/4]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={heroPhoto.src} alt="배관 점검 작업" style={heroPhoto.style} loading="eager" />
-            <span className="tag">참고 이미지</span>
           </div>
         </div>
       </section>
