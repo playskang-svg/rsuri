@@ -44,6 +44,8 @@ export default async function KeywordHubPage({
   if (!keyword) notFound()
 
   const category = categories.find((c) => c.id === keyword.category_id)
+  // 하위 지역 페이지가 상속하는 것과 같은 키워드 자산. 허브에서도 그대로 쓴다.
+  const kc = keyword.content
   const { byId } = buildRegionIndex(regions)
 
   // 곧 키워드 76개 × 지역 페이지 1,300건이다. 허브 한 장을 그릴 때마다 pages 전체를
@@ -202,6 +204,86 @@ export default async function KeywordHubPage({
         </section>
       )}
 
+      {/* ── 키워드 자산 ──
+          지역 페이지가 상속하는 것과 같은 내용이다. 허브에도 두는 이유: 지역을 아직 안 고른
+          방문자가 "이 수리가 뭘 하는 건지"를 여기서 끝내고 지역을 고를 수 있어야 한다.
+          이게 없으면 허브는 지역 목록만 있는 링크 페이지가 된다. */}
+      {kc && kc.services.length > 0 && (
+        <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+          <p className="eyebrow">Services</p>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">{keyword.display_name} 세부 항목</h2>
+          <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {kc.services.map((s, i) => (
+              <li key={i} className="card p-5">
+                <h3 className="font-extrabold">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{s.desc}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {kc && kc.symptoms.length > 0 && (
+        <section className="border-y border-[var(--line)] bg-white">
+          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+            <div className="grid gap-10 lg:grid-cols-2">
+              <div>
+                <p className="eyebrow">Self Check</p>
+                <h2 className="font-serif-kr mt-2 text-2xl font-black">
+                  이런 증상이면 의심하세요
+                </h2>
+                <ul className="mt-6 space-y-3.5">
+                  {kc.symptoms.map((s, i) => (
+                    <li key={i} className="diag-item text-[15px] leading-snug">
+                      <span aria-hidden className="diag-box" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {kc.why_pro.length > 0 && (
+                <div>
+                  <p className="eyebrow">Why Pro</p>
+                  <h2 className="font-serif-kr mt-2 text-2xl font-black">
+                    전문 업체 시공이 유리한 이유
+                  </h2>
+                  <ul className="mt-6 space-y-3">
+                    {kc.why_pro.map((r, i) => (
+                      <li key={i} className="flex gap-3 text-[15px] leading-snug">
+                        <span aria-hidden className="mt-0.5 font-black text-[var(--copper)]">
+                          ✓
+                        </span>
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {kc && kc.process.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+          <p className="eyebrow">Process</p>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">진행 절차</h2>
+          <ol className="step-rail mt-7 space-y-7">
+            {kc.process.map((step, i) => (
+              <li key={i} className="flex gap-4">
+                <span className="step-num" aria-hidden>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div className="pt-1">
+                  <h3 className="font-extrabold">{step.title}</h3>
+                  <p className="mt-1 text-sm text-[var(--ink-soft)]">{step.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {/* ── 지역별 가이드 ── */}
       <section id="regions" className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <p className="eyebrow">Regions</p>
@@ -209,7 +291,7 @@ export default async function KeywordHubPage({
         {myLandings.length > 0 ? (
           <>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              총 {myLandings.length}개 지역에서 안내 중입니다.
+              동네를 고르면 그 지역의 {keyword.display_name} 안내로 이동합니다.
             </p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {myLandings.map(({ page, chain }) => {
@@ -265,6 +347,22 @@ export default async function KeywordHubPage({
         )}
       </section>
 
+      {/* ── FAQ (키워드 공통) ── */}
+      {kc && kc.faqs.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6">
+          <p className="eyebrow">FAQ</p>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black">자주 묻는 질문</h2>
+          <div className="mt-6">
+            {kc.faqs.map((f, i) => (
+              <details key={i} className="faq">
+                <summary>{f.q}</summary>
+                <div className="text-sm">{f.a}</div>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── 거미줄 내부링크 ── */}
       <section id="more" className="border-t border-[var(--line)] bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
@@ -304,15 +402,11 @@ export default async function KeywordHubPage({
                     className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
                   >
                     {k.display_name}
-                    <span className="ml-1.5 text-[11px] font-semibold text-[var(--ink-soft)]">
-                      {landingsByKeyword.get(k.id)?.length ?? 0}
-                    </span>
                   </Link>
                 </li>
               ))}
             </ul>
             <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-              숫자는 해당 항목에서 안내 중인 지역 수입니다. ·{' '}
               <Link href="/" className="font-bold text-[var(--teal)] hover:underline">
                 전체 수리 항목 보기
               </Link>
