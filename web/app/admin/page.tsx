@@ -38,12 +38,33 @@ interface Kw {
   description: string | null
   category_id: number
 }
+interface RegionProfile {
+  type: string
+  near: string
+  note: string
+  dongs: string
+}
+
 interface Rg {
   id: number
   display_name: string
   parent_id: number | null
   level: string
+  profile: RegionProfile | null
 }
+
+// 지역 유형 — web/lib/compose-local.ts가 이 값으로 키워드 문장 풀에서 변주를 고른다.
+// 여기 없는 값을 넣으면 그 지역은 조립이 실패해 페이지가 비어 버린다.
+const REGION_TYPES: { value: string; label: string }[] = [
+  { value: 'seoul-gangnam', label: '강남권 (고층 아파트·오피스텔)' },
+  { value: 'seoul-apt', label: '서울 대단지 아파트' },
+  { value: 'seoul-old', label: '서울 구축·다세대' },
+  { value: 'newtown1', label: '1기 신도시 (30년차)' },
+  { value: 'newtown2', label: '2기 신도시·택지 (신축)' },
+  { value: 'incheon', label: '인천 (구축·신축 혼재)' },
+  { value: 'gyeonggi-mixed', label: '경기 (아파트·빌라·단독 혼재)' },
+  { value: 'province', label: '수도권 밖' },
+]
 interface Img {
   id: number
   page_id: number
@@ -132,6 +153,15 @@ export default function AdminPage() {
   const [customRgText, setCustomRgText] = useState('')
   const [regionQuery, setRegionQuery] = useState('')
 
+  // ── 지역 프로필 ──
+  // 지역만 추가하면 페이지는 HOLD로 남는다. 본문을 조립할 재료(주거 유형·인접 지역·
+  // 주거 특성·대표 동)가 있어야 발행되므로, 그 입력을 여기서 받는다.
+  const [pfPanel, setPfPanel] = useState(false)
+  const [pfQuery, setPfQuery] = useState('')
+  const [pfOnlyMissing, setPfOnlyMissing] = useState(true)
+  const [pfEdit, setPfEdit] = useState<number | null>(null)
+  const [pfDraft, setPfDraft] = useState<RegionProfile>({ type: '', near: '', note: '', dongs: '' })
+
   // 새 키워드 만들기 패널
   const [newKwOpen, setNewKwOpen] = useState(false)
   const [newKwName, setNewKwName] = useState('')
@@ -181,7 +211,7 @@ export default function AdminPage() {
         fetchAll<Rg>((a, b) =>
           supabase
             .from('suri_regions')
-            .select('id, display_name, parent_id, level')
+            .select('id, display_name, parent_id, level, profile')
             .order('id')
             .range(a, b),
         ),
@@ -315,6 +345,64 @@ export default function AdminPage() {
   }
 
   // 성공/실패를 호출부가 구분할 수 있게 error를 그대로 돌려준다.
+  // 프로필을 저장하면 그 지역에서 조립이 가능해진 페이지를 발행으로 되돌린다.
+  // 저장만 하고 HOLD로 남겨 두면 "입력했는데 왜 사이트에 안 나오냐"가 반복된다.
+  async function saveProfile(rg: Rg) {
+    const draft = {
+      type: pfDraft.type.trim(),
+      near: pfDraft.near.trim(),
+      note: pfDraft.note.trim().replace(/[.。]$/, ''),
+      dongs: pfDraft.dongs.trim(),
+    }
+    if (!draft.type || !draft.near || !draft.note || !draft.dongs) {
+      setMsg('오류: 네 칸을 모두 채워야 본문이 조립됩니다')
+      return
+    }
+    setBusy(true)
+    setMsg('')
+
+    const up = await supabase.from('suri_regions').update({ profile: draft }).eq('id', rg.id)
+    if (up.error) {
+      setBusy(false)
+      setMsg(`오류: ${up.error.message}`)
+      return
+    }
+
+    // 이 유형의 문장 풀을 가진 키워드만 발행 대상이다. angles에 없는 유형이면 조립이
+    // 실패해 빈 페이지가 나오므로, 그런 조합은 HOLD로 둔다.
+    const kwRes = await supabase.from('suri_repair_keywords').select('id, content')
+    const okKwIds = (kwRes.data ?? [])
+      .filter((k: { content: { local_pool?: { angles?: Record<string, string> } } | null }) =>
+        Boolean(k.content?.local_pool?.angles?.[draft.type]),
+      )
+      .map((k: { id: number }) => k.id)
+
+    let published = 0
+    if (okKwIds.length > 0) {
+      const pub = await supabase
+        .from('suri_pages')
+        .update({ decision: 'CREATE' })
+        .eq('region_id', rg.id)
+        .eq('page_type', 'LANDING')
+        .eq('decision', 'HOLD')
+        .in('repair_keyword_id', okKwIds)
+        .select('id')
+      if (pub.error) {
+        setBusy(false)
+        setMsg(`프로필은 저장됐지만 발행 전환 실패: ${pub.error.message}`)
+        return
+      }
+      published = pub.data?.length ?? 0
+    }
+
+    setBusy(false)
+    setPfEdit(null)
+    setMsg(
+      `${rg.display_name} 프로필 저장 — ${published}건 발행 전환. 사이트 반영은 Deploy 워크플로 실행 후`,
+    )
+    await load()
+  }
+
   async function run(
     label: string,
     fn: () => PromiseLike<{ error: { message: string } | null }>,
@@ -813,6 +901,134 @@ export default function AdminPage() {
           {msg}
         </p>
       )}
+
+      {/* ── 지역 프로필 ──
+          지역만 붙이면 페이지는 HOLD로 남는다. 본문을 조립할 재료가 여기서 들어가야
+          발행된다. 그래서 키워드 목록보다 위에 둔다 — 실제 병목이 여기다. */}
+      <div className="card mt-5 p-4">
+        <button
+          onClick={() => setPfPanel((v) => !v)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span className="text-sm font-extrabold">
+            지역 프로필{' '}
+            <span className="font-semibold text-[var(--ink-soft)]">
+              — 채움 {rgs.filter((r) => r.profile).length} / 미입력{' '}
+              {rgs.filter((r) => !r.profile).length}
+            </span>
+          </span>
+          <span aria-hidden className="text-[var(--copper)]">
+            {pfPanel ? '−' : '+'}
+          </span>
+        </button>
+
+        {pfPanel && (
+          <div className="mt-4 border-t border-[var(--line)] pt-4">
+            <p className="text-[13px] text-[var(--ink-soft)]">
+              주거 유형·인접 지역·주거 특성·대표 동 네 가지가 있어야 그 지역의 본문이
+              만들어집니다. 저장하면 조립 가능한 페이지가 자동으로 발행 상태로 바뀝니다.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <input
+                placeholder="지역 검색"
+                value={pfQuery}
+                onChange={(e) => setPfQuery(e.target.value)}
+                className="flex-1 rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
+              />
+              <label className="flex items-center gap-1.5 text-[13px] font-semibold">
+                <input
+                  type="checkbox"
+                  checked={pfOnlyMissing}
+                  onChange={(e) => setPfOnlyMissing(e.target.checked)}
+                />
+                미입력만
+              </label>
+            </div>
+
+            <ul className="mt-3 max-h-96 space-y-1.5 overflow-y-auto">
+              {rgs
+                .filter((r) => (pfOnlyMissing ? !r.profile : true))
+                .filter((r) => r.display_name.includes(pfQuery.trim()))
+                .slice(0, 120)
+                .map((r) => (
+                  <li key={r.id} className="rounded-lg border border-[var(--line)]">
+                    <button
+                      onClick={() => {
+                        if (pfEdit === r.id) return setPfEdit(null)
+                        setPfEdit(r.id)
+                        setPfDraft({
+                          type: r.profile?.type ?? '',
+                          near: r.profile?.near ?? r.display_name,
+                          note: r.profile?.note ?? '',
+                          dongs: r.profile?.dongs ?? '',
+                        })
+                      }}
+                      className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
+                    >
+                      <span className="text-sm font-bold">{r.display_name}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                          r.profile
+                            ? 'bg-[var(--teal-soft)] text-[var(--teal)]'
+                            : 'bg-[#f3e3d3] text-[var(--copper)]'
+                        }`}
+                      >
+                        {r.profile ? '입력됨' : '미입력'}
+                      </span>
+                    </button>
+
+                    {pfEdit === r.id && (
+                      <div className="space-y-2 border-t border-[var(--line)] p-3">
+                        <select
+                          value={pfDraft.type}
+                          onChange={(e) => setPfDraft({ ...pfDraft, type: e.target.value })}
+                          className="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
+                        >
+                          <option value="">주거 유형 선택</option>
+                          {REGION_TYPES.map((t) => (
+                            <option key={t.value} value={t.value}>
+                              {t.label}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          placeholder="인접 지역 — 맨 앞은 자기 자신 (예: 안산·시흥·화성)"
+                          value={pfDraft.near}
+                          onChange={(e) => setPfDraft({ ...pfDraft, near: e.target.value })}
+                          className="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
+                        />
+                        <textarea
+                          rows={2}
+                          placeholder="주거 특성 한 줄 — 마침표 없이 (예: 고잔·초지 구축 아파트와 원곡 다세대 밀집지가 함께 있습니다)"
+                          value={pfDraft.note}
+                          onChange={(e) => setPfDraft({ ...pfDraft, note: e.target.value })}
+                          className="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
+                        />
+                        <input
+                          placeholder="대표 동 — 가운뎃점으로 구분 (예: 고잔·초지·선부·원곡)"
+                          value={pfDraft.dongs}
+                          onChange={(e) => setPfDraft({ ...pfDraft, dongs: e.target.value })}
+                          className="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
+                        />
+                        <p className="text-[12px] leading-relaxed text-[var(--ink-soft)]">
+                          미리보기 · <b>{pfDraft.dongs || '대표 동'}</b> 등 전 동 출장{' '}
+                          {r.display_name} ○○. {pfDraft.note || '주거 특성'}.
+                        </p>
+                        <button
+                          onClick={() => saveProfile(r)}
+                          disabled={busy}
+                          className="btn-call w-full !py-2 text-sm disabled:opacity-40"
+                        >
+                          저장하고 발행 전환
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
+      </div>
 
       <div className="mt-5 flex gap-2">
         <input
