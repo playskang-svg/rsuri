@@ -356,12 +356,11 @@ export default async function LandingPage({
           </h1>
 
           <p className="prose-kr mt-5 max-w-2xl text-[15px] leading-relaxed text-[#d7dde0] sm:text-base">
-            {region.profile?.dongs && `${region.profile.dongs} 등 전 동 출장 ${region.display_name} ${keyword.display_name}. `}
-            {local?.hero_line ??
-              guide?.summary ??
-              kc?.tagline ??
-              keyword.description ??
-              `${region.display_name} 지역 ${keyword.display_name} 출장 안내입니다.`}
+            {region.profile?.dongs &&
+              `${region.profile.dongs} 등 전 동 출장 ${region.display_name} ${keyword.display_name}. `}
+            {region.profile?.note
+              ? `${region.profile.note}.`
+              : (guide?.summary ?? kc?.tagline ?? keyword.description ?? '')}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -382,10 +381,6 @@ export default async function LandingPage({
             </Link>
           </div>
 
-          <p className="mt-5 text-[13px] text-[#aeb9be]">
-            작업 중에는 전화 연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후
-            안내드립니다.
-          </p>
         </div>
       </section>
 
