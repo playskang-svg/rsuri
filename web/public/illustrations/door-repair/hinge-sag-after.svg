@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="경첩 조정 후 제자리에 선 문 개념도">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3f0ea"/><stop offset="1" stop-color="#e2ddd3"/>
+    </linearGradient>
+    <linearGradient id="fl6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d5c9b6"/><stop offset="1" stop-color="#b2a389"/>
+    </linearGradient>
+    <linearGradient id="lf6" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#eee2cd"/><stop offset="0.6" stop-color="#f9f0e0"/>
+      <stop offset="1" stop-color="#d6c4a7"/>
+    </linearGradient>
+    <linearGradient id="gl6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.45"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="g6" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7 0.03" numOctaves="4" seed="47"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.09"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="sh6"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#bg6)"/>
+
+  <rect x="150" y="40" width="46" height="640" fill="#cfae83"/>
+  <rect x="150" y="40" width="46" height="640" fill="none" stroke="#a98c60" stroke-width="2.5"/>
+  <rect x="150" y="40" width="820" height="44" fill="#cfae83"/>
+  <rect x="150" y="40" width="820" height="44" fill="none" stroke="#a98c60" stroke-width="2.5"/>
+
+  <rect y="680" width="1200" height="220" fill="url(#fl6)"/>
+  <g stroke="#9e8f77" stroke-width="2" opacity="0.45">
+    <path d="M0 748 H1200"/><path d="M0 816 H1200"/>
+    <path d="M320 680 V900"/><path d="M700 680 V900"/><path d="M1040 680 V900"/>
+  </g>
+  <rect y="680" width="1200" height="220" fill="url(#fl6)" filter="url(#g6)" opacity="0.45"/>
+
+  <!-- 수평이 잡힌 문짝 — 위아래 틈이 일정하고 바닥과 간격이 살아 있다 -->
+  <rect x="196" y="96" width="744" height="566" fill="url(#lf6)"/>
+  <rect x="196" y="96" width="744" height="566" fill="#f3e8d6" filter="url(#g6)" opacity="0.75"/>
+  <rect x="196" y="96" width="744" height="566" fill="none" stroke="#b39c7b" stroke-width="4"/>
+  <!-- 균일한 상부 틈 -->
+  <rect x="196" y="84" width="744" height="12" fill="#4a3f30" opacity="0.35"/>
+  <!-- 바닥과의 간격 -->
+  <rect x="196" y="662" width="744" height="14" fill="#4a3f30" opacity="0.28"/>
+
+  <!-- 경첩 (정렬·보강 완료) -->
+  <g>
+    <rect x="180" y="150" width="34" height="86" rx="3" fill="#c9c9c9" stroke="#9a9a9a" stroke-width="2"/>
+    <circle cx="197" cy="172" r="5" fill="#8a8a8a"/><circle cx="197" cy="214" r="5" fill="#8a8a8a"/>
+    <rect x="180" y="500" width="34" height="86" rx="3" fill="#c9c9c9" stroke="#9a9a9a" stroke-width="2"/>
+    <circle cx="197" cy="522" r="5" fill="#8a8a8a"/><circle cx="197" cy="564" r="5" fill="#8a8a8a"/>
+  </g>
+
+  <circle cx="878" cy="400" r="17" fill="#cfcfcf"/>
+  <rect x="862" y="382" width="34" height="36" rx="8" fill="#e2e2e2"/>
+
+  <path d="M210 100 L470 100 L330 658 L210 658 Z" fill="url(#gl6)"/>
+
+  <!-- 깨끗한 바닥 -->
+  <ellipse cx="600" cy="690" rx="330" ry="14" fill="#8b7e6b" opacity="0.2" filter="url(#sh6)"/>
+</svg>

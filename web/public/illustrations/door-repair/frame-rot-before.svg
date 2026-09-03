@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="물먹어 검게 변한 문틀 하단 개념도">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efece6"/><stop offset="1" stop-color="#ded9d0"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c8bbaa"/><stop offset="1" stop-color="#a5967f"/>
+    </linearGradient>
+    <linearGradient id="jamb" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b98f5f"/><stop offset="0.45" stop-color="#d8ac77"/>
+      <stop offset="0.75" stop-color="#c1935f"/><stop offset="1" stop-color="#8f6a41"/>
+    </linearGradient>
+    <linearGradient id="rot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a6b45" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="#5b4630" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#241a12" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="doorleaf" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6f5233"/><stop offset="1" stop-color="#4d3a24"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9 0.02" numOctaves="4" seed="7"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.22"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="blotch" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="5" seed="19"/>
+      <feDisplacementMap in="SourceGraphic" scale="46" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+    <filter id="tex" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="3"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#wall)"/>
+  <rect width="1200" height="900" fill="url(#wall)" filter="url(#tex)" opacity="0.9"/>
+
+  <!-- 바닥 -->
+  <path d="M0 612 L1200 560 L1200 900 L0 900 Z" fill="url(#floor)"/>
+  <g stroke="#8d7d67" stroke-width="2" opacity="0.55">
+    <path d="M0 690 L1200 642"/><path d="M0 768 L1200 726"/><path d="M0 846 L1200 810"/>
+    <path d="M300 626 L268 900"/><path d="M640 611 L654 900"/><path d="M980 596 L1040 900"/>
+  </g>
+  <rect y="560" width="1200" height="340" fill="url(#floor)" filter="url(#tex)" opacity="0.5"/>
+
+  <!-- 열린 문짝 (안쪽) -->
+  <path d="M120 40 L470 96 L470 660 L120 640 Z" fill="url(#doorleaf)"/>
+  <path d="M120 40 L470 96 L470 660 L120 640 Z" fill="none" stroke="#3a2b1b" stroke-width="3"/>
+  <rect x="120" y="40" width="350" height="620" fill="#000" opacity="0.16" filter="url(#tex)"/>
+
+  <!-- 문틀 세로재 -->
+  <path d="M470 70 L560 84 L560 646 L470 660 Z" fill="url(#jamb)"/>
+  <path d="M470 70 L560 84 L560 646 L470 660 Z" fill="none" stroke="#7d5b37" stroke-width="2.5"/>
+  <path d="M470 70 L560 84 L560 646 L470 660 Z" fill="#8a6a44" filter="url(#grain)" opacity="0.75"/>
+
+  <!-- 벽 그림자 -->
+  <ellipse cx="520" cy="640" rx="180" ry="34" fill="#5b4c3a" opacity="0.35" filter="url(#soft)"/>
+
+  <!-- ▼ 손상: 하단 부식·검은 변색·부풀음 -->
+  <path d="M470 430 L560 442 L560 646 L470 660 Z" fill="url(#rot)"/>
+  <g filter="url(#blotch)" opacity="0.85">
+    <ellipse cx="514" cy="590" rx="58" ry="70" fill="#241a12"/>
+    <ellipse cx="500" cy="510" rx="40" ry="46" fill="#3d2c1c"/>
+    <ellipse cx="536" cy="640" rx="46" ry="34" fill="#171009"/>
+  </g>
+  <!-- 부풀어 들뜬 표면 -->
+  <path d="M472 556 q26 -16 44 4 q22 20 42 -2 l0 26 q-24 20 -46 2 q-20 -16 -40 2 Z"
+        fill="#3a2a1a" opacity="0.55"/>
+  <!-- 갈라짐 -->
+  <g stroke="#1d140c" stroke-width="3.5" fill="none" opacity="0.8" stroke-linecap="round">
+    <path d="M498 462 l6 46 l-9 40 l10 52"/>
+    <path d="M528 500 l-7 38 l8 44"/>
+    <path d="M482 604 l14 30"/>
+  </g>
+  <!-- 바닥 물자국 -->
+  <ellipse cx="620" cy="686" rx="150" ry="42" fill="#6f6250" opacity="0.4" filter="url(#soft)"/>
+  <ellipse cx="596" cy="676" rx="86" ry="24" fill="#544a3c" opacity="0.35" filter="url(#soft)"/>
+
+  <!-- 문지방 (손상) -->
+  <path d="M560 620 L980 578 L980 636 L560 682 Z" fill="#9c7f58"/>
+  <path d="M560 620 L980 578 L980 636 L560 682 Z" fill="#3b2c1c" opacity="0.45" filter="url(#blotch)"/>
+  <path d="M560 620 L980 578 L980 636 L560 682 Z" fill="none" stroke="#6d5333" stroke-width="2"/>
+</svg>

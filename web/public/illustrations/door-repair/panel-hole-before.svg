@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="구멍 난 방문 문짝 개념도">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eeeae3"/><stop offset="1" stop-color="#ddd7cd"/>
+    </linearGradient>
+    <linearGradient id="leaf3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8dcc8"/><stop offset="0.35" stop-color="#f2e8d8"/>
+      <stop offset="0.8" stop-color="#dfd0b8"/><stop offset="1" stop-color="#c6b499"/>
+    </linearGradient>
+    <radialGradient id="holeDepth" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#0d0a06"/><stop offset="0.6" stop-color="#2b2016"/>
+      <stop offset="1" stop-color="#5a4630"/>
+    </radialGradient>
+    <filter id="g3" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7 0.03" numOctaves="4" seed="13"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.14"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="rough3" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="4" seed="23"/>
+      <feDisplacementMap in="SourceGraphic" scale="34" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="sh3"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#bg3)"/>
+
+  <!-- 문짝 정면 -->
+  <rect x="170" y="60" width="860" height="800" rx="6" fill="url(#leaf3)"/>
+  <rect x="170" y="60" width="860" height="800" rx="6" fill="#e9dcc6" filter="url(#g3)" opacity="0.8"/>
+  <rect x="170" y="60" width="860" height="800" rx="6" fill="none" stroke="#b09a7c" stroke-width="4"/>
+  <!-- 몰딩 패널 -->
+  <rect x="240" y="140" width="720" height="290" rx="4" fill="none" stroke="#c3ae8f" stroke-width="7"/>
+  <rect x="240" y="500" width="720" height="290" rx="4" fill="none" stroke="#c3ae8f" stroke-width="7"/>
+  <rect x="252" y="152" width="696" height="266" rx="3" fill="#00000008"/>
+  <rect x="252" y="512" width="696" height="266" rx="3" fill="#00000008"/>
+
+  <!-- 손잡이 -->
+  <circle cx="962" cy="470" r="17" fill="#9a9a9a"/>
+  <rect x="946" y="452" width="34" height="36" rx="8" fill="#b6b6b6"/>
+
+  <!-- ▼ 손상: 뚫린 구멍 + 갈라진 가장자리 -->
+  <g transform="translate(600 620)">
+    <ellipse rx="118" ry="96" fill="#8a755a" opacity="0.5" filter="url(#sh3)"/>
+    <g filter="url(#rough3)">
+      <ellipse rx="96" ry="78" fill="url(#holeDepth)"/>
+    </g>
+    <!-- 부서진 표면 조각 -->
+    <g fill="#d8c8ad" stroke="#a8916f" stroke-width="2">
+      <path d="M-104 -22 l38 -18 l16 24 l-34 22 Z"/>
+      <path d="M84 -40 l34 10 l-6 30 l-32 -14 Z"/>
+      <path d="M-30 74 l30 16 l-22 20 l-26 -14 Z"/>
+    </g>
+    <!-- 방사형 균열 -->
+    <g stroke="#6f5a3f" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.85">
+      <path d="M-92 -34 l-56 -40"/><path d="M96 -30 l64 -26"/>
+      <path d="M-56 74 l-44 62"/><path d="M62 78 l40 58"/>
+      <path d="M6 -80 l10 -70"/>
+    </g>
+  </g>
+
+  <!-- 바닥 그림자 -->
+  <ellipse cx="600" cy="874" rx="380" ry="20" fill="#7d705d" opacity="0.3" filter="url(#sh3)"/>
+</svg>

@@ -242,6 +242,11 @@ export default async function LandingPage({
   // 이 페이지 고유 사진이 있으면 그것이 우선하고, 없을 때만 키워드 세트를 물려받는다.
   const inheritedSets =
     shots.length > 0 ? [] : (groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? [])
+  // 실사가 아직 없어 개념도로 채운 세트인지. 사진으로 오인되면 안 되므로 화면에 밝힌다 —
+  // 남의 현장 사진을 우리 시공 결과처럼 쓰는 것과 같은 종류의 문제를 여기서 차단한다.
+  const casesAreIllustration = inheritedSets.every((set) =>
+    [set.before, set.after].every((u) => !u || u.startsWith('/illustrations/')),
+  )
 
   const pick = (slot: number) => {
     const shot = shots[slot]
@@ -399,6 +404,11 @@ export default async function LandingPage({
             <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
               가운데 손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다.
             </p>
+            {casesAreIllustration && (
+              <p className="mt-2 inline-block rounded-full bg-[var(--paper)] px-3 py-1 text-[12px] font-bold text-[var(--ink-soft)]">
+                작업 내용을 나타낸 개념도입니다
+              </p>
+            )}
             <div className="mt-8">
               <BeforeAfterSlider
                 sets={inheritedSets}

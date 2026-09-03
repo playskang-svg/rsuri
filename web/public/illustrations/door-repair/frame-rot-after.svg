@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="교체 후 깨끗한 문틀 하단 개념도">
+  <defs>
+    <linearGradient id="wall2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1eb"/><stop offset="1" stop-color="#e5e0d7"/>
+    </linearGradient>
+    <linearGradient id="floor2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d3c7b7"/><stop offset="1" stop-color="#b3a48c"/>
+    </linearGradient>
+    <linearGradient id="jamb2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#cfa571"/><stop offset="0.4" stop-color="#eec592"/>
+      <stop offset="0.72" stop-color="#dcb079"/><stop offset="1" stop-color="#a97f4f"/>
+    </linearGradient>
+    <linearGradient id="doorleaf2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7e5f3c"/><stop offset="1" stop-color="#59432a"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="grain2" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85 0.018" numOctaves="4" seed="11"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.12"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="soft2"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="tex2" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="5"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.1"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#wall2)"/>
+  <rect width="1200" height="900" fill="url(#wall2)" filter="url(#tex2)" opacity="0.85"/>
+
+  <!-- 바닥 -->
+  <path d="M0 612 L1200 560 L1200 900 L0 900 Z" fill="url(#floor2)"/>
+  <g stroke="#9c8d76" stroke-width="2" opacity="0.5">
+    <path d="M0 690 L1200 642"/><path d="M0 768 L1200 726"/><path d="M0 846 L1200 810"/>
+    <path d="M300 626 L268 900"/><path d="M640 611 L654 900"/><path d="M980 596 L1040 900"/>
+  </g>
+  <rect y="560" width="1200" height="340" fill="url(#floor2)" filter="url(#tex2)" opacity="0.45"/>
+
+  <!-- 열린 문짝 -->
+  <path d="M120 40 L470 96 L470 660 L120 640 Z" fill="url(#doorleaf2)"/>
+  <path d="M120 40 L470 96 L470 660 L120 640 Z" fill="none" stroke="#4b3823" stroke-width="3"/>
+  <rect x="120" y="40" width="350" height="620" fill="#000" opacity="0.1" filter="url(#tex2)"/>
+
+  <!-- 새 문틀 세로재 -->
+  <path d="M470 70 L560 84 L560 646 L470 660 Z" fill="url(#jamb2)"/>
+  <path d="M470 70 L560 84 L560 646 L470 660 Z" fill="none" stroke="#a67f4f" stroke-width="2.5"/>
+  <path d="M470 70 L560 84 L560 646 L470 660 Z" fill="#c9a273" filter="url(#grain2)" opacity="0.7"/>
+  <!-- 마감 광택 -->
+  <path d="M478 78 L500 81 L500 656 L478 658 Z" fill="url(#sheen)"/>
+
+  <ellipse cx="520" cy="642" rx="170" ry="30" fill="#6d6152" opacity="0.26" filter="url(#soft2)"/>
+
+  <!-- 하단 실리콘 코킹 라인 — 새로 잡은 마감 -->
+  <path d="M470 648 L560 636 L560 652 L470 664 Z" fill="#f2efe8"/>
+  <path d="M470 648 L560 636" stroke="#cfc7b8" stroke-width="2" fill="none"/>
+
+  <!-- 새 문지방 -->
+  <path d="M560 620 L980 578 L980 636 L560 682 Z" fill="#c9a473"/>
+  <path d="M560 620 L980 578 L980 636 L560 682 Z" fill="#dcb987" filter="url(#grain2)" opacity="0.6"/>
+  <path d="M560 620 L980 578 L980 636 L560 682 Z" fill="none" stroke="#a37f4e" stroke-width="2"/>
+  <path d="M560 626 L980 584" stroke="#fff" stroke-width="3" opacity="0.35" fill="none"/>
+</svg>
