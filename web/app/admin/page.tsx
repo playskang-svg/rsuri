@@ -160,6 +160,12 @@ export default function AdminPage() {
   const [pfQuery, setPfQuery] = useState('')
   const [pfOnlyMissing, setPfOnlyMissing] = useState(true)
   const [pfEdit, setPfEdit] = useState<number | null>(null)
+
+  // ── 사이트 재배포 ──
+  // 정적 export라 DB만 바꾸면 사이트에 반영되지 않는다. GitHub까지 들어가지 않고
+  // 여기서 워크플로를 돌리고 끝날 때까지 상태를 보여준다.
+  const [deployState, setDeployState] = useState<'idle' | 'running' | 'done' | 'failed'>('idle')
+  const [deployMsg, setDeployMsg] = useState('')
   const [pfDraft, setPfDraft] = useState<RegionProfile>({ type: '', near: '', note: '', dongs: '' })
 
   // 새 키워드 만들기 패널
@@ -347,6 +353,48 @@ export default function AdminPage() {
   // 성공/실패를 호출부가 구분할 수 있게 error를 그대로 돌려준다.
   // 프로필을 저장하면 그 지역에서 조립이 가능해진 페이지를 발행으로 되돌린다.
   // 저장만 하고 HOLD로 남겨 두면 "입력했는데 왜 사이트에 안 나오냐"가 반복된다.
+  async function redeploy() {
+    setDeployState('running')
+    setDeployMsg('배포를 시작하는 중…')
+
+    const start = await supabase.functions.invoke('redeploy', { body: {} })
+    if (start.error || (start.data as { error?: string })?.error) {
+      setDeployState('failed')
+      setDeployMsg(
+        (start.data as { error?: string })?.error ?? start.error?.message ?? '배포 요청 실패',
+      )
+      return
+    }
+
+    setDeployMsg('빌드 중… 2~4분 걸립니다. 이 화면을 닫아도 배포는 계속됩니다.')
+
+    // dispatch 직후에는 run이 아직 목록에 없을 수 있어 잠시 기다렸다가 확인한다.
+    const deadline = Date.now() + 15 * 60 * 1000
+    let sawRunning = false
+    while (Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 6000))
+      const res = await supabase.functions.invoke('redeploy', { body: { action: 'status' } })
+      const st = res.data as { status?: string; conclusion?: string } | undefined
+      if (!st?.status) continue
+      if (st.status !== 'completed') {
+        sawRunning = true
+        continue
+      }
+      // 아직 이전 run만 보이는 상태일 수 있다 — 한 번이라도 진행 중을 본 뒤의 완료만 믿는다.
+      if (!sawRunning) continue
+      if (st.conclusion === 'success') {
+        setDeployState('done')
+        setDeployMsg('저장되었습니다 — 사이트에 반영 완료')
+      } else {
+        setDeployState('failed')
+        setDeployMsg(`배포 실패 (${st.conclusion ?? '알 수 없음'})`)
+      }
+      return
+    }
+    setDeployState('failed')
+    setDeployMsg('시간이 초과됐습니다. Actions에서 결과를 확인해 주세요.')
+  }
+
   async function saveProfile(rg: Rg) {
     const draft = {
       type: pfDraft.type.trim(),
@@ -883,9 +931,13 @@ export default function AdminPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-kr text-2xl font-black">키워드 관리</h1>
         <div className="flex items-center gap-2">
-          <a href={ACTIONS_URL} target="_blank" rel="noreferrer" className="btn-ghost !py-2 text-sm">
-            사이트 재배포(Actions) ↗
-          </a>
+          <button
+            onClick={redeploy}
+            disabled={deployState === 'running'}
+            className="btn-call !py-2 text-sm disabled:opacity-50"
+          >
+            {deployState === 'running' ? '배포 중…' : '사이트 재배포'}
+          </button>
           <button onClick={() => supabase.auth.signOut()} className="nav-link">
             로그아웃
           </button>
@@ -896,6 +948,36 @@ export default function AdminPage() {
         키워드 {kws.length}개 · 지역 페이지 {rows.length}건 · 지역을 붙이면 바로 저장되지만, 공개
         사이트 반영은 <b>Deploy 워크플로 실행</b>이 필요합니다.
       </p>
+      {deployState !== 'idle' && (
+        <p
+          className={`mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold ${
+            deployState === 'done'
+              ? 'bg-[var(--teal-soft)] text-[var(--teal)]'
+              : deployState === 'failed'
+                ? 'bg-[#f7e3e3] text-[#a3372f]'
+                : 'bg-[var(--paper)] text-[var(--ink-soft)]'
+          }`}
+        >
+          {deployState === 'running' && (
+            <span
+              aria-hidden
+              className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--line)] border-t-[var(--copper)]"
+            />
+          )}
+          {deployMsg}
+          {deployState === 'failed' && (
+            <a
+              href={ACTIONS_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Actions 열기 ↗
+            </a>
+          )}
+        </p>
+      )}
+
       {msg && (
         <p className="mt-3 rounded-lg bg-[var(--teal-soft)] px-3 py-2 text-sm font-bold text-[var(--teal)]">
           {msg}
