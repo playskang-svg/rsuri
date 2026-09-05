@@ -5,9 +5,10 @@ import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
 import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
-import { buildKeywordContent } from '@/lib/keyword-guide'
+import { buildKeywordContent, buildPartContent } from '@/lib/keyword-guide'
+import { partsFor, partName, partSlug, type SubItem } from '@/lib/keyword-parts'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
-import type { Page, Region } from '@/lib/types'
+import type { Category, Page, Region, RepairKeyword } from '@/lib/types'
 
 export const dynamicParams = false
 
@@ -22,29 +23,87 @@ const CHIP =
 // 지역이 아직 등록되지 않은 키워드에 보여 줄 기본 출장 지역(운영자 지정).
 const BASE_AREAS = ['천안', '안성', '평택'] as const
 
+// ── 이 라우트가 맡는 두 가지 ──
+// (1) 키워드 허브        /{키워드}            예: /door-restoration
+// (2) 세부 항목 페이지   /{키워드}-{꼬리}     예: /door-restoration-sag ("방문복원 방문처짐")
+//
+// 세부 항목을 최상위 주소로 두는 이유: 지역 경로(/{키워드}/{지역})와 한 칸도 겹치지 않고,
+// 나중에 세부 항목에 지역을 붙이면 /{세부슬러그}/{지역}로 그대로 확장된다.
+interface Subject {
+  keyword: RepairKeyword
+  category: Category | undefined
+  /** null이면 키워드 허브, 있으면 그 키워드의 세부 항목 페이지 */
+  part: SubItem | null
+  /** 화면에 쓰는 이름 — 세부 항목이면 "방문복원 방문처짐" */
+  name: string
+}
+
+function resolveSubject(
+  slug: string,
+  keywords: RepairKeyword[],
+  categories: Category[],
+): Subject | null {
+  const categoryOf = (k: RepairKeyword) => categories.find((c) => c.id === k.category_id)
+
+  const exact = keywords.find((k) => k.slug === slug)
+  if (exact) {
+    return { keyword: exact, category: categoryOf(exact), part: null, name: exact.display_name }
+  }
+
+  // 세부 항목: 상위 슬러그로 시작하는 키워드 중 꼬리까지 맞는 것을 찾는다.
+  // 슬러그가 서로 접두인 키워드가 있을 수 있으므로(door / door-film) 긴 쪽을 먼저 본다.
+  const candidates = keywords
+    .filter((k) => slug.startsWith(`${k.slug}-`))
+    .sort((a, b) => b.slug.length - a.slug.length)
+  for (const k of candidates) {
+    const cat = categoryOf(k)
+    const part = partsFor(k.display_name, cat?.slug ?? null).find(
+      (p) => partSlug(k.slug, p) === slug,
+    )
+    if (part) {
+      return { keyword: k, category: cat, part, name: partName(k.display_name, part) }
+    }
+  }
+  return null
+}
+
 // 지역이 아직 0개인 키워드도 허브를 만든다.
 // 발행된 지역 페이지가 있는 키워드만 만들던 때에는 sitemap에는 있는데 실제로는 404인
 // 주소가 생겼다(52개 중 18개). 지역이 없으면 본문에서 안내 문구를 대신 보여준다.
 export async function generateStaticParams() {
-  const { keywords } = await getAllData()
-  return keywords.map((k) => ({ keyword: k.slug }))
+  const { keywords, categories } = await getAllData()
+  const taken = new Set(keywords.map((k) => k.slug))
+  const params = keywords.map((k) => ({ keyword: k.slug }))
+  for (const k of keywords) {
+    const cat = categories.find((c) => c.id === k.category_id)
+    for (const part of partsFor(k.display_name, cat?.slug ?? null)) {
+      const slug = partSlug(k.slug, part)
+      // 실제 키워드와 주소가 겹치면 키워드가 이긴다 — 그쪽이 DB에 있는 진짜다.
+      if (taken.has(slug)) continue
+      taken.add(slug)
+      params.push({ keyword: slug })
+    }
+  }
+  return params
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ keyword: string }> }) {
   const { keyword: keywordSlug } = await params
   const { keywords, categories, pages } = await getAllData()
-  const keyword = keywords.find((k) => k.slug === keywordSlug)
-  if (!keyword) return {}
+  const subject = resolveSubject(keywordSlug, keywords, categories)
+  if (!subject) return {}
   const landings = pages.filter(
-    (p) => p.page_type === 'LANDING' && isPublished(p) && p.repair_keyword_id === keyword.id,
+    (p) =>
+      p.page_type === 'LANDING' && isPublished(p) && p.repair_keyword_id === subject.keyword.id,
   )
-  const content = buildKeywordContent(landings, {
-    displayName: keyword.display_name,
-    description: keyword.description,
-    categorySlug: categories.find((c) => c.id === keyword.category_id)?.slug ?? null,
+  const base = buildKeywordContent(landings, {
+    displayName: subject.keyword.display_name,
+    description: subject.keyword.description,
+    categorySlug: subject.category?.slug ?? null,
   })
+  const content = subject.part ? buildPartContent(base, subject.part) : base
   return {
-    title: `${keyword.display_name} — 증상·수리 과정·자주 묻는 질문 | 수리위키`,
+    title: `${subject.name} — 증상·수리 과정·자주 묻는 질문 | 수리위키`,
     description: content.summary,
   }
 }
@@ -56,10 +115,13 @@ export default async function KeywordHubPage({
 }) {
   const { keyword: keywordSlug } = await params
   const { keywords, categories, pages, regions } = await getAllData()
-  const keyword = keywords.find((k) => k.slug === keywordSlug)
-  if (!keyword) notFound()
+  const subject = resolveSubject(keywordSlug, keywords, categories)
+  if (!subject) notFound()
 
-  const category = categories.find((c) => c.id === keyword.category_id)
+  const { keyword, category, part } = subject
+  const parts = partsFor(keyword.display_name, category?.slug ?? null)
+  // 세부 항목 페이지에서는 형제 항목을, 허브에서는 전체 항목을 카드로 깐다.
+  const cards = part ? parts.filter((p) => p.suffix !== part.suffix) : parts
   const { byId } = buildRegionIndex(regions)
 
   // 곧 키워드 76개 × 지역 페이지 1,300건이다. 허브 한 장을 그릴 때마다 pages 전체를
@@ -78,13 +140,15 @@ export default async function KeywordHubPage({
     else landingsByRegion.set(p.region_id, [p])
   }
 
-  // 허브 본문. guide는 지역이 아니라 수리 종류 단위로 쓰였으므로 하위 랜딩에서 물려받고,
+  // 본문. guide는 지역이 아니라 수리 종류 단위로 쓰였으므로 하위 랜딩에서 물려받고,
   // 빈 칸은 공종 문구로 채운다 — 어느 키워드로 들어와도 같은 구조가 나와야 한다.
-  const content = buildKeywordContent(landingsByKeyword.get(keyword.id) ?? [], {
+  // 세부 항목 페이지는 그 위에 증상·요약·FAQ만 항목 것으로 갈아 끼운다.
+  const base = buildKeywordContent(landingsByKeyword.get(keyword.id) ?? [], {
     displayName: keyword.display_name,
     description: keyword.description,
     categorySlug: category?.slug ?? null,
   })
+  const content = part ? buildPartContent(base, part) : base
 
   // 같은 지역 조상 체인을 여러 블록이 반복해서 계산한다 — 지역당 한 번만 만든다.
   const chainCache = new Map<number, Region[]>()
@@ -153,6 +217,7 @@ export default async function KeywordHubPage({
   const jumps = [
     { href: '#symptoms', label: '이런 증상' },
     { href: '#process', label: '수리 과정' },
+    ...(cards.length > 0 ? [{ href: '#parts', label: part ? '다른 항목' : '세부 항목' }] : []),
     { href: '#prevention', label: '재발 방지' },
     { href: '#faq', label: '자주 묻는 질문' },
     { href: '#regions', label: '출장 지역' },
@@ -173,10 +238,20 @@ export default async function KeywordHubPage({
               수리위키
             </Link>
             {' › '}
-            <span className="font-bold text-[var(--ink)]">{keyword.display_name}</span>
+            {part ? (
+              <>
+                <Link href={`/${keyword.slug}`} className="hover:text-[var(--ink)]">
+                  {keyword.display_name}
+                </Link>
+                {' › '}
+                <span className="font-bold text-[var(--ink)]">{part.short}</span>
+              </>
+            ) : (
+              <span className="font-bold text-[var(--ink)]">{keyword.display_name}</span>
+            )}
           </nav>
           <h1 className="font-serif-kr mt-3 text-3xl font-black leading-[1.25] sm:text-4xl">
-            {keyword.display_name}
+            {subject.name}
           </h1>
           <p className="prose-kr mt-4 max-w-2xl text-[15px] text-[var(--ink-soft)]">
             {content.summary}
@@ -187,7 +262,7 @@ export default async function KeywordHubPage({
             <div>
               {sets.length > 0 ? (
                 <>
-                  <BeforeAfterSlider sets={sets} alt={`${keyword.display_name} 시공 전후 사진`} />
+                  <BeforeAfterSlider sets={sets} alt={`${subject.name} 시공 전후 사진`} />
                   <p className="mt-2.5 text-[13px] text-[var(--ink-soft)]">
                     실제 {keyword.display_name} 현장입니다. {content.photoNote} 손잡이를 좌우로
                     끌면 시공 전과 후가 겹쳐 보입니다.
@@ -211,7 +286,7 @@ export default async function KeywordHubPage({
               >
                 <p className="eyebrow">Self Check</p>
                 <h2 id="symptoms-title" className="mt-1 text-lg font-extrabold">
-                  이런 증상이면 {keyword.display_name}입니다
+                  이런 증상이면 {subject.name}입니다
                 </h2>
                 <ul className="mt-4 space-y-3.5">
                   {content.symptoms.map((s, i) => (
@@ -255,11 +330,47 @@ export default async function KeywordHubPage({
         </div>
       </section>
 
+      {/* ── 세부 시공 항목 ──
+          사람들은 "문수리"가 아니라 "문 안 닫힘", "도어락 교체"처럼 증상으로 찾는다.
+          항목마다 독립 페이지를 두고 여기서 갈라 보낸다. */}
+      {cards.length > 0 && (
+        <section id="parts" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <p className="eyebrow">Repair Types</p>
+          <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
+            {part ? `${keyword.display_name} 다른 항목` : `${keyword.display_name} 세부 항목`}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--ink-soft)]">
+            증상에 가장 가까운 항목을 고르면 그 증상만 따로 정리한 페이지로 이동합니다.
+          </p>
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {cards.map((c) => (
+              <li key={c.suffix}>
+                <Link
+                  href={`/${partSlug(keyword.slug, c)}`}
+                  className="card group flex h-full flex-col p-7 transition-shadow hover:shadow-lg"
+                >
+                  <h3 className="text-lg font-extrabold leading-snug sm:text-xl">{c.short}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--ink-soft)]">
+                    {c.desc}
+                  </p>
+                  <span className="mt-5 flex items-center gap-1.5 text-sm font-bold text-[var(--copper)]">
+                    {partName(keyword.display_name, c)} 보기
+                    <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+                      →
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* ── 수리 과정 ── */}
       <section id="process" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <p className="eyebrow">Process</p>
         <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-          {keyword.display_name}, 이렇게 진행합니다
+          {subject.name}, 이렇게 진행합니다
         </h2>
         <p className="mt-2 text-sm text-[var(--ink-soft)]">
           {content.genericSteps
@@ -303,7 +414,7 @@ export default async function KeywordHubPage({
       <section id="prevention" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <p className="eyebrow">Prevention</p>
         <h2 className="font-serif-kr mt-2 text-2xl font-black">
-          {keyword.display_name} 후 다시 안 그러려면
+          {subject.name} 후 다시 안 그러려면
         </h2>
         <ul className="mt-6 grid gap-3">
           {content.preventionTips.map((tip, i) => (
@@ -322,7 +433,7 @@ export default async function KeywordHubPage({
         <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
           <p className="eyebrow">FAQ</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {keyword.display_name} 자주 묻는 질문
+            {subject.name} 자주 묻는 질문
           </h2>
           <div className="mt-6">
             {content.faqs.map((f, i) => (
@@ -339,13 +450,14 @@ export default async function KeywordHubPage({
       <section id="regions" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <p className="eyebrow">Service Area</p>
         <h2 className="font-serif-kr mt-2 text-2xl font-black">
-          {keyword.display_name} 출장 지역
+          {subject.name} 출장 지역
         </h2>
         {myLandings.length > 0 ? (
           <>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
               총 {myLandings.length}개 지역에서 안내 중입니다. 동네를 고르면 그 지역의 주거 특성과
               담당 마스터까지 함께 볼 수 있습니다.
+              {part && ` ${part.short}도 ${keyword.display_name} 담당 마스터가 그대로 맡습니다.`}
             </p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {myLandings.map(({ page, chain }) => {
@@ -396,7 +508,7 @@ export default async function KeywordHubPage({
               ))}
             </ul>
             <p className="mt-4 text-sm text-[var(--ink-soft)]">
-              {BASE_AREAS.join(' · ')}은 {keyword.display_name} 기본 출장 지역입니다. 인접
+              {BASE_AREAS.join(', ')}은 {subject.name} 기본 출장 지역입니다. 인접
               지역도 가능한 경우가 많으니, 동네 이름과 함께 문의를 남겨 주시면 확인해
               드립니다. 동별 안내 페이지는 시공 기록이 쌓이는 대로 열립니다.
             </p>
@@ -475,7 +587,7 @@ export default async function KeywordHubPage({
       {telHref && (
         <div className="callbar">
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-bold">{keyword.display_name}</p>
+            <p className="truncate text-[13px] font-bold">{subject.name}</p>
             <p className="truncate text-[11px] text-[#aeb9be]">사진·문자 상담 환영</p>
           </div>
           <a href={telHref} className="btn-call flex-none !px-4 !py-2 text-sm">

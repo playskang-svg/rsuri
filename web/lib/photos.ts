@@ -16,6 +16,8 @@
 // 그래서 키워드 이름에서 주제를 먼저 읽고(TOPIC_RULES), 안 걸릴 때만 분야로 내려간다.
 // 분야는 9종인데 실제 공종은 그보다 잘게 나뉘므로 이 순서가 맞다.
 
+import PARTS_INDEX from './data/parts-index.json'
+
 const P = (id: string) => `https://images.unsplash.com/photo-${id}?w=1100&q=72&auto=format&fit=crop`
 
 const POOL: Record<string, string[]> = {
@@ -104,17 +106,10 @@ const FALLBACK = [P('1600585154340-be6161a56a0c'), P('1513694203232-719a280e022f
 //   - '창고문'이 window로 새지 않게 window는 '샷시/창호/창문'만 본다('창고' ≠ '창호').
 //   - '현관 롤 방충망'이 '현관' 때문에 door로 새지 않게 방충망을 door보다 앞에 둔다.
 //   - '비둘기 방충망 보강'은 방충망보다 비둘기가 먼저다.
-const TOPIC_RULES: [string, string[]][] = [
-  ['pigeon-bird-control', ['비둘기', '조류']],
-  ['stairs', ['계단']],
-  ['general', ['집수리', '주택수리', '농가']],
-  ['screen-vent-etc', ['방충망', '환풍기']],
-  ['glass', ['유리', '거울', '강화도어', '강화유리', '폴딩도어', '자동문', '중문']],
-  ['floor', ['마루', '바닥', '장판']],
-  ['wallpaper', ['도배', '벽지']],
-  ['window', ['샷시', '샤시', '창호', '창문']],
-  ['door', ['문', '도어', '현관', '필름', '시트지']],
-]
+//
+// 규칙 자체는 lib/data/parts-index.json에 있다 — 사이트맵 스크립트(.mjs)도 같은 판정을
+// 해야 하는데 그쪽은 TS를 못 읽기 때문이다. JSON은 순서를 그대로 보존한다.
+const TOPIC_RULES = PARTS_INDEX.topicRules as unknown as [string, string[]][]
 
 /**
  * 키워드 이름에서 공종 주제를 읽는다. 사진 고르기와 본문 문구(lib/keyword-copy.ts)가

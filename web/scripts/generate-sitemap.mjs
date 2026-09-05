@@ -6,9 +6,31 @@
 // public/sitemap.xml을 직접 써낸다. package.json의 build 스크립트가 next build보다
 // 먼저 이 스크립트를 실행한다.
 
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { config as loadEnv } from 'dotenv'
+
+// 세부 항목 페이지(/{키워드}-{꼬리})의 주소 규칙. 화면 쪽은 lib/keyword-parts.ts가
+// 같은 JSON을 읽고, 두 목록이 어긋나면 그 모듈이 로드될 때 빌드가 죽는다.
+// 이 스크립트는 next build보다 먼저 도는 별도 node 프로세스라 TS를 못 읽어서 JSON을 쓴다.
+const PARTS_INDEX = JSON.parse(readFileSync(new URL('../lib/data/parts-index.json', import.meta.url), 'utf8'))
+
+function topicOf(keywordName) {
+  for (const [topic, words] of PARTS_INDEX.topicRules) {
+    if (words.some((w) => keywordName.includes(w))) return topic
+  }
+  return null
+}
+
+function suffixesFor(keywordName, categorySlug) {
+  const alias = (t) => PARTS_INDEX.topicAliases[t] ?? t
+  const topic = topicOf(keywordName)
+  return (
+    (topic && PARTS_INDEX.suffixes[alias(topic)]) ||
+    (categorySlug && PARTS_INDEX.suffixes[alias(categorySlug)]) ||
+    PARTS_INDEX.suffixes.general
+  )
+}
 
 // next build은 .env.local을 자동으로 읽지만, 이 스크립트는 next build보다 먼저
 // 별도 node 프로세스로 실행되므로 직접 로드해야 한다. 일반 .env보다 .env.local을
@@ -56,18 +78,34 @@ function isPublished(page) {
 }
 
 async function main() {
-  const [regions, keywords, pages] = await Promise.all([
+  const [regions, categories, keywords, pages] = await Promise.all([
     fetchAllRows('suri_regions'),
+    fetchAllRows('suri_categories'),
     fetchAllRows('suri_repair_keywords'),
     fetchAllRows('suri_pages'),
   ])
   const byId = new Map(regions.map((r) => [r.id, r]))
+  const categorySlugById = new Map(categories.map((c) => [c.id, c.slug]))
   const keywordSlugById = new Map(keywords.map((k) => [k.id, k.slug]))
 
   const urls = new Set([`${SITE_URL}/`])
+  // 실제 키워드 주소를 먼저 잡아 둔다 — 세부 항목 주소가 키워드와 겹치면
+  // app/[keyword]/page.tsx가 키워드를 우선하므로 사이트맵도 같은 규칙을 따른다.
+  const taken = new Set(keywords.map((k) => k.slug))
 
   for (const kw of keywords) {
     urls.add(`${SITE_URL}/${kw.slug}`)
+  }
+
+  // 세부 항목 페이지
+  for (const kw of keywords) {
+    const categorySlug = categorySlugById.get(kw.category_id) ?? null
+    for (const suffix of suffixesFor(kw.display_name, categorySlug)) {
+      const slug = `${kw.slug}-${suffix}`
+      if (taken.has(slug)) continue
+      taken.add(slug)
+      urls.add(`${SITE_URL}/${slug}`)
+    }
   }
 
   for (const page of pages) {

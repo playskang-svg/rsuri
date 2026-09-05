@@ -13,6 +13,7 @@
 // 키워드 고유 원본이 있으면 그쪽이 언제나 이긴다.
 
 import { copyFor } from './keyword-copy'
+import type { SubItem } from './keyword-parts'
 import type { GuideFaq, GuideStep, Page, PageGuide } from './types'
 
 export interface KeywordContent {
@@ -135,5 +136,21 @@ export function buildKeywordContent(landings: Page[], keyword: KeywordRef): Keyw
     diyVsPro: source?.diy_vs_pro || copy.diyVsPro,
     photoNote: copy.photoNote,
     genericSteps: !hasOwnSteps,
+  }
+}
+
+/**
+ * 세부 항목 페이지 본문. 상위 키워드 본문을 바탕으로 증상·요약·FAQ만 그 항목 것으로
+ * 갈아 끼운다 — 재발 방지와 자가수리 판단은 공종 단위라 그대로 물려받는 편이 맞다.
+ */
+export function buildPartContent(base: KeywordContent, part: SubItem): KeywordContent {
+  return {
+    ...base,
+    summary: part.desc,
+    symptoms: part.symptoms,
+    steps: part.steps ?? base.steps,
+    genericSteps: part.steps ? false : base.genericSteps,
+    // 세부 항목 FAQ가 먼저, 공종·상담 FAQ가 뒤에.
+    faqs: mergeFaqs(part.faqs, base.faqs),
   }
 }
