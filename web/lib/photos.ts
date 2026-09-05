@@ -116,7 +116,11 @@ const TOPIC_RULES: [string, string[]][] = [
   ['door', ['문', '도어', '현관', '필름', '시트지']],
 ]
 
-function topicOf(keywordName: string): string | null {
+/**
+ * 키워드 이름에서 공종 주제를 읽는다. 사진 고르기와 본문 문구(lib/keyword-copy.ts)가
+ * 같은 판정을 써야 사진과 글이 어긋나지 않는다 — 규칙은 여기 한 곳에만 둔다.
+ */
+export function topicOf(keywordName: string): string | null {
   for (const [topic, words] of TOPIC_RULES) {
     if (words.some((w) => keywordName.includes(w))) return topic
   }

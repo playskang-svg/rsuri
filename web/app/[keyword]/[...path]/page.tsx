@@ -108,11 +108,15 @@ export default async function LandingPage({
   }
 
   // 본문. 이 페이지의 guide가 우선이고, 비어 있으면 같은 키워드의 다른 지역 페이지에서
-  // 물려받는다(guide는 지역이 아니라 수리 종류 단위로 쓰였다). 그것도 없으면 공통 상담 흐름.
-  // 이렇게 해야 허브(/{keyword})와 지역 페이지가 같은 내용을 보여준다.
+  // 물려받는다(guide는 지역이 아니라 수리 종류 단위로 쓰였다). 남은 빈 칸은 공종 문구로
+  // 채운다 — 허브(/{keyword})와 지역 페이지가 같은 구조·같은 내용을 보여줘야 한다.
   const content = buildKeywordContent(
     page.guide ? [page] : (landingsByKeyword.get(keyword.id) ?? []),
-    keyword.description,
+    {
+      displayName: keyword.display_name,
+      description: keyword.description,
+      categorySlug: category?.slug ?? null,
+    },
   )
 
   const pros = localPros.filter((p) => p.region_id === region.id)
@@ -238,14 +242,14 @@ export default async function LandingPage({
   const photoA = pick(0)
   const photoB = pick(1)
 
-  // 본문이 길어졌으므로 핵심 블록으로 바로 가는 칩을 단다. 실제로 그린 섹션만 넣는다.
+  // 본문이 길어졌으므로 핵심 블록으로 바로 가는 칩을 단다.
   const jumps = [
-    content.symptoms.length > 0 ? { href: '#symptoms', label: '이런 증상' } : null,
-    content.steps.length > 0 ? { href: '#process', label: '수리 과정' } : null,
-    content.preventionTips.length > 0 ? { href: '#prevention', label: '재발 방지' } : null,
-    content.faqs.length > 0 ? { href: '#faq', label: '자주 묻는 질문' } : null,
+    { href: '#symptoms', label: '이런 증상' },
+    { href: '#process', label: '수리 과정' },
+    { href: '#prevention', label: '재발 방지' },
+    { href: '#faq', label: '자주 묻는 질문' },
     { href: '#area', label: '출장 지역' },
-  ].filter((x): x is { href: string; label: string } => x !== null)
+  ]
 
   return (
     <main className="pb-24 md:pb-0">
@@ -289,8 +293,7 @@ export default async function LandingPage({
             {region.display_name} {keyword.display_name}
           </h1>
           <p className="prose-kr mt-4 max-w-2xl text-[15px] text-[var(--ink-soft)]">
-            {content.summary ??
-              `${region.display_name} 지역 ${keyword.display_name} 출장 안내 페이지입니다.`}
+            {content.summary}
           </p>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
@@ -303,8 +306,8 @@ export default async function LandingPage({
                     alt={`${keyword.display_name} 시공 전후 사진`}
                   />
                   <p className="mt-2.5 text-[13px] text-[var(--ink-soft)]">
-                    실제 {keyword.display_name} 현장입니다. 손잡이를 좌우로 움직이면 같은 자리의
-                    시공 전과 후가 겹쳐 보입니다.
+                    실제 {keyword.display_name} 현장입니다. {content.photoNote} 손잡이를 좌우로
+                    끌면 시공 전과 후가 겹쳐 보입니다.
                   </p>
                 </>
               ) : (
@@ -323,39 +326,27 @@ export default async function LandingPage({
 
             {/* 오른쪽 — 무엇이 문제인지 먼저, 그다음 상담 버튼 */}
             <div className="space-y-5">
-              {content.symptoms.length > 0 ? (
-                <aside
-                  id="symptoms"
-                  className="diag-card rounded-2xl p-6"
-                  aria-labelledby="symptoms-title"
-                >
-                  <p className="eyebrow">Self Check</p>
-                  <h2 id="symptoms-title" className="mt-1 text-lg font-extrabold">
-                    이런 증상이면 의심하세요
-                  </h2>
-                  <ul className="mt-4 space-y-3.5">
-                    {content.symptoms.map((s, i) => (
-                      <li key={i} className="diag-item text-[15px] leading-snug">
-                        <span aria-hidden className="diag-box" />
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
-                    한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
-                  </p>
-                </aside>
-              ) : (
-                <aside className="diag-card rounded-2xl p-6">
-                  <p className="eyebrow">How it works</p>
-                  <h2 className="mt-1 text-lg font-extrabold">사진 한 장이면 상담이 시작됩니다</h2>
-                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
-                    손상된 자리와 그 주변이 함께 나온 사진, {region.display_name}이라는 지역,
-                    언제부터 그랬는지 — 이 세 가지만 보내 주시면 담당 마스터가 원인과 작업 범위를
-                    잡아 회신드립니다.
-                  </p>
-                </aside>
-              )}
+              <aside
+                id="symptoms"
+                className="diag-card rounded-2xl p-6"
+                aria-labelledby="symptoms-title"
+              >
+                <p className="eyebrow">Self Check</p>
+                <h2 id="symptoms-title" className="mt-1 text-lg font-extrabold">
+                  이런 증상이면 {keyword.display_name}입니다
+                </h2>
+                <ul className="mt-4 space-y-3.5">
+                  {content.symptoms.map((s, i) => (
+                    <li key={i} className="diag-item text-[15px] leading-snug">
+                      <span aria-hidden className="diag-box" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-5 border-t border-[var(--line)] pt-4 text-sm text-[var(--ink-soft)]">
+                  한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
+                </p>
+              </aside>
 
               {region.housing_characteristics && (
                 <div className="rounded-xl border border-[var(--line)] bg-[var(--teal-soft)]/60 p-4 text-sm">
@@ -398,76 +389,72 @@ export default async function LandingPage({
       </section>
 
       {/* ── 수리 과정 ── */}
-      {content.steps.length > 0 && (
-        <section id="process" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">Process</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            {content.generic
-              ? '상담부터 시공까지, 이 순서로 진행합니다'
-              : `${keyword.display_name}, 이렇게 진행합니다`}
-          </h2>
-          <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            {region.display_name} 현장에서 실제로 진행되는 순서입니다.
-          </p>
+      <section id="process" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+        <p className="eyebrow">Process</p>
+        <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
+          {region.display_name} {keyword.display_name}, 이렇게 진행합니다
+        </h2>
+        <p className="mt-2 text-sm text-[var(--ink-soft)]">
+          {content.genericSteps
+            ? `${region.display_name} 현장에서도 이 순서로 움직입니다. 달라지는 부분은 방문 진단 때 설명드립니다.`
+            : `${region.display_name} 현장에서 실제로 진행되는 순서입니다.`}
+        </p>
 
-          <div className="hero-photo mt-6 aspect-[16/7]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photoB.src} alt={photoB.note ?? ''} style={photoB.style} loading="lazy" />
-            <span className="tag">{photoB.label}</span>
-          </div>
+        <div className="hero-photo mt-6 aspect-[16/7]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photoB.src} alt={photoB.note ?? ''} style={photoB.style} loading="lazy" />
+          <span className="tag">{photoB.label}</span>
+        </div>
 
-          <ol className="step-rail mt-8 space-y-7">
-            {content.steps.map((step) => (
-              <li key={step.num} className="flex gap-4">
-                <span className="step-num" aria-hidden>
-                  {String(step.num).padStart(2, '0')}
-                </span>
-                <div className="pt-1">
-                  <h3 className="font-extrabold">{step.title}</h3>
-                  <p className="mt-1 text-sm text-[var(--ink-soft)]">{step.desc}</p>
-                  {step.tip && (
-                    <p className="step-tip mt-2.5 rounded-r-lg px-3.5 py-2.5 text-[13px] font-medium">
-                      <span className="font-extrabold">현장 팁</span> · {step.tip}
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+        <ol className="step-rail mt-8 space-y-7">
+          {content.steps.map((step) => (
+            <li key={step.num} className="flex gap-4">
+              <span className="step-num" aria-hidden>
+                {String(step.num).padStart(2, '0')}
+              </span>
+              <div className="pt-1">
+                <h3 className="font-extrabold">{step.title}</h3>
+                <p className="mt-1 text-sm text-[var(--ink-soft)]">{step.desc}</p>
+                {step.tip && (
+                  <p className="step-tip mt-2.5 rounded-r-lg px-3.5 py-2.5 text-[13px] font-medium">
+                    <span className="font-extrabold">현장 팁</span> · {step.tip}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       {/* ── 자가수리 vs 전문가 ── */}
-      {content.diyVsPro && (
-        <section className="mx-auto max-w-3xl px-4 sm:px-6">
-          <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
-            <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#e8b34c]">
-              직접 할까, 맡길까
-            </p>
-            <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[#d7dde0]">
-              {content.diyVsPro}
-            </p>
-          </div>
-        </section>
-      )}
+      <section className="mx-auto max-w-3xl px-4 sm:px-6">
+        <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
+          <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#e8b34c]">
+            {keyword.display_name} — 직접 할까, 맡길까
+          </p>
+          <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[#d7dde0]">
+            {content.diyVsPro}
+          </p>
+        </div>
+      </section>
 
       {/* ── 재발 방지 ── */}
-      {content.preventionTips.length > 0 && (
-        <section id="prevention" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">Prevention</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">시공 후 재발 방지</h2>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-1">
-            {content.preventionTips.map((tip, i) => (
-              <li key={i} className="card flex gap-3 p-4 text-sm">
-                <span aria-hidden className="mt-0.5 font-black text-[var(--teal)]">
-                  ✓
-                </span>
-                <span>{tip}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <section id="prevention" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+        <p className="eyebrow">Prevention</p>
+        <h2 className="font-serif-kr mt-2 text-2xl font-black">
+          {keyword.display_name} 후 다시 안 그러려면
+        </h2>
+        <ul className="mt-6 grid gap-3 sm:grid-cols-1">
+          {content.preventionTips.map((tip, i) => (
+            <li key={i} className="card flex gap-3 p-4 text-sm">
+              <span aria-hidden className="mt-0.5 font-black text-[var(--teal)]">
+                ✓
+              </span>
+              <span>{tip}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {/* ── 시공 기록 발췌 ── */}
       {casePage?.slug && (
@@ -497,22 +484,20 @@ export default async function LandingPage({
       )}
 
       {/* ── FAQ ── */}
-      {content.faqs.length > 0 && (
-        <section id="faq" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">FAQ</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {region.display_name} {keyword.display_name} 자주 묻는 질문
-          </h2>
-          <div className="mt-6">
-            {content.faqs.map((f, i) => (
-              <details key={i} className="faq">
-                <summary>{f.q}</summary>
-                <div className="text-sm">{f.a}</div>
-              </details>
-            ))}
-          </div>
-        </section>
-      )}
+      <section id="faq" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+        <p className="eyebrow">FAQ</p>
+        <h2 className="font-serif-kr mt-2 text-2xl font-black">
+          {region.display_name} {keyword.display_name} 자주 묻는 질문
+        </h2>
+        <div className="mt-6">
+          {content.faqs.map((f, i) => (
+            <details key={i} className="faq">
+              <summary>{f.q}</summary>
+              <div className="text-sm">{f.a}</div>
+            </details>
+          ))}
+        </div>
+      </section>
 
       {/* ── 지역 마스터 ── */}
       {pros.length > 0 && (

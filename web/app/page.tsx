@@ -99,9 +99,6 @@ export default async function HomePage() {
               <a href="#services" className="btn-call">
                 수리 분야 보기
               </a>
-              <a href="#cases" className="btn-ghost">
-                시공 기록 보기
-              </a>
             </div>
             <p className="mt-5 text-[13px] text-[var(--ink-soft)]">
               <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
