@@ -88,7 +88,8 @@ async function main() {
   const categorySlugById = new Map(categories.map((c) => [c.id, c.slug]))
   const keywordSlugById = new Map(keywords.map((k) => [k.id, k.slug]))
 
-  const urls = new Set([`${SITE_URL}/`])
+  // 고정 페이지 — 데이터와 무관하게 항상 있는 주소
+  const urls = new Set([`${SITE_URL}/`, `${SITE_URL}/site`])
   // 실제 키워드 주소를 먼저 잡아 둔다 — 세부 항목 주소가 키워드와 겹치면
   // app/[keyword]/page.tsx가 키워드를 우선하므로 사이트맵도 같은 규칙을 따른다.
   const taken = new Set(keywords.map((k) => k.slug))

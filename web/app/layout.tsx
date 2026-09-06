@@ -15,6 +15,7 @@ const NAV = [
   { href: '/#services', label: '수리 분야' },
   { href: '/#regions', label: '지역별 안내' },
   { href: '/#cases', label: '시공 기록' },
+  { href: '/site', label: '사이트 모음' },
   { href: '/admin', label: '관리' },
 ]
 

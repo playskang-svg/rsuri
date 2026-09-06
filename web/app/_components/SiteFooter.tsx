@@ -5,11 +5,12 @@ import { getAllData, isPublished } from '@/lib/supabase'
 // 한 번에 갈 수 있게 한다. 키워드가 76종까지 늘어나므로 전부 깔지 않고 상위만 낸다.
 const FOOTER_KEYWORD_LIMIT = 12
 
-// layout.tsx의 헤더 내비와 같은 항목이지만, 푸터는 '관리'를 빼고 3개만 쓴다.
+// layout.tsx의 헤더 내비와 같은 항목이지만, 푸터는 '관리'를 뺀다.
 const FOOTER_NAV = [
   { href: '/#services', label: '수리 분야' },
   { href: '/#regions', label: '지역별 안내' },
   { href: '/#cases', label: '시공 기록' },
+  { href: '/site', label: '사이트 모음' },
 ]
 
 // layout.tsx는 동기 컴포넌트로 두고, DB가 필요한 푸터만 서버 컴포넌트로 분리했다.
