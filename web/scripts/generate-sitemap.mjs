@@ -64,7 +64,8 @@ async function main() {
   const byId = new Map(regions.map((r) => [r.id, r]))
   const keywordSlugById = new Map(keywords.map((k) => [k.id, k.slug]))
 
-  const urls = new Set([`${SITE_URL}/`])
+  // 고정 페이지 — 데이터와 무관하게 항상 있는 주소
+  const urls = new Set([`${SITE_URL}/`, `${SITE_URL}/site`])
 
   for (const kw of keywords) {
     urls.add(`${SITE_URL}/${kw.slug}`)

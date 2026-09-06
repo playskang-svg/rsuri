@@ -81,19 +81,13 @@ export function BeforeAfterSlider({
         className="hero-photo relative aspect-[4/3] w-full select-none"
         // 세로 스크롤은 페이지에 넘기고 가로 드래그만 우리가 받는다 (모바일).
         style={{ touchAction: 'pan-y', cursor: hasPair ? 'ew-resize' : undefined }}
+        // 잡고 끌 때만 움직인다. 그냥 지나가도 따라오게 했더니 페이지를 스크롤하다
+        // 커서가 스쳐 지나가는 것만으로 구분선이 튀어서, 사진을 볼 수가 없었다.
         onPointerDown={
           hasPair
             ? (e) => {
                 setDragging(true)
                 moveTo(e.clientX)
-              }
-            : undefined
-        }
-        // 끌지 않고 그냥 지나가도 따라오게 — "마우스로 좌우 이동하며 슬라이드"
-        onMouseMove={
-          hasPair
-            ? (e) => {
-                if (!dragging) moveTo(e.clientX)
               }
             : undefined
         }
