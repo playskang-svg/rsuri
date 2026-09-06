@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SiteFooter } from './_components/SiteFooter'
+import { KeywordSearch, type SearchItem } from './_components/KeywordSearch'
+import { getAllData, isPublished } from '@/lib/supabase'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -18,12 +20,30 @@ const NAV = [
   { href: '#services', label: '서비스' },
   { href: '#process', label: '진행 과정' },
   { href: '#sitemap', label: '사이트맵' },
+  // 이것만 실제 페이지라 해시가 아니라 경로다 — 운영 중인 도메인 트리를 모아 둔 자리.
+  { href: '/site', label: '사이트 모음' },
 ]
 
 // 상담 CTA는 카카오톡 채널로 보낸다. 외부 도메인이라 next/link가 아니라 <a>를 쓴다.
 const KAKAO_CHANNEL_URL = 'https://pf.kakao.com/_bcVPX'
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// 헤더 검색용 색인. 서버가 없는 정적 사이트라 빌드 때 목록을 심어 두고 브라우저에서 거른다.
+// 이름·슬러그·지역수만 담아 151개 기준 10KB 미만이다 — 레이아웃에 실어도 무겁지 않다.
+async function searchIndex(): Promise<SearchItem[]> {
+  const { keywords, pages } = await getAllData()
+  const counts = new Map<number, number>()
+  for (const p of pages) {
+    if (p.page_type !== 'LANDING' || !isPublished(p) || !p.repair_keyword_id) continue
+    counts.set(p.repair_keyword_id, (counts.get(p.repair_keyword_id) ?? 0) + 1)
+  }
+  return keywords
+    .map((k) => ({ slug: k.slug, name: k.display_name, regions: counts.get(k.id) ?? 0 }))
+    .sort((a, b) => b.regions - a.regions || a.name.localeCompare(b.name, 'ko'))
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const items = await searchIndex()
+
   return (
     <html lang="ko">
       <head>
@@ -54,8 +74,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="font-serif-kr text-xl font-black tracking-tight">수리위키</span>
             </Link>
 
-            {/* 데스크톱 내비 */}
-            <nav className="hidden items-center gap-6 md:flex" aria-label="주요 메뉴">
+            {/* 데스크톱 내비 — 검색이 자리를 먹으므로 좁은 화면에서는 lg부터 편다 */}
+            <nav className="hidden items-center gap-5 lg:flex" aria-label="주요 메뉴">
               {NAV.map((n) => (
                 <Link key={n.href} href={n.href} className="nav-link">
                   {n.label}
@@ -63,7 +83,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            {/* 시공 이름 검색 — 항목이 151종이라 메뉴로는 못 찾는다 */}
+            <KeywordSearch items={items} className="hidden min-w-0 flex-1 md:block md:max-w-xs" />
+
+            <div className="flex flex-none items-center gap-2">
               <a
                 href={KAKAO_CHANNEL_URL}
                 target="_blank"
@@ -73,8 +96,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 빠른 상담하기
               </a>
 
-              {/* 삼선 메뉴 — JS 없이 details로 동작 */}
-              <details className="menu-drop md:hidden">
+              {/* 삼선 메뉴 — JS 없이 details로 동작.
+                  데스크톱 내비가 lg부터 펴지므로 여기서도 lg까지는 남겨 둔다. */}
+              <details className="menu-drop lg:hidden">
                 <summary aria-label="메뉴 열기">
                   <span aria-hidden className="menu-bars">
                     <i />
@@ -83,6 +107,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </span>
                 </summary>
                 <nav className="menu-panel" aria-label="모바일 메뉴">
+                  <KeywordSearch items={items} className="mb-2 md:hidden" />
                   {NAV.map((n) => (
                     <Link key={n.href} href={n.href}>
                       {n.label}
