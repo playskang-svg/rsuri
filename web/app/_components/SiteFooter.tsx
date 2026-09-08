@@ -11,9 +11,8 @@ const FOOTER_NAV = [
   { href: '#cases', label: '시공사례' },
   { href: '#services', label: '서비스' },
   { href: '#process', label: '진행 과정' },
-  { href: '#sitemap', label: '사이트맵' },
-  // 이것만 실제 페이지라 해시가 아니라 경로다 — 운영 중인 도메인 트리.
-  { href: '/site', label: '사이트 모음' },
+  // 사이트맵만 실제 페이지다 — 전 페이지 색인.
+  { href: '/sitemap', label: '사이트맵' },
 ]
 
 // layout.tsx는 동기 컴포넌트로 두고, DB가 필요한 푸터만 서버 컴포넌트로 분리했다.

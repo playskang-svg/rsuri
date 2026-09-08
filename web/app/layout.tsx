@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     '누수·배수구·창호·전기·도배까지, 지역별 검증 마스터의 집수리 서비스. 사진 한 장이면 진단을 시작할 수 있습니다.',
 }
 
-// 해시만 쓰는 이유: 지역·허브·홈이 같은 id(cases/services/process/sitemap)를 쓰므로
+// 해시만 쓰는 이유: 지역·허브·홈이 같은 id(cases/services/process)를 쓰므로
 // 어느 페이지에 있든 지금 보고 있는 문서의 해당 영역으로 스크롤된다.
 // '/#...'로 두면 다른 페이지에서 누를 때 홈으로 튕겨 현재 맥락이 끊긴다.
 const NAV = [
@@ -19,9 +19,9 @@ const NAV = [
   { href: '#cases', label: '시공사례' },
   { href: '#services', label: '서비스' },
   { href: '#process', label: '진행 과정' },
-  { href: '#sitemap', label: '사이트맵' },
-  // 이것만 실제 페이지라 해시가 아니라 경로다 — 운영 중인 도메인 트리를 모아 둔 자리.
-  { href: '/site', label: '사이트 모음' },
+  // 사이트맵만 실제 페이지다. 해시(#sitemap)는 지역 페이지에만 있는 섹션이라
+  // 홈·허브에서 누르면 아무 데도 가지 않았다 — 전 페이지 색인을 /sitemap에 세웠다.
+  { href: '/sitemap', label: '사이트맵' },
 ]
 
 // 상담 CTA는 카카오톡 채널로 보낸다. 외부 도메인이라 next/link가 아니라 <a>를 쓴다.

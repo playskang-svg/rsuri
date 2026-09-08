@@ -56,8 +56,9 @@ function isPublished(page) {
 }
 
 async function main() {
-  const [regions, keywords, pages] = await Promise.all([
+  const [regions, categories, keywords, pages] = await Promise.all([
     fetchAllRows('suri_regions'),
+    fetchAllRows('suri_categories'),
     fetchAllRows('suri_repair_keywords'),
     fetchAllRows('suri_pages'),
   ])
@@ -65,10 +66,19 @@ async function main() {
   const keywordSlugById = new Map(keywords.map((k) => [k.id, k.slug]))
 
   // 고정 페이지 — 데이터와 무관하게 항상 있는 주소
-  const urls = new Set([`${SITE_URL}/`, `${SITE_URL}/site`])
+  const urls = new Set([`${SITE_URL}/`, `${SITE_URL}/sitemap`])
 
   for (const kw of keywords) {
     urls.add(`${SITE_URL}/${kw.slug}`)
+  }
+
+  // 카테고리 페이지는 서로만 링크하고 있어 어디서도 닿지 않는 고아였고 여기서도 빠져
+  // 있었다. 이제 /sitemap이 전부 링크하지만, 색인 제출 대상에도 넣어 둔다.
+  // 키워드가 하나도 없는 카테고리(general)는 빈 페이지라 색인에 올리지 않는다 —
+  // /sitemap 페이지가 링크하는 목록과 같은 기준이다.
+  for (const category of categories) {
+    if (!keywords.some((k) => k.category_id === category.id)) continue
+    urls.add(`${SITE_URL}/category/${category.slug}`)
   }
 
   for (const page of pages) {

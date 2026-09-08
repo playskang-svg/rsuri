@@ -161,50 +161,6 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
 }
 .menu-panel > a:not(.btn-call):hover { background: var(--teal-soft); }
 
-/* /site — 도메인 트리.
-   이미지도 JS도 없이 ul/li 구조 그대로 트리를 그린다(스크린리더·검색엔진에도 트리로 읽힌다).
-   세로줄을 ul 하나로 긋고 마지막 꼬리를 덮는 방법을 먼저 썼는데, 덮개가 자식 위에 그려져
-   분기점 표시와 겹쳤다. 그래서 칸마다 필요한 만큼만 세로줄을 긋는다 —
-     li::before            칸 위에서 꺾이는 지점까지
-     li:not(:last)::after  꺾이는 지점에서 다음 칸까지 (마지막 칸은 여기서 끝나 꼬리가 안 남는다)
-     a::before             꺾이는 지점에서 칸으로 뻗는 가로 가지, a::after 분기점 점 */
-.site-tree {
-  --rail: #cdc4b0;          /* --line은 흰 배경에서 선으로 안 읽혀 한 단계 진하게 */
-  --elbow: 1.55rem;         /* 꺾이는 높이 — 칸 제목 줄 한가운데 */
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 1.7rem;
-}
-.site-tree > li { position: relative; }
-.site-tree > li + li { margin-top: 0.8rem; }
-.site-tree > li::before {
-  content: "";
-  position: absolute;
-  left: -1.25rem; top: 0; height: var(--elbow);
-  border-left: 2px solid var(--rail);
-}
-.site-tree > li:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: -1.25rem; top: var(--elbow); bottom: -0.8rem;
-  border-left: 2px solid var(--rail);
-}
-.site-tree > li > a { position: relative; }
-.site-tree > li > a::before {
-  content: "";
-  position: absolute;
-  left: -1.25rem; top: var(--elbow); width: 1.15rem;
-  border-top: 2px solid var(--rail);
-}
-/* 분기점 — 점이 있어야 한눈에 트리로 읽힌다 */
-.site-tree > li > a::after {
-  content: "";
-  position: absolute;
-  left: -0.36rem; top: calc(var(--elbow) - 0.19rem);
-  width: 0.38rem; height: 0.38rem; border-radius: 999px;
-  background: var(--copper);
-}
-
 /* 헤더 시공 이름 검색 */
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
