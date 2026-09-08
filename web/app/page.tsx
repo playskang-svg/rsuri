@@ -32,7 +32,37 @@ export default async function HomePage() {
   // 풍부한 콘텐츠(guide)가 있는 조합을 대표로 노출
   const featured = landings.filter((x) => x.page.guide)
   const cases = pages.filter((p) => p.page_type === 'CASE' && isPublished(p) && p.slug)
-  const caseByKey = new Map(cases.map((c) => [`${c.repair_keyword_id}:${c.region_id}`, c]))
+
+  // 시공 기록 (CASE) 카드 데이터 구성
+  const caseCards = cases
+    .map((casePage) => {
+      const kw = casePage.repair_keyword_id ? keywordById.get(casePage.repair_keyword_id) : undefined
+      const cat = kw ? categoryById.get(kw.category_id) : undefined
+      const chain = casePage.region_id ? getAncestorChain(casePage.region_id, byId) : []
+      const dong = chain[chain.length - 1]
+      const landing = landings.find(
+        (l) =>
+          l.page.repair_keyword_id === casePage.repair_keyword_id &&
+          l.page.region_id === casePage.region_id,
+      )
+      const summary = landing?.page.guide?.summary ?? casePage.meta_description
+      const cover = kw ? coverImage(setsByKeyword.get(kw.id)) : null
+      const fallback = categoryPhoto(
+        cat?.slug ?? '',
+        `${kw?.slug ?? ''}/${dong?.slug ?? ''}`,
+        1,
+        kw?.display_name,
+      )
+      return {
+        casePage,
+        kw,
+        cat,
+        dong,
+        summary,
+        photo: cover ? { src: cover, style: undefined } : fallback,
+      }
+    })
+    .filter((x) => x.kw && x.dong)
 
   const heroPhoto = categoryPhoto('leak-waterproof', 'home-hero')
 
@@ -117,7 +147,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── 수리 분야 (키워드 사진 카드) ── */}
-      <section id="services" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+      <section id="services" className="scroll-mt-16 mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <p className="eyebrow">Services</p>
         <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">수리 분야</h2>
         <p className="mt-2 text-sm text-[var(--ink-soft)]">
@@ -172,8 +202,64 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── 실제 시공 기록 ── */}
+      {caseCards.length > 0 && (
+        <section id="cases" className="scroll-mt-16 border-t border-[var(--line)] bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <p className="eyebrow">Field Records</p>
+            <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">실제 시공 기록</h2>
+            <p className="mt-2 text-sm text-[var(--ink-soft)]">
+              문제 확인부터 현장 판단, 작업 내용, 검측 결과까지 현장에서 실제로 진행된 순서 그대로
+              기록했습니다.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {caseCards.map(({ casePage, kw, dong, summary, photo }) => (
+                <Link
+                  key={casePage.id}
+                  href={`/case/${casePage.slug}`}
+                  className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-xl"
+                >
+                  <div className="relative aspect-[16/9] overflow-hidden bg-[var(--line)]/20">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photo.src}
+                      alt=""
+                      style={photo.style}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
+                      {kw!.display_name} · {dong!.display_name}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between p-5">
+                    <div>
+                      <h3 className="font-extrabold leading-snug transition-colors group-hover:text-[var(--copper)]">
+                        {casePage.meta_title}
+                      </h3>
+                      {summary && (
+                        <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                          {summary}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-[var(--line)]/60 pt-3 text-xs font-bold text-[var(--copper)]">
+                      <span>현장 기록 원장 보기</span>
+                      <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+                        →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── 지역별 안내 ── */}
-      <section id="regions" className="border-t border-[var(--line)] bg-white">
+      <section id="regions" className="scroll-mt-16 border-t border-[var(--line)] bg-[var(--paper)]">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <p className="eyebrow">Regions</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">지역별 안내</h2>
