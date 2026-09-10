@@ -1,0 +1,6 @@
+# Cloudflare 관리형 robots.txt가 이 파일 앞에 크롤러 규칙(AI 학습 봇 차단)을 붙여서 서빙한다.
+# 여기에는 검색엔진이 사이트맵과 피드를 스스로 찾아가도록 위치만 적는다.
+# 구글·빙·네이버(Yeti)·다음·Yandex 모두 robots.txt의 Sitemap 줄을 읽고, RSS 2.0도 사이트맵으로 받는다.
+
+Sitemap: https://suriwiki.com/sitemap.xml
+Sitemap: https://suriwiki.com/rss.xml
