@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   title: '수리위키 — 우리 동네 집수리',
   description:
     '누수·배수구·창호·전기·도배까지, 지역별 검증 마스터의 집수리 서비스. 사진 한 장이면 진단을 시작할 수 있습니다.',
+  verification: {
+    other: {
+      'naver-site-verification': '9004a322fa5ed99f5e2fe01e0297d22c2a5e6e08',
+    },
+  },
 }
 
 // 해시만 쓰는 이유: 지역·허브·홈이 같은 id(cases/services/process)를 쓰므로
