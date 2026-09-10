@@ -122,7 +122,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
         {/* 하단 CTA */}
         <div className="mt-12 rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <p className="font-serif-kr text-xl font-black">비슷한 증상이 있으신가요?</p>
-          <p className="mt-2 text-sm text-[#d7dde0]">
+          <p className="mt-2 text-sm text-[var(--on-ink)]">
             작업 중에는 통화가 어려우니, 사진과 지역·수리 내용을 남겨 주시면 확인 후
             안내드립니다.
           </p>
@@ -153,7 +153,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
             <p className="truncate text-[13px] font-bold">
               {dong?.display_name} {category?.display_name}
             </p>
-            <p className="truncate text-[11px] text-[#aeb9be]">사진·문자 상담 환영</p>
+            <p className="truncate text-[11px] text-[var(--on-ink-soft)]">사진·문자 상담 환영</p>
           </div>
           <a
             href={`tel:${mainPro.phone.replace(/-/g, '')}`}

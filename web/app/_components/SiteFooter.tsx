@@ -38,13 +38,13 @@ export async function SiteFooter() {
   const telHref = telHrefOf(phone)
 
   return (
-    <footer className="bg-[var(--ink)] text-[#aeb9be]">
+    <footer className="bg-[var(--ink)] text-[var(--on-ink-soft)]">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           {/* 브랜드 */}
           <div>
             <p className="font-serif-kr text-xl font-black text-white">수리위키</p>
-            <p className="mt-1 text-[11px] font-bold tracking-[0.22em] text-[#e8b34c]">
+            <p className="mt-1 text-[11px] font-bold tracking-[0.22em] text-[var(--gold)]">
               S U R I · W I K I
             </p>
             <p className="mt-4 max-w-sm text-sm leading-relaxed">
@@ -55,7 +55,7 @@ export async function SiteFooter() {
 
           {/* 바로가기 */}
           <nav aria-label="푸터 메뉴">
-            <p className="text-sm font-extrabold text-[#e8b34c]">바로가기</p>
+            <p className="text-sm font-extrabold text-[var(--gold)]">바로가기</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
                 <Link href="/" className="hover:text-white">
@@ -74,9 +74,9 @@ export async function SiteFooter() {
 
           {/* 연락처 */}
           <div>
-            <p className="text-sm font-extrabold text-[#e8b34c]">연락처</p>
+            <p className="text-sm font-extrabold text-[var(--gold)]">연락처</p>
             {phone && (
-              <p className="mt-4 text-xl font-black text-[#e8b34c]">
+              <p className="mt-4 text-xl font-black text-[var(--gold)]">
                 <a href={telHref} className="hover:underline">
                   {phone}
                 </a>
@@ -86,7 +86,7 @@ export async function SiteFooter() {
             {telHref && (
               <a
                 href={telHref}
-                className="mt-5 inline-flex items-center rounded-full border border-[#e8b34c] px-5 py-2.5 text-sm font-extrabold text-[#e8b34c] hover:bg-[#e8b34c] hover:text-[var(--ink)]"
+                className="mt-5 inline-flex items-center rounded-full border border-[var(--gold)] px-5 py-2.5 text-sm font-extrabold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--ink)]"
               >
                 상담문의 →
               </a>
@@ -99,11 +99,11 @@ export async function SiteFooter() {
             <p className="text-[13px] font-extrabold text-white">많이 찾는 수리 항목</p>
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[13px]">
               {topKeywords.map(({ keyword }) => (
-                <Link key={keyword.id} href={`/${keyword.slug}`} className="hover:text-[#e8b34c]">
+                <Link key={keyword.id} href={`/${keyword.slug}`} className="hover:text-[var(--gold)]">
                   {keyword.display_name}
                 </Link>
               ))}
-              <Link href="/#services" className="font-bold text-[#e8b34c] hover:underline">
+              <Link href="/#services" className="font-bold text-[var(--gold)] hover:underline">
                 전체 보기 →
               </Link>
             </div>

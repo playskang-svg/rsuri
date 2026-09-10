@@ -78,7 +78,7 @@ export function HeroSlider({ images, alt }: { images: HeroImage[]; alt: string }
                 aria-label={`${idx + 1}번째 사진`}
                 aria-current={idx === i}
                 className={`h-2 rounded-full transition-all ${
-                  idx === i ? 'w-7 bg-[#e8b34c]' : 'w-2 bg-white/50 hover:bg-white/80'
+                  idx === i ? 'w-7 bg-[var(--gold)]' : 'w-2 bg-white/50 hover:bg-white/80'
                 }`}
               />
             ))}
