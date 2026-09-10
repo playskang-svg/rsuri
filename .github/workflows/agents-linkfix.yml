@@ -35,7 +35,7 @@ jobs:
     timeout-minutes: 45
     env:
       SITE_KEY: suriwiki
-      AGENTS_DIR: ${{ runner.temp }}/agents
+      AGENTS_DIR: ${{ github.workspace }}/_agents
       AGENT_STATE_DIR: ${{ github.workspace }}/.fleet/state
       GH_TOKEN: ${{ github.token }}
       SCAN_ONLY: ${{ inputs.scan_only || 'false' }}
@@ -43,11 +43,16 @@ jobs:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
+      # _agents 는 중앙 저장소 체크아웃이다. 커밋 대상이 아니다 —
+      # .gitignore 가 아니라 .git/info/exclude 에 넣어 사이트 저장소를 더럽히지 않는다.
+      - name: 체크아웃 경로 제외
+        run: echo "_agents/" >> .git/info/exclude
+
       - name: 에이전트 원본 가져오기
         uses: actions/checkout@v4
         with:
           repository: playskang-svg/adbles-agents
-          path: ${{ runner.temp }}/agents
+          path: _agents
           ssh-key: ${{ secrets.AGENTS_DEPLOY_KEY }}
 
       - uses: actions/setup-node@v4
