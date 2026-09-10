@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
@@ -10,6 +11,14 @@ const REGION_CHIP_LIMIT = 60
 
 // 카드 부제에 적는 대표 지역 개수
 const CARD_REGION_SAMPLE = 3
+
+// 피드 자동탐지 링크. 피드 리더와 검색엔진은 홈 <head>에서 이걸 찾는다.
+// 전 페이지 공통이면 layout에 두는 게 맞지만, 여기 둬도 홈에서 발견되면 충분하다.
+export const metadata: Metadata = {
+  alternates: {
+    types: { 'application/rss+xml': [{ url: 'https://suriwiki.com/rss.xml', title: '수리위키 새 글' }] },
+  },
+}
 
 export default async function HomePage() {
   const { categories, keywords, pages, regions } = await getAllData()

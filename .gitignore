@@ -10,6 +10,7 @@ coverage/
 
 # 빌드 때 scripts/generate-sitemap.mjs가 만든다 — 커밋하면 배포마다 diff가 생긴다
 web/public/sitemap.xml
+web/public/rss.xml
 
 _tmp_repo/
 web/AGENTS.md
