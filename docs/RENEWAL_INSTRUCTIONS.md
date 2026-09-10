@@ -120,12 +120,20 @@ Supabase는 그대로 쓴다. 프로젝트 `suriwiki` (`xparlhzbactezsvuteto`, a
 기준
 - 360px 폭에서 가로 스크롤이 발생하지 않는다
 - 본문 가독성 확보 — 한국어 기준 본문 16px 이상, 줄간 1.6 이상
-- 탭 타깃 최소 44×44px
+- 탭 타깃: **실제로 눌리는 세로 영역 44px 이상**. 가로는 텍스트 길이를 따른다 — "홈" 같은 두 글자 링크를 폭 44px로 늘리면 글자 사이가 벌어져 오히려 읽기 나빠지고, 오조작은 스크롤 방향인 세로에서 생긴다. 보이는 크기를 키울 수 없는 요소(슬라이더 점 등)는 `.tap44`로 히트 영역만 넓힌다
 - 모바일 고정 상담바(하단 CTA)는 유지하되 본문 마지막 요소를 가리지 않게 한다
 - 표·긴 코드·도해는 각자 `overflow-x:auto` 컨테이너 안에 넣는다. 페이지 본문 자체가 가로로 밀리면 안 된다
 - 이미지·SVG 도해에 `max-width:100%`
 
 검증은 실제 렌더 기준으로 한다. 360 / 390 / 768 / 1280px 네 폭에서 홈·키워드 허브·지역 LANDING·CASE·사이트맵을 확인한다.
+
+```
+SURIWIKI_FIXTURES=1 npm run build     # DB 없이 out/ 생성
+python3 -m http.server 8765 -d out
+npm i -D playwright && node scripts/check-mobile.mjs
+```
+
+`web/scripts/check-mobile.mjs`가 위 항목을 자동으로 잰다. **CSS를 눈으로 읽어서는 판정할 수 없다** — `getBoundingClientRect()`조차 `::after`로 넓힌 히트 영역을 세지 못해, 실제로 눌리는지는 `elementFromPoint`로 직접 확인해야 한다.
 
 ---
 

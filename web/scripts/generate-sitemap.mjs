@@ -24,8 +24,17 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://suriwiki.com'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+// DB 없이 화면만 확인하는 빌드(SURIWIKI_FIXTURES=1)에서는 사이트맵을 만들지 않는다.
+// fixtures의 가짜 URL로 사이트맵을 써 버리면 그게 out/에 남아 실제 배포에 섞일 수 있다.
+// 화면 검증이 목적이라 사이트맵 자체가 필요 없다.
+if (process.env.SURIWIKI_FIXTURES === '1') {
+  console.log('SURIWIKI_FIXTURES=1 — 사이트맵·RSS 생성을 건너뛴다(화면 검증용 빌드).')
+  process.exit(0)
+}
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY가 필요합니다 (.env.local).')
+  console.error('DB 없이 화면만 확인하려면: SURIWIKI_FIXTURES=1 npm run build')
   process.exit(1)
 }
 

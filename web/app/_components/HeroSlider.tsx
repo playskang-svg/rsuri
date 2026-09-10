@@ -69,7 +69,7 @@ export function HeroSlider({ images, alt }: { images: HeroImage[]; alt: string }
           >
             ›
           </button>
-          <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-2">
+          <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-6 md:gap-2">
             {images.map((_, idx) => (
               <button
                 key={idx}
@@ -77,8 +77,8 @@ export function HeroSlider({ images, alt }: { images: HeroImage[]; alt: string }
                 onClick={() => go(idx)}
                 aria-label={`${idx + 1}번째 사진`}
                 aria-current={idx === i}
-                className={`h-2 rounded-full transition-all ${
-                  idx === i ? 'w-7 bg-[#e8b34c]' : 'w-2 bg-white/50 hover:bg-white/80'
+                className={`tap44 h-2 rounded-full transition-all ${
+                  idx === i ? 'w-7 bg-[var(--gold)]' : 'w-2 bg-white/50 hover:bg-white/80'
                 }`}
               />
             ))}

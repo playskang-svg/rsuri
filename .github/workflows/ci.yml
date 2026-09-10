@@ -40,6 +40,12 @@ jobs:
         working-directory: web
         run: npm run lint
 
+      # 색을 고칠 때 대비가 깨지는 걸 눈으로는 못 잡는다. 실제로 리뉴얼 중
+      # "골드 바탕 + 흰 글자"가 2.43:1이었는데 화면상으로는 멀쩡해 보였다.
+      - name: Contrast check
+        working-directory: web
+        run: node scripts/check-contrast.mjs
+
       # deploy.yml과 같은 조건으로 굽는다. 여기서 통과하면 배포도 통과한다.
       # anon 키는 RLS로 보호되고 web/.env.example에 이미 공개된 값이라
       # PR 빌드에서 쓰여도 노출 위험이 없다.

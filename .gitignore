@@ -15,3 +15,6 @@ web/public/rss.xml
 _tmp_repo/
 web/AGENTS.md
 web/CLAUDE.md
+
+# scripts/check-mobile.mjs가 남기는 검증용 스크린샷
+web/.mobile-shots/

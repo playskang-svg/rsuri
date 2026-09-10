@@ -281,7 +281,7 @@ export default async function HomePage() {
                 key={d.href}
                 href={d.href}
                 title={d.upper ? `${d.upper} ${d.dong}` : d.dong}
-                className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
               >
                 {d.dong}
               </Link>

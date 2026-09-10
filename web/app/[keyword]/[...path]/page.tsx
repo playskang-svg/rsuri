@@ -295,7 +295,7 @@ export default async function LandingPage({
               형제(같은 수리 다른 지역)로 바로 건너뛴다 — 본문에 링크를 깔지 않고도
               페이지끼리 얽히게 만드는 자리이고, 화면은 한 줄만 쓴다. */}
           <nav aria-label="현재 위치">
-            <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[#aeb9be]">
+            <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[var(--on-ink-soft)]">
               <li>
                 <Link href="/" className="hover:text-white">
                   홈
@@ -352,7 +352,7 @@ export default async function LandingPage({
             </ol>
           </nav>
 
-          <p className="mt-5 inline-block rounded-full border border-[#e8b34c]/60 px-4 py-1.5 text-[13px] font-extrabold text-[#e8b34c]">
+          <p className="mt-5 inline-block rounded-full border border-[var(--gold)]/60 px-4 py-1.5 text-[13px] font-extrabold text-[var(--gold)]">
             {region.display_name} {keyword.display_name} 출장 시공
           </p>
 
@@ -360,7 +360,7 @@ export default async function LandingPage({
             {region.display_name} {keyword.display_name}
           </h1>
 
-          <p className="prose-kr mt-5 max-w-2xl text-[15px] leading-relaxed text-[#d7dde0] sm:text-base">
+          <p className="prose-kr mt-5 max-w-2xl text-[15px] leading-relaxed text-[var(--on-ink)] sm:text-base">
             {region.profile?.dongs &&
               `${region.profile.dongs} 등 전 동 출장 ${region.display_name} ${keyword.display_name}. `}
             {region.profile?.note
@@ -603,10 +603,10 @@ export default async function LandingPage({
       {page.diy_vs_pro && (
         <section className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
-            <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#e8b34c]">
+            <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--gold)]">
               직접 할까, 맡길까
             </p>
-            <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[#d7dde0]">
+            <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[var(--on-ink)]">
               {page.diy_vs_pro}
             </p>
           </div>
@@ -898,7 +898,7 @@ export default async function LandingPage({
               <li>
                 <Link
                   href={`/${keyword.slug}`}
-                  className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                  className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
                 >
                   {keyword.display_name} 전체
                 </Link>
@@ -907,7 +907,7 @@ export default async function LandingPage({
                 <li key={a.region.id}>
                   <Link
                     href={`/${keyword.slug}/${a.path}`}
-                    className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                    className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
                   >
                     {a.region.display_name} {keyword.display_name}
                   </Link>
@@ -925,7 +925,7 @@ export default async function LandingPage({
                   <li key={k.id}>
                     <Link
                       href={`/${k.slug}`}
-                      className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                      className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
                     >
                       {k.display_name}
                     </Link>
@@ -933,7 +933,7 @@ export default async function LandingPage({
                 ))}
               </ul>
               <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-                <Link href="/" className="font-bold text-[var(--teal)] hover:underline">
+                <Link href="/" className="tap44 font-bold text-[var(--teal)] hover:underline">
                   전체 수리 항목 보기
                 </Link>
               </p>
@@ -950,7 +950,7 @@ export default async function LandingPage({
           <h2 className="font-serif-kr text-2xl font-black text-white sm:text-3xl">
             {keyword.display_name} 상태 사진 한 장이면 충분합니다
           </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-[#aeb9be]">
+          <p className="mt-4 text-[15px] leading-relaxed text-[var(--on-ink-soft)]">
             현장 상태에 맞춰 시공 가능 여부와 일정을 안내드립니다. 작업 중에는 통화가 어려우니
             사진과 지역, 수리 내용을 남겨 주세요.
           </p>
@@ -971,7 +971,7 @@ export default async function LandingPage({
               메인페이지
             </Link>
           </div>
-          <ul className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-2 text-[13px] text-[#8f9ba1]">
+          <ul className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-2 text-[13px] text-[var(--on-ink-soft)]">
             <li>{region.display_name} 전 지역 출장</li>
             <li>진단부터 마감까지 한 번에</li>
             <li>사진·문자 상담 환영</li>
@@ -1067,7 +1067,7 @@ export default async function LandingPage({
             <p className="truncate text-[13px] font-bold">
               {region.display_name} {keyword.display_name}
             </p>
-            <p className="truncate text-[11px] text-[#aeb9be]">사진·문자 상담 환영</p>
+            <p className="truncate text-[11px] text-[var(--on-ink-soft)]">사진·문자 상담 환영</p>
           </div>
           <a href={telHref} className="btn-call flex-none !px-4 !py-2 text-sm">
             <PhoneIcon />

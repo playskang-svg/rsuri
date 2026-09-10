@@ -54,8 +54,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* 화면에서 실제로 쓰는 굵기만 받는다.
+            본문(Noto Sans KR): 400·500·600·700·800·900 — font-black(900)이 48곳인데
+            전에는 900을 안 받아 브라우저가 가짜 볼드를 그렸다. 500도 빠져 있었다.
+            제목(Noto Serif KR): .font-serif-kr 41곳이 전부 font-black이라 900 하나면
+            충분하다. 전에 받던 600·800은 어디에도 쓰이지 않아 버리는 다운로드였다. */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@900&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>

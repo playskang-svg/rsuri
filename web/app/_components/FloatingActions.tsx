@@ -29,7 +29,7 @@ export function FloatingActions({ telHref }: { telHref?: string }) {
         <a
           href={telHref}
           aria-label="상담 문의"
-          className="pulse-ring relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#e8b34c] bg-[var(--ink)] text-white shadow-lg transition-transform hover:scale-105"
+          className="pulse-ring relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-[var(--gold)] bg-[var(--ink)] text-white shadow-lg transition-transform hover:scale-105"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
@@ -47,7 +47,7 @@ export function FloatingActions({ telHref }: { telHref?: string }) {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="맨 위로"
-          className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#e8b34c]/70 bg-[var(--ink)] text-white shadow-lg transition-transform hover:scale-105"
+          className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[var(--gold)]/70 bg-[var(--ink)] text-white shadow-lg transition-transform hover:scale-105"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path

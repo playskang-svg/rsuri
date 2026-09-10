@@ -23,7 +23,7 @@ function LinkRow({ href, label, note }: { href: string; label: string; note?: st
   return (
     <Link
       href={href}
-      className="flex items-baseline justify-between gap-2 rounded-md px-2.5 py-1.5 text-[14px] font-semibold hover:bg-[var(--teal-soft)] hover:text-[var(--teal)]"
+      className="flex items-baseline justify-between gap-2 rounded-md px-2.5 py-3 text-[14px] font-semibold sm:py-1.5 hover:bg-[var(--teal-soft)] hover:text-[var(--teal)]"
     >
       <span className="min-w-0 truncate">{label}</span>
       {note && <span className="flex-none text-[12px] font-bold text-[var(--ink-soft)]">{note}</span>}
@@ -151,7 +151,7 @@ export default async function SitemapPage() {
             <section key={category.id} className="card p-5 sm:p-6">
               <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--line)] pb-3">
                 <h3 className="font-serif-kr text-lg font-black">
-                  <Link href={`/category/${category.slug}`} className="hover:text-[var(--copper)]">
+                  <Link href={`/category/${category.slug}`} className="tap44 hover:text-[var(--copper)]">
                     {category.display_name}
                   </Link>
                 </h3>
@@ -241,7 +241,7 @@ export default async function SitemapPage() {
             <li key={category.id}>
               <Link
                 href={`/category/${category.slug}`}
-                className="inline-flex items-baseline gap-2 rounded-full border border-[var(--line)] bg-white px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                className="inline-flex items-baseline gap-2 rounded-full border border-[var(--line)] bg-white px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
               >
                 {category.display_name}
                 <span className="text-[12px] font-semibold text-[var(--ink-soft)]">
