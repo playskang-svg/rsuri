@@ -22,7 +22,11 @@
 대체 경로
 - 콘텐츠 원본은 `scripts/data/keyword-content/<slug>.json`, `scripts/data/region-profiles.json`, `scripts/data/base-keywords.json`
 - 반영은 `node scripts/build-page-content.mjs <slug>` → 생성된 SQL 검토 → DB 반영 (승인 후)
-- 배포는 `git push origin main` 또는 GitHub Actions `workflow_dispatch`
+- 배포는 네 경로 모두 관리 화면 없이 성립한다 — `main` push(자동) · 매일 05:00 KST cron(자동) · Actions `workflow_dispatch`(수동) · Claude 세션에 요청. 휴대폰만으로 완결된다
+
+관리 화면의 '사이트 재배포' 버튼이 사라지면서 콘텐츠만 바뀐 경우의 재빌드 경로가 수동 트리거뿐이 되므로, `deploy.yml`에 매일 자동 재빌드(cron)를 넣어 대체했다.
+
+Supabase Edge Function `redeploy`는 저장소 밖(Supabase 프로젝트)에 있어 코드 삭제로는 사라지지 않는다. GitHub 토큰을 보유한 함수이므로, 호출자가 없어진 뒤에는 Supabase 대시보드에서 별도로 삭제한다.
 
 주의: 관리 화면이 만들어 둔 데이터는 남는다. `level:'CUSTOM'`, `slug:'custom-{타임스탬프}'` 형식으로 들어간 `suri_regions` 행과 중복 지역 행(강남구·마포구·서초구·송파구·양천구·영등포구가 각 두 번)은 화면을 지운다고 사라지지 않는다. 6번 항목의 URL 보존 원칙에 맞춰 정리 대상을 따로 목록화한 뒤 처리한다.
 
