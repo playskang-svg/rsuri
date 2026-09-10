@@ -1057,7 +1057,218 @@
       "desc": "",
       "regions": "",
       "extras": ""
+    },
+    {
+      "name": "싱크대수리",
+      "slug": "sink-repair",
+      "desc": "배수구 트랩·원홀 수전·상판까지 싱크대 전반을 손봅니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "싱크대수전교체",
+      "slug": "sink-faucet-replacement",
+      "desc": "거위목·인출식 수전 교체와 연결 호스 누수 차단.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "렌지후드교체",
+      "slug": "range-hood-replacement",
+      "desc": "흡입력 떨어진 후드를 교체하고 배기 경로를 함께 봅니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "싱크대상판크랙",
+      "slug": "countertop-crack-repair",
+      "desc": "인조대리석 상판 갈라짐을 연마·보수로 되살립니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "음식물분쇄기철거",
+      "slug": "disposer-removal",
+      "desc": "디스포저를 떼고 배수 구조를 원래대로 되돌립니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "누수탐지",
+      "slug": "leak-detection",
+      "desc": "공압·청음·열화상으로 새는 자리를 뜯지 않고 찾습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "일배책보험누수",
+      "slug": "leak-insurance-claim",
+      "desc": "아랫집 피해 원인 규명과 보험 청구 자료를 정리합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "비파괴방수",
+      "slug": "non-destructive-waterproofing",
+      "desc": "타일을 깨지 않고 침투 방수재로 누수를 잡습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "창틀코킹",
+      "slug": "window-frame-caulking",
+      "desc": "노후 실리콘을 걷어내고 빗물 유입 경로를 막습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "옥상방수",
+      "slug": "rooftop-waterproofing",
+      "desc": "면갈이부터 상도 마감까지 우레탄 방수를 시공합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "화장실변기교체",
+      "slug": "toilet-replacement",
+      "desc": "변기 철거·설치와 급배수 연결까지 한 번에.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "변기부속교체",
+      "slug": "toilet-parts-replacement",
+      "desc": "물통 소음·물 새는 증상을 부속 교체로 잡습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "세면대교체",
+      "slug": "washbasin-replacement",
+      "desc": "세면대 교체와 팝업·배수관 정비.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "욕실환풍기교체",
+      "slug": "bathroom-vent-fan",
+      "desc": "습기와 냄새가 빠지도록 환풍기와 댐퍼를 손봅니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "샷시수리",
+      "slug": "sash-repair",
+      "desc": "창이 무겁거나 바람이 새는 증상을 롤러·모헤어로 잡습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "샷시레일파손",
+      "slug": "sash-rail-repair",
+      "desc": "내려앉은 창 레일을 보강하거나 교체합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "도어클로저교체",
+      "slug": "door-closer-replacement",
+      "desc": "현관문이 쾅 닫히거나 안 닫히는 증상을 잡습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "ABS도어교체",
+      "slug": "abs-door-replacement",
+      "desc": "물먹어 부푼 욕실문·방문을 교체합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "누수천장도배",
+      "slug": "leak-ceiling-wallpapering",
+      "desc": "누수 자국이 남은 천장을 석고보드부터 복구합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "마루찍힘보수",
+      "slug": "floor-dent-repair",
+      "desc": "마루 찍힘·긁힘을 판 교체 없이 부분 보수합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "누전수리",
+      "slug": "electrical-leak-repair",
+      "desc": "차단기가 내려가는 원인을 구간별로 찾아 잡습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "누전차단기교체",
+      "slug": "breaker-replacement",
+      "desc": "노후 차단기를 교체하고 분전반 상태를 함께 봅니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "인덕션단독배선",
+      "slug": "induction-dedicated-wiring",
+      "desc": "인덕션 전용 회로를 분전반에서 따로 뽑습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "보일러배관청소",
+      "slug": "boiler-pipe-cleaning",
+      "desc": "한쪽만 안 도는 난방을 배관 청소로 되살립니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "하수구막힘",
+      "slug": "drain-clog",
+      "desc": "역류·냄새를 일으키는 막힘을 구간을 찾아 뚫습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "수도동파녹임",
+      "slug": "frozen-pipe-thawing",
+      "desc": "언 수도관을 스팀으로 녹이고 재발 지점을 봅니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "타일들뜸수리",
+      "slug": "tile-lifting-repair",
+      "desc": "들뜬 타일을 떼어 다시 붙이고 줄눈까지 마감합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "에폭시줄눈",
+      "slug": "epoxy-grout",
+      "desc": "곰팡이 낀 줄눈을 걷어내고 에폭시로 다시 넣습니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "미세방충망",
+      "slug": "fine-mesh-screen",
+      "desc": "날벌레와 미세먼지까지 거르는 촘촘한 망으로 교체합니다.",
+      "regions": "",
+      "extras": ""
+    },
+    {
+      "name": "현관롤방충망",
+      "slug": "roll-screen-door",
+      "desc": "현관에 여닫이식 롤 방충망을 설치합니다.",
+      "regions": "",
+      "extras": ""
     }
   ],
-  "_note2": "2차 추가(2026-09-02): 사용자 제공 186개 키워드에서 지역명을 앞에서 걷어내고 키워드/지역으로 분리해 병합. 지역이 없는 항목은 regions 빈 문자열 = 지역 0개 키워드로 생성된다."
+  "_note2": "2차 추가(2026-09-02): 사용자 제공 186개 키워드에서 지역명을 앞에서 걷어내고 키워드/지역으로 분리해 병합. 지역이 없는 항목은 regions 빈 문자열 = 지역 0개 키워드로 생성된다.",
+  "_note3": "3차 추가(2026-09-10): 최초 기획(src/data/mockWikiData.ts)의 9개 공종 대표 키워드. 기존 사전이 문 계열에 쏠려 있어 누수·욕실·전기·배관·타일·방충망 공종이 비어 있었다. slug는 의미가 드러나는 영문으로 정했다 — 기존 절반이 로마자 음차라 URL만 봐서는 무슨 공사인지 알 수 없다. regions는 비워 뒀다: 키워드와 허브 페이지만 만들고, 지역 조합 페이지는 콘텐츠가 갖춰진 키워드부터 따로 붙인다."
 }
