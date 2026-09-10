@@ -88,7 +88,7 @@ export default async function CategoryPage({
                   <div className="min-w-0">
                     {/* 지역이 0곳이어도 허브 페이지는 항상 생긴다 — 죽은 회색 텍스트로 두지 않는다 */}
                     <h2 className="text-lg font-extrabold">
-                      <Link href={`/${keyword.slug}`} className="hover:text-[var(--copper)]">
+                      <Link href={`/${keyword.slug}`} className="tap44 hover:text-[var(--copper)]">
                         {keyword.display_name}
                       </Link>
                     </h2>
@@ -116,7 +116,7 @@ export default async function CategoryPage({
                     {hidden > 0 && (
                       <Link
                         href={`/${keyword.slug}`}
-                        className="text-[13px] font-bold text-[var(--ink-soft)] hover:text-[var(--copper)]"
+                        className="tap44 text-[13px] font-bold text-[var(--ink-soft)] hover:text-[var(--copper)]"
                       >
                         지역 전체 보기 →
                       </Link>
@@ -139,7 +139,7 @@ export default async function CategoryPage({
               <Link
                 key={c.id}
                 href={`/category/${c.slug}`}
-                className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
               >
                 {c.display_name}
               </Link>

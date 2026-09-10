@@ -476,7 +476,7 @@ export default async function KeywordHubPage({
                 <li key={k.id}>
                   <Link
                     href={`/${k.slug}`}
-                    className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-2 text-sm font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                    className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
                   >
                     {k.display_name}
                   </Link>
@@ -484,7 +484,7 @@ export default async function KeywordHubPage({
               ))}
             </ul>
             <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-              <Link href="/" className="font-bold text-[var(--teal)] hover:underline">
+              <Link href="/" className="tap44 font-bold text-[var(--teal)] hover:underline">
                 전체 수리 항목 보기
               </Link>
             </p>

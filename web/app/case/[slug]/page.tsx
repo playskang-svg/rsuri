@@ -72,13 +72,13 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
       <nav aria-label="현재 위치" className="mx-auto max-w-3xl px-4 pt-5 sm:px-6">
         <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[var(--ink-soft)]">
           <li>
-            <Link href="/" className="hover:text-[var(--ink)]">
+            <Link href="/" className="tap44 hover:text-[var(--ink)]">
               수리위키
             </Link>
           </li>
           <li aria-hidden>›</li>
           <li>
-            <Link href="/#cases" className="hover:text-[var(--ink)]">
+            <Link href="/#cases" className="tap44 hover:text-[var(--ink)]">
               시공 기록
             </Link>
           </li>

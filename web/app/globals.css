@@ -126,6 +126,7 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
    딥 네이비를 얹으면 8.93:1이 나오고, 골드가 더 선명하게 읽힌다. */
 .btn-call {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 44px; /* 터치 영역. 페이지별 !py override가 있어 padding으로는 안 맞는다 */
   background: var(--gold); color: var(--ink-deep); font-weight: 800;
   padding: 0.8rem 1.4rem; border-radius: 0.75rem;
   box-shadow: 0 6px 16px -6px rgb(232 179 76 / 0.6);
@@ -135,6 +136,7 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
 .btn-call:active { transform: scale(0.98); }
 .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 44px;
   border: 1.5px solid var(--ink); color: var(--ink); font-weight: 700;
   padding: 0.75rem 1.3rem; border-radius: 0.75rem;
   transition: background 0.15s;
@@ -166,7 +168,12 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
 
 /* 삼선(햄버거) 메뉴 — details 기반, JS 불필요 */
 .menu-drop { position: relative; }
-.menu-drop summary { list-style: none; cursor: pointer; padding: 0.5rem; border-radius: 0.6rem; display: block; }
+/* 삼선 메뉴는 모바일 헤더의 유일한 내비 진입점이라 작으면 바로 막힌다 */
+.menu-drop summary {
+  list-style: none; cursor: pointer; border-radius: 0.6rem;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px;
+}
 .menu-drop summary::-webkit-details-marker { display: none; }
 .menu-drop summary:hover { background: rgb(18 41 74 / 0.06); }
 .menu-bars { display: flex; flex-direction: column; gap: 4.5px; width: 1.3rem; }
@@ -196,7 +203,7 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
   color: var(--ink-soft); pointer-events: none; display: flex;
 }
 .search-input {
-  width: 100%; padding: 0.5rem 0.8rem 0.5rem 2.1rem;
+  width: 100%; padding: 0.5rem 0.8rem 0.5rem 2.1rem; min-height: 44px;
   background: var(--card); border: 1px solid var(--line); border-radius: 0.7rem;
   font-size: 0.9rem; font-weight: 600; color: var(--ink);
 }
@@ -237,6 +244,27 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
   position: absolute; left: 0.7rem; bottom: 0.7rem;
   background: rgb(18 41 74 / 0.82); color: var(--paper);
   font-size: 11px; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 999px;
+}
+
+/* ── 터치 영역 확보 ──
+   손끝 접촉면이 대략 9~10mm(≈44px)라, 그보다 작은 조작부는 옆 것이 눌린다.
+   그렇다고 점 인디케이터를 44px 원으로 키우면 디자인이 무너진다 —
+   보이는 크기는 그대로 두고 히트 영역만 넓힌다.
+   ::after는 배경도 테두리도 없어 화면에 아무것도 더하지 않는다. */
+.tap44 { position: relative; }
+.tap44::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+}
+/* 데스크톱은 포인터가 정확해서 넓힐 이유가 없고, 넓히면 인접 링크끼리
+   히트 영역이 겹쳐 엉뚱한 것이 눌린다. */
+@media (min-width: 768px) and (pointer: fine) {
+  .tap44::after { display: none; }
 }
 
 /* 접근성: 키보드 포커스 */

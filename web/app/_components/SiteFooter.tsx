@@ -58,13 +58,13 @@ export async function SiteFooter() {
             <p className="text-sm font-extrabold text-[var(--gold)]">바로가기</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
-                <Link href="/" className="hover:text-white">
+                <Link href="/" className="inline-flex min-h-11 items-center hover:text-white">
                   홈
                 </Link>
               </li>
               {FOOTER_NAV.map((n) => (
                 <li key={n.href}>
-                  <Link href={n.href} className="hover:text-white">
+                  <Link href={n.href} className="inline-flex min-h-11 items-center hover:text-white">
                     {n.label}
                   </Link>
                 </li>
