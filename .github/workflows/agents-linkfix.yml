@@ -1,7 +1,7 @@
 # ⚠ 중앙 저장소 템플릿에서 생성됩니다. 여기서 고치지 마세요.
 #
 # 링크·구조 무결성 — 메뉴가 실제로 열리는지, 구조가 검색엔진에게 읽히는지,
-# 거짓 링크가 남아 있는지 크롤해서 재고, 고칠 수 있는 유형만 소스에서 고친다.
+# 거짓 링크가 남아 있는지 크롤해서 재고, 고칠 수 있는 유형을 대기열에 넣는다.
 #
 # 크롤(결정적)과 수정(LLM)을 분리한 이유: 링크가 왜 깨졌는지는 소스 구조를 봐야 알 수 있고,
 # 정규식 치환으로 고치면 멀쩡한 링크까지 같이 망가진다.
@@ -39,6 +39,7 @@ jobs:
       AGENT_STATE_DIR: ${{ github.workspace }}/.fleet/state
       GH_TOKEN: ${{ github.token }}
       SCAN_ONLY: ${{ inputs.scan_only || 'false' }}
+      SITE_DIR: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -73,54 +74,20 @@ jobs:
         id: triage
         run: node "$AGENTS_DIR/runner/linkfix-triage.mjs" --site "$SITE_KEY" --out "$RUNNER_TEMP/fixes.md"
 
-      # 프로필의 autoFix 목록에 있는 유형만 고친다. 외부 죽은 링크·고아 문서 같은 것은
-      # 판단이 필요해서 리포트로만 남긴다.
-      - name: 소스 수정
+      # 고치는 것은 맥 로컬 claude 나 Codespace 의 Copilot 이 한다 — API 키 없이 요금제로.
+      # 여기서는 고칠 목록을 대기열에 넣는다. 깨진 링크는 재고로 미루지 않고 다음 집필 회차에 바로 고친다.
+      - name: 수정 대기열
         if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "::warning::ANTHROPIC_API_KEY 가 없어 자동 수정을 건너뜁니다. 점검 결과만 이슈에 남습니다."
-            exit 0
+          node "$AGENTS_DIR/runner/queue.mjs" put --site "$SITE_KEY" --type linkfix --fixes "$RUNNER_TEMP/fixes.md" --count "${{ steps.triage.outputs.fixable }}"
+          if [ -n "$(git status --porcelain .fleet/queue)" ]; then
+            git config user.name "adbles-agents[bot]"
+            git config user.email "adbles-agents@users.noreply.github.com"
+            git add .fleet/queue
+            git commit -m "chore(queue): 수리위키 링크 수정 대기열 [skip ci]"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git push || echo "::warning::대기열 푸시 실패"
           fi
-          npx -y @anthropic-ai/claude-code@latest \
-            --print "$(cat "$RUNNER_TEMP/fixes.md")" \
-            --model claude-sonnet-5 \
-            --permission-mode acceptEdits \
-            --add-dir "$AGENTS_DIR" \
-            --allowedTools "Read Edit Grep Glob Bash(node *) Bash(npm run *)" \
-            --disallowedTools "WebFetch Write" \
-            2>&1 | tail -40
-
-      - name: 타입검사
-        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
-        run: echo "타입검사 없음 — 건너뜁니다"
-
-      - name: 빌드
-        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
-        run: echo "빌드 없음 — 건너뜁니다"
-
-      - name: 수정 커밋
-        id: commit
-        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
-        run: node "$AGENTS_DIR/runner/commit.mjs" --site "$SITE_KEY" --stage linkfix
-
-      - name: 배포
-        if: steps.commit.outputs.published == 'true' && 'workflow' == 'agent'
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: echo "배포는 다른 워크플로가 합니다"
-
-      - name: 라이브 재확인
-        id: verify
-        if: steps.commit.outputs.published == 'true'
-        run: node "$AGENTS_DIR/runner/verify-live.mjs" --site "$SITE_KEY" --wait 30
-
-      - name: 실패 시 되돌리기
-        if: failure() && steps.commit.outputs.published == 'true'
-        run: node "$AGENTS_DIR/runner/rollback.mjs" --site "$SITE_KEY" --sha "${{ steps.commit.outputs.sha }}"
 
       - name: 상태 저장
         if: always()
