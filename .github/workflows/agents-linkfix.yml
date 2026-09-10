@@ -1,0 +1,126 @@
+# ⚠ 중앙 저장소 템플릿에서 생성됩니다. 여기서 고치지 마세요.
+#
+# 링크·구조 무결성 — 메뉴가 실제로 열리는지, 구조가 검색엔진에게 읽히는지,
+# 거짓 링크가 남아 있는지 크롤해서 재고, 고칠 수 있는 유형만 소스에서 고친다.
+#
+# 크롤(결정적)과 수정(LLM)을 분리한 이유: 링크가 왜 깨졌는지는 소스 구조를 봐야 알 수 있고,
+# 정규식 치환으로 고치면 멀쩡한 링크까지 같이 망가진다.
+name: agents-linkfix (수리위키)
+
+on:
+  schedule:
+    - cron: "40 0 * * *"
+  workflow_dispatch:
+    inputs:
+      scan_only:
+        description: "점검만 하고 고치지 않음"
+        type: boolean
+        default: false
+      max_pages:
+        description: "크롤 최대 페이지 수"
+        default: "300"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: agents-linkfix-suriwiki
+  cancel-in-progress: false
+
+jobs:
+  linkfix:
+    if: vars.AGENTS_ENABLED != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SITE_KEY: suriwiki
+      AGENTS_DIR: ${{ runner.temp }}/agents
+      AGENT_STATE_DIR: ${{ github.workspace }}/.fleet/state
+      GH_TOKEN: ${{ github.token }}
+      SCAN_ONLY: ${{ inputs.scan_only || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: 에이전트 원본 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: playskang-svg/adbles-agents
+          path: ${{ runner.temp }}/agents
+          ssh-key: ${{ secrets.AGENTS_DEPLOY_KEY }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: 이전 상태 복원
+        run: node "$AGENTS_DIR/runner/state.mjs" restore --site "$SITE_KEY"
+
+      # 종료코드 2 = 치명 결함(메뉴가 안 열리거나 페이지가 비어 있다).
+      # 여기서 워크플로를 죽이지 않는다 — 고치는 단계까지 가야 의미가 있다.
+      - name: linkfix — 크롤 및 점검
+        id: scan
+        continue-on-error: true
+        run: node "$AGENTS_DIR/agents/linkfix/scripts/linkfix.mjs" scan --site "$SITE_KEY" --max "${{ inputs.max_pages || '300' }}"
+
+      - name: 자동 수정 대상 추리기
+        id: triage
+        run: node "$AGENTS_DIR/runner/linkfix-triage.mjs" --site "$SITE_KEY" --out "$RUNNER_TEMP/fixes.md"
+
+      # 프로필의 autoFix 목록에 있는 유형만 고친다. 외부 죽은 링크·고아 문서 같은 것은
+      # 판단이 필요해서 리포트로만 남긴다.
+      - name: 소스 수정
+        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY 가 없어 자동 수정을 건너뜁니다. 점검 결과만 이슈에 남습니다."
+            exit 0
+          fi
+          npx -y @anthropic-ai/claude-code@latest \
+            --print "$(cat "$RUNNER_TEMP/fixes.md")" \
+            --model claude-sonnet-5 \
+            --permission-mode acceptEdits \
+            --add-dir "$AGENTS_DIR" \
+            --allowedTools "Read Edit Grep Glob Bash(node *) Bash(npm run *)" \
+            --disallowedTools "WebFetch Write" \
+            2>&1 | tail -40
+
+      - name: 타입검사
+        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
+        run: echo "타입검사 없음 — 건너뜁니다"
+
+      - name: 빌드
+        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
+        run: echo "빌드 없음 — 건너뜁니다"
+
+      - name: 수정 커밋
+        id: commit
+        if: steps.triage.outputs.fixable > 0 && env.SCAN_ONLY != 'true'
+        run: node "$AGENTS_DIR/runner/commit.mjs" --site "$SITE_KEY" --stage linkfix
+
+      - name: 배포
+        if: steps.commit.outputs.published == 'true' && 'workflow' == 'agent'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: echo "배포는 다른 워크플로가 합니다"
+
+      - name: 라이브 재확인
+        id: verify
+        if: steps.commit.outputs.published == 'true'
+        run: node "$AGENTS_DIR/runner/verify-live.mjs" --site "$SITE_KEY" --wait 30
+
+      - name: 실패 시 되돌리기
+        if: failure() && steps.commit.outputs.published == 'true'
+        run: node "$AGENTS_DIR/runner/rollback.mjs" --site "$SITE_KEY" --sha "${{ steps.commit.outputs.sha }}"
+
+      - name: 상태 저장
+        if: always()
+        run: node "$AGENTS_DIR/runner/state.mjs" save --site "$SITE_KEY" --commit
+
+      - name: sitemgr — 관리 에이전트 보고
+        if: always()
+        run: node "$AGENTS_DIR/agents/sitemgr/scripts/sitemgr.mjs" report --site "$SITE_KEY" --issue
