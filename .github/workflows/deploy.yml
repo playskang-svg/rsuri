@@ -9,9 +9,23 @@
 on:
   push:
     branches: [main]
-  # 콘텐츠(Supabase)만 바뀌고 코드는 그대로일 때 수동으로 다시 굽기 위한 트리거.
-  # 정적 export라 DB가 바뀌어도 재빌드 전까지는 사이트에 반영되지 않는다.
+
+  # 콘텐츠(Supabase)만 바뀌고 코드는 그대로일 때 다시 굽는다.
+  # 정적 export라 DB가 바뀌어도 재빌드 전까지는 사이트에 반영되지 않는데,
+  # 관리자 화면의 '사이트 재배포' 버튼을 걷어내면서 사람이 누를 자리가 없어졌다.
+  # 매일 한 번 자동으로 굽는 것으로 대체한다 — 콘텐츠 변경은 최대 24시간 안에 올라간다.
+  # 05:00 KST = 20:00 UTC. 트래픽이 가장 적고, agents-linkfix(09:40 KST)보다 앞선다.
+  schedule:
+    - cron: '0 20 * * *'
+
+  # 즉시 반영이 필요할 때 Actions에서 직접 실행한다.
   workflow_dispatch:
+
+# cron과 push가 겹치면 같은 Worker에 두 배포가 동시에 올라간다.
+# 뒤엣것을 기다리게 하되 취소하지 않는다 — 취소하면 그 커밋이 배포되지 않은 채 남는다.
+concurrency:
+  group: deploy-suriwiki
+  cancel-in-progress: false
 
 jobs:
   deploy:
