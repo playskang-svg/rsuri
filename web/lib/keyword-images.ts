@@ -5,7 +5,7 @@
 // 페이지 고유 사진(suri_page_images)이 있으면 그쪽이 우선한다 — 기존 동작 유지.
 
 import { cache } from 'react'
-import { supabase } from './supabase'
+import { supabase, USE_FIXTURES } from './supabase'
 
 export interface KeywordImage {
   id: number
@@ -32,6 +32,8 @@ const PAGE_SIZE = 1000
 // 키워드 사진은 부가 기능이다. 마이그레이션 적용 전에 빌드가 돌면 테이블이 없어 조회가
 // 실패하는데, 여기서 throw 하면 사이트 전체 빌드가 죽는다. 빈 배열로 넘긴다.
 export const getKeywordImages = cache(async (): Promise<KeywordImage[]> => {
+  // 실사가 아직 0장이라 빈 배열이 실제 사이트의 현재 상태와 같다.
+  if (USE_FIXTURES) return []
   const rows: KeywordImage[] = []
   let from = 0
   try {

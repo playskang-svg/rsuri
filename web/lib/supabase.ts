@@ -13,9 +13,15 @@ import type {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
+// DB에 닿지 못하는 환경에서도 레이아웃을 눈으로 확인할 수 있게 하는 경로.
+// 디자인·반응형 작업이 DB 접속에 묶일 이유가 없다 — lib/fixtures.ts 참고.
+//   SURIWIKI_FIXTURES=1 npm run build
+export const USE_FIXTURES = process.env.SURIWIKI_FIXTURES === '1'
+
+if (!USE_FIXTURES && (!supabaseUrl || !supabaseAnonKey)) {
   throw new Error(
-    'NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY가 필요합니다 — web/.env.local을 web/.env.example 형식으로 채워주세요.',
+    'NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY가 필요합니다 — web/.env.local을 web/.env.example 형식으로 채워주세요.\n' +
+      'DB 없이 화면만 확인하려면: SURIWIKI_FIXTURES=1 npm run build',
   )
 }
 
@@ -28,7 +34,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // 여기서 cache:'no-store'로 막을 수는 없다 — 라우트가 동적으로 바뀌어 output:'export'가
 // 실패한다. 그래서 CI에서 fetch-cache를 캐시하지 않는 것으로 막는다.
 // .github/workflows/deploy.yml의 "Cache Next.js compiler output" 참고.
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  supabaseUrl ?? 'https://fixtures.invalid',
+  supabaseAnonKey ?? 'fixtures',
+)
 
 // Supabase/PostgREST는 .range() 없이 .select()만 쓰면 결과가 에러 없이 1000행에서
 // 조용히 잘린다 — keyword-tree 스킬에서 확인된 함정. 반드시 페이지네이션한다.
@@ -59,6 +68,10 @@ async function fetchAllRows<T>(table: string): Promise<T[]> {
 // 이후 모든 조회는 이 결과를 메모리 안에서 조립한다 (keyword-tree 3번 "데이터 페칭 전략").
 // React.cache()로 같은 렌더 트리 안의 중복 호출을 제거한다.
 export const getAllData = cache(async () => {
+  if (USE_FIXTURES) {
+    const { buildFixtures } = await import('./fixtures')
+    return buildFixtures()
+  }
   const [regions, categories, keywords, pages, sections, localPros, pageImages] = await Promise.all([
     fetchAllRows<Region>('suri_regions'),
     fetchAllRows<Category>('suri_categories'),
