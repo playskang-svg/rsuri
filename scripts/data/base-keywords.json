@@ -1060,14 +1060,14 @@
     },
     {
       "name": "싱크대수리",
-      "slug": "sink-repair",
+      "slug": "sink-drain-set-repair",
       "desc": "배수구 트랩·원홀 수전·상판까지 싱크대 전반을 손봅니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "싱크대수전교체",
-      "slug": "sink-faucet-replacement",
+      "slug": "sink-faucet-leak-repair",
       "desc": "거위목·인출식 수전 교체와 연결 호스 누수 차단.",
       "regions": "",
       "extras": ""
@@ -1095,7 +1095,7 @@
     },
     {
       "name": "누수탐지",
-      "slug": "leak-detection",
+      "slug": "leak-detection-emergency",
       "desc": "공압·청음·열화상으로 새는 자리를 뜯지 않고 찾습니다.",
       "regions": "",
       "extras": ""
@@ -1109,7 +1109,7 @@
     },
     {
       "name": "비파괴방수",
-      "slug": "non-destructive-waterproofing",
+      "slug": "bathroom-floor-waterproofing",
       "desc": "타일을 깨지 않고 침투 방수재로 누수를 잡습니다.",
       "regions": "",
       "extras": ""
@@ -1123,7 +1123,7 @@
     },
     {
       "name": "옥상방수",
-      "slug": "rooftop-waterproofing",
+      "slug": "rooftop-urethane-waterproofing",
       "desc": "면갈이부터 상도 마감까지 우레탄 방수를 시공합니다.",
       "regions": "",
       "extras": ""
@@ -1137,29 +1137,22 @@
     },
     {
       "name": "변기부속교체",
-      "slug": "toilet-parts-replacement",
+      "slug": "toilet-tank-parts-repair",
       "desc": "물통 소음·물 새는 증상을 부속 교체로 잡습니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "세면대교체",
-      "slug": "washbasin-replacement",
+      "slug": "sink-basin-replacement",
       "desc": "세면대 교체와 팝업·배수관 정비.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "욕실환풍기교체",
-      "slug": "bathroom-vent-fan",
+      "slug": "bathroom-vent-fan-replacement",
       "desc": "습기와 냄새가 빠지도록 환풍기와 댐퍼를 손봅니다.",
-      "regions": "",
-      "extras": ""
-    },
-    {
-      "name": "샷시수리",
-      "slug": "sash-repair",
-      "desc": "창이 무겁거나 바람이 새는 증상을 롤러·모헤어로 잡습니다.",
       "regions": "",
       "extras": ""
     },
@@ -1172,7 +1165,7 @@
     },
     {
       "name": "도어클로저교체",
-      "slug": "door-closer-replacement",
+      "slug": "door-closer-installation",
       "desc": "현관문이 쾅 닫히거나 안 닫히는 증상을 잡습니다.",
       "regions": "",
       "extras": ""
@@ -1186,28 +1179,28 @@
     },
     {
       "name": "누수천장도배",
-      "slug": "leak-ceiling-wallpapering",
+      "slug": "ceiling-drywall-repair",
       "desc": "누수 자국이 남은 천장을 석고보드부터 복구합니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "마루찍힘보수",
-      "slug": "floor-dent-repair",
+      "slug": "flooring-scratch-repair",
       "desc": "마루 찍힘·긁힘을 판 교체 없이 부분 보수합니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "누전수리",
-      "slug": "electrical-leak-repair",
+      "slug": "led-lighting-breaker-repair",
       "desc": "차단기가 내려가는 원인을 구간별로 찾아 잡습니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "누전차단기교체",
-      "slug": "breaker-replacement",
+      "slug": "breaker-panel-replacement",
       "desc": "노후 차단기를 교체하고 분전반 상태를 함께 봅니다.",
       "regions": "",
       "extras": ""
@@ -1242,28 +1235,28 @@
     },
     {
       "name": "타일들뜸수리",
-      "slug": "tile-lifting-repair",
+      "slug": "tile-grout-repair",
       "desc": "들뜬 타일을 떼어 다시 붙이고 줄눈까지 마감합니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "에폭시줄눈",
-      "slug": "epoxy-grout",
+      "slug": "epoxy-grout-coating",
       "desc": "곰팡이 낀 줄눈을 걷어내고 에폭시로 다시 넣습니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "미세방충망",
-      "slug": "fine-mesh-screen",
+      "slug": "fine-mesh-screen-replacement",
       "desc": "날벌레와 미세먼지까지 거르는 촘촘한 망으로 교체합니다.",
       "regions": "",
       "extras": ""
     },
     {
       "name": "현관롤방충망",
-      "slug": "roll-screen-door",
+      "slug": "roll-screen-door-installation",
       "desc": "현관에 여닫이식 롤 방충망을 설치합니다.",
       "regions": "",
       "extras": ""
