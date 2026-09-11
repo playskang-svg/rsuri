@@ -4,6 +4,16 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { categoryPhoto } from '@/lib/photos'
 import { getKeywordImages, groupSetsByKeyword, coverImage } from '@/lib/keyword-images'
+import { PageHero, SectionHead } from '@/app/_components/PageHero'
+
+// 참고 스킨의 "서비스 과정" 다섯 칸. 사이트 전체에서 이미 약속하는 흐름(사진 접수 → 진단 → 마감)만 적는다.
+const PROCESS_STEPS = [
+  { title: '사진 접수', desc: '새는 곳·깨진 곳 사진과 지역, 증상을 남기면 먼저 확인합니다.' },
+  { title: '원인 진단', desc: '보이는 자리와 원인 자리가 다를 수 있어 원인부터 짚습니다.' },
+  { title: '범위 확인', desc: '고칠 범위와 자재, 추가될 수 있는 조건을 작업 전에 정합니다.' },
+  { title: '시공', desc: '정한 범위 안에서 작업하고 바뀌는 점은 그 자리에서 알립니다.' },
+  { title: '마감 점검', desc: '작업 뒤 상태를 함께 확인하고 기록을 남깁니다.' },
+]
 
 // 지역이 177곳까지 늘어난다. 전부 칩으로 깔면 홈이 링크 덤프가 되고 본문이 밀린다 —
 // 안내 항목이 많은 순으로 이만큼만 노출하고, 잘라낸 개수는 화면에 밝힌다.
@@ -119,50 +129,49 @@ export default async function HomePage() {
 
   return (
     <main>
-      {/* ── 히어로: 서비스 직접 소구 + 큰 사진 ── */}
-      <section className="border-b border-[var(--line)] bg-white">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:py-16">
-          <div>
-            <p className="eyebrow">우리 동네 집수리</p>
-            <h1 className="font-serif-kr mt-3 text-[2rem] font-black leading-[1.25] sm:text-5xl">
-              새는 곳, 막힌 곳, 삭은 곳.
-              <br />
-              상한 곳만 정확히 잡습니다.
-            </h1>
-            <p className="mt-5 max-w-xl text-[15px] text-[var(--ink-soft)] sm:text-base">
-              싱크대 누수, 화장실 악취, 뻑뻑한 샷시, 내려가는 차단기, 곰팡이 도배까지 —
-              동네 담당 마스터가 진단부터 마감까지 한 번에 처리합니다. 사진 한 장이면
-              진단을 시작할 수 있어요.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <a href="#services" className="btn-call">
-                수리 분야 보기
-              </a>
-              <a href="#cases" className="btn-ghost">
-                시공 기록 보기
-              </a>
-            </div>
-            <p className="mt-5 text-[13px] text-[var(--ink-soft)]">
-              <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
-              연결이 어렵습니다. 사진과 지역·수리 내용을 남겨 주시면 확인 후 안내드립니다.
-            </p>
-          </div>
-
-          <div className="hero-photo aspect-[4/3] lg:aspect-[5/4]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={heroPhoto.src} alt="배관 점검 작업" style={heroPhoto.style} loading="eager" />
-          </div>
-        </div>
-      </section>
+      {/* ── 히어로: 머스터드 색 블록 + 큰 사진 ── */}
+      <PageHero
+        tone="yellow"
+        eyebrow="Home Repair Lab / Local"
+        title={
+          <>
+            새는 곳보다
+            <br />
+            새는 이유를
+            <br />
+            먼저 봅니다.
+          </>
+        }
+        desc={
+          <>
+            싱크대 누수, 화장실 악취, 뻑뻑한 샷시, 내려가는 차단기, 곰팡이 도배까지 — 동네 담당
+            마스터가 진단부터 마감까지 한 번에 처리합니다. 사진 한 장이면 진단을 시작할 수 있어요.
+          </>
+        }
+        tags={['Photo First', 'Fix The Cause']}
+        photo={{ src: heroPhoto.src, alt: '배관 점검 작업', style: heroPhoto.style }}
+      >
+        <a href="#services" className="btn-call">
+          수리 분야 보기
+        </a>
+        <a href="#process" className="btn-ghost">
+          진행 과정 보기
+        </a>
+      </PageHero>
 
       {/* ── 수리 분야 (키워드 사진 카드) ── */}
-      <section id="services" className="scroll-mt-16 mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <p className="eyebrow">Services</p>
-        <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">수리 분야</h2>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">
-          수리 항목 {keywordCards.length}종. 항목을 고르면 그 항목의 지역별 안내 페이지로
-          이동합니다.
-        </p>
+      <section id="services" className="section-y scroll-mt-16 mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHead
+          eyebrow="Service Doors / Repair"
+          title={
+            <>
+              고칠 곳의 이름으로
+              <br />
+              바로 찾습니다.
+            </>
+          }
+          desc={`수리 항목 ${keywordCards.length}종. 항목을 고르면 그 항목의 지역별 안내 페이지로 이동합니다. 작업 중에는 전화 연결이 어려워 사진과 지역·수리 내용을 남겨 주시면 확인 후 안내드립니다.`}
+        />
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {keywordCards.map(({ keyword, count, dongs }) => {
@@ -189,7 +198,7 @@ export default async function HomePage() {
                   {/* 지역 수는 내부 재고일 뿐 방문자에게 의미가 없다 — 아직 준비 중인
                       항목만 그렇다고 밝힌다. */}
                   {count === 0 && (
-                    <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
+                    <span className="absolute left-3 top-3 bg-[var(--ink)] px-2.5 py-1 text-[11px] font-bold text-white">
                       준비 중
                     </span>
                   )}
@@ -211,16 +220,47 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── 진행 과정 — 참고 스킨의 번호 다섯 칸 ── */}
+      <section id="process" className="section-y scroll-mt-16 border-t border-[var(--line)]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Five Checkpoints"
+            title={
+              <>
+                진행 단계마다
+                <br />
+                확인할 것이 있습니다.
+              </>
+            }
+            desc="작업 시간과 범위는 현장 상태와 원인, 자재에 따라 달라질 수 있습니다. 바뀌는 조건은 작업 전에 먼저 알립니다."
+          />
+          <ol className="num-cols mt-10" style={{ ['--cols' as string]: 5 }}>
+            {PROCESS_STEPS.map((s, i) => (
+              <li key={s.title}>
+                <span className="num">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       {/* ── 실제 시공 기록 ── */}
       {caseCards.length > 0 && (
-        <section id="cases" className="scroll-mt-16 border-t border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <p className="eyebrow">Field Records</p>
-            <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">실제 시공 기록</h2>
-            <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              문제 확인부터 현장 판단, 작업 내용, 검측 결과까지 현장에서 실제로 진행된 순서 그대로
-              기록했습니다.
-            </p>
+        <section id="cases" className="section-y scroll-mt-16 border-t border-[var(--line)] bg-white">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <SectionHead
+              eyebrow="Field Records"
+              title={
+                <>
+                  작업보다 먼저
+                  <br />
+                  확인 장면을 남깁니다.
+                </>
+              }
+              desc="문제 확인부터 현장 판단, 작업 내용, 검측 결과까지 현장에서 실제로 진행된 순서 그대로 기록했습니다."
+            />
 
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {caseCards.map(({ casePage, kw, dong, summary, photo }) => (
@@ -238,7 +278,7 @@ export default async function HomePage() {
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                     />
-                    <span className="absolute left-3 top-3 rounded-full bg-[var(--ink)]/85 px-2.5 py-1 text-[11px] font-bold text-[var(--paper)]">
+                    <span className="absolute left-3 top-3 bg-[var(--ink)] px-2.5 py-1 text-[11px] font-bold text-white">
                       {kw!.display_name} · {dong!.display_name}
                     </span>
                   </div>
@@ -268,20 +308,26 @@ export default async function HomePage() {
       )}
 
       {/* ── 지역별 안내 ── */}
-      <section id="regions" className="scroll-mt-16 border-t border-[var(--line)] bg-[var(--paper)]">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <p className="eyebrow">Regions</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-3xl">지역별 안내</h2>
-          <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            동네를 고르면 그 동네에서 안내 중인 수리로 바로 이동합니다.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2.5">
+      <section id="regions" className="section-y scroll-mt-16 border-t border-[var(--line)] bg-[var(--paper)]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Region Index"
+            title={
+              <>
+                동네를 고르면
+                <br />
+                그 동네 수리로 갑니다.
+              </>
+            }
+            desc="동네를 고르면 그 동네에서 안내 중인 수리로 바로 이동합니다."
+          />
+          <div className="mt-8 flex flex-wrap gap-2.5">
             {shownRegions.map((d) => (
               <Link
                 key={d.href}
                 href={d.href}
                 title={d.upper ? `${d.upper} ${d.dong}` : d.dong}
-                className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                className="border border-[var(--ink)]/25 bg-white px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
               >
                 {d.dong}
               </Link>

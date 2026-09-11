@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { blueprintBg } from '@/lib/blueprint'
 import { categoryPhoto } from '@/lib/photos'
+import { PageHero, SectionHead } from '@/app/_components/PageHero'
 import { getKeywordImages, groupSetsByKeyword, coverImage } from '@/lib/keyword-images'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
 import { fallbackPhone, telHrefOf } from '@/lib/contact'
@@ -147,87 +147,62 @@ export default async function KeywordHubPage({
 
   return (
     <main>
-      {/* ── 히어로 ── */}
-      <section className="relative border-b border-[var(--line)] bg-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.08]"
-          style={{ backgroundImage: blueprintBg(category?.slug ?? '', keyword.slug) }}
-        />
-        <div
-          className={`relative mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 ${
-            sets.length === 0 ? 'lg:grid-cols-[1.05fr_0.95fr] lg:items-center' : ''
-          }`}
-        >
-          <div>
-            <nav aria-label="현재 위치" className="text-[13px] text-[var(--ink-soft)]">
-              <Link href="/" className="hover:text-[var(--ink)]">
-                수리위키
-              </Link>
-              {' › '}
-              <span className="font-bold text-[var(--ink)]">{keyword.display_name}</span>
-            </nav>
-            <h1 className="font-serif-kr mt-4 text-3xl font-black sm:text-4xl">
-              {keyword.display_name}
-            </h1>
-            {keyword.description && (
-              <p className="mt-3 max-w-2xl text-[15px] text-[var(--ink-soft)]">
-                {keyword.description}
-              </p>
-            )}
-            {/* 전환 경로는 전화 한 가지뿐이다 — 히어로에서 번호를 숨기지 않는다.
-                후킹 문구에 키워드를 그대로 넣어 검색어와 화면의 말이 어긋나지 않게 한다. */}
-            <p className="mt-6 text-lg font-extrabold leading-snug sm:text-xl">
-              {keyword.display_name}, 사진 한 장이면
-              <br className="hidden sm:block" /> 오늘 처리 가능한지 바로 알려드립니다.
+      {/* ── 히어로 — 파란 색 블록. 키워드 허브는 파랑, 지역 페이지는 차콜로 층을 구분한다 ── */}
+      <PageHero
+        tone="blue"
+        above={
+          <nav aria-label="현재 위치" className="mb-5 text-[13px] text-white/75">
+            <Link href="/" className="hover:text-white">
+              수리위키
+            </Link>
+            {' › '}
+            <span className="font-bold text-white">{keyword.display_name}</span>
+          </nav>
+        }
+        eyebrow={`Service / ${category?.display_name ?? 'Repair'}`}
+        title={keyword.display_name}
+        desc={
+          <>
+            {keyword.description && <p>{keyword.description}</p>}
+            {/* 후킹 문구에 키워드를 그대로 넣어 검색어와 화면의 말이 어긋나지 않게 한다. */}
+            <p className="mt-3 font-bold opacity-100">
+              {keyword.display_name}, 사진 한 장이면 오늘 처리 가능한지 바로 알려드립니다.
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              {telHref && (
-                <a href={telHref} className="btn-call">
-                  <PhoneIcon />
-                  {phone} {keyword.display_name} 상담
-                </a>
-              )}
-              <a href="#regions" className="btn-ghost">
-                {myLandings.length > 0 ? '서비스 지역' : '다른 수리 항목 보기'}
-              </a>
-            </div>
-            <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-              <span className="font-bold text-[var(--copper)]">안내</span> 작업 중에는 전화
-              연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후 안내드립니다.
+            <p className="mt-3 text-[13px]">
+              작업 중에는 전화 연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후
+              안내드립니다.
             </p>
-
-            {/* 히어로 왼쪽 아래가 비어 있었다. 스크롤하지 않고도 "무엇을 어떻게 고치는지"가
-                한눈에 들어와야 하는 자리라, 키워드 자산의 세부 항목을 압축해서 채운다. */}
-            {kc && kc.services.length > 0 && (
-              <div className="mt-6 rounded-xl border border-[var(--line)] bg-white/80 p-4">
-                <p className="text-[13px] font-extrabold text-[var(--teal)]">이런 걸 고칩니다</p>
-                <ul className="mt-2.5 flex flex-wrap gap-1.5">
-                  {kc.services.map((s, i) => (
-                    <li
-                      key={i}
-                      className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1 text-[12px] font-semibold text-[var(--ink-soft)]"
-                    >
-                      {s.title}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">
-                  {kc.tagline}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* 실사가 없을 때만 참고 이미지를 건다 — 실제 시공 사진 옆에 스톡을 섞지 않는다. */}
-          {sets.length === 0 && (
-            <div className="hero-photo aspect-[16/10]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={stock.src} alt="" style={stock.style} loading="eager" />
+          </>
+        }
+        tags={['Photo Diagnosis', myLandings.length > 0 ? `${myLandings.length} Local Pages` : 'Local Master']}
+        /* 실사가 없을 때만 참고 이미지를 건다 — 실제 시공 사진 옆에 스톡을 섞지 않는다. */
+        photo={sets.length === 0 ? { src: stock.src, alt: '', style: stock.style } : undefined}
+        aside={
+          kc && kc.services.length > 0 ? (
+            <div className="bg-white p-5 text-[var(--ink)]">
+              <p className="eyebrow">What We Fix</p>
+              <ul className="rule-list mt-3">
+                {kc.services.map((s, i) => (
+                  <li key={i} className="py-2.5 text-sm font-bold">
+                    {s.title}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">{kc.tagline}</p>
             </div>
-          )}
-        </div>
-      </section>
+          ) : undefined
+        }
+      >
+        {telHref && (
+          <a href={telHref} className="btn-call">
+            <PhoneIcon />
+            {phone} {keyword.display_name} 상담
+          </a>
+        )}
+        <a href="#regions" className="btn-ghost">
+          {myLandings.length > 0 ? '서비스 지역' : '다른 수리 항목 보기'}
+        </a>
+      </PageHero>
 
       {/* ── 시공 전 · 후 (운영자가 올린 실제 사진만) ── */}
       {sets.length > 0 && (
@@ -254,13 +229,17 @@ export default async function KeywordHubPage({
           방문자가 "이 수리가 뭘 하는 건지"를 여기서 끝내고 지역을 고를 수 있어야 한다.
           이게 없으면 허브는 지역 목록만 있는 링크 페이지가 된다. */}
       {kc && kc.services.length > 0 && (
-        <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-          <p className="eyebrow">Services</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">{keyword.display_name} 세부 항목</h2>
-          <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="section-y mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Repair Check / Items"
+            title={`${keyword.display_name} 세부 항목`}
+            desc={kc.tagline}
+          />
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {kc.services.map((s, i) => (
-              <li key={i} className="card p-5">
-                <h3 className="font-extrabold">{s.title}</h3>
+              <li key={i} className="top-rule-card">
+                <p className="eyebrow">{String(i + 1).padStart(2, '0')} / Item</p>
+                <h3 className="mt-6 text-lg font-black tracking-[-0.03em]">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{s.desc}</p>
               </li>
             ))}
@@ -310,19 +289,24 @@ export default async function KeywordHubPage({
       )}
 
       {kc && kc.process.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-          <p className="eyebrow">Process</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">진행 절차</h2>
-          <ol className="step-rail mt-7 space-y-7">
+        <section id="process" className="section-y scroll-mt-20 mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Service Process"
+            title={
+              <>
+                {keyword.display_name},
+                <br />
+                이렇게 진행합니다.
+              </>
+            }
+            desc="작업 시간과 범위는 현장 상태와 원인, 자재에 따라 달라질 수 있습니다."
+          />
+          <ol className="num-cols mt-10" style={{ ['--cols' as string]: Math.min(kc.process.length, 5) }}>
             {kc.process.map((step, i) => (
-              <li key={i} className="flex gap-4">
-                <span className="step-num" aria-hidden>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div className="pt-1">
-                  <h3 className="font-extrabold">{step.title}</h3>
-                  <p className="mt-1 text-sm text-[var(--ink-soft)]">{step.desc}</p>
-                </div>
+              <li key={i}>
+                <span className="num">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
               </li>
             ))}
           </ol>
@@ -330,9 +314,8 @@ export default async function KeywordHubPage({
       )}
 
       {/* ── 지역별 가이드 ── */}
-      <section id="regions" className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <p className="eyebrow">Regions</p>
-        <h2 className="font-serif-kr mt-2 text-xl font-black">서비스 지역</h2>
+      <section id="regions" className="section-y mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHead eyebrow="Region Index" title="서비스 지역" />
         {myLandings.length > 0 ? (
           <>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">

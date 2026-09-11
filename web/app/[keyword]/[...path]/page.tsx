@@ -277,20 +277,12 @@ export default async function LandingPage({
 
   return (
     <main className="pb-24 md:pb-0">
-      {/* ── 히어로 (풀블리드 사진 + 오버레이) ──
-          사진을 오른쪽 칸에 가둬 두면 첫 화면이 텍스트 덩어리로 보인다. 배경으로 깔고
-          그 위에 지역+키워드를 크게 얹어, 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다. */}
-      <section className="relative isolate overflow-hidden bg-[var(--ink)]">
-        <HeroSlider
-          images={heroImages}
-          alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
-        />
-        {/* 사진 위 글자의 대비를 고정한다 — 어떤 사진이 와도 읽히게. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-r from-[rgba(16,24,28,0.92)] via-[rgba(16,24,28,0.78)] to-[rgba(16,24,28,0.45)]"
-        />
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
+      {/* ── 히어로 — 참고 스킨의 차콜 색 블록 + 오른쪽 사진 칸 ──
+          지역+키워드를 초대형으로 올려 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다.
+          사진은 글자 뒤 배경이 아니라 옆 칸이라 어둡게 덮는 그라데이션이 필요 없다. */}
+      <section className="page-hero" data-tone="dark">
+        <div className="hero-inner photo-first">
+        <div className="min-w-0">
           {/* 브레드크럼이 곧 이동 장치다. 두 세그먼트를 열면 사촌(같은 지역 다른 수리)과
               형제(같은 수리 다른 지역)로 바로 건너뛴다 — 본문에 링크를 깔지 않고도
               페이지끼리 얽히게 만드는 자리이고, 화면은 한 줄만 쓴다. */}
@@ -352,15 +344,17 @@ export default async function LandingPage({
             </ol>
           </nav>
 
-          <p className="mt-5 inline-block rounded-full border border-[var(--gold)]/60 px-4 py-1.5 text-[13px] font-extrabold text-[var(--gold)]">
-            {region.display_name} {keyword.display_name} 출장 시공
+          <p className="eyebrow mt-6">
+            Local Service / {region.display_name} {keyword.display_name} 출장 시공
           </p>
 
-          <h1 className="font-serif-kr mt-4 text-4xl font-black leading-[1.15] text-white sm:text-5xl">
-            {region.display_name} {keyword.display_name}
+          <h1>
+            {region.display_name}
+            <br />
+            {keyword.display_name}
           </h1>
 
-          <p className="prose-kr mt-5 max-w-2xl text-[15px] leading-relaxed text-[var(--on-ink)] sm:text-base">
+          <p className="prose-kr hero-desc text-[var(--on-ink)]">
             {region.profile?.dongs &&
               `${region.profile.dongs} 등 전 동 출장 ${region.display_name} ${keyword.display_name}. `}
             {region.profile?.note
@@ -370,22 +364,29 @@ export default async function LandingPage({
 
           <div className="mt-8 flex flex-wrap gap-3">
             {telHref && (
-              <a
-                href={telHref}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[15px] font-extrabold text-[var(--ink)] transition-transform hover:scale-[1.03]"
-              >
+              <a href={telHref} className="btn-call">
                 <PhoneIcon />
                 {phone} 상담문의
               </a>
             )}
-            <Link
-              href={`/${keyword.slug}`}
-              className="inline-flex items-center rounded-full border border-white/45 px-6 py-3 text-[15px] font-extrabold text-white hover:border-white"
-            >
+            <Link href={`/${keyword.slug}`} className="btn-ghost">
               {keyword.display_name} 전체 지역
             </Link>
           </div>
 
+          <div className="hero-tags" aria-hidden>
+            <span>Check The Cause</span>
+            <span>Local Master</span>
+          </div>
+        </div>
+
+        {/* 사진 칸 — 슬라이더의 사진·버튼은 이 칸 안에 absolute 로 깔린다 */}
+        <div className="hero-photo isolate">
+          <HeroSlider
+            images={heroImages}
+            alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
+          />
+        </div>
         </div>
       </section>
 
@@ -956,18 +957,12 @@ export default async function LandingPage({
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {telHref && (
-              <a
-                href={telHref}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-[15px] font-extrabold text-[var(--ink)] transition-transform hover:scale-[1.03]"
-              >
+              <a href={telHref} className="btn-call">
                 <PhoneIcon />
                 {phone} 상담문의
               </a>
             )}
-            <Link
-              href="/"
-              className="inline-flex items-center rounded-full border border-white/45 px-7 py-3.5 text-[15px] font-extrabold text-white hover:border-white"
-            >
+            <Link href="/" className="btn-ghost !border-white/60 !text-white">
               메인페이지
             </Link>
           </div>
@@ -1079,13 +1074,9 @@ export default async function LandingPage({
   )
 }
 
-/** 섹션 머리의 영문 라벨 알약. eyebrow(민무늬 소문자)보다 구획이 또렷하다. */
+/** 섹션 머리의 영문 라벨. 참고 스킨처럼 윗선 없는 모노 표식으로 둔다 (예전 알약 모양에서 바꿈). */
 function Pill({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-block rounded-full border border-[var(--copper)]/40 bg-[var(--copper)]/10 px-4 py-1.5 text-[12px] font-extrabold tracking-[0.14em] text-[var(--copper)]">
-      {children}
-    </span>
-  )
+  return <span className="eyebrow inline-block">{children}</span>
 }
 
 function PhoneIcon() {
