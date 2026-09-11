@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SiteFooter } from './_components/SiteFooter'
+import { CtaBand } from './_components/CtaBand'
 import { KeywordSearch, type SearchItem } from './_components/KeywordSearch'
 import { getAllData, isPublished } from '@/lib/supabase'
 import './globals.css'
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
   description:
     '누수·배수구·창호·전기·도배까지, 지역별 검증 마스터의 집수리 서비스. 사진 한 장이면 진단을 시작할 수 있습니다.',
   verification: {
+    google: 'eOG92jGwvKx_XpUBPUbTfmSsdop0Py2RlLfasfobFcU',
     other: {
       'naver-site-verification': '9004a322fa5ed99f5e2fe01e0297d22c2a5e6e08',
     },
@@ -55,33 +57,43 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* 화면에서 실제로 쓰는 굵기만 받는다.
-            본문(Noto Sans KR): 400·500·600·700·800·900 — font-black(900)이 48곳인데
-            전에는 900을 안 받아 브라우저가 가짜 볼드를 그렸다. 500도 빠져 있었다.
-            제목(Noto Serif KR): .font-serif-kr 41곳이 전부 font-black이라 900 하나면
-            충분하다. 전에 받던 600·800은 어디에도 쓰이지 않아 버리는 다운로드였다. */}
+            본문·제목(Noto Sans KR): 400~900 — 제목은 참고 스킨처럼 900을 좁은 자간으로 쌓는다.
+            모노 라벨(IBM Plex Mono): 500·600 — "FREQUENTLY ASKED" 같은 영문 표식 전용.
+            명조(Noto Serif KR)는 참고 스킨 전환으로 쓰지 않아 뺐다. */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@900&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>
       <body>
-        <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--paper)]/92 backdrop-blur">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+        {/* 상단 유틸바 — 참고 스킨의 어두운 얇은 띠. 모바일은 44px 터치 영역을 못 채워 숨기고 삼선 메뉴가 대신한다 */}
+        <div className="util-bar hidden sm:block">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+            <p className="hidden truncate py-2 sm:block">우리 동네 집수리 · 사진 한 장으로 진단을 시작합니다</p>
+            <nav className="flex items-center gap-4" aria-label="바로가기">
+              <Link href="/sitemap">사이트맵</Link>
+              <a href="#cases">시공사례</a>
+              <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
+                상담
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--paper)]/95 backdrop-blur">
+          <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
             <Link href="/" className="flex items-center gap-2.5">
-              <span
-                aria-hidden
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--ink)] text-[var(--paper)]"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M14.5 6.5a4 4 0 0 0-5.6 4.9L4 16.3V20h3.7l4.9-4.9a4 4 0 0 0 4.9-5.6l-2.6 2.6-2.4-.6-.6-2.4 2.6-2.6Z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <span aria-hidden className="logo-mark">
+                <i />
+                <i />
+                <i />
               </span>
-              <span className="font-serif-kr text-xl font-black tracking-tight">수리위키</span>
+              <span className="leading-none">
+                <span className="block text-[1.35rem] font-black tracking-[-0.05em]">수리위키</span>
+                <span className="mt-1 block text-[10px] font-bold tracking-[0.3em] text-[var(--ink-soft)]">
+                  집수리연구소
+                </span>
+              </span>
             </Link>
 
             {/* 데스크톱 내비 — 검색이 자리를 먹으므로 좁은 화면에서는 lg부터 편다 */}
@@ -139,6 +151,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         {children}
 
+        <CtaBand />
         <SiteFooter />
       </body>
     </html>

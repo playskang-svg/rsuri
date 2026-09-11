@@ -1,40 +1,40 @@
 @import "tailwindcss";
 
 /* ──────────────────────────────────────────────────────────
-   수리위키 디자인 토큰 — 네이비 + 골드
-   참고 사이트(koreajipsurimaster.com) 톤에 맞춘다.
-   이전 팔레트(도면지·먹색·구리)에서 전환했다 — docs/RENEWAL_INSTRUCTIONS.md 7번.
+   수리위키 디자인 토큰 — 크림 · 차콜 · 로열블루 · 머스터드 · 주황 CTA
+   2026-09-11 사장님이 준 참고 스킨(차곡길 이사연구소 판매 스킨)의 톤으로 전환했다.
+   이전 네이비+골드(koreajipsurimaster.com 참고)에서 바꿈 — docs/RENEWAL_INSTRUCTIONS.md 7번.
 
-   모든 조합의 명도대비를 계산해 WCAG AA(본문 4.5:1)를 넘겼다. 특히
-   밝은 골드는 흰 배경에서 2.3:1밖에 안 나와 텍스트로 쓸 수 없다.
-   그래서 골드를 두 갈래로 나눈다:
-     --copper  어두운 골드. 밝은 배경 위 강조 텍스트·테두리 (실사용 44곳)
-     --gold    밝은 골드. 어두운 배경 또는 CTA 바탕. 그 위 글자는 --ink-deep
-
-   변수 이름(copper/teal)은 그대로 둔다. 사용처가 280곳이라 이름을 바꾸면
-   diff가 화면을 덮어 정작 색이 어떻게 바뀌었는지 안 보인다.
+   변수 이름(copper/teal/gold)은 그대로 둔다. 사용처가 280곳이라 이름을 바꾸면
+   diff가 화면을 덮어 정작 색이 어떻게 바뀌었는지 안 보인다. 역할은 이렇다:
+     --copper  밝은 바탕 위 강조 텍스트·테두리 → 로열블루 (크림 위 5.7:1)
+     --gold    어두운 바탕 위 강조 → 머스터드 (차콜 위 8.9:1). 밝은 바탕에서 글자로 쓰지 않는다
+     --cta     흰 글자를 얹는 주황 버튼 (흰 글자 5.0:1)
    ────────────────────────────────────────────────────────── */
 :root {
-  --paper: #fbfaf8;      /* 배경 — 아주 옅은 온기 */
-  --ink: #12294a;        /* 네이비 — 본문·어두운 바탕 (13.96:1) */
-  --ink-deep: #0b1c34;   /* 딥 네이비 — 골드 위 글자 (7.62:1) */
-  --ink-soft: #5a6b85;   /* 보조 텍스트 (5.19:1) */
-  --copper: #8a6a1c;     /* 골드 잉크 — 강조 텍스트·테두리 (4.84:1) */
-  --copper-deep: #6d5316; /* 그 hover (6.94:1) */
-  --gold: #e8b34c;       /* 밝은 골드 — CTA 바탕·어두운 면 위 강조 */
-  --gold-deep: #d19b2f;  /* CTA hover */
-  --teal: #1a3a63;       /* 네이비 라이트 — eyebrow·포커스링 (11.00:1) */
-  --teal-soft: #eef1f6;  /* 그 연한 바탕 */
-  --line: #e3e6ec;       /* 괘선 */
+  --paper: #f2ede5;      /* 크림 배경 */
+  --beige: #e6e0d4;      /* 베이지 히어로 바탕 */
+  --ink: #1f2a30;        /* 차콜 — 본문·어두운 면 (13.1:1) */
+  --ink-deep: #151c20;   /* 머스터드 위 글자 */
+  --ink-soft: #5c6369;   /* 보조 텍스트 (5.2:1) */
+  --copper: #25609f;     /* 로열블루 잉크 — 강조 텍스트·테두리 (5.7:1) */
+  --copper-deep: #1b4b7e;
+  --blue: #2a67ab;       /* 파란 히어로 바탕 — 흰 글자 5.5:1 */
+  --gold: #eec64b;       /* 머스터드 — 어두운 면 위 강조, 노란 히어로 바탕 */
+  --gold-deep: #d9ad2e;
+  --cta: #cf4520;        /* 주황 CTA 바탕 — 흰 글자 */
+  --cta-deep: #b33917;
+  --teal: #25609f;       /* 모노 라벨·포커스링 */
+  --teal-soft: #dde6ef;  /* 연하늘 면 (메모 카드·강조 칸) */
+  --line: #d8d0c3;       /* 괘선 */
   --card: #ffffff;
-  /* 어두운 네이비 면(히어로·푸터·상담 블록) 위에 얹는 글자.
-     밝은 배경용 --ink-soft를 그대로 쓰면 바탕에 묻힌다. */
-  --on-ink: #dbe1ec;     /* 그 위 본문 (11.09:1) */
-  --on-ink-soft: #b9c3d4; /* 그 위 보조 (8.20:1) */
-  --tip-bg: #fdf7e8;
-  --tip-ink: #6d5316;
-  --danger-bg: #fdf0ec;
+  --on-ink: #e9e5de;     /* 차콜·파랑 면 위 본문 */
+  --on-ink-soft: #aab3b9;
+  --tip-bg: #fbf3d9;
+  --tip-ink: #6b5314;
+  --danger-bg: #fbeae4;
   --danger-ink: #96331b;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 
 html { scroll-behavior: smooth; }
@@ -58,9 +58,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 제목 — 참고 스킨은 명조가 아니라 아주 굵은 고딕을 좁은 자간으로 쌓는다.
+   클래스 이름은 사용처 41곳 때문에 그대로 두고 글꼴만 바꾼다. */
 .font-serif-kr {
-  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
-  letter-spacing: -0.015em;
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  word-break: keep-all;
 }
 
 /* 본문 리듬 */
@@ -96,9 +100,9 @@ body {
 .step-num {
   width: 2.4rem; height: 2.4rem; flex: none;
   display: flex; align-items: center; justify-content: center;
-  background: var(--ink); color: var(--paper);
-  font-weight: 800; font-size: 0.95rem;
-  border-radius: 0.6rem;
+  background: var(--copper); color: #fff;
+  font-family: var(--mono); font-weight: 600; font-size: 0.85rem;
+  border-radius: 0;
   position: relative; z-index: 1;
 }
 .step-tip {
@@ -106,42 +110,39 @@ body {
   border-left: 3px solid var(--gold);
 }
 
-/* FAQ 아코디언 — JS 없이 details/summary */
+/* FAQ 아코디언 — JS 없이 details/summary. 참고 스킨처럼 굵은 윗줄 + 오른쪽 파란 ＋/－ */
 details.faq { border-bottom: 1px solid var(--line); }
+details.faq:first-of-type { border-top: 2px solid var(--ink); }
 details.faq summary {
   cursor: pointer; list-style: none;
   display: flex; justify-content: space-between; align-items: center; gap: 1rem;
-  padding: 1rem 0.25rem; font-weight: 700;
+  padding: 1.2rem 0.25rem; font-weight: 800; min-height: 44px;
 }
 details.faq summary::-webkit-details-marker { display: none; }
 details.faq summary::after {
-  content: "+"; font-size: 1.3rem; line-height: 1; color: var(--copper);
-  transition: transform 0.2s;
+  content: "+"; font-size: 1.5rem; line-height: 1; color: var(--copper); font-weight: 700; flex: none;
 }
-details.faq[open] summary::after { transform: rotate(45deg); }
-details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
+details.faq[open] summary::after { content: "−"; }
+details.faq > div { padding: 0 0.25rem 1.3rem; color: var(--ink-soft); }
 
-/* CTA 버튼 */
-/* 골드 바탕 위 흰 글자는 2.43:1로 AA에 한참 못 미친다.
-   딥 네이비를 얹으면 8.93:1이 나오고, 골드가 더 선명하게 읽힌다. */
+/* CTA 버튼 — 참고 스킨의 각진 주황 버튼 */
 .btn-call {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   min-height: 44px; /* 터치 영역. 페이지별 !py override가 있어 padding으로는 안 맞는다 */
-  background: var(--gold); color: var(--ink-deep); font-weight: 800;
-  padding: 0.8rem 1.4rem; border-radius: 0.75rem;
-  box-shadow: 0 6px 16px -6px rgb(232 179 76 / 0.6);
+  background: var(--cta); color: #fff; font-weight: 800;
+  padding: 0.8rem 1.4rem; border-radius: 0;
   transition: background 0.15s, transform 0.1s;
 }
-.btn-call:hover { background: var(--gold-deep); }
+.btn-call:hover { background: var(--cta-deep); }
 .btn-call:active { transform: scale(0.98); }
 .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   min-height: 44px;
-  border: 1.5px solid var(--ink); color: var(--ink); font-weight: 700;
-  padding: 0.75rem 1.3rem; border-radius: 0.75rem;
+  border: 1.5px solid var(--ink); color: var(--ink); font-weight: 800;
+  padding: 0.75rem 1.3rem; border-radius: 0;
   transition: background 0.15s;
 }
-.btn-ghost:hover { background: rgb(18 41 74 / 0.06); }
+.btn-ghost:hover { background: rgb(31 42 48 / 0.06); }
 
 /* 모바일 하단 고정 상담바 */
 .callbar {
@@ -155,16 +156,18 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
 
 /* 카드 공통 */
 .card {
-  background: var(--card); border: 1px solid var(--line); border-radius: 1rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 0;
 }
+/* 모노 라벨 — 참고 스킨의 "FREQUENTLY ASKED" 같은 영문 고정폭 표식 */
 .eyebrow {
-  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em;
-  color: var(--copper); text-transform: uppercase;
+  font-family: var(--mono);
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em;
+  color: var(--teal); text-transform: uppercase;
 }
 
 /* 헤더 내비 링크 */
-.nav-link { font-weight: 600; font-size: 0.9rem; color: var(--ink-soft); }
-.nav-link:hover { color: var(--ink); }
+.nav-link { font-weight: 700; font-size: 0.92rem; color: var(--ink); }
+.nav-link:hover { color: var(--copper); }
 
 /* 삼선(햄버거) 메뉴 — details 기반, JS 불필요 */
 .menu-drop { position: relative; }
@@ -232,12 +235,11 @@ details.faq > div { padding: 0 0.25rem 1.1rem; color: var(--ink-soft); }
   .font-serif-kr { letter-spacing: -0.02em; }
 }
 
-/* 히어로 참고 사진 */
+/* 히어로 참고 사진 — 참고 스킨은 모서리·그림자 없이 색 면 위에 사진만 올린다 */
 .hero-photo {
-  border-radius: 1.1rem; overflow: hidden;
-  border: 1px solid var(--line);
-  box-shadow: 0 14px 36px -18px rgb(18 41 74 / 0.35);
+  border-radius: 0; overflow: hidden;
   position: relative;
+  background: rgb(31 42 48 / 0.08);
 }
 .hero-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .hero-photo .tag {
@@ -362,3 +364,131 @@ a:focus-visible, summary:focus-visible, button:focus-visible {
 .area-fold > summary::-webkit-details-marker { display: none; }
 .area-fold > summary::after { content: '＋'; color: var(--copper); font-weight: 900; }
 .area-fold[open] > summary::after { content: '－'; }
+
+/* ══════════════════════════════════════════════════════════
+   참고 스킨(차곡길) 공통 블록 — 2026-09-11
+   모바일 기준으로 쌓고 넓은 화면에서 두 칸으로 편다.
+   ══════════════════════════════════════════════════════════ */
+
+/* 상단 유틸바 — 어두운 얇은 띠 */
+.util-bar { background: var(--ink); color: var(--on-ink); font-size: 0.75rem; font-weight: 600; }
+.util-bar a { display: inline-flex; align-items: center; min-height: 32px; }
+.util-bar a:hover { color: var(--gold); }
+
+/* 로고 마크 — 높이가 다른 막대 셋 (차콜·파랑·주황) */
+.logo-mark { display: inline-flex; align-items: flex-end; gap: 3px; height: 26px; }
+.logo-mark i { display: block; width: 9px; }
+.logo-mark i:nth-child(1) { height: 70%; background: var(--ink); }
+.logo-mark i:nth-child(2) { height: 100%; background: var(--blue); }
+.logo-mark i:nth-child(3) { height: 45%; background: var(--cta); }
+.on-dark .logo-mark i:nth-child(1) { background: #fff; }
+
+/* 색 블록 히어로 */
+.page-hero { position: relative; }
+.page-hero[data-tone="yellow"] { background: var(--gold); color: var(--ink-deep); }
+.page-hero[data-tone="blue"]   { background: var(--blue); color: #fff; }
+.page-hero[data-tone="dark"]   { background: var(--ink); color: #fff; }
+.page-hero[data-tone="beige"]  { background: var(--beige); color: var(--ink); }
+.page-hero .hero-inner {
+  margin-inline: auto; max-width: 72rem;
+  display: grid; gap: 2rem; align-items: center;
+  padding: 2.75rem 1rem 2.5rem;
+}
+@media (min-width: 640px) { .page-hero .hero-inner { padding-inline: 1.5rem; } }
+@media (min-width: 1024px) {
+  .page-hero .hero-inner { grid-template-columns: 1fr 1.15fr; gap: 3.5rem; padding-block: 3.75rem; }
+}
+.page-hero h1 {
+  font-family: "Noto Sans KR", system-ui, sans-serif; font-weight: 900;
+  font-size: clamp(2.35rem, 8.2vw, 4.4rem); line-height: 1.1; letter-spacing: -0.055em;
+  word-break: keep-all; margin-top: 0.9rem;
+}
+.page-hero .hero-desc { margin-top: 1.25rem; max-width: 30rem; font-size: 0.97rem; line-height: 1.75; opacity: 0.88; }
+.page-hero .eyebrow { color: currentColor; opacity: 0.8; }
+.page-hero[data-tone="yellow"] .eyebrow,
+.page-hero[data-tone="beige"] .eyebrow { color: var(--copper); opacity: 1; }
+.page-hero[data-tone="dark"] .eyebrow { color: #8fb4e0; opacity: 1; }
+.hero-tags { margin-top: 2.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 26rem; }
+.hero-tags span {
+  border-top: 1px solid currentColor; padding-top: 0.7rem;
+  font-family: var(--mono); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; opacity: 0.75;
+}
+.page-hero .hero-photo { aspect-ratio: 4 / 3; max-width: 100%; }
+.page-hero .hero-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.page-hero .btn-ghost { border-color: currentColor; color: inherit; }
+
+/* 섹션 머리 — 모노 라벨 + 2줄 굵은 제목 + 오른쪽 설명 */
+.sec-head { display: grid; gap: 1rem; align-items: end; }
+@media (min-width: 900px) { .sec-head { grid-template-columns: 1.2fr 1fr; gap: 3rem; } }
+.sec-head h2 {
+  font-family: "Noto Sans KR", system-ui, sans-serif; font-weight: 900;
+  font-size: clamp(1.85rem, 5.6vw, 3rem); line-height: 1.15; letter-spacing: -0.05em;
+  word-break: keep-all; margin-top: 0.6rem;
+}
+.sec-head .sec-desc { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.75; max-width: 30rem; }
+.section-y { padding-block: 3.5rem; }
+@media (min-width: 1024px) { .section-y { padding-block: 5.5rem; } }
+
+/* 굵은 윗줄 목록 — 공지 목록·조건표 */
+.rule-list { border-top: 2px solid var(--ink); }
+.rule-list > * { border-bottom: 1px solid var(--line); }
+.cond-table { width: 100%; border-collapse: collapse; background: var(--card); border-top: 2px solid var(--ink); font-size: 0.9rem; }
+.cond-table th, .cond-table td { text-align: left; padding: 1rem 1rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cond-table th { width: 30%; font-weight: 800; }
+.cond-table td { color: var(--ink-soft); }
+
+/* 번호 칸 — 01 · 02 · 03 세로선으로 나눈 단계 */
+.num-cols { display: grid; border-top: 2px solid var(--ink); }
+@media (min-width: 640px) { .num-cols { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .num-cols { grid-template-columns: repeat(var(--cols, 3), 1fr); } }
+.num-cols > * { padding: 1.4rem 1.25rem 1.8rem; border-bottom: 1px solid var(--line); }
+@media (min-width: 640px) { .num-cols > * { border-right: 1px solid var(--line); } }
+.num-cols .num { font-family: var(--mono); font-size: 0.75rem; font-weight: 600; color: var(--copper); letter-spacing: 0.08em; }
+.num-cols h3 { margin-top: 2.5rem; font-size: 1.3rem; font-weight: 900; letter-spacing: -0.04em; }
+.num-cols p { margin-top: 0.6rem; font-size: 0.86rem; line-height: 1.7; color: var(--ink-soft); }
+
+/* 메모 카드 — 살짝 기울어진 머스터드·흰색·연하늘 종이 */
+.note-grid { display: grid; gap: 0.9rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .note-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .note-grid { grid-template-columns: repeat(4, 1fr); } }
+.note-card { padding: 1.3rem 1.25rem 1.6rem; background: var(--card); box-shadow: 0 1px 2px rgb(31 42 48 / 0.06), 0 10px 24px -18px rgb(31 42 48 / 0.35); }
+.note-card:nth-child(4n+1) { background: var(--gold); transform: rotate(-0.6deg); }
+.note-card:nth-child(4n+2) { transform: rotate(0.5deg); }
+.note-card:nth-child(4n+3) { background: var(--teal-soft); transform: rotate(-0.3deg); }
+.note-card:nth-child(4n+4) { transform: rotate(0.7deg); }
+.note-card .num { font-family: var(--mono); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.note-card h3 { margin-top: 0.7rem; font-size: 1.2rem; font-weight: 900; letter-spacing: -0.04em; }
+.note-card p { margin-top: 0.9rem; font-size: 0.88rem; line-height: 1.7; color: var(--ink); opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) { .note-card { transform: none !important; } }
+
+/* 윗선 색 카드 — 파랑·주황·머스터드 번갈아 */
+.top-rule-card { background: var(--card); border-top: 4px solid var(--blue); padding: 1.3rem 1.25rem 1.5rem; }
+.top-rule-card:nth-child(3n+2) { border-top-color: var(--cta); }
+.top-rule-card:nth-child(3n+3) { border-top-color: var(--gold); }
+
+/* 어두운 CTA 띠 — 모든 페이지 푸터 위 */
+.cta-band { background: var(--ink); color: #fff; }
+.cta-band .inner { margin-inline: auto; max-width: 72rem; padding: 3rem 1rem; display: grid; gap: 1.5rem; align-items: center; }
+@media (min-width: 640px) { .cta-band .inner { padding-inline: 1.5rem; } }
+@media (min-width: 900px) { .cta-band .inner { grid-template-columns: 1fr auto; padding-block: 4rem; } }
+.cta-band .eyebrow { color: #8fb4e0; }
+.cta-band h2 {
+  margin-top: 0.7rem; font-family: "Noto Sans KR", system-ui, sans-serif; font-weight: 900;
+  font-size: clamp(1.9rem, 6vw, 3.1rem); line-height: 1.15; letter-spacing: -0.05em; word-break: keep-all;
+}
+
+/* 푸터 */
+.site-foot { background: var(--ink); color: var(--on-ink-soft); border-top: 1px solid rgb(255 255 255 / 0.08); }
+.site-foot h3 { color: #fff; font-weight: 800; font-size: 0.98rem; }
+.site-foot a:hover { color: #fff; }
+
+/* 참고 스킨은 모서리가 거의 없다. 페이지마다 흩어진 카드·상자 모서리를 한 번에 각지게 맞춘다.
+   점 인디케이터·원형 버튼(rounded-full)은 모양이 곧 의미라 건드리지 않는다. */
+main .rounded-lg, main .rounded-xl, main .rounded-2xl { border-radius: 2px; }
+/* 사진·곁들임이 없는 히어로는 한 칸으로 펴서 오른쪽이 비지 않게 한다 */
+@media (min-width: 1024px) { .page-hero .hero-inner.solo { grid-template-columns: 1fr; } }
+.page-hero .hero-inner.solo h1 { max-width: 20ch; }
+/* 지역 페이지 — 모바일에서는 사진을 글자 위로. 아래에 두면 첫 화면 끝에 걸려 하단 고정 상담바에 가린다
+   (360·390px 실측: 사진 슬라이더 점이 상담바 밑에 깔렸다). 넓은 화면에서는 원래대로 오른쪽. */
+@media (max-width: 1023px) { .page-hero .hero-inner.photo-first > .hero-photo { order: -1; } }

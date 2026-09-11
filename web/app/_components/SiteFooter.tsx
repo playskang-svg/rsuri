@@ -37,82 +37,96 @@ export async function SiteFooter() {
   const phone = fallbackPhone(localPros)
   const telHref = telHrefOf(phone)
 
+  // 참고 스킨 푸터 구성 — 왼쪽 브랜드·소개, 오른쪽 3단 링크, 맨 아래 법적 표기 한 줄.
   return (
-    <footer className="bg-[var(--ink)] text-[var(--on-ink-soft)]">
+    <footer className="site-foot">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.3fr_2fr]">
           {/* 브랜드 */}
-          <div>
-            <p className="font-serif-kr text-xl font-black text-white">수리위키</p>
-            <p className="mt-1 text-[11px] font-bold tracking-[0.22em] text-[var(--gold)]">
-              S U R I · W I K I
+          <div className="on-dark">
+            <p className="flex items-center gap-2.5">
+              <span aria-hidden className="logo-mark">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="leading-none">
+                <span className="block text-[1.35rem] font-black tracking-[-0.05em] text-white">수리위키</span>
+                <span className="mt-1 block text-[10px] font-bold tracking-[0.3em]">집수리연구소</span>
+              </span>
             </p>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed">
+            <p className="mt-5 max-w-sm text-sm leading-relaxed">
               지역별 집수리 시공 안내. 작업 중에는 통화가 어려우니 사진과 지역, 수리 내용을
               남겨 주시면 확인 후 안내드립니다.
             </p>
           </div>
 
-          {/* 바로가기 */}
-          <nav aria-label="푸터 메뉴">
-            <p className="text-sm font-extrabold text-[var(--gold)]">바로가기</p>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              <li>
-                <Link href="/" className="inline-flex min-h-11 items-center hover:text-white">
-                  홈
-                </Link>
-              </li>
-              {FOOTER_NAV.map((n) => (
-                <li key={n.href}>
-                  <Link href={n.href} className="inline-flex min-h-11 items-center hover:text-white">
-                    {n.label}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {/* 바로가기 */}
+            <nav aria-label="푸터 메뉴">
+              <h3>바로가기</h3>
+              <ul className="mt-3 text-sm">
+                <li>
+                  <Link href="/" className="inline-flex min-h-11 items-center">
+                    홈
                   </Link>
                 </li>
-              ))}
-            </ul>
-          </nav>
+                {FOOTER_NAV.map((n) => (
+                  <li key={n.href}>
+                    <Link href={n.href} className="inline-flex min-h-11 items-center">
+                      {n.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          {/* 연락처 */}
-          <div>
-            <p className="text-sm font-extrabold text-[var(--gold)]">연락처</p>
-            {phone && (
-              <p className="mt-4 text-xl font-black text-[var(--gold)]">
-                <a href={telHref} className="hover:underline">
-                  {phone}
-                </a>
-              </p>
+            {/* 많이 찾는 수리 — 어느 페이지에서든 인기 허브로 한 번에 가는 거미줄 */}
+            {topKeywords.length > 0 && (
+              <nav aria-label="주요 수리 항목" className="col-span-2 sm:col-span-1">
+                <h3>많이 찾는 수리</h3>
+                <ul className="mt-3 grid grid-cols-2 gap-x-4 text-sm sm:grid-cols-1">
+                  {topKeywords.map(({ keyword }) => (
+                    <li key={keyword.id}>
+                      <Link href={`/${keyword.slug}`} className="inline-flex min-h-11 items-center">
+                        {keyword.display_name}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link href="/#services" className="inline-flex min-h-11 items-center font-bold text-[var(--gold)]">
+                      전체 보기 →
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
             )}
-            <p className="mt-3 text-sm">사진·문자 상담 환영</p>
-            {telHref && (
-              <a
-                href={telHref}
-                className="mt-5 inline-flex items-center rounded-full border border-[var(--gold)] px-5 py-2.5 text-sm font-extrabold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--ink)]"
-              >
-                상담문의 →
-              </a>
-            )}
+
+            {/* 고객지원 */}
+            <div>
+              <h3>고객지원</h3>
+              <ul className="mt-3 text-sm">
+                {phone && (
+                  <li>
+                    <a href={telHref} className="inline-flex min-h-11 items-center font-bold text-[var(--gold)]">
+                      {phone}
+                    </a>
+                  </li>
+                )}
+                <li className="flex min-h-11 items-center">사진·문자 상담 환영</li>
+                <li>
+                  <Link href="/sitemap" className="inline-flex min-h-11 items-center">
+                    전체 안내 색인
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        {topKeywords.length > 0 && (
-          <nav className="mt-12 border-t border-white/10 pt-8" aria-label="주요 수리 항목">
-            <p className="text-[13px] font-extrabold text-white">많이 찾는 수리 항목</p>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[13px]">
-              {topKeywords.map(({ keyword }) => (
-                <Link key={keyword.id} href={`/${keyword.slug}`} className="hover:text-[var(--gold)]">
-                  {keyword.display_name}
-                </Link>
-              ))}
-              <Link href="/#services" className="font-bold text-[var(--gold)] hover:underline">
-                전체 보기 →
-              </Link>
-            </div>
-          </nav>
-        )}
-
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs">
-          <p>© 2026 수리위키 (SuriWiki). All rights reserved.</p>
-          <p>표시광고법 · 전자상거래법 준수</p>
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs">
+          <p>수리위키 · 지역별 집수리 안내 · 표시광고법·전자상거래법 준수</p>
+          <p className="tracking-[0.08em]" style={{ fontFamily: "var(--mono)" }}>© 2026 SURIWIKI REPAIR LAB.</p>
         </div>
       </div>
     </footer>

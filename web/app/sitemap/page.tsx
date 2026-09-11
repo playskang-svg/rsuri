@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
+import { PageHero } from '@/app/_components/PageHero'
 
 // 사람이 읽는 사이트맵. 크롤러용 public/sitemap.xml과 짝이지만 목적이 다르다 —
 // 이쪽은 방문자가 "이 사이트에 뭐가 있는지" 한 장에서 보고 바로 이동하는 자리다.
@@ -99,44 +100,43 @@ export default async function SitemapPage() {
 
   return (
     <main>
-      {/* ── 머리말 ── */}
-      <section className="border-b border-[var(--line)] bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
-          <nav aria-label="현재 위치" className="text-[13px] text-[var(--ink-soft)]">
+      {/* ── 머리말 — 머스터드 색 블록, 오른쪽에 구획별 페이지 수 ── */}
+      <PageHero
+        tone="yellow"
+        above={
+          <nav aria-label="현재 위치" className="mb-5 text-[13px] text-[var(--ink-soft)]">
             <Link href="/" className="hover:text-[var(--ink)]">
               수리위키
             </Link>
             {' › '}
             <span className="font-bold text-[var(--ink)]">사이트맵</span>
           </nav>
-          <p className="eyebrow mt-4">Sitemap</p>
-          <h1 className="font-serif-kr mt-2 text-3xl font-black leading-[1.25] sm:text-4xl">
-            전체 페이지 한눈에
-          </h1>
-          <p className="prose-kr mt-4 max-w-2xl text-[15px] text-[var(--ink-soft)]">
-            수리위키에 있는 페이지 {totalPages.toLocaleString('ko-KR')}개를 수리 분야, 지역별
-            안내, 시공 사례로 나눠 정리했습니다. 항목을 누르면 그 페이지로 바로 이동합니다.
-          </p>
-
-          <ul className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        }
+        eyebrow="Sitemap / All Pages"
+        title={
+          <>
+            전체 페이지를
+            <br />
+            한눈에 봅니다.
+          </>
+        }
+        desc={`수리위키에 있는 페이지 ${totalPages.toLocaleString('ko-KR')}개를 수리 분야, 지역별 안내, 시공 사례로 나눠 정리했습니다. 항목을 누르면 그 페이지로 바로 이동합니다.`}
+        tags={[`${totalPages.toLocaleString('ko-KR')} Pages`, 'Board Index']}
+        aside={
+          <ul className="grid grid-cols-2 gap-3">
             {summary.map((s) => (
               <li key={s.href}>
-                <a
-                  href={s.href}
-                  className="card block px-4 py-3.5 transition-colors hover:border-[var(--copper)]"
-                >
-                  <span className="block text-[13px] font-bold text-[var(--ink-soft)]">
-                    {s.label}
-                  </span>
-                  <span className="mt-0.5 block font-serif-kr text-2xl font-black">
+                <a href={s.href} className="block bg-white px-4 py-5 transition-colors hover:bg-[var(--paper)]">
+                  <span className="eyebrow block">{s.label}</span>
+                  <span className="mt-3 block text-3xl font-black tracking-[-0.04em]">
                     {s.count.toLocaleString('ko-KR')}
                   </span>
                 </a>
               </li>
             ))}
           </ul>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── 수리 분야 ── */}
       <section id="by-service" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-12 sm:px-6">

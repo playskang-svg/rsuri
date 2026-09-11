@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
+import { PageHero } from '@/app/_components/PageHero'
 
 export const dynamicParams = false
 
@@ -69,44 +70,43 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
 
   return (
     <main className="pb-24 md:pb-0">
-      <nav aria-label="현재 위치" className="mx-auto max-w-3xl px-4 pt-5 sm:px-6">
-        <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[var(--ink-soft)]">
-          <li>
-            <Link href="/" className="tap44 hover:text-[var(--ink)]">
-              수리위키
-            </Link>
-          </li>
-          <li aria-hidden>›</li>
-          <li>
-            <Link href="/#cases" className="tap44 hover:text-[var(--ink)]">
-              시공 기록
-            </Link>
-          </li>
-          {dong && (
-            <>
+      {/* 현장 기록 — 참고 스킨의 게시물 상세처럼 차콜 머리말 + 아래 본문.
+          실사가 아닌 참고 사진을 시공 결과처럼 보이게 하지 않으려고 사진은 두지 않는다. */}
+      <PageHero
+        tone="dark"
+        above={
+          <nav aria-label="현재 위치" className="mb-5">
+            <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-white/70">
+              <li>
+                <Link href="/" className="tap44 hover:text-white">
+                  수리위키
+                </Link>
+              </li>
               <li aria-hidden>›</li>
-              <li className="font-bold text-[var(--ink)]">{dong.display_name}</li>
-            </>
-          )}
-        </ol>
-      </nav>
+              <li>
+                <Link href="/#cases" className="tap44 hover:text-white">
+                  시공 기록
+                </Link>
+              </li>
+              {dong && (
+                <>
+                  <li aria-hidden>›</li>
+                  <li className="font-bold text-white">{dong.display_name}</li>
+                </>
+              )}
+            </ol>
+          </nav>
+        }
+        eyebrow={`Field Record${category ? ` / ${category.display_name}` : ''}${dong ? ` / ${dong.display_name}` : ''}`}
+        title={page.meta_title}
+        desc={summary?.body}
+        tags={['Article View', 'Field Ledger']}
+      />
 
-      <article className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-        <p className="eyebrow">
-          Field Record{category ? ` · ${category.display_name}` : ''}
-          {dong ? ` · ${dong.display_name}` : ''}
-        </p>
-        <h1 className="font-serif-kr mt-3 text-2xl font-black leading-[1.3] sm:text-3xl">
-          {page.meta_title}
-        </h1>
-        {summary && (
-          <p className="mt-4 rounded-xl border border-[var(--line)] bg-white p-4 text-sm text-[var(--ink-soft)]">
-            {summary.body}
-          </p>
-        )}
+      <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
 
         {/* 기록 원장 — 단계 라벨 + 본문 */}
-        <div className="mt-10 space-y-8">
+        <div className="space-y-8">
           {body.map((section) => (
             <section key={section.id} className="grid gap-2 sm:grid-cols-[7.5rem_1fr] sm:gap-6">
               <h2 className="text-sm font-extrabold text-[var(--teal)] sm:pt-0.5 sm:text-right">

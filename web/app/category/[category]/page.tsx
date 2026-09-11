@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { blueprintBg } from '@/lib/blueprint'
+import { categoryPhoto } from '@/lib/photos'
+import { PageHero } from '@/app/_components/PageHero'
 
 export const dynamicParams = false
 
@@ -57,24 +58,26 @@ export default async function CategoryPage({
 
   return (
     <main>
-      <section className="relative border-b border-[var(--line)] bg-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.08]"
-          style={{ backgroundImage: blueprintBg(category.slug, category.slug) }}
-        />
-        <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <nav aria-label="현재 위치" className="text-[13px] text-[var(--ink-soft)]">
+      {/* 공종 대분류 허브 — 베이지 색 블록. 사진은 그 공종의 참고 사진이다 */}
+      <PageHero
+        tone="beige"
+        above={
+          <nav aria-label="현재 위치" className="mb-5 text-[13px] text-[var(--ink-soft)]">
             <Link href="/" className="hover:text-[var(--ink)]">
               수리위키
             </Link>{' '}
             › 수리 분야
           </nav>
-          <h1 className="font-serif-kr mt-4 text-3xl font-black sm:text-4xl">
-            {category.display_name}
-          </h1>
-        </div>
-      </section>
+        }
+        eyebrow="Repair Category"
+        title={category.display_name}
+        desc={`${category.display_name} 분야에서 안내 중인 수리 항목입니다. 항목을 고르면 지역별 안내로 이어집니다.`}
+        tags={['Category Index', 'Choose Repair']}
+        photo={(() => {
+          const ph = categoryPhoto(category.slug, 'category-hero')
+          return { src: ph.src, alt: `${category.display_name} 참고 사진`, style: ph.style }
+        })()}
+      />
 
       <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <ul className="space-y-4">
