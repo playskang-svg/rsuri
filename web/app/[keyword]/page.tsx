@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { categoryPhoto } from '@/lib/photos'
+import { keywordPhoto, keywordPhotos } from '@/lib/photos'
+import { josa } from '@/lib/josa'
 import { PageHero, SectionHead } from '@/app/_components/PageHero'
-import { getKeywordImages, groupSetsByKeyword, coverImage } from '@/lib/keyword-images'
+import { getKeywordImages, groupSetsByKeyword, isIllustrationOnly } from '@/lib/keyword-images'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
 import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import type { Page, Region } from '@/lib/types'
@@ -41,9 +42,10 @@ export async function generateMetadata({ params }: { params: Promise<{ keyword: 
   const { keywords } = await getAllData()
   const keyword = keywords.find((k) => k.slug === keywordSlug)
   if (!keyword) return {}
+  const also = keyword.aliases?.length ? ` ${keyword.aliases.join('·')} 안내 포함.` : ''
   return {
     title: `${keyword.display_name} 지역별 가이드 | 수리위키`,
-    description: keyword.description ?? undefined,
+    description: keyword.description ? `${keyword.description}${also}` : undefined,
   }
 }
 
@@ -101,11 +103,14 @@ export default async function KeywordHubPage({
 
   // 사진은 키워드 단위로 등록하고 하위 지역 페이지가 전부 물려받는다.
   const sets = groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? []
-  // 지역 카드 썸네일용 표지. 실제 시공 사진이 있으면 그것, 없으면 카드마다 참고 이미지.
-  const cover = coverImage(sets)
-  // 스톡 사진은 분위기용이라 "시공 전/후"로 부르면 안 된다(lib/photos.ts 규칙).
-  // 운영자가 올린 실사가 없을 때만, "참고 이미지"로 명시해 히어로에 쓴다.
-  const stock = categoryPhoto(category?.slug ?? '', keyword.slug, 0, keyword.display_name)
+  const setsAreIllustration = sets.length > 0 && isIllustrationOnly(sets)
+  // 히어로 사진은 이 키워드와 맞는 실사만. 없으면 사진 칸 대신 세부 항목 목록을 둔다.
+  const heroPhoto = keywordPhotos(keyword.slug, 1)[0] ?? null // 첫 장 = 이 키워드 실사 세트의 대표 완성 사진
+
+  // 지역 페이지가 없는 항목(단일 키워드 그룹)은 같은 분야의 지역 안내로 이어 준다.
+  const siblingHubs = keywords.filter(
+    (k) => k.id !== keyword.id && k.category_id === keyword.category_id,
+  )
 
   // 이 키워드가 가장 촘촘히 깔린 지역을 하나 골라, 그 지역의 다른 키워드로 건너뛰게 한다.
   // 이 블록이 없으면 키워드끼리는 홈을 거치지 않고는 연결되지 않는다.
@@ -172,11 +177,14 @@ export default async function KeywordHubPage({
               작업 중에는 전화 연결이 어려우니, 사진과 지역·수리 내용을 문자로 남겨 주시면 확인 후
               안내드립니다.
             </p>
+            {keyword.aliases && keyword.aliases.length > 0 && (
+              <p className="mt-3 text-[13px]">함께 찾는 말: {keyword.aliases.join(' · ')}</p>
+            )}
           </>
         }
         tags={['Photo Diagnosis', myLandings.length > 0 ? `${myLandings.length} Local Pages` : 'Local Master']}
-        /* 실사가 없을 때만 참고 이미지를 건다 — 실제 시공 사진 옆에 스톡을 섞지 않는다. */
-        photo={sets.length === 0 ? { src: stock.src, alt: '', style: stock.style } : undefined}
+        /* 실제 현장 사진만 건다. 맞는 실사가 없으면 사진 칸 대신 세부 항목 목록이 선다. */
+        photo={heroPhoto ? { src: heroPhoto, alt: `${keyword.display_name} 시공 현장` } : undefined}
         aside={
           kc && kc.services.length > 0 ? (
             <div className="bg-white p-5 text-[var(--ink)]">
@@ -211,14 +219,16 @@ export default async function KeywordHubPage({
             <p className="eyebrow">Before / After</p>
             <h2 className="font-serif-kr mt-2 text-2xl font-black">시공 전 · 후</h2>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              실제 {keyword.display_name} 현장 사진입니다. 손잡이를 좌우로 움직이면 같은 자리의
-              시공 전과 후가 겹쳐 보입니다.
+              {setsAreIllustration
+                ? `${keyword.display_name} 작업 내용을 나타낸 개념도입니다.`
+                : `실제 현장 사진입니다.`}{' '}
+              손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다.
             </p>
             <div className="mt-6">
               <BeforeAfterSlider sets={sets} alt={`${keyword.display_name} 시공 전후 사진`} />
             </div>
             <p className="mt-3 text-[13px] text-[var(--ink-soft)]">
-              이 사진은 {keyword.display_name} 하위 지역 페이지에도 함께 적용됩니다.
+              이 자료는 {keyword.display_name} 하위 지역 페이지에도 함께 적용됩니다.
             </p>
           </div>
         </section>
@@ -331,31 +341,25 @@ export default async function KeywordHubPage({
                   .slice(0, -1)
                   .map((r) => r.display_name)
                   .join(' ')
-                // 실제 시공 사진이 등록돼 있으면 그 표지를 쓰고, 없을 때만 참고 이미지로
-                // 떨어진다. 참고 이미지는 지역 slug를 섞어 카드마다 조금씩 달라진다.
-                const fallback = categoryPhoto(
-                  category?.slug ?? '',
-                  `${keyword.slug}/${dong.slug}`,
-                  0,
-                  keyword.display_name,
-                )
-                const src = cover ?? fallback.src
+                // 이 키워드와 맞는 실사가 있을 때만 썸네일을 단다. 지역 slug로 카드마다 다른 장.
+                const src = keywordPhoto(keyword.slug, dong.slug)
                 return (
                   <li key={page.id}>
                     <Link
                       href={`/${keyword.slug}/${path}`}
                       className="card group block overflow-hidden transition-shadow hover:shadow-xl"
                     >
-                      <div className="relative aspect-[16/9] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={src}
-                          alt=""
-                          style={cover ? undefined : fallback.style}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                        />
-                      </div>
+                      {src && (
+                        <div className="relative aspect-[16/9] overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={src}
+                            alt=""
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                          />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between gap-3 p-4">
                         <div className="min-w-0">
                           {upper && (
@@ -383,25 +387,41 @@ export default async function KeywordHubPage({
               })}
             </ul>
             <p className="mt-6 text-sm text-[var(--ink-soft)]">
-              다른 지역은 시공 기록이 검수되는 대로 추가됩니다.
+              목록에 없는 동네도 인근이면 같은 일정으로 출장합니다.
             </p>
           </>
         ) : (
           <div className="card mt-6 p-6 sm:p-8">
-            <p className="text-lg font-extrabold">아직 등록된 지역이 없습니다</p>
+            <p className="text-lg font-extrabold">{josa(keyword.display_name, '은', '는')} 수도권 전역 출장합니다</p>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              {keyword.display_name} 안내 지역을 준비 중입니다. 지금도 상담은 가능하니 사진과
-              주소를 남겨 주시면 담당 마스터를 연결해 드립니다.
+              지역을 따로 나누지 않고 서울·경기·인천 어디든 방문합니다. 사진과 주소를 남겨 주시면
+              일정을 확인해 회신드립니다. 동네별 안내는 같은 분야 항목에서 볼 수 있습니다.
             </p>
+            {siblingHubs.length > 0 && (
+              <ul className="mt-5 flex flex-wrap gap-2.5">
+                {siblingHubs.map((k) => (
+                  <li key={k.id}>
+                    <Link
+                      href={`/${k.slug}#regions`}
+                      className="inline-block border border-[var(--ink)]/25 bg-white px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
+                    >
+                      {k.display_name}
+                      {(landingsByKeyword.get(k.id)?.length ?? 0) > 0 && (
+                        <span className="ml-1.5 font-normal text-[var(--ink-soft)]">
+                          {landingsByKeyword.get(k.id)!.length}개 지역
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
             <div className="mt-5 flex flex-wrap gap-3">
               {telHref && (
                 <a href={telHref} className="btn-call">
-                  {keyword.default_phone} 상담
+                  {phone} 상담
                 </a>
               )}
-              <a href="#more" className="btn-ghost">
-                다른 수리 항목 보기
-              </a>
             </div>
           </div>
         )}

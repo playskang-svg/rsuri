@@ -42,24 +42,28 @@
 
 ## 3. 콘텐츠 반영 경로
 
-관리자 화면은 제거됐다. 콘텐츠는 저장소 파일로만 넣는다.
+2026-09-11부터 사이트 구조와 본문의 원본은 **저장소 파일**이다. 빌드는 DB를 읽지 않는다.
 
 ```
-scripts/data/keyword-content/<slug>.json   (키워드 자산 + 문장 풀)
-scripts/data/region-profiles.json          (지역 프로필)
-        ↓  node scripts/build-page-content.mjs <slug>
-      생성된 SQL 검토
-        ↓  승인 후 DB 반영
-      Supabase
-        ↓  재빌드 (cron 또는 수동)
+scripts/data/keyword-groups.md      운영자가 준 키워드 그룹 — 그룹 = 허브, "지역 키워드" 한 줄 = 지역 페이지
+scripts/data/keyword-map.json       그룹 → slug·분야·계열, 별칭(같은 의도 합치기), 지역 표기 → slug
+scripts/data/keyword-content/*.json 계열 공통 본문 + 지역 문장 풀
+scripts/data/keyword-notes.json     키워드별 한 줄·증상·FAQ
+scripts/data/region-profiles.json   지역 프로필
+scripts/data/field-photos.json      실제 현장 사진·개념도 → 키워드
+scripts/data/legacy-*.{txt,json}    옛 색인 주소 → 새 주소 301
+        ↓  web/npm run build 가 scripts/build-site-data.mjs · build-redirects.mjs 를 먼저 돌린다
+      web/lib/site-data.json · web/public/_redirects (생성물, 커밋 안 함)
+        ↓  main 머지 → GitHub Actions → Cloudflare
       사이트
 ```
 
-**마이그레이션·DB 반영은 반드시 승인 후 진행한다.** 자동으로 밀어넣지 않는다.
+사진은 **그 수리와 맞는 실사만** 쓴다. 맞는 사진이 없으면 사진 칸을 비운다(스톡 사진 금지 — 운영자 지적).
+실사는 `cwebp -metadata none`으로 다시 인코딩해 위치 정보를 지운 뒤 `web/public/photos/field/`에 둔다.
 
 ## 4. 건드리면 안 되는 것
 
-- **URL 구조와 slug** — 이미 색인된 자산이다. 변경은 사전 승인 후에만 (`docs/RENEWAL_INSTRUCTIONS.md` 6번)
+- **URL 구조와 slug** — 이미 색인된 자산이다. 변경은 사전 승인 후에만 (`docs/RENEWAL_INSTRUCTIONS.md` 6번). 없애는 주소는 `scripts/data/legacy-*`에 넣어 301로 보낸다
 - **`suri_*` 8개 테이블 스키마** — 키워드×지역 자동 생성의 기반 (`docs/RENEWAL_INSTRUCTIONS.md` 2번)
 - **`.github/workflows/agents-*.yml`** — 중앙 저장소(`playskang-svg/adbles-agents`)의 템플릿에서 생성된다. 여기서 고치면 다음 sync에 덮어써진다. 원본은 `adbles-agents/templates/workflows/`
 - **`web/public/sitemap.xml`, `web/public/rss.xml`** — 빌드가 생성한다. 커밋하면 배포마다 diff가 생긴다
@@ -70,7 +74,7 @@ scripts/data/region-profiles.json          (지역 프로필)
 
 - `web/` — Next.js 16 App Router, `output:'export'` 완전 정적. **실제 사이트는 이쪽이다**
 - `src/` — 폐기된 구 Vite SPA. 히스토리 보존용으로 남아 있을 뿐, 신규 개발하지 않는다. `src/data/mockWikiData.ts`만 콘텐츠 원본으로 참조한다
-- Supabase Postgres (`suriwiki`, ap-northeast-2) — anon 키로 빌드 시 읽기. `service_role`은 로컬 Node 스크립트에서만
+- Supabase Postgres (`suriwiki`, ap-northeast-2) — 2026-09-11부터 빌드에 쓰지 않는다(구조·본문은 저장소 파일이 원본). 옛 데이터 보관용
 - Cloudflare Workers 정적 자산
 
 ## 6. 진행 중인 작업

@@ -96,7 +96,7 @@ export default async function SitemapPage() {
     { label: '지역별 안내', count: regionPageCount, href: '#by-region' },
     { label: '분야 모음', count: categoryBlocks.length, href: '#by-category' },
     { label: '시공 사례', count: cases.length, href: '#by-case' },
-  ]
+  ].filter((x) => x.count > 0) // 0건이면 #by-case 섹션이 없어 앵커가 헛돈다
 
   return (
     <main>

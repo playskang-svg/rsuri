@@ -25,11 +25,15 @@ const SHOTS = process.env.SHOTS ?? '.mobile-shots'
 mkdirSync(SHOTS, { recursive: true })
 
 const WIDTHS = [360, 390, 768, 1280]
+// 사진이 있는 페이지와 없는 페이지(글만 있는 히어로)를 둘 다 본다 — 2026-09-11부터
+// 실사가 없는 키워드는 사진 칸을 비우므로 두 배치가 모두 실제로 쓰인다.
 const PAGES = [
   ['home', '/index.html'],
-  ['hub', '/door-repair.html'],
-  ['landing', '/door-repair/seoul/mapo-gu.html'],
-  ['case', '/case/fixture-case-door-sag.html'],
+  ['hub-photo', '/doorframe-repair.html'],
+  ['hub-text', '/flooring-scratch-repair.html'],
+  ['landing-photo', '/doorframe-repair/gangnamgu.html'],
+  ['landing-text', '/laminate-floor-repair/gangnam.html'],
+  ['category', '/category/floor.html'],
   ['sitemap', '/sitemap.html'],
 ]
 

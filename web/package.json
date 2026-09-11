@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/generate-sitemap.mjs && next build",
+    "build": "node ../scripts/build-site-data.mjs && node ../scripts/build-redirects.mjs && node scripts/generate-sitemap.mjs && next build",
     "start": "next start",
     "lint": "tsc --noEmit"
   },

@@ -2,10 +2,10 @@
 //
 // 사진을 지역 조합 페이지마다 일일이 넣는 건 불가능하므로(키워드 × 지역 = 수백 장),
 // 키워드에 전/후 + 설명을 한 세트로 붙여 두고 그 키워드의 모든 하위 페이지가 상속한다.
-// 페이지 고유 사진(suri_page_images)이 있으면 그쪽이 우선한다 — 기존 동작 유지.
+// 원본은 scripts/data/field-photos.json — 운영자가 준 실제 현장 사진과 개념도를 키워드에 붙인다.
 
 import { cache } from 'react'
-import { supabase, USE_FIXTURES } from './supabase'
+import { USE_FIXTURES } from './supabase'
 
 export interface KeywordImage {
   id: number
@@ -26,46 +26,10 @@ export interface PhotoSet {
   caption: string | null
 }
 
-const PAGE_SIZE = 1000
-
-// 다른 테이블 조회는 실패하면 throw 하는 게 맞지만(데이터가 비면 사이트가 성립하지 않는다),
-// 키워드 사진은 부가 기능이다. 마이그레이션 적용 전에 빌드가 돌면 테이블이 없어 조회가
-// 실패하는데, 여기서 throw 하면 사이트 전체 빌드가 죽는다. 빈 배열로 넘긴다.
 export const getKeywordImages = cache(async (): Promise<KeywordImage[]> => {
-  // 실사가 아직 0장이라 빈 배열이 실제 사이트의 현재 상태와 같다.
   if (USE_FIXTURES) return []
-  const rows: KeywordImage[] = []
-  let from = 0
-  try {
-    for (;;) {
-      // PostgREST는 .range() 없이 select 하면 1000행에서 조용히 잘린다.
-      // .order()도 반드시 있어야 한다 — ORDER BY 없는 OFFSET 페이지네이션은 행 순서가
-      // 보장되지 않아 1000행을 넘는 순간 두 번째 페이지에서 행이 중복되거나 누락된다.
-      const { data, error } = await supabase
-        .from('suri_keyword_images')
-        .select('*')
-        .order('id')
-        .range(from, from + PAGE_SIZE - 1)
-      if (error) {
-        console.warn(
-          `suri_keyword_images 조회 실패 — 키워드 사진 없이 빌드를 계속한다: ${error.message}`,
-        )
-        return []
-      }
-      const batch = (data ?? []) as KeywordImage[]
-      rows.push(...batch)
-      if (batch.length < PAGE_SIZE) break
-      from += PAGE_SIZE
-    }
-  } catch (e) {
-    console.warn(
-      `suri_keyword_images 조회 중 예외 — 키워드 사진 없이 빌드를 계속한다: ${
-        e instanceof Error ? e.message : String(e)
-      }`,
-    )
-    return []
-  }
-  return rows
+  const { loadSiteData } = await import('./site-data')
+  return loadSiteData().keywordImages
 })
 
 /** 같은 세트 안의 행 순서 — sort_order 우선, 동률이면 입력 순서(id)로 고정한다. */
@@ -106,9 +70,9 @@ export function groupSetsByKeyword(images: KeywordImage[]): Map<number, PhotoSet
   return result
 }
 
-/** 홈·허브 카드 배경용 대표 사진. 완성된 모습(after)을 먼저 보여준다. */
-export function coverImage(sets: PhotoSet[] | undefined): string | null {
-  const first = sets?.[0]
-  if (!first) return null
-  return first.after ?? first.before ?? first.process[0] ?? null
+/** 세트가 전부 개념도(svg)인지. 그림이 실제 현장 사진으로 오인되지 않게 화면에 밝힐 때 쓴다. */
+export function isIllustrationOnly(sets: PhotoSet[]): boolean {
+  return sets.every((set) =>
+    [set.before, set.after, ...set.process].every((u) => !u || u.startsWith('/illustrations/')),
+  )
 }
