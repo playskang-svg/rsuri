@@ -43,8 +43,12 @@ async function searchIndex(): Promise<SearchItem[]> {
     if (p.page_type !== 'LANDING' || !isPublished(p) || !p.repair_keyword_id) continue
     counts.set(p.repair_keyword_id, (counts.get(p.repair_keyword_id) ?? 0) + 1)
   }
+  // 허브로 합친 보조 키워드(예: 강마루보수업체)도 검색되게 같은 주소로 한 줄씩 더 싣는다.
   return keywords
-    .map((k) => ({ slug: k.slug, name: k.display_name, regions: counts.get(k.id) ?? 0 }))
+    .flatMap((k) => {
+      const regions = counts.get(k.id) ?? 0
+      return [k.display_name, ...(k.aliases ?? [])].map((name) => ({ slug: k.slug, name, regions }))
+    })
     .sort((a, b) => b.regions - a.regions || a.name.localeCompare(b.name, 'ko'))
 }
 

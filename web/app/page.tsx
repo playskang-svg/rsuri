@@ -2,14 +2,13 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { categoryPhoto } from '@/lib/photos'
-import { getKeywordImages, groupSetsByKeyword, coverImage } from '@/lib/keyword-images'
+import { categoryPhoto, homeHeroPhoto } from '@/lib/photos'
 import { PageHero, SectionHead } from '@/app/_components/PageHero'
 
 // 참고 스킨의 "서비스 과정" 다섯 칸. 사이트 전체에서 이미 약속하는 흐름(사진 접수 → 진단 → 마감)만 적는다.
 const PROCESS_STEPS = [
-  { title: '사진 접수', desc: '새는 곳·깨진 곳 사진과 지역, 증상을 남기면 먼저 확인합니다.' },
-  { title: '원인 진단', desc: '보이는 자리와 원인 자리가 다를 수 있어 원인부터 짚습니다.' },
+  { title: '사진 접수', desc: '깨진 곳·상한 곳 사진과 지역, 증상을 남기면 먼저 확인합니다.' },
+  { title: '원인 진단', desc: '보수로 될지 교체가 필요한지, 속까지 상했는지부터 짚습니다.' },
   { title: '범위 확인', desc: '고칠 범위와 자재, 추가될 수 있는 조건을 작업 전에 정합니다.' },
   { title: '시공', desc: '정한 범위 안에서 작업하고 바뀌는 점은 그 자리에서 알립니다.' },
   { title: '마감 점검', desc: '작업 뒤 상태를 함께 확인하고 기록을 남깁니다.' },
@@ -33,9 +32,7 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const { categories, keywords, pages, regions } = await getAllData()
   const { byId } = buildRegionIndex(regions)
-  const setsByKeyword = groupSetsByKeyword(await getKeywordImages())
 
-  const categoryById = new Map(categories.map((c) => [c.id, c]))
   const keywordById = new Map(keywords.map((k) => [k.id, k]))
 
   const landings = pages
@@ -43,69 +40,30 @@ export default async function HomePage() {
     .map((p) => {
       const chain = getAncestorChain(p.region_id!, byId)
       const kw = keywordById.get(p.repair_keyword_id!)
-      const cat = kw ? categoryById.get(kw.category_id) : undefined
-      return { page: p, chain, kw, cat }
+      return { page: p, chain, kw }
     })
     .filter((x) => x.kw && x.chain.length > 0)
 
-  // 풍부한 콘텐츠(guide)가 있는 조합을 대표로 노출
-  const featured = landings.filter((x) => x.page.guide)
-  const cases = pages.filter((p) => p.page_type === 'CASE' && isPublished(p) && p.slug)
+  const heroPhoto = homeHeroPhoto()
 
-  // 시공 기록 (CASE) 카드 데이터 구성
-  const caseCards = cases
-    .map((casePage) => {
-      const kw = casePage.repair_keyword_id ? keywordById.get(casePage.repair_keyword_id) : undefined
-      const cat = kw ? categoryById.get(kw.category_id) : undefined
-      const chain = casePage.region_id ? getAncestorChain(casePage.region_id, byId) : []
-      const dong = chain[chain.length - 1]
-      const landing = landings.find(
-        (l) =>
-          l.page.repair_keyword_id === casePage.repair_keyword_id &&
-          l.page.region_id === casePage.region_id,
-      )
-      const summary = landing?.page.guide?.summary ?? casePage.meta_description
-      const cover = kw ? coverImage(setsByKeyword.get(kw.id)) : null
-      const fallback = categoryPhoto(
-        cat?.slug ?? '',
-        `${kw?.slug ?? ''}/${dong?.slug ?? ''}`,
-        1,
-        kw?.display_name,
-      )
-      return {
-        casePage,
-        kw,
-        cat,
-        dong,
-        summary,
-        photo: cover ? { src: cover, style: undefined } : fallback,
-      }
-    })
-    .filter((x) => x.kw && x.dong)
-
-  const heroPhoto = categoryPhoto('leak-waterproof', 'home-hero')
-
-  // 키워드별 발행 지역 수 + 대표 지역 이름
-  const keywordStats = new Map<number, { count: number; dongs: string[] }>()
-  for (const { kw, chain } of landings) {
-    const stat = keywordStats.get(kw!.id) ?? { count: 0, dongs: [] as string[] }
-    stat.count += 1
-    const dong = chain[chain.length - 1].display_name
-    if (stat.dongs.length < CARD_REGION_SAMPLE && !stat.dongs.includes(dong)) stat.dongs.push(dong)
-    keywordStats.set(kw!.id, stat)
+  const regionCountByKeyword = new Map<number, number>()
+  for (const { kw } of landings) {
+    regionCountByKeyword.set(kw!.id, (regionCountByKeyword.get(kw!.id) ?? 0) + 1)
   }
 
-  // 지역 0곳 키워드도 카드로 낸다 — 허브는 항상 생기고, 배지로 "준비 중"을 밝힌다.
-  const keywordCards = keywords
-    .map((keyword) => ({
-      keyword,
-      ...(keywordStats.get(keyword.id) ?? { count: 0, dongs: [] as string[] }),
-    }))
-    .sort(
-      (a, b) =>
-        b.count - a.count ||
-        a.keyword.display_name.localeCompare(b.keyword.display_name, 'ko'),
-    )
+  // 수리 항목 50종을 카드 50장으로 깔면 홈이 길어지기만 하고 고르기 어렵다.
+  // 분야(문·문틀·문지방·필름·계단·마루·도배) 일곱 묶음으로 세우고, 묶음 안에서 항목을 고른다.
+  const categoryPanels = [...categories]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((category) => {
+      const items = keywords
+        .filter((k) => k.category_id === category.id)
+        .sort((a, b) => a.menu_order - b.menu_order)
+      // 분야 대표 사진(직접 고른 실사). 없으면 사진 없이 글만.
+      const photo = categoryPhoto(category.slug)
+      return { category, items, photo }
+    })
+    .filter((x) => x.items.length > 0)
 
   // 지역 색인: 동별로 발행 키워드 수 집계
   const dongStats = new Map<number, { dong: string; upper: string; count: number; href: string }>()
@@ -135,21 +93,26 @@ export default async function HomePage() {
         eyebrow="Home Repair Lab / Local"
         title={
           <>
-            새는 곳보다
+            바꾸기 전에
             <br />
-            새는 이유를
+            고칠 수 있는지
             <br />
             먼저 봅니다.
           </>
         }
         desc={
           <>
-            싱크대 누수, 화장실 악취, 뻑뻑한 샷시, 내려가는 차단기, 곰팡이 도배까지 — 동네 담당
-            마스터가 진단부터 마감까지 한 번에 처리합니다. 사진 한 장이면 진단을 시작할 수 있어요.
+            물먹은 문틀, 깨진 문지방, 구멍 난 방문, 찍힌 마루, 닳은 계단, 찢어진 벽지까지 —
+            통째로 바꾸기 전에 부분 보수·복원으로 끝낼 수 있는지부터 봅니다. 사진 한 장이면
+            진단을 시작할 수 있어요.
           </>
         }
-        tags={['Photo First', 'Fix The Cause']}
-        photo={{ src: heroPhoto.src, alt: '배관 점검 작업', style: heroPhoto.style }}
+        tags={['Photo First', 'Repair Before Replace']}
+        photo={
+          heroPhoto
+            ? { src: heroPhoto, alt: '하단을 새로 이어 화이트로 마감한 욕실 문틀 — 실제 시공 현장', style: { objectPosition: '50% 60%' } }
+            : undefined
+        }
       >
         <a href="#services" className="btn-call">
           수리 분야 보기
@@ -170,53 +133,50 @@ export default async function HomePage() {
               바로 찾습니다.
             </>
           }
-          desc={`수리 항목 ${keywordCards.length}종. 항목을 고르면 그 항목의 지역별 안내 페이지로 이동합니다. 작업 중에는 전화 연결이 어려워 사진과 지역·수리 내용을 남겨 주시면 확인 후 안내드립니다.`}
+          desc={`수리 항목 ${keywords.length}종을 분야 ${categoryPanels.length}개로 묶었습니다. 항목을 고르면 그 항목의 지역별 안내 페이지로 이동합니다. 작업 중에는 전화 연결이 어려워 사진과 지역·수리 내용을 남겨 주시면 확인 후 안내드립니다.`}
         />
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {keywordCards.map(({ keyword, count, dongs }) => {
-            const category = categoryById.get(keyword.category_id)
-            // 운영자가 키워드에 넣은 실제 사진이 우선. 없을 때만 참고 이미지로 폴백한다
-            // (해시 변형 style도 폴백 사진에만 쓴다 — 실제 사진은 색을 건드리지 않는다).
-            const cover = coverImage(setsByKeyword.get(keyword.id))
-            const fallback = categoryPhoto(category?.slug ?? '', keyword.slug, 0, keyword.display_name)
-            return (
-              <Link
-                key={keyword.id}
-                href={`/${keyword.slug}`}
-                className="card group overflow-hidden transition-shadow hover:shadow-xl"
-              >
-                <div className="relative aspect-[16/9] overflow-hidden">
+          {categoryPanels.map(({ category, items, photo }) => (
+            <div key={category.id} className="card flex flex-col overflow-hidden">
+              {photo && (
+                <Link href={`/category/${category.slug}`} className="relative block aspect-[16/9] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={cover ?? fallback.src}
-                    alt=""
-                    style={cover ? undefined : fallback.style}
+                    src={photo}
+                    alt={`${category.display_name} 시공 현장`}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.04]"
                   />
-                  {/* 지역 수는 내부 재고일 뿐 방문자에게 의미가 없다 — 아직 준비 중인
-                      항목만 그렇다고 밝힌다. */}
-                  {count === 0 && (
-                    <span className="absolute left-3 top-3 bg-[var(--ink)] px-2.5 py-1 text-[11px] font-bold text-white">
-                      준비 중
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center justify-between gap-3 p-4">
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-extrabold">{keyword.display_name}</h3>
-                    <p className="mt-0.5 truncate text-[13px] text-[var(--ink-soft)]">
-                      {dongs.length > 0 ? dongs.join(' · ') : '지역 페이지 준비 중입니다'}
-                    </p>
-                  </div>
-                  <span aria-hidden className="text-[var(--copper)]">
-                    →
-                  </span>
-                </div>
-              </Link>
-            )
-          })}
+                </Link>
+              )}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-lg font-extrabold">
+                  <Link href={`/category/${category.slug}`} className="tap44 hover:text-[var(--copper)]">
+                    {category.display_name}
+                  </Link>
+                </h3>
+                <ul className="mt-2 divide-y divide-[var(--line)]">
+                  {items.map((k) => {
+                    const n = regionCountByKeyword.get(k.id) ?? 0
+                    return (
+                      <li key={k.id}>
+                        <Link
+                          href={`/${k.slug}`}
+                          className="flex min-h-11 items-center justify-between gap-3 py-1.5 text-[15px] font-bold hover:text-[var(--copper)]"
+                        >
+                          <span>{k.display_name}</span>
+                          <span className="flex-none text-[12px] font-normal text-[var(--ink-soft)]">
+                            {n > 0 ? `${n}개 지역` : '수도권 전역'} →
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -245,67 +205,6 @@ export default async function HomePage() {
           </ol>
         </div>
       </section>
-
-      {/* ── 실제 시공 기록 ── */}
-      {caseCards.length > 0 && (
-        <section id="cases" className="section-y scroll-mt-16 border-t border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <SectionHead
-              eyebrow="Field Records"
-              title={
-                <>
-                  작업보다 먼저
-                  <br />
-                  확인 장면을 남깁니다.
-                </>
-              }
-              desc="문제 확인부터 현장 판단, 작업 내용, 검측 결과까지 현장에서 실제로 진행된 순서 그대로 기록했습니다."
-            />
-
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {caseCards.map(({ casePage, kw, dong, summary, photo }) => (
-                <Link
-                  key={casePage.id}
-                  href={`/case/${casePage.slug}`}
-                  className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-xl"
-                >
-                  <div className="relative aspect-[16/9] overflow-hidden bg-[var(--line)]/20">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo.src}
-                      alt=""
-                      style={photo.style}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                    />
-                    <span className="absolute left-3 top-3 bg-[var(--ink)] px-2.5 py-1 text-[11px] font-bold text-white">
-                      {kw!.display_name} · {dong!.display_name}
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-between p-5">
-                    <div>
-                      <h3 className="font-extrabold leading-snug transition-colors group-hover:text-[var(--copper)]">
-                        {casePage.meta_title}
-                      </h3>
-                      {summary && (
-                        <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-[var(--ink-soft)]">
-                          {summary}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mt-4 flex items-center justify-between border-t border-[var(--line)]/60 pt-3 text-xs font-bold text-[var(--copper)]">
-                      <span>현장 기록 원장 보기</span>
-                      <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-                        →
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── 지역별 안내 ── */}
       <section id="regions" className="section-y scroll-mt-16 border-t border-[var(--line)] bg-[var(--paper)]">

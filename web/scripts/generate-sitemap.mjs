@@ -10,54 +10,21 @@
 // 스크립트를 나누면 두 곳의 URL 규칙이 어긋날 수 있다. 정적 export라 DB만 바뀌어도
 // 재빌드 때마다 새로 구워지고, 한 번 만들어 커밋하는 방식이면 곧 낡은 피드가 된다.
 
-import { writeFileSync, mkdirSync } from 'node:fs'
-import { createClient } from '@supabase/supabase-js'
-import { config as loadEnv } from 'dotenv'
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
 
-// next build은 .env.local을 자동으로 읽지만, 이 스크립트는 next build보다 먼저
-// 별도 node 프로세스로 실행되므로 직접 로드해야 한다. 일반 .env보다 .env.local을
-// 우선한다(둘 다 있으면 .env.local 값이 이긴다).
-loadEnv({ path: '.env' })
-loadEnv({ path: '.env.local', override: true })
-
+// 2026-09-11부터 사이트 구조의 원본은 DB가 아니라 저장소 파일이다. 페이지를 굽는 next build와
+// 같은 파일(lib/site-data.json — scripts/build-site-data.mjs가 생성)을 읽어야 사이트맵과
+// 실제 페이지 집합이 어긋나지 않는다.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://suriwiki.com'
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // DB 없이 화면만 확인하는 빌드(SURIWIKI_FIXTURES=1)에서는 사이트맵을 만들지 않는다.
 // fixtures의 가짜 URL로 사이트맵을 써 버리면 그게 out/에 남아 실제 배포에 섞일 수 있다.
-// 화면 검증이 목적이라 사이트맵 자체가 필요 없다.
 if (process.env.SURIWIKI_FIXTURES === '1') {
   console.log('SURIWIKI_FIXTURES=1 — 사이트맵·RSS 생성을 건너뛴다(화면 검증용 빌드).')
   process.exit(0)
 }
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY가 필요합니다 (.env.local).')
-  console.error('DB 없이 화면만 확인하려면: SURIWIKI_FIXTURES=1 npm run build')
-  process.exit(1)
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-async function fetchAllRows(table) {
-  const pageSize = 1000
-  let rows = []
-  let from = 0
-  for (;;) {
-    // ORDER BY 없는 range는 요청 사이에 순서가 갈려 행이 빠지거나 겹친다 — lib/supabase.ts 참고
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
-      .order('id')
-      .range(from, from + pageSize - 1)
-    if (error) throw new Error(`${table} 조회 실패: ${error.message}`)
-    rows = rows.concat(data ?? [])
-    if (!data || data.length < pageSize) break
-    from += pageSize
-  }
-  return rows
-}
+const siteData = JSON.parse(readFileSync(new URL('../lib/site-data.json', import.meta.url), 'utf8'))
 
 function ancestorSlugs(regionId, byId) {
   const chain = []
@@ -108,7 +75,7 @@ function buildRss(items) {
     '  <channel>\n' +
     '    <title>수리위키 — 우리 동네 집수리</title>\n' +
     `    <link>${SITE_URL}/</link>\n` +
-    '    <description>누수·배수구·창호·전기·도배까지, 지역별 집수리 가이드와 시공 기록</description>\n' +
+    '    <description>문·문틀·문지방·필름·계단·마루·도배, 지역별 보수·복원 안내</description>\n' +
     '    <language>ko-KR</language>\n' +
     `    <lastBuildDate>${now}</lastBuildDate>\n` +
     `    <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />\n` +
@@ -118,13 +85,12 @@ function buildRss(items) {
   )
 }
 
+// 페이지에 수정 시각이 따로 없어 빌드 시각을 쓴다. 날짜를 매번 새로 찍으면 피드 리더가
+// 전 글을 새 글로 보지만, 피드는 최근 100건만 싣고 guid(주소)가 그대로라 중복으로 잡히지 않는다.
+const BUILD_DATE = new Date()
+
 async function main() {
-  const [regions, categories, keywords, pages] = await Promise.all([
-    fetchAllRows('suri_regions'),
-    fetchAllRows('suri_categories'),
-    fetchAllRows('suri_repair_keywords'),
-    fetchAllRows('suri_pages'),
-  ])
+  const { regions, categories, keywords, pages } = siteData
   const byId = new Map(regions.map((r) => [r.id, r]))
   const keywordSlugById = new Map(keywords.map((k) => [k.id, k.slug]))
   const keywordById = new Map(keywords.map((k) => [k.id, k]))
@@ -142,7 +108,7 @@ async function main() {
       link,
       description: page.meta_description || '',
       category: categoryId != null ? categoryNameById.get(categoryId) : undefined,
-      date: new Date(page.updated_at || page.created_at),
+      date: page.updated_at || page.created_at ? new Date(page.updated_at || page.created_at) : BUILD_DATE,
     })
   }
 

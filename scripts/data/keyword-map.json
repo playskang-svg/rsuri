@@ -1,0 +1,470 @@
+{
+ "_note": "keyword-groups.md(운영자가 준 키워드 그룹)를 사이트 구조로 옮기는 대응표. keywords 순서가 메뉴 순서다. aliases는 검색 의도가 같은 그룹을 별도 페이지로 만들지 않고 대상 허브의 보조 키워드로 합친 것이다(같은 글이 두 주소로 쪼개지면 둘 다 약해진다). regions는 키워드 앞에 붙은 지역 표기 → URL slug. 기존 DB에 있던 slug를 그대로 써서 이미 색인된 주소를 지킨다.",
+ "categories": [
+  {
+   "slug": "door",
+   "name": "문 수리"
+  },
+  {
+   "slug": "doorframe",
+   "name": "문틀 수리·교체"
+  },
+  {
+   "slug": "threshold",
+   "name": "문지방·문턱"
+  },
+  {
+   "slug": "film",
+   "name": "필름 시공"
+  },
+  {
+   "slug": "stairs",
+   "name": "계단 수리·복원"
+  },
+  {
+   "slug": "floor",
+   "name": "마루 보수·복원"
+  },
+  {
+   "slug": "wallpaper",
+   "name": "보수도배·벽지 복원"
+  }
+ ],
+ "families": {
+  "door": {
+   "category": "door",
+   "content": "door-repair.json"
+  },
+  "frame": {
+   "category": "doorframe",
+   "content": "doorframe.json"
+  },
+  "threshold": {
+   "category": "threshold",
+   "content": "threshold.json"
+  },
+  "film": {
+   "category": "film",
+   "content": "film.json"
+  },
+  "stair": {
+   "category": "stairs",
+   "content": "stair-restoration.json"
+  },
+  "floor": {
+   "category": "floor",
+   "content": "floor.json"
+  },
+  "wall": {
+   "category": "wallpaper",
+   "content": "wallpaper-restoration.json"
+  }
+ },
+ "keywords": [
+  {
+   "name": "문수리",
+   "slug": "door-repair",
+   "family": "door"
+  },
+  {
+   "name": "나무문수리",
+   "slug": "wood-door-repair",
+   "family": "door"
+  },
+  {
+   "name": "깨진문수리",
+   "slug": "broken-door-repair",
+   "family": "door"
+  },
+  {
+   "name": "깨진나무문",
+   "slug": "broken-wood-door",
+   "family": "door"
+  },
+  {
+   "name": "구멍난문복원",
+   "slug": "door-hole-restoration",
+   "family": "door"
+  },
+  {
+   "name": "들뜬나무문",
+   "slug": "lifted-wood-door",
+   "family": "door"
+  },
+  {
+   "name": "아파트문수리",
+   "slug": "apartment-door-repair",
+   "family": "door"
+  },
+  {
+   "name": "방문보수",
+   "slug": "bangmunbosu",
+   "family": "door"
+  },
+  {
+   "name": "나무문몰딩",
+   "slug": "wood-door-molding",
+   "family": "door"
+  },
+  {
+   "name": "문틀수리",
+   "slug": "doorframe-repair",
+   "family": "frame"
+  },
+  {
+   "name": "문틀교체",
+   "slug": "doorframe-replacement",
+   "family": "frame"
+  },
+  {
+   "name": "문틀보수",
+   "slug": "doorframe-touchup",
+   "family": "frame"
+  },
+  {
+   "name": "나무문틀수리",
+   "slug": "wood-doorframe-repair",
+   "family": "frame"
+  },
+  {
+   "name": "누수문틀수리",
+   "slug": "leak-doorframe-repair",
+   "family": "frame"
+  },
+  {
+   "name": "물먹은문틀수리",
+   "slug": "water-damaged-doorframe",
+   "family": "frame"
+  },
+  {
+   "name": "아파트문틀수리",
+   "slug": "apartment-doorframe-repair",
+   "family": "frame"
+  },
+  {
+   "name": "문지방수리",
+   "slug": "threshold-repair",
+   "family": "threshold"
+  },
+  {
+   "name": "문턱수리",
+   "slug": "doorsill-repair",
+   "family": "threshold"
+  },
+  {
+   "name": "화장실문지방",
+   "slug": "bathroom-threshold",
+   "family": "threshold"
+  },
+  {
+   "name": "문지방필름시공",
+   "slug": "threshold-film",
+   "family": "threshold"
+  },
+  {
+   "name": "필름시공",
+   "slug": "film-wrapping",
+   "family": "film"
+  },
+  {
+   "name": "문필름시공",
+   "slug": "door-film-wrapping",
+   "family": "film"
+  },
+  {
+   "name": "방문필름시공",
+   "slug": "door-film",
+   "family": "film"
+  },
+  {
+   "name": "문틀필름시공",
+   "slug": "doorframe-film",
+   "family": "film"
+  },
+  {
+   "name": "몰딩필름시공",
+   "slug": "molding-film",
+   "family": "film"
+  },
+  {
+   "name": "썩은문필름시공",
+   "slug": "rotten-door-film",
+   "family": "film"
+  },
+  {
+   "name": "부분필름작업",
+   "slug": "partial-film-work",
+   "family": "film"
+  },
+  {
+   "name": "계단수리",
+   "slug": "stair-repair",
+   "family": "stair"
+  },
+  {
+   "name": "나무계단수리",
+   "slug": "wood-stair-repair",
+   "family": "stair"
+  },
+  {
+   "name": "계단복원",
+   "slug": "stair-restoration",
+   "family": "stair"
+  },
+  {
+   "name": "복층계단복원",
+   "slug": "duplex-stair-restoration",
+   "family": "stair"
+  },
+  {
+   "name": "계단리모델링",
+   "slug": "stair-remodeling",
+   "family": "stair"
+  },
+  {
+   "name": "계단긁힘수리",
+   "slug": "stair-scratch-repair",
+   "family": "stair"
+  },
+  {
+   "name": "계단이빨자국복원",
+   "slug": "stair-bite-mark-repair",
+   "family": "stair"
+  },
+  {
+   "name": "계단 모서리 수리",
+   "slug": "stair-nosing-repair",
+   "family": "stair"
+  },
+  {
+   "name": "계단 페인트 복원",
+   "slug": "stair-paint-restoration",
+   "family": "stair"
+  },
+  {
+   "name": "마루복원",
+   "slug": "floor-restoration",
+   "family": "floor"
+  },
+  {
+   "name": "강마루보수",
+   "slug": "laminate-floor-repair",
+   "family": "floor"
+  },
+  {
+   "name": "강마루스크래치 보수",
+   "slug": "flooring-scratch-repair",
+   "family": "floor"
+  },
+  {
+   "name": "강마루변색복원",
+   "slug": "floor-discoloration-restoration",
+   "family": "floor"
+  },
+  {
+   "name": "마루부분복원",
+   "slug": "partial-floor-restoration",
+   "family": "floor"
+  },
+  {
+   "name": "전세집마루복원",
+   "slug": "rental-floor-restoration",
+   "family": "floor"
+  },
+  {
+   "name": "도배복원",
+   "slug": "wallpaper-restoration",
+   "family": "wall"
+  },
+  {
+   "name": "보수도배",
+   "slug": "wallpaper-patch",
+   "family": "wall"
+  },
+  {
+   "name": "부분도배",
+   "slug": "partial-wallpapering",
+   "family": "wall"
+  },
+  {
+   "name": "벽지복원",
+   "slug": "wallpaper-recovery",
+   "family": "wall"
+  },
+  {
+   "name": "깨진벽복원도배",
+   "slug": "cracked-wall-wallpaper",
+   "family": "wall"
+  },
+  {
+   "name": "석고보드 보수도배",
+   "slug": "drywall-patch-wallpaper",
+   "family": "wall"
+  },
+  {
+   "name": "에어컨 자국 도배",
+   "slug": "ac-mark-wallpaper",
+   "family": "wall"
+  },
+  {
+   "name": "천장도배",
+   "slug": "ceiling-wallpaper",
+   "family": "wall"
+  }
+ ],
+ "aliases": {
+  "문틀수리업체": "문틀수리",
+  "문틀수리 사이트맵": "문틀수리",
+  "방문필름시공 비용": "방문필름시공",
+  "마루복원 사이트맵": "마루복원",
+  "강마루보수업체": "강마루보수",
+  "보수도배업체": "보수도배",
+  "부분필름시공": "부분필름작업",
+  "복층계단보수": "복층계단복원"
+ },
+ "regions": {
+  "강남": "gangnam",
+  "강서": "gangseo",
+  "광명": "gwangmyeong",
+  "구로": "guro",
+  "구리": "guri",
+  "김포": "gimpo",
+  "남양주": "namyangju",
+  "노원": "nowon",
+  "동탄": "dongtan",
+  "마포": "mapo",
+  "목동": "mokdong",
+  "부천": "bucheon",
+  "부평": "bupyeong",
+  "분당": "bundang",
+  "빛가람": "bitgaram",
+  "서초": "seocho",
+  "송도": "songdo",
+  "송파": "songpa",
+  "수원": "suwon",
+  "시흥": "siheung",
+  "안산": "ansan",
+  "영등포": "yeongdeungpo",
+  "용인": "yongin",
+  "인천구월": "incheonguwol",
+  "인천논현": "incheonnonhyeon",
+  "인천청라": "incheoncheongra",
+  "일산": "ilsan",
+  "잠실": "jamsil",
+  "파주": "paju",
+  "평촌": "pyeongchon",
+  "안양": "anyang",
+  "인천": "incheon",
+  "인천미추홀": "incheonmichuhol",
+  "인천연수": "incheonyeonsu",
+  "강북": "gangbuk",
+  "과천": "gwacheon",
+  "관악": "gwanak",
+  "광진": "gwangjin",
+  "동대문": "dongdaemun",
+  "양천": "yangcheon",
+  "오산": "osan",
+  "의왕": "uiwang",
+  "인천 계양": "incheon-gyeyang",
+  "인천 남동": "incheon-namdong",
+  "인천 연수": "incheon-yeonsu",
+  "중구": "junggu",
+  "성북": "seongbuk",
+  "수지": "suji",
+  "은평": "eunpyeong",
+  "의정부": "uijeongbu",
+  "인천 부평": "incheon-bupyeong",
+  "인천 송도": "incheon-songdo",
+  "강동": "gangdong",
+  "고양": "goyang",
+  "금천": "geumcheon",
+  "도봉": "dobong",
+  "동작": "dongjak",
+  "서대문": "seodaemun",
+  "성남": "seongnam",
+  "성동": "seongdong",
+  "양주": "yangju",
+  "인천 미추홀": "incheon-michuhol",
+  "인천 서구": "incheon-seogu",
+  "중랑": "jungrang",
+  "하남": "hanam",
+  "강남구": "gangnamgu",
+  "강서구": "gangseogu",
+  "경기": "gyeonggi-2",
+  "경기광주": "gyeonggigwangju",
+  "고양시": "goyangsi",
+  "관악구": "gwanakgu",
+  "군포": "gunpo",
+  "남동구": "namdonggu",
+  "노원구": "nowongu",
+  "동작구": "dongjakgu",
+  "마포구": "mapogu",
+  "부평구": "bupyeonggu",
+  "서울": "seoul-2",
+  "성남시": "seongnamsi",
+  "성북구": "seongbukgu",
+  "송파구": "songpagu",
+  "수원시": "suwonsi",
+  "양천구": "yangcheongu",
+  "영등포구": "yeongdeungpogu",
+  "용산": "yongsan",
+  "인천 동구": "incheon-donggu",
+  "인천 주안": "incheon-juan",
+  "인천 중구": "incheon-junggu",
+  "종로": "jongro",
+  "평택": "pyeongtaek",
+  "화성": "hwaseong",
+  "연수": "yeonsu",
+  "인천 검단": "incheon-geomdan",
+  "인천 청라": "incheon-cheongra",
+  "판교": "pangyo",
+  "강동구": "gangdonggu",
+  "강북구": "gangbukgu",
+  "경기 광주": "gyeonggi-gwangju",
+  "구로구": "gurogu",
+  "도봉구": "dobonggu",
+  "동두천": "dongducheon",
+  "서대문구": "seodaemungu",
+  "서초구": "seochogu",
+  "성동구": "seongdonggu",
+  "시흥시": "siheungsi",
+  "양평": "yangpyeong",
+  "연수구": "yeonsugu",
+  "은평구": "eunpyeonggu",
+  "이천": "icheon",
+  "화성시": "hwaseongsi",
+  "기흥": "giheung",
+  "여주": "yeoju",
+  "인천남동": "incheonnamdong",
+  "인천부평": "incheonbupyeong",
+  "포천": "pocheon",
+  "신림": "sinrim",
+  "계양": "gyeyang",
+  "남동": "namdong",
+  "다산": "dasan",
+  "운정": "unjeong",
+  "위례": "wirye",
+  "광진구": "gwangjingu",
+  "김포시": "gimposi",
+  "동구": "donggu",
+  "미추홀구": "michuholgu",
+  "부천시": "bucheonsi",
+  "서구": "seogu",
+  "안산시": "ansansi",
+  "안양시": "anyangsi",
+  "의정부시": "uijeongbusi",
+  "미아": "mia",
+  "인천주안": "incheonjuan",
+  "창동": "changdong",
+  "마곡": "magok",
+  "연신내": "yeonsinnae",
+  "인천검단": "incheongeomdan",
+  "인천 구월": "incheon-guwol",
+  "미사": "misa",
+  "미추홀": "michuhol",
+  "수도권": "sudogwon",
+  "성수": "seongsu",
+  "광주": "gwangju",
+  "인천서구": "incheonseogu"
+ }
+}

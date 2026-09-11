@@ -99,6 +99,10 @@ export interface RepairKeyword {
   default_phone: string | null
   menu_order: number
   content: KeywordContent | null
+  /** 공통 본문을 물려받는 계열 (scripts/data/keyword-map.json families) */
+  family?: string
+  /** 검색 의도가 같아 이 허브로 합친 보조 키워드 — 예) 문틀수리업체 → 문틀수리 */
+  aliases?: string[]
 }
 
 export type PageType = 'CATEGORY' | 'TOPIC' | 'CASE' | 'WIKI' | 'AREA' | 'LANDING'

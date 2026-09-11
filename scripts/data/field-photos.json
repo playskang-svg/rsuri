@@ -1,0 +1,217 @@
+{
+  "_note": "운영자가 준 실제 현장 사진(web/public/photos/field/)과 개념도(web/public/illustrations/)를 키워드에 붙이는 표. 사진은 수리 내용과 맞는 키워드에만 붙인다 — 문틀 사진을 계단·마루 페이지에 돌려쓰지 않는다. 실사가 없는 키워드는 사진 칸을 비운다(맞지 않는 스톡 사진보다 빈 칸이 낫다). 원본은 cwebp -metadata none으로 다시 인코딩해 위치 정보 등 메타데이터를 지웠다.",
+  "sets": {
+    "frame-bath-rot": {
+      "before": "/photos/field/frame-bath-rot-before.webp",
+      "after": "/photos/field/frame-bath-rot-after.webp",
+      "caption": "욕실 문틀 하단 부식 — 삭은 부분 절삭, 새 목재 접합 후 필름 마감"
+    },
+    "frame-terrazzo": {
+      "before": "/photos/field/frame-terrazzo-before.webp",
+      "after": "/photos/field/frame-terrazzo-after.webp",
+      "caption": "욕실 문틀 하단 벗겨짐 — 부분 교체 후 기존 색 필름으로 마감"
+    },
+    "frame-bluedoor": {
+      "before": "/photos/field/frame-bluedoor-before.webp",
+      "after": "/photos/field/frame-bluedoor-after.webp",
+      "caption": "물먹어 속까지 드러난 문틀 — 하단 교체 후 화이트 마감"
+    },
+    "frame-sliding": {
+      "before": "/photos/field/frame-sliding-before.webp",
+      "after": "/photos/field/frame-sliding-after.webp",
+      "caption": "미닫이 문틀 하단 오염·파손 — 보수 후 필름 재시공"
+    },
+    "frame-corner": {
+      "before": "/photos/field/frame-corner-before.webp",
+      "after": "/photos/field/frame-corner-after.webp",
+      "caption": "문틀 모서리 필름 벗겨짐·패임 — 메꿈 후 필름 재시공"
+    },
+    "frame-paint": {
+      "process": [
+        "/photos/field/frame-paint-process.webp"
+      ],
+      "after": "/photos/field/frame-paint-after.webp",
+      "caption": "욕실 문틀·문지방 도장 마감 — 보양 후 재도장"
+    },
+    "threshold-bath": {
+      "before": "/photos/field/threshold-bath-before.webp",
+      "after": "/photos/field/threshold-bath-after.webp",
+      "caption": "깨진 화장실 문지방 — 철거 후 새 문지방 설치·이음부 마감"
+    },
+    "threshold-marble": {
+      "before": "/photos/field/threshold-marble-before.webp",
+      "after": "/photos/field/threshold-marble-after.webp",
+      "caption": "욕실 문지방 교체 — 기존 문지방 철거 후 새로 앉힘"
+    },
+    "ill-door-panel": {
+      "before": "/illustrations/door-repair/panel-hole-before.svg",
+      "after": "/illustrations/door-repair/panel-hole-after.svg",
+      "caption": "문짝 구멍 메꿈 후 표면 마감"
+    },
+    "ill-door-hinge": {
+      "before": "/illustrations/door-repair/hinge-sag-before.svg",
+      "after": "/illustrations/door-repair/hinge-sag-after.svg",
+      "caption": "처진 문 경첩 보강·조정"
+    },
+    "ill-stair-nosing": {
+      "before": "/illustrations/stair-restoration/nosing-before.svg",
+      "after": "/illustrations/stair-restoration/nosing-after.svg",
+      "caption": "닳은 계단코 보강 및 색 맞춤"
+    },
+    "ill-wall-mold": {
+      "before": "/illustrations/wallpaper-restoration/mold-before.svg",
+      "after": "/illustrations/wallpaper-restoration/mold-after.svg",
+      "caption": "창가 결로 곰팡이 항균 처리 후 부분 도배"
+    },
+    "ill-wall-tear": {
+      "before": "/illustrations/wallpaper-restoration/tear-before.svg",
+      "after": "/illustrations/wallpaper-restoration/tear-after.svg",
+      "caption": "찢김·들뜸을 결 따라 이어 붙이기"
+    }
+  },
+  "_keywordSets_note": "키워드 slug → 시공 전후 세트. 여기 없는 키워드는 계열(family) 기본값을 쓴다. 실사와 개념도를 한 키워드에 섞지 않는다 — 섞으면 개념도 표기가 사라져 그림이 실제 현장처럼 보인다.",
+  "familySets": {
+    "door": [],
+    "frame": [
+      "frame-bath-rot",
+      "frame-terrazzo",
+      "frame-bluedoor",
+      "frame-sliding",
+      "frame-corner",
+      "frame-paint"
+    ],
+    "threshold": [
+      "threshold-bath",
+      "threshold-marble"
+    ],
+    "film": [
+      "frame-corner",
+      "frame-bath-rot",
+      "frame-terrazzo"
+    ],
+    "stair": [
+      "ill-stair-nosing"
+    ],
+    "floor": [],
+    "wall": [
+      "ill-wall-mold",
+      "ill-wall-tear"
+    ]
+  },
+  "keywordSets": {
+    "door-repair": [
+      "frame-bluedoor",
+      "frame-corner"
+    ],
+    "apartment-door-repair": [
+      "frame-bluedoor",
+      "frame-terrazzo"
+    ],
+    "bangmunbosu": [
+      "frame-corner",
+      "frame-sliding"
+    ],
+    "wood-door-repair": [
+      "ill-door-hinge",
+      "ill-door-panel"
+    ],
+    "broken-door-repair": [
+      "ill-door-panel"
+    ],
+    "broken-wood-door": [
+      "ill-door-panel"
+    ],
+    "door-hole-restoration": [
+      "ill-door-panel"
+    ],
+    "doorframe-touchup": [
+      "frame-corner",
+      "frame-sliding"
+    ],
+    "wood-doorframe-repair": [
+      "frame-bath-rot",
+      "frame-terrazzo",
+      "frame-paint"
+    ],
+    "leak-doorframe-repair": [
+      "frame-bath-rot",
+      "frame-bluedoor",
+      "frame-terrazzo"
+    ],
+    "water-damaged-doorframe": [
+      "frame-bath-rot",
+      "frame-bluedoor",
+      "frame-terrazzo"
+    ],
+    "apartment-doorframe-repair": [
+      "frame-terrazzo",
+      "frame-bluedoor",
+      "frame-sliding",
+      "frame-bath-rot"
+    ],
+    "doorsill-repair": [
+      "threshold-marble",
+      "threshold-bath"
+    ],
+    "threshold-film": [],
+    "doorframe-film": [
+      "frame-corner",
+      "frame-bath-rot",
+      "frame-terrazzo"
+    ],
+    "rotten-door-film": [
+      "frame-bath-rot",
+      "frame-terrazzo"
+    ],
+    "door-film-wrapping": [
+      "frame-corner",
+      "frame-sliding"
+    ],
+    "door-film": [
+      "frame-corner",
+      "frame-sliding"
+    ],
+    "partial-film-work": [
+      "frame-corner",
+      "frame-sliding"
+    ],
+    "molding-film": []
+  },
+  "_familyPhotos_note": "히어로·카드용 대표 사진(완성 모습 위주). 키워드에 실사 세트가 있으면 그 세트의 사진이 먼저 쓰이고, 없을 때 계열 사진으로 내려간다. 빈 배열이면 사진 칸 없이 글만 둔다.",
+  "familyPhotos": {
+    "door": [
+      "/photos/field/frame-bluedoor-after.webp",
+      "/photos/field/frame-white-hinge.webp",
+      "/photos/field/frame-corner-after.webp"
+    ],
+    "frame": [
+      "/photos/field/frame-bluedoor-after.webp",
+      "/photos/field/frame-terrazzo-after.webp",
+      "/photos/field/frame-bath-rot-after.webp",
+      "/photos/field/frame-sliding-after.webp"
+    ],
+    "threshold": [
+      "/photos/field/threshold-bath-after.webp",
+      "/photos/field/threshold-marble-after.webp",
+      "/photos/field/threshold-floor.webp",
+      "/photos/field/threshold-bluedoor.webp"
+    ],
+    "film": [
+      "/photos/field/frame-terrazzo-after.webp",
+      "/photos/field/frame-bath-rot-after.webp",
+      "/photos/field/frame-sliding-after.webp",
+      "/photos/field/frame-corner-after.webp"
+    ],
+    "stair": [],
+    "floor": [],
+    "wall": []
+  },
+  "homeHero": "/photos/field/frame-bluedoor-after.webp",
+  "_categoryPhotos_note": "홈 분야 카드·분야 페이지 히어로에 거는 대표 사진. 분야마다 가장 잘 보이는 완성 사진을 직접 고른다(무작위로 고르면 반려견 울타리가 걸린 장면 같은 게 대표가 된다). 없는 분야는 글만.",
+  "categoryPhotos": {
+    "door": "/photos/field/frame-sliding-after.webp",
+    "doorframe": "/photos/field/frame-terrazzo-after.webp",
+    "threshold": "/photos/field/threshold-marble-after.webp",
+    "film": "/photos/field/frame-bath-rot-after.webp"
+  }
+}

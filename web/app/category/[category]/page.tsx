@@ -58,7 +58,7 @@ export default async function CategoryPage({
 
   return (
     <main>
-      {/* 공종 대분류 허브 — 베이지 색 블록. 사진은 그 공종의 참고 사진이다 */}
+      {/* 공종 대분류 허브 — 베이지 색 블록. 사진은 그 공종의 실제 현장 사진(없으면 글만) */}
       <PageHero
         tone="beige"
         above={
@@ -74,8 +74,9 @@ export default async function CategoryPage({
         desc={`${category.display_name} 분야에서 안내 중인 수리 항목입니다. 항목을 고르면 지역별 안내로 이어집니다.`}
         tags={['Category Index', 'Choose Repair']}
         photo={(() => {
-          const ph = categoryPhoto(category.slug, 'category-hero')
-          return { src: ph.src, alt: `${category.display_name} 참고 사진`, style: ph.style }
+          // 분야 대표 실사. 없으면 사진 칸을 비운다.
+          const src = categoryPhoto(category.slug)
+          return src ? { src, alt: `${category.display_name} 시공 현장` } : undefined
         })()}
       />
 
@@ -101,7 +102,7 @@ export default async function CategoryPage({
                   </div>
                   {live.length === 0 && (
                     <span className="rounded-full border border-[var(--line)] px-2.5 py-1 text-[11px] font-bold text-[var(--ink-soft)]">
-                      기록 준비 중
+                      수도권 전역
                     </span>
                   )}
                 </div>
@@ -111,7 +112,7 @@ export default async function CategoryPage({
                       <Link
                         key={l.path}
                         href={`/${keyword.slug}/${l.path}`}
-                        className="rounded-full bg-[var(--teal-soft)] px-3 py-1 text-[13px] font-bold text-[var(--teal)] hover:bg-[var(--teal)] hover:text-white"
+                        className="inline-flex min-h-11 items-center rounded-full bg-[var(--teal-soft)] px-3.5 text-[13px] font-bold text-[var(--teal)] hover:bg-[var(--teal)] hover:text-white sm:min-h-0 sm:py-1"
                       >
                         {l.dong}
                       </Link>
@@ -119,7 +120,7 @@ export default async function CategoryPage({
                     {hidden > 0 && (
                       <Link
                         href={`/${keyword.slug}`}
-                        className="tap44 text-[13px] font-bold text-[var(--ink-soft)] hover:text-[var(--copper)]"
+                        className="inline-flex min-h-11 items-center text-[13px] font-bold text-[var(--ink-soft)] hover:text-[var(--copper)] sm:min-h-0"
                       >
                         지역 전체 보기 →
                       </Link>

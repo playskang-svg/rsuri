@@ -4,8 +4,9 @@ import type { ReactNode } from 'react'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
-import { categoryPhoto } from '@/lib/photos'
-import { getKeywordImages, groupSetsByKeyword } from '@/lib/keyword-images'
+import { keywordPhoto, keywordPhotos } from '@/lib/photos'
+import { josa } from '@/lib/josa'
+import { getKeywordImages, groupSetsByKeyword, isIllustrationOnly } from '@/lib/keyword-images'
 import { composeLocal } from '@/lib/compose-local'
 import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
@@ -244,36 +245,27 @@ export default async function LandingPage({
     shots.length > 0 ? [] : (groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? [])
   // 실사가 아직 없어 개념도로 채운 세트인지. 사진으로 오인되면 안 되므로 화면에 밝힌다 —
   // 남의 현장 사진을 우리 시공 결과처럼 쓰는 것과 같은 종류의 문제를 여기서 차단한다.
-  const casesAreIllustration = inheritedSets.every((set) =>
-    [set.before, set.after].every((u) => !u || u.startsWith('/illustrations/')),
-  )
+  const casesAreIllustration = inheritedSets.length > 0 && isIllustrationOnly(inheritedSets)
 
+  // 사진 칸은 이 키워드와 맞는 실사만 채운다. 없으면 null — 그 칸을 통째로 뺀다.
+  // (예전 Unsplash 참고 이미지는 수리 내용과 안 맞아 2026-09-11 걷어냈다. lib/photos.ts)
   const pick = (slot: number) => {
     const shot = shots[slot]
     if (shot) {
-      return {
-        src: shot.url,
-        style: undefined,
-        label: ROLE_LABEL[shot.role] ?? '현장 사진',
-        note: shot.overlay_note,
-      }
+      return { src: shot.url, label: ROLE_LABEL[shot.role] ?? '현장 사진', note: shot.overlay_note }
     }
-    const fallback = categoryPhoto(category?.slug ?? '', seed, slot, keyword.display_name)
-    return { src: fallback.src, style: fallback.style, label: '', note: null }
+    const src = keywordPhoto(keyword.slug, seed, slot)
+    return src ? { src, label: '현장 사진', note: null } : null
   }
 
   const photoA = pick(0)
   const photoB = pick(1)
 
-  // 히어로 배경 슬라이드. 운영자가 올린 실사가 있으면 그것만 돌리고,
-  // 없을 때만 키워드 주제에 맞는 참고 이미지를 여러 장 뽑아 쓴다.
+  // 히어로 사진 슬라이드. 페이지 고유 실사 → 키워드 실사 순. 둘 다 없으면 글만 둔다.
   const heroImages =
     shots.length > 0
       ? shots.slice(0, 4).map((sh) => ({ src: sh.url }))
-      : [0, 1, 2].map((slot) => {
-          const ph = categoryPhoto(category?.slug ?? '', seed, slot, keyword.display_name)
-          return { src: ph.src, style: ph.style }
-        })
+      : keywordPhotos(keyword.slug).map((src) => ({ src }))
 
   return (
     <main className="pb-24 md:pb-0">
@@ -281,7 +273,7 @@ export default async function LandingPage({
           지역+키워드를 초대형으로 올려 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다.
           사진은 글자 뒤 배경이 아니라 옆 칸이라 어둡게 덮는 그라데이션이 필요 없다. */}
       <section className="page-hero" data-tone="dark">
-        <div className="hero-inner photo-first">
+        <div className={`hero-inner ${heroImages.length > 0 ? 'photo-first' : 'solo'}`}>
         <div className="min-w-0">
           {/* 브레드크럼이 곧 이동 장치다. 두 세그먼트를 열면 사촌(같은 지역 다른 수리)과
               형제(같은 수리 다른 지역)로 바로 건너뛴다 — 본문에 링크를 깔지 않고도
@@ -381,12 +373,14 @@ export default async function LandingPage({
         </div>
 
         {/* 사진 칸 — 슬라이더의 사진·버튼은 이 칸 안에 absolute 로 깔린다 */}
-        <div className="hero-photo isolate">
-          <HeroSlider
-            images={heroImages}
-            alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
-          />
-        </div>
+        {heroImages.length > 0 && (
+          <div className="hero-photo isolate">
+            <HeroSlider
+              images={heroImages}
+              alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
+            />
+          </div>
+        )}
         </div>
       </section>
 
@@ -428,7 +422,7 @@ export default async function LandingPage({
           <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
             <Pill>SELF CHECK</Pill>
             <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
-              이런 증상이면 {region.display_name} {keyword.display_name}가 필요합니다
+              이런 증상이면 {region.display_name} {josa(keyword.display_name, '이', '가')} 필요합니다
             </h2>
             <ul className="mt-7 grid gap-3 sm:grid-cols-2">
               {symptoms.map((sym, i) => (
@@ -573,11 +567,13 @@ export default async function LandingPage({
             {region.display_name} 현장에서 실제로 진행되는 순서입니다.
           </p>
 
-          <div className="hero-photo mt-6 aspect-[16/7]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photoB.src} alt={photoB.note ?? ''} style={photoB.style} loading="lazy" />
-            <span className="tag">{photoB.label}</span>
-          </div>
+          {photoB && (
+            <div className="hero-photo mt-6 aspect-[16/7]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoB.src} alt={photoB.note ?? ''} loading="lazy" />
+              <span className="tag">{photoB.label}</span>
+            </div>
+          )}
 
           <ol className="step-rail mt-8 space-y-7">
             {steps.map((step) => (
@@ -772,28 +768,24 @@ export default async function LandingPage({
               <ul className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {sameKeyword.map((x) => {
                   const dong = x.chain[x.chain.length - 1]
-                  const ph = categoryPhoto(
-                    category?.slug ?? '',
-                    `${keyword.slug}/${dong.slug}`,
-                    0,
-                    keyword.display_name,
-                  )
+                  const ph = keywordPhoto(keyword.slug, dong.slug)
                   return (
                     <li key={x.page.id}>
                       <Link
                         href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
                         className="card group block overflow-hidden transition-shadow hover:shadow-xl"
                       >
-                        <div className="aspect-[16/9] overflow-hidden">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={ph.src}
-                            alt=""
-                            style={ph.style}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                          />
-                        </div>
+                        {ph && (
+                          <div className="aspect-[16/9] overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={ph}
+                              alt=""
+                              loading="lazy"
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                            />
+                          </div>
+                        )}
                         <div className="p-4">
                           <p className="text-base font-extrabold">
                             {dong.display_name} {keyword.display_name}
@@ -827,19 +819,21 @@ export default async function LandingPage({
                     어디에서 어디로 가는지 보여야 옆 카드를 누를 이유가 생긴다. */}
                 <li>
                   <div className="card overflow-hidden border-[var(--ink)]">
-                    <div className="relative aspect-[16/9] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={photoA.src}
-                        alt=""
-                        style={photoA.style}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                      <span className="absolute right-2.5 top-2.5 rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
-                        현재 페이지
-                      </span>
-                    </div>
+                    {photoA ? (
+                      <div className="relative aspect-[16/9] overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photoA.src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        <span className="absolute right-2.5 top-2.5 rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
+                          현재 페이지
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="px-4 pt-4">
+                        <span className="rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
+                          현재 페이지
+                        </span>
+                      </p>
+                    )}
                     <div className="p-4">
                       <p className="text-base font-extrabold">
                         {region.display_name} {keyword.display_name}
@@ -851,28 +845,24 @@ export default async function LandingPage({
                   </div>
                 </li>
                 {sameRegion.map(({ page: p, kw }) => {
-                  const ph = categoryPhoto(
-                    categories.find((c) => c.id === kw!.category_id)?.slug ?? '',
-                    `${kw!.slug}/${region.slug}`,
-                    0,
-                    kw!.display_name,
-                  )
+                  const ph = keywordPhoto(kw!.slug, region.slug)
                   return (
                     <li key={p.id}>
                       <Link
                         href={`/${kw!.slug}/${pathStr}`}
                         className="card group block overflow-hidden transition-shadow hover:shadow-xl"
                       >
-                        <div className="aspect-[16/9] overflow-hidden">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={ph.src}
-                            alt=""
-                            style={ph.style}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                          />
-                        </div>
+                        {ph && (
+                          <div className="aspect-[16/9] overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={ph}
+                              alt=""
+                              loading="lazy"
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                            />
+                          </div>
+                        )}
                         <div className="p-4">
                           <p className="text-base font-extrabold">
                             {region.display_name} {kw!.display_name}

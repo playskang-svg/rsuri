@@ -144,7 +144,7 @@ export function KeywordSearch({
           ) : (
             <ul>
               {hits.map((h, i) => (
-                <li key={h.slug}>
+                <li key={`${h.slug}:${h.name}`}>
                   <Link
                     href={`/${h.slug}`}
                     role="option"
