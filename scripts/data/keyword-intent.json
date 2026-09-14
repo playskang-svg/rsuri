@@ -1,0 +1,67 @@
+{
+  "_note": "CT·MOD v0.6 문서 08절 '모듈 선택 로직' 2·4단계를 데이터로 고정한 파일. 2단계는 '검색자가 궁금한 질문을 1문장으로 정의', 4단계는 'CT1~CT6 중 중심 CT 1개 선택'이다. 여기서 정하는 것은 검색 의도이지 현장 사실이 아니다 — 운영자가 준 키워드 표기에서 읽히는 질문만 적고, 없는 사실(가격·공정·결과)은 넣지 않는다. question의 {region}은 빌드가 지역명으로 바꾼다. ct가 요구하는 필수 모듈의 근거가 실제로 없으면 빌드가 08절 9단계 판정에 따라 CT를 내리거나 HOLD로 돌린다 — 이 파일의 ct는 '희망'이 아니라 '의도'이며, 근거 확보 전까지는 fallback이 기록된다.",
+
+  "_ct_reference": {
+    "CT1": "문제·해결형 — 왜 이런 문제가 생겼고 어떻게 해결하는가?",
+    "CT5": "진단·판단형 — 현재 상태에서 수리와 교체 중 무엇이 필요한가?"
+  },
+
+  "keywords": {
+    "door-repair": { "ct": "CT1", "question": "{region}에서 방문이 고장났을 때 원인은 무엇이고 어떻게 고치는가?" },
+    "wood-door-repair": { "ct": "CT1", "question": "{region}에서 나무문이 상했을 때 원인은 무엇이고 어떻게 고치는가?" },
+    "broken-door-repair": { "ct": "CT1", "question": "{region}에서 문이 깨졌을 때 왜 깨졌고 어떻게 복구하는가?" },
+    "broken-wood-door": { "ct": "CT1", "question": "{region}에서 나무문이 깨졌을 때 교체 없이 복구할 수 있는가?" },
+    "door-hole-restoration": { "ct": "CT1", "question": "{region}에서 문에 구멍이 났을 때 어떻게 메우고 마감하는가?" },
+    "lifted-wood-door": { "ct": "CT1", "question": "{region}에서 나무문이 들뜨는 이유는 무엇이고 어떻게 잡는가?" },
+    "apartment-door-repair": { "ct": "CT1", "question": "{region} 아파트 방문에 생기는 문제는 무엇이고 어떻게 고치는가?" },
+    "bangmunbosu": { "ct": "CT1", "question": "{region}에서 방문 손상을 어디까지 보수로 해결할 수 있는가?" },
+    "wood-door-molding": { "ct": "CT1", "question": "{region}에서 나무문 몰딩이 들뜨거나 깨졌을 때 어떻게 고치는가?" },
+
+    "doorframe-repair": { "ct": "CT1", "question": "{region}에서 문틀이 상하는 원인은 무엇이고 어떻게 고치는가?" },
+    "doorframe-replacement": { "ct": "CT5", "question": "{region}에서 문틀을 부분수리로 끝낼 수 있는가, 전체교체가 필요한가?" },
+    "doorframe-touchup": { "ct": "CT1", "question": "{region}에서 문틀 흠집·찍힘을 어떻게 보수하고 마감하는가?" },
+    "wood-doorframe-repair": { "ct": "CT1", "question": "{region}에서 나무 문틀이 상했을 때 원인은 무엇이고 어떻게 고치는가?" },
+    "leak-doorframe-repair": { "ct": "CT1", "question": "{region}에서 누수로 상한 문틀은 왜 그렇게 되고 어떻게 고치는가?" },
+    "water-damaged-doorframe": { "ct": "CT1", "question": "{region}에서 물먹은 문틀은 왜 부풀고 어떻게 고치는가?" },
+    "apartment-doorframe-repair": { "ct": "CT1", "question": "{region} 아파트 문틀에 생기는 문제는 무엇이고 어떻게 고치는가?" },
+
+    "threshold-repair": { "ct": "CT1", "question": "{region}에서 문지방이 상하는 원인은 무엇이고 어떻게 고치는가?" },
+    "doorsill-repair": { "ct": "CT1", "question": "{region}에서 문턱이 닳거나 깨졌을 때 어떻게 고치는가?" },
+    "bathroom-threshold": { "ct": "CT1", "question": "{region}에서 화장실 문지방이 물에 상했을 때 어떻게 고치는가?" },
+    "threshold-film": { "ct": "CT1", "question": "{region}에서 문지방 필름시공은 어떤 상태에 하고 어떻게 진행하는가?" },
+
+    "film-wrapping": { "ct": "CT1", "question": "{region}에서 필름시공은 어떤 손상에 쓰고 어떻게 진행하는가?" },
+    "door-film-wrapping": { "ct": "CT1", "question": "{region}에서 문 필름시공은 어떤 상태에 하고 어떻게 진행하는가?" },
+    "door-film": { "ct": "CT1", "question": "{region}에서 방문 필름시공은 어떤 상태에 하고 어떻게 진행하는가?" },
+    "doorframe-film": { "ct": "CT1", "question": "{region}에서 문틀 필름시공은 어떤 상태에 하고 어떻게 진행하는가?" },
+    "molding-film": { "ct": "CT1", "question": "{region}에서 몰딩 필름시공은 어떤 상태에 하고 어떻게 진행하는가?" },
+    "rotten-door-film": { "ct": "CT1", "question": "{region}에서 썩은 문은 필름시공만으로 해결되는가, 속까지 손봐야 하는가?" },
+    "partial-film-work": { "ct": "CT1", "question": "{region}에서 부분 필름작업으로 어디까지 해결할 수 있는가?" },
+
+    "stair-repair": { "ct": "CT1", "question": "{region}에서 계단이 상하는 원인은 무엇이고 어떻게 고치는가?" },
+    "wood-stair-repair": { "ct": "CT1", "question": "{region}에서 나무 계단이 상했을 때 원인은 무엇이고 어떻게 고치는가?" },
+    "stair-restoration": { "ct": "CT1", "question": "{region}에서 낡은 계단을 어떻게 원래 상태로 되돌리는가?" },
+    "duplex-stair-restoration": { "ct": "CT1", "question": "{region} 복층 계단은 어디가 먼저 상하고 어떻게 복원하는가?" },
+    "stair-remodeling": { "ct": "CT5", "question": "{region}에서 계단을 부분복원으로 끝낼 수 있는가, 전면 리모델링이 필요한가?" },
+    "stair-scratch-repair": { "ct": "CT1", "question": "{region}에서 계단 긁힘은 왜 생기고 어떻게 지우는가?" },
+    "stair-bite-mark-repair": { "ct": "CT1", "question": "{region}에서 계단 이빨자국·패임을 어떻게 메우고 복원하는가?" },
+    "stair-nosing-repair": { "ct": "CT1", "question": "{region}에서 계단 모서리가 깨지는 이유는 무엇이고 어떻게 고치는가?" },
+    "stair-paint-restoration": { "ct": "CT1", "question": "{region}에서 계단 페인트가 벗겨졌을 때 어떻게 복원하는가?" },
+
+    "floor-restoration": { "ct": "CT1", "question": "{region}에서 마루가 상하는 원인은 무엇이고 어떻게 복원하는가?" },
+    "laminate-floor-repair": { "ct": "CT1", "question": "{region}에서 강마루가 상했을 때 원인은 무엇이고 어떻게 보수하는가?" },
+    "flooring-scratch-repair": { "ct": "CT1", "question": "{region}에서 강마루 스크래치는 왜 생기고 어떻게 지우는가?" },
+    "floor-discoloration-restoration": { "ct": "CT1", "question": "{region}에서 강마루가 변색되는 이유는 무엇이고 어떻게 되돌리는가?" },
+    "partial-floor-restoration": { "ct": "CT1", "question": "{region}에서 마루를 전체 교체하지 않고 부분복원할 수 있는가?" },
+    "rental-floor-restoration": { "ct": "CT1", "question": "{region} 전세집 마루 손상을 퇴거 전에 어떻게 원상복구하는가?" },
+
+    "wallpaper-restoration": { "ct": "CT1", "question": "{region}에서 벽지가 상하는 원인은 무엇이고 어떻게 복원하는가?" },
+    "wallpaper-patch": { "ct": "CT1", "question": "{region}에서 보수도배로 어디까지 자연스럽게 맞출 수 있는가?" },
+    "partial-wallpapering": { "ct": "CT1", "question": "{region}에서 전체 도배 없이 부분도배로 해결할 수 있는가?" },
+    "wallpaper-recovery": { "ct": "CT1", "question": "{region}에서 손상된 벽지를 어떻게 원래대로 되돌리는가?" },
+    "cracked-wall-wallpaper": { "ct": "CT1", "question": "{region}에서 벽이 깨졌을 때 벽부터 잡아야 하는가, 도배로 되는가?" },
+    "drywall-patch-wallpaper": { "ct": "CT1", "question": "{region}에서 석고보드가 파손됐을 때 어떻게 메우고 도배하는가?" },
+    "ac-mark-wallpaper": { "ct": "CT1", "question": "{region}에서 에어컨 자국·곰팡이 자국을 어떻게 지우고 도배하는가?" },
+    "ceiling-wallpaper": { "ct": "CT1", "question": "{region}에서 천장 도배는 무엇이 다르고 어떻게 진행하는가?" }
+  }
+}

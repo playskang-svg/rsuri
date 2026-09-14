@@ -47,21 +47,30 @@ function contrast(a, b) {
 }
 
 // [설명, 글자, 바탕, 큰글씨여도 되는지]
+//
+// 실제로 화면에 붙는 조합만 넣는다. 예전에는 CTA 항목이 "ink-deep on gold"였는데
+// 정작 .btn-call은 흰 글자 + --cta라서, 진짜 CTA 버튼이 검사에서 빠져 있었다.
 const PAIRS = [
   ['본문 / 배경', 'ink', 'paper', false],
   ['본문 / 카드', 'ink', 'card', false],
   ['보조 텍스트 / 배경', 'ink-soft', 'paper', false],
   ['보조 텍스트 / 카드', 'ink-soft', 'card', false],
-  ['강조 텍스트(골드 잉크) / 배경', 'copper', 'paper', false],
-  ['강조 텍스트(골드 잉크) / 카드', 'copper', 'card', false],
+  ['강조 텍스트(슬레이트블루) / 배경', 'copper', 'paper', false],
+  ['강조 텍스트(슬레이트블루) / 카드', 'copper', 'card', false],
   ['강조 hover / 배경', 'copper-deep', 'paper', false],
   ['eyebrow·포커스링 / 배경', 'teal', 'paper', false],
-  ['CTA 글자 / CTA 바탕', 'ink-deep', 'gold', false],
-  ['CTA 글자 / CTA hover 바탕', 'ink-deep', 'gold-deep', false],
+  ['강조 텍스트 / 연하늘 면', 'copper', 'teal-soft', false],
+  ['CTA 버튼 글자 / CTA 바탕', 'card', 'cta', false],
+  ['CTA 버튼 글자 / CTA hover 바탕', 'card', 'cta-deep', false],
+  ['파란 히어로 위 흰 글자', 'card', 'blue', false],
+  ['오커 면 위 글자', 'ink-deep', 'gold', false],
+  ['오커 hover 면 위 글자', 'ink-deep', 'gold-deep', false],
   ['어두운 면 위 본문', 'on-ink', 'ink', false],
   ['어두운 면 위 보조', 'on-ink-soft', 'ink', false],
-  ['어두운 면 위 골드 강조', 'gold', 'ink', false],
+  ['어두운 면 위 오커 강조', 'gold', 'ink', false],
   ['어두운 면 위 흰 글자', 'card', 'ink', false],
+  ['베이지 면 위 본문', 'ink', 'beige', false],
+  ['베이지 면 위 보조', 'ink-soft', 'beige', false],
   ['팁 박스 글자 / 팁 바탕', 'tip-ink', 'tip-bg', false],
   ['경고 글자 / 경고 바탕', 'danger-ink', 'danger-bg', false],
 ]
