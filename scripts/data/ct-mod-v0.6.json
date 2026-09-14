@@ -1,0 +1,106 @@
+{
+  "version": "0.6",
+  "title": "SURIWIKI CT·MOD 모듈형 콘텐츠 생성 가이드",
+  "operating_rule": "사람은 현장 사실과 원본 사진을 제공하고, AI는 검색 질문에 맞는 CT와 모듈을 조합해 CASE·WIKI·LANDING을 생성합니다. 글자 수를 맞추기 위해 없는 사실이나 반복 문장을 만들지 않습니다.",
+  "content_types": {
+    "CT1": {
+      "name": "문제·해결형",
+      "question": "왜 이런 문제가 생겼고 어떻게 해결하는가?",
+      "required_modules": ["M01", "M03", "M04", "M09"],
+      "optional_modules": ["M05", "M06", "M07", "M15", "M16", "M17", "M19", "M20", "M21", "M24", "M25", "M27", "M28"]
+    },
+    "CT2": {
+      "name": "절차·튜토리얼형",
+      "question": "무엇을 준비하고 어떤 순서로 작업하는가?",
+      "required_modules": ["M01", "M10", "M16", "M11_OR_M12"],
+      "optional_modules": ["M03", "M05", "M15", "M17", "M18", "M19", "M20", "M21", "M22"]
+    },
+    "CT3": {
+      "name": "정보·지식형",
+      "question": "이 대상·재료·공구는 무엇이고 어떤 특징이 있는가?",
+      "required_modules": ["M01", "M11_OR_M12"],
+      "optional_modules": ["M04", "M09", "M13", "M14", "M16", "M17", "M19", "M20", "M21", "M22"]
+    },
+    "CT4": {
+      "name": "비교·선택형",
+      "question": "A와 B는 무엇이 다르고 무엇을 선택해야 하는가?",
+      "required_modules": ["M01", "M13", "COMPARISON_TARGET_MODULE"],
+      "optional_modules": ["M05", "M06", "M07", "M09", "M11", "M12", "M14", "M16", "M19", "M20", "M21", "M22", "M25"]
+    },
+    "CT5": {
+      "name": "진단·판단형",
+      "question": "현재 상태에서 수리와 교체 중 무엇이 필요한가?",
+      "required_modules": ["M01", "M03", "M05", "M06", "M07"],
+      "optional_modules": ["M04", "M09", "M14", "M15", "M16", "M18", "M19", "M20", "M21", "M24", "M25", "M26", "M28"]
+    },
+    "CT6": {
+      "name": "사례·현장형",
+      "question": "실제 현장에서 무엇을 보고 판단·작업했는가?",
+      "required_modules": ["M02", "M03", "M06", "M08", "M18", "M20", "M27"],
+      "optional_modules": ["M04", "M05", "M07", "M11", "M12", "M14", "M17", "M21", "M22", "M23", "M24", "M28"]
+    }
+  },
+  "modules": {
+    "M01": "질문 즉답",
+    "M02": "핵심 요약",
+    "M03": "문제·증상",
+    "M04": "원인·발생 구조",
+    "M05": "상태 구분",
+    "M06": "전문가 판단",
+    "M07": "수리·교체 기준",
+    "M08": "실제 작업 공정",
+    "M09": "일반 해결방법",
+    "M10": "셀프시공 절차",
+    "M11": "대상·재료·자재 정보",
+    "M12": "공구 정보",
+    "M13": "비교·선택 기준",
+    "M14": "비용·시간 요소",
+    "M15": "자가 확인",
+    "M16": "안전·중단 기준",
+    "M17": "관리·예방",
+    "M18": "결과·한계",
+    "M19": "실제 CASE 근거",
+    "M20": "사진·오버레이",
+    "M21": "FAQ",
+    "M22": "관련 콘텐츠·내부링크",
+    "M23": "지역·서비스 정보",
+    "M24": "CTA",
+    "M25": "비교표/단가표",
+    "M26": "자가진단 체크리스트",
+    "M27": "TL;DR 요약박스",
+    "M28": "지역 특성 정보"
+  },
+  "rules": {
+    "one_primary_content_type": true,
+    "normal_optional_module_count": { "min": 2, "max": 4 },
+    "missing_required_evidence": "HOLD",
+    "danger_requires_module": "M16",
+    "case_based_priority_modules": ["M19", "M20"],
+    "price_table_requires_source_case": true,
+    "same_case_landing_difference": ["search_intent", "first_answer", "core_module_combination"]
+  },
+  "m28": {
+    "storage_unit": "지역(구·동·생활권)",
+    "workflow": ["조사", "사실 검증", "정제", "압축·저장"],
+    "principle": "조사는 두껍게, 노출은 얇게.",
+    "research_field": "research_raw",
+    "display_field": "display_text",
+    "display_sentence_count": [2, 3],
+    "display_target_characters": 80,
+    "exclude_from_display": ["소득수준", "계층", "세대구성", "아파트 단지명", "특정 브랜드", "특정 시설명"],
+    "allow_lifestyle_name_with_administrative_area": true
+  },
+  "minimum_page_fields": [
+    "page_type",
+    "content_type",
+    "search_intent",
+    "source_case_id",
+    "required_modules",
+    "selected_modules",
+    "module_order",
+    "evidence_ids",
+    "image_set",
+    "decision",
+    "region_profile_id"
+  ]
+}

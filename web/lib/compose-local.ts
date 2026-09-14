@@ -67,10 +67,17 @@ export function composeLocal(
   if (!profile || !pool) return null
 
   const seed = `${keywordSlug}/${regionName}`
+  const hasVerifiedRegion =
+    profile.verification_status === 'verified' &&
+    Boolean(profile.research_raw) &&
+    Boolean(profile.display_text)
+  const regionType = hasVerifiedRegion ? profile.type : '__unverified__'
 
   // 유형에 맞는 각도가 없으면 조립을 포기한다. 아무 각도나 갖다 붙이면 그 동네와
   // 상관없는 한 줄이 히어로 맨 앞에 걸린다 — 빈 페이지보다 나쁘다.
-  const angle = pool.angles[profile.type]
+  const angle = hasVerifiedRegion
+    ? pool.angles[profile.type]
+    : '사진으로 상태를 확인한 뒤 필요한 수리 범위를 안내합니다'
   if (!angle) return null
 
   // 롱폼은 3문단 — 지역 유형에 맞는 2개 + 마지막은 항상 문의 안내로 고정한다.
@@ -78,7 +85,7 @@ export function composeLocal(
   const finalSection = pool.sections.find((s) => s.final)
   const picked = pickForRegion<PooledSection>(
     pool.sections.filter((s) => !s.final),
-    profile.type,
+    regionType,
     seed,
     2,
   )
@@ -87,22 +94,22 @@ export function composeLocal(
     body: s.body,
   }))
 
-  const neighbors = neighborsOf(profile.near)
+  const neighbors = hasVerifiedRegion ? neighborsOf(profile.near) : null
 
   return {
-    hero_line: `${profile.near} — ${angle}`,
-    top_requests: pickForRegion<PooledCard>(pool.requests, profile.type, seed, 6).map((r) => ({
+    hero_line: `${hasVerifiedRegion ? profile.near : regionName} — ${angle}`,
+    top_requests: pickForRegion<PooledCard>(pool.requests, regionType, seed, 6).map((r) => ({
       title: r.title,
       desc: r.desc,
     })),
     longform: {
-      lead: `${profile.note}. ${pool.lead_tail}`,
+      lead: `${hasVerifiedRegion ? `${profile.display_text} ` : ''}${pool.lead_tail}`,
       sections,
     },
     region_faq: {
       q: `${regionName} 어디까지 출장 가능한가요?`,
       a:
-        `${profile.dongs} 등 ${regionName} 전 지역으로 출장합니다. ` +
+        `${hasVerifiedRegion ? `${profile.dongs} 등 ` : ''}${regionName} 전 지역으로 출장합니다. ` +
         (neighbors ? `인접한 ${neighbors} 일대도 같은 일정으로 가능합니다. ` : '') +
         '지역과 현장 사진을 보내주시면 일정 회신이 빠릅니다.',
     },

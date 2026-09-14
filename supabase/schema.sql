@@ -102,6 +102,10 @@ create table public.suri_pages (
   required_modules text[] not null default '{}',
   selected_modules text[] not null default '{}',
   module_order text[] not null default '{}',
+  evidence_ids text[] not null default '{}',
+  image_set jsonb not null default '[]'::jsonb,
+  -- v0.6 M28은 페이지가 아니라 지역 단위로 한 번 저장하고 여러 LANDING이 공유한다.
+  region_profile_id bigint references public.suri_regions (id) on delete restrict,
   meta_title text,
   meta_description text,
   decision text not null default 'HOLD' check (decision in ('CREATE', 'UPDATE', 'MERGE', 'HOLD')),
@@ -115,6 +119,7 @@ create index suri_pages_region_id_idx on public.suri_pages (region_id);
 create index suri_pages_repair_keyword_id_idx on public.suri_pages (repair_keyword_id);
 create index suri_pages_category_id_idx on public.suri_pages (category_id);
 create index suri_pages_source_case_id_idx on public.suri_pages (source_case_id);
+create index suri_pages_region_profile_id_idx on public.suri_pages (region_profile_id);
 create index suri_pages_merged_into_page_id_idx on public.suri_pages (merged_into_page_id);
 create index suri_pages_decision_idx on public.suri_pages (decision);
 -- slug는 null을 여러 개 허용하면서(LANDING/AREA), 실제 값이 있으면(WIKI/CASE/...) 타입 내에서 유니크
@@ -126,7 +131,7 @@ create unique index suri_pages_type_slug_idx on public.suri_pages (page_type, sl
 create table public.suri_page_sections (
   id bigint generated always as identity primary key,
   page_id bigint not null references public.suri_pages (id) on delete cascade,
-  module_code text not null check (module_code ~ '^M(0[1-9]|1[0-9]|2[0-4])$'), -- M01~M24
+  module_code text not null check (module_code ~ '^M(0[1-9]|1[0-9]|2[0-8])$'), -- M01~M28
   sort_order int not null default 0,
   heading text,
   body text not null,

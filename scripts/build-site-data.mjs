@@ -15,6 +15,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { buildLandingBlueprint } from './lib/content-model.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DATA = join(ROOT, 'scripts/data')
@@ -166,24 +167,46 @@ const pages = pairs.map(([kwName, token], i) => {
   const kw = keywords.find((k) => k.display_name === kwName)
   const region = regionByToken.get(token)
   const phrase = `${token} ${kwName}`
+  const imageSet = photos.keywordSets[kw.slug] ?? photos.familySets[kw.family] ?? []
+  const hasVerifiedRegion =
+    region.profile.verification_status === 'verified' &&
+    Boolean(region.profile.research_raw) &&
+    Boolean(region.profile.display_text)
+  const blueprint = buildLandingBlueprint({
+    hasImages: imageSet.length > 0,
+    hasFaqs: kw.content.faqs.length > 0,
+    hasVerifiedRegion,
+  })
+  const hasRequiredEvidence =
+    Boolean(kw.content.tagline) &&
+    kw.content.symptoms.length > 0 &&
+    kw.content.services.length > 0 &&
+    Boolean(kw.content.local_pool?.sections?.some((section) => !section.final))
   return {
     id: i + 1,
     page_type: 'LANDING',
-    content_type: 'CT1',
+    content_type: blueprint.contentType,
     slug: null,
     region_id: region.id,
     repair_keyword_id: keywordIdByName.get(kwName),
     category_id: kw.category_id,
     source_case_id: null,
     search_intent: phrase,
-    required_modules: [],
-    selected_modules: [],
-    module_order: [],
+    required_modules: blueprint.requiredModules,
+    selected_modules: blueprint.selectedModules,
+    module_order: blueprint.moduleOrder,
+    evidence_ids: [
+      `keyword-content:${kw.slug}`,
+      ...imageSet.map((name) => `keyword-image-set:${name}`),
+      ...(hasVerifiedRegion ? [`region-profile:${region.id}`] : []),
+    ],
+    image_set: imageSet,
     meta_title: `${phrase} | 수리위키`,
     meta_description:
       `${phrase} 출장 안내 — ${firstDongs(region.profile.dongs, 4)} 등. ${kw.description} ` +
       '사진을 보내주시면 가능 여부와 일정을 먼저 회신드립니다.',
-    decision: 'CREATE',
+    decision: hasRequiredEvidence ? 'CREATE' : 'HOLD',
+    region_profile_id: region.id,
     merged_into_page_id: null,
     diy_vs_pro: null,
     area_served: token,

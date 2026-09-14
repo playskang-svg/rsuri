@@ -99,6 +99,14 @@ export default async function LandingPage({
   const local =
     page.local ?? composeLocal(keyword.slug, region.display_name, region.profile, kc?.local_pool ?? null)
   const guide = page.guide
+  const activeModules = new Set(page.module_order)
+  const hasModule = (code: string) => activeModules.has(code)
+  const regionDisplayText =
+    hasModule('M28') &&
+    region.profile?.verification_status === 'verified' &&
+    region.profile.display_text
+      ? region.profile.display_text
+      : null
 
   // 증상 체크리스트 · 절차 · FAQ는 두 세대가 같은 자리를 두고 겹친다. 어느 쪽을 쓸지
   // 여기서 한 번만 정해 두고 아래 JSX는 결과만 쓴다.
@@ -272,7 +280,7 @@ export default async function LandingPage({
       {/* ── 히어로 — 참고 스킨의 차콜 색 블록 + 오른쪽 사진 칸 ──
           지역+키워드를 초대형으로 올려 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다.
           사진은 글자 뒤 배경이 아니라 옆 칸이라 어둡게 덮는 그라데이션이 필요 없다. */}
-      <section className="page-hero" data-tone="dark">
+      <section className="page-hero" data-tone="dark" data-module="M01">
         <div className={`hero-inner ${heroImages.length > 0 ? 'photo-first' : 'solo'}`}>
         <div className="min-w-0">
           {/* 브레드크럼이 곧 이동 장치다. 두 세그먼트를 열면 사촌(같은 지역 다른 수리)과
@@ -346,13 +354,14 @@ export default async function LandingPage({
             {keyword.display_name}
           </h1>
 
-          <p className="prose-kr hero-desc text-[var(--on-ink)]">
-            {region.profile?.dongs &&
-              `${region.profile.dongs} 등 전 동 출장 ${region.display_name} ${keyword.display_name}. `}
-            {region.profile?.note
-              ? `${region.profile.note}.`
-              : (guide?.summary ?? kc?.tagline ?? keyword.description ?? '')}
+          <p className="prose-kr hero-desc text-[var(--on-ink)]" data-module="M01">
+            {guide?.summary ?? kc?.tagline ?? keyword.description ?? ''}
           </p>
+          {regionDisplayText && (
+            <p className="prose-kr hero-desc mt-3 text-[var(--on-ink-soft)]" data-module="M28">
+              {regionDisplayText}
+            </p>
+          )}
 
           <div className="mt-8 flex flex-wrap gap-3">
             {telHref && (
@@ -389,8 +398,8 @@ export default async function LandingPage({
           '후'가 드러난다 — 나란히 놓는 것보다 같은 자리·같은 각도라는 게 드러나 비교가 된다.
           실제 사진이 등록된 키워드에서만 나온다. 스톡 두 장을 전/후로 붙이면 서로 다른 현장을
           같은 집의 시공 결과인 것처럼 보이게 되므로 사진이 없으면 섹션을 만들지 않는다. */}
-      {inheritedSets.length > 0 && (
-        <section id="cases" className="scroll-mt-20 border-b border-[var(--line)] bg-white">
+      {hasModule('M20') && inheritedSets.length > 0 && (
+        <section id="cases" className="scroll-mt-20 border-b border-[var(--line)] bg-white" data-module="M20">
           <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
             <Pill>CASES</Pill>
             <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
@@ -417,8 +426,8 @@ export default async function LandingPage({
       {/* ── 자가진단 ──
           히어로에서 밀려난 체크리스트. 사진 배경 위에 두면 안 읽힌다.
           서비스 항목은 아래 SERVICE 섹션이 전담한다 — 여기에도 두면 같은 내용이 두 번 나온다. */}
-      {symptoms.length > 0 && (
-        <section className="border-b border-[var(--line)] bg-white">
+      {hasModule('M03') && symptoms.length > 0 && (
+        <section className="border-b border-[var(--line)] bg-white" data-module="M03">
           <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
             <Pill>SELF CHECK</Pill>
             <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
@@ -448,8 +457,8 @@ export default async function LandingPage({
           지역 페이지가 서로 다른 글이 되는 첫 번째 자리. 같은 키워드라도 동네마다
           실제로 들어오는 의뢰 유형이 다르다. 앞의 3개만 카드로 크게 세우고,
           나머지는 아래 "자주 발생하는 상황" 목록이 받는다. */}
-      {local && local.top_requests.length > 0 && (
-        <section className="border-y border-[var(--line)] bg-[var(--paper)]">
+      {hasModule('M03') && local && local.top_requests.length > 0 && (
+        <section className="border-y border-[var(--line)] bg-[var(--paper)]" data-module="M03">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <Pill>AREA</Pill>
             <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
@@ -476,8 +485,8 @@ export default async function LandingPage({
           검색 엔진이 이 페이지를 "지역명만 바꾼 복붙"이 아니라고 판단하는 근거가 되는 본문.
           소제목마다 지역+키워드를 붙인다 — 목차만 훑어도 이 페이지가 무엇에 대한 글인지
           드러나야 하고, 그게 곧 타겟 키워드다. */}
-      {local && (
-        <section className="bg-white">
+      {local && (hasModule('M04') || hasModule('M09')) && (
+        <section className="bg-white" data-module="M04 M09">
           <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
             <p className="prose-kr text-[17px] font-bold leading-relaxed">{local.longform.lead}</p>
 
@@ -532,8 +541,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 서비스 안내 (키워드 자산) ── */}
-      {kc && kc.services.length > 0 && (
-        <section id="services" className="scroll-mt-20 border-y border-[var(--line)] bg-[var(--paper)]">
+      {hasModule('M09') && kc && kc.services.length > 0 && (
+        <section id="services" className="scroll-mt-20 border-y border-[var(--line)] bg-[var(--paper)]" data-module="M09">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <Pill>SERVICE</Pill>
             <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
@@ -557,8 +566,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 표준 시공 절차 ── */}
-      {steps.length > 0 && (
-        <section id="process" className="scroll-mt-20 mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      {(hasModule('M08') || hasModule('M09') || hasModule('M10')) && steps.length > 0 && (
+        <section id="process" className="scroll-mt-20 mx-auto max-w-3xl px-4 py-14 sm:px-6" data-module={hasModule('M08') ? 'M08' : hasModule('M10') ? 'M10' : 'M09'}>
           <Pill>PROCESS</Pill>
           <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
             {region.display_name} {keyword.display_name} 진행 절차
@@ -597,8 +606,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 자가수리 vs 전문가 ── */}
-      {page.diy_vs_pro && (
-        <section className="mx-auto max-w-3xl px-4 sm:px-6">
+      {hasModule('M07') && page.diy_vs_pro && (
+        <section className="mx-auto max-w-3xl px-4 sm:px-6" data-module="M07">
           <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
             <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--gold)]">
               직접 할까, 맡길까
@@ -611,8 +620,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 재발 방지 ── */}
-      {guide && guide.prevention_tips.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      {hasModule('M17') && guide && guide.prevention_tips.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6" data-module="M17">
           <p className="eyebrow">Prevention</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
             {region.display_name} 시공 후 관리·재발 방지
@@ -631,8 +640,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 전문 업체가 유리한 이유 (키워드 자산) ── */}
-      {kc && kc.why_pro.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6">
+      {hasModule('M09') && kc && kc.why_pro.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6" data-module="M09">
           <p className="eyebrow">Why Pro</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
             {region.display_name} {keyword.display_name}, 전문 업체가 유리한 이유
@@ -651,8 +660,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 시공 기록 발췌 ── */}
-      {casePage?.slug && (
-        <section className="border-y border-[var(--line)] bg-white">
+      {hasModule('M19') && casePage?.slug && (
+        <section className="border-y border-[var(--line)] bg-white" data-module="M19">
           <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
             <p className="eyebrow">Field Record</p>
             <h2 className="font-serif-kr mt-2 text-2xl font-black">
@@ -680,8 +689,8 @@ export default async function LandingPage({
       )}
 
       {/* ── FAQ ── */}
-      {faqs.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      {hasModule('M21') && faqs.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6" data-module="M21">
           <Pill>FAQ</Pill>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
             {region.display_name} {keyword.display_name} 자주 묻는 질문
@@ -698,8 +707,8 @@ export default async function LandingPage({
       )}
 
       {/* ── 지역 마스터 ── */}
-      {pros.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6">
+      {hasModule('M23') && pros.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6" data-module="M23">
           <p className="eyebrow">Local Masters</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
             {region.display_name} {keyword.display_name} 담당 마스터
@@ -751,7 +760,7 @@ export default async function LandingPage({
       )}
 
       {/* ── 거미줄 내부링크 ── */}
-      <section className="border-t border-[var(--line)] bg-white">
+      {hasModule('M22') && <section className="border-t border-[var(--line)] bg-white" data-module="M22">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <p className="eyebrow">Related</p>
           <h2 className="font-serif-kr mt-2 text-xl font-black">관련 서비스 페이지</h2>
@@ -931,12 +940,12 @@ export default async function LandingPage({
             </div>
           )}
         </div>
-      </section>
+      </section>}
 
       {/* ── 최하단 CTA 밴드 ──
           본문을 끝까지 읽은 사람이 마지막으로 만나는 화면이다. 여기서 아무 것도 제시하지
           않으면 그대로 닫는다. */}
-      <section className="bg-[var(--ink)]">
+      {hasModule('M24') && <section className="bg-[var(--ink)]" data-module="M24">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
           <h2 className="font-serif-kr text-2xl font-black text-white sm:text-3xl">
             {keyword.display_name} 상태 사진 한 장이면 충분합니다
@@ -962,7 +971,7 @@ export default async function LandingPage({
             <li>사진·문자 상담 환영</li>
           </ul>
         </div>
-      </section>
+      </section>}
 
       {/* ── 사이트맵 ── */}
       {(sameRegion.length > 0 || otherHubs.length > 0) && (

@@ -46,6 +46,7 @@
 
 ```
 scripts/data/keyword-groups.md      운영자가 준 키워드 그룹 — 그룹 = 허브, "지역 키워드" 한 줄 = 지역 페이지
+scripts/data/ct-mod-v0.6.json        전문가 CT1~CT6·M01~M28 규칙 — 빌드가 축약·변형 여부를 검사
 scripts/data/keyword-map.json       그룹 → slug·분야·계열, 별칭(같은 의도 합치기), 지역 표기 → slug
 scripts/data/keyword-content/*.json 계열 공통 본문 + 지역 문장 풀
 scripts/data/keyword-notes.json     키워드별 한 줄·증상·FAQ
@@ -57,6 +58,9 @@ scripts/data/legacy-*.{txt,json}    옛 색인 주소 → 새 주소 301
         ↓  main 머지 → GitHub Actions → Cloudflare
       사이트
 ```
+
+`scripts/validate-content-model.mjs`는 모든 LANDING의 필수·옵션 모듈, 근거, M28 검증 상태와
+키워드 원문 표기를 검사한다. 이 검사를 통과하지 못하면 빌드와 배포가 중단된다.
 
 사진은 **그 수리와 맞는 실사만** 쓴다. 맞는 사진이 없으면 사진 칸을 비운다(스톡 사진 금지 — 운영자 지적).
 실사는 `cwebp -metadata none`으로 다시 인코딩해 위치 정보를 지운 뒤 `web/public/photos/field/`에 둔다.
