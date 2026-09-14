@@ -14,10 +14,18 @@ export interface RegionProfile {
   type: string
   /** 히어로 한 줄에 쓰는 인접 지역 표기. 맨 앞은 자기 자신. 예) "노원구·도봉구·중랑구" */
   near: string
-  /** 롱폼 리드 문단에 들어가는 주거 특성 한 줄 (마침표 없이 끝낸다) */
+  /** v0.5의 지역 메모. v0.6부터 research_raw로만 보존하며 공개에 직접 쓰지 않는다. */
   note: string
   /** 출장 범위 FAQ 답변에 나열할 실제 행정동 */
   dongs: string
+  /** v0.6 조사 원본. 내부 검증용이며 페이지에 직접 노출하지 않는다. */
+  research_raw: unknown
+  /** v0.6 사실 검증·정제를 마친 공개용 2~3문장. 검증 전에는 null. */
+  display_text: string | null
+  /** M28 네 단계가 끝난 프로필만 verified로 둔다. */
+  verification_status: 'pending' | 'verified'
+  verified_facts: string[]
+  verified_at: string | null
 }
 
 export interface Region {
@@ -163,9 +171,13 @@ export interface Page {
   required_modules: string[]
   selected_modules: string[]
   module_order: string[]
+  evidence_ids: string[]
+  image_set: string[]
   meta_title: string | null
   meta_description: string | null
   decision: Decision
+  /** M28 저장 단위인 지역 레코드. 현재 정적 모델에서는 Region.id를 참조한다. */
+  region_profile_id: number | null
   merged_into_page_id: number | null
   diy_vs_pro: string | null
   area_served: string | null

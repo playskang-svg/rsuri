@@ -53,7 +53,8 @@ Supabase는 그대로 쓴다. 프로젝트 `suriwiki` (`xparlhzbactezsvuteto`, a
 ## 4. 콘텐츠와 키워드는 최초 기획 자료 기준으로 재작성
 
 기준 자료
-- `Suriwiki_CT_MOD_모듈형_콘텐츠_생성_가이드_v0.3.docx` — CT1~CT6 콘텐츠 타입, M01~M24 모듈
+- `Suriwiki_CT_MOD_v0.6md` — CT1~CT6 콘텐츠 타입, M01~M28 모듈, M28 조사·검증·정제·압축 저장 규칙
+- `scripts/data/ct-mod-v0.6.json` — 위 전문가 문서를 빌드에서 검증하는 구조화 정본
 - `src/data/mockWikiData.ts` — 9개 공종 대분류, 초기 카피 원본
 - `docs/PRD.md` 5번 (콘텐츠 아키텍처)
 
@@ -63,6 +64,8 @@ Supabase는 그대로 쓴다. 프로젝트 `suriwiki` (`xparlhzbactezsvuteto`, a
 - `local_pool.sections` 중 하나에 `"final": true` (문의 안내)를 둔다
 - 근거 없는 문장은 지어내지 않는다. 필수 모듈의 근거가 없으면 CT를 바꾸거나 `HOLD`로 둔다
 - 전기·가스·구조·심한 누수·고소작업이면 M16(안전·중단 기준)을 필수로 승격
+- 키워드는 운영자가 제공한 표기를 띄어쓰기까지 그대로 사용하고, CT별 필수·옵션 조합을 임의로 축약하지 않는다
+- M28은 `research_raw`와 `display_text`를 분리하고, 사실 검증 전에는 `display_text`를 노출하지 않는다
 
 현재 콘텐츠가 채워진 키워드는 3개(`door-repair`, `stair-restoration`, `wallpaper-restoration`)다. 나머지는 `HOLD` 상태이며, 재작성 결과가 갖춰지는 키워드부터 `CREATE`로 되돌려 순차 발행한다.
 

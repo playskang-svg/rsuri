@@ -1,5 +1,9 @@
 # 지역 페이지 콘텐츠 모델
 
+> 현재 최상위 규칙은 전문가 문서 v0.6과 `scripts/data/ct-mod-v0.6.json`이다. 모든 빌드는
+> `scripts/validate-content-model.mjs`에서 CT1~CT6, M01~M28, 키워드 원문, 근거 및 HOLD 조건을
+> 검사한다. 아래 2단 조립 모델은 그 CT·MOD 구조 안에서 본문 재료를 공급한다.
+
 ## 왜 바꿨나
 
 2026-09-03 기준 LANDING 페이지 1,479건 중 본문이 있는 건 6건이었다. 나머지 1,473건은
@@ -24,7 +28,7 @@
 |---|---|---|---|
 | 키워드 자산 | `suri_repair_keywords.content` | tagline · 서비스 항목 · 진행 절차 · 증상 체크리스트 · 전문업체 이유 · 공통 FAQ | 그 키워드의 **모든** 지역 페이지가 상속 |
 | 키워드 문장 풀 | `suri_repair_keywords.content.local_pool` | 지역 유형별 히어로 각도 · 의뢰 유형 카드 풀 · 롱폼 문단 풀 | 조립 재료 |
-| 지역 프로필 | `suri_regions.profile` | 주거 유형(type) · 인접 지역(near) · 주거 특성 한 줄(note) · 대표 동(dongs) | 그 지역의 **모든** 키워드 페이지가 공유 |
+| 지역 프로필 | `suri_regions.profile` | 내부 조사 원본(`research_raw`) · 검증된 공개문(`display_text`) · 주거 유형(type) · 인접 지역(near) · 대표 동(dongs) | 그 지역의 **모든** 키워드 페이지가 공유 |
 | 페이지 override | `suri_pages.local` | 손으로 쓴 완성 본문 | 그 페이지 하나. 있으면 조립을 이긴다 |
 
 **완성본을 페이지마다 저장하지 않는 이유**: 페이지가 1,479건이라 같은 문장이 수백 번 중복
@@ -37,6 +41,9 @@ SQL로 뽑아 보니 196KB였는데, 재료만 저장하니 32KB로 줄었다.
 local = suri_pages.local
      ?? compose(keyword.slug, region.display_name, region.profile, keyword.content.local_pool)
 ```
+
+- M28은 `verification_status:'verified'`이며 `research_raw`와 `display_text`가 모두 있을 때만
+  선택·노출한다. 이전 버전의 `note`는 `research_raw`로 보존하지만 검증 전에는 공개하지 않는다.
 
 - **후보를 정하는 건 지역 유형**, 순서를 흔드는 건 해시다. 신축 단지 페이지에 "30년차 문틀
   뒤틀림" 카드가 뽑히면 그 페이지는 틀린 글이 된다 — 해시는 순서만 건드린다.
