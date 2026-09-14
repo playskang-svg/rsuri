@@ -23,6 +23,8 @@ const ROLE_LABEL: Record<PageImageRole, string> = {
   EXCLUDE: '',
 }
 
+const firstDongs = (dongs: string, n: number) => dongs.split('·').slice(0, n).join('·')
+
 // 거미줄 링크 한 줄 스타일 — globals.css는 다른 담당 파일이라 클래스 추가 대신 여기서 묶는다.
 const ROW =
   'group flex items-baseline justify-between gap-2 rounded-lg border border-transparent px-3 py-2.5 hover:border-[var(--line)] hover:bg-[var(--paper)]'
@@ -375,10 +377,22 @@ export default async function LandingPage({
             </Link>
           </div>
 
-          <div className="hero-tags" aria-hidden>
-            <span>Check The Cause</span>
-            <span>Local Master</span>
-          </div>
+          {/* 괘선 아래 라벨만 있고 값이 없어 미완성 칸처럼 보이던 자리.
+              장식용 영문 대신 이 페이지에서만 달라지는 사실 두 가지를 넣는다. */}
+          <dl className="hero-tags">
+            <div>
+              <dt>Service Area</dt>
+              <dd>
+                {region.profile?.dongs
+                  ? `${firstDongs(region.profile.dongs, 3)} 등 전 동 출장`
+                  : `${region.display_name} 전 지역 출장`}
+              </dd>
+            </div>
+            <div>
+              <dt>Consult</dt>
+              <dd>사진 한 장이면 가능 여부 회신</dd>
+            </div>
+          </dl>
         </div>
 
         {/* 사진 칸 — 슬라이더의 사진·버튼은 이 칸 안에 absolute 로 깔린다 */}
@@ -706,9 +720,10 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 지역 마스터 ── */}
-      {hasModule('M23') && pros.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6" data-module="M23">
+      {/* ── 지역 마스터 ──
+          담당자 안내는 본문 모듈이 아니라 서비스 정보다. CT 조합표로 껐다 켜지 않는다. */}
+      {pros.length > 0 && (
+        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6" data-chrome="local-masters">
           <p className="eyebrow">Local Masters</p>
           <h2 className="font-serif-kr mt-2 text-2xl font-black">
             {region.display_name} {keyword.display_name} 담당 마스터
@@ -759,8 +774,11 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 거미줄 내부링크 ── */}
-      {hasModule('M22') && <section className="border-t border-[var(--line)] bg-white" data-module="M22">
+      {/* ── 거미줄 내부링크 ──
+          CT·MOD는 본문 모듈을 규정하지 사이트 내비게이션을 규정하지 않는다. CT1 옵션표에
+          M22가 없다는 이유로 이 블록을 끄면 키워드끼리 홈을 거치지 않고는 서로 연결되지
+          않는다 — 실제로 한 번 꺼졌던 자리라 다시 모듈 게이트에 묶지 않는다. */}
+      {<section className="border-t border-[var(--line)] bg-white" data-chrome="related-links">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <p className="eyebrow">Related</p>
           <h2 className="font-serif-kr mt-2 text-xl font-black">관련 서비스 페이지</h2>

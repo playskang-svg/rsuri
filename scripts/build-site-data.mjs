@@ -15,7 +15,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildLandingBlueprint } from './lib/content-model.mjs'
+import { buildLandingBlueprint, KEYWORD_INTENT } from './lib/content-model.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DATA = join(ROOT, 'scripts/data')
@@ -163,25 +163,50 @@ const regionByToken = new Map(regions.map((r) => [r.display_name, r]))
 
 // ── 6. 지역 페이지 ──
 const firstDongs = (dongs, n) => dongs.split('·').slice(0, n).join('·')
+
+// 문서 08절 1단계 "원천 CASE 확인" — 이 저장소에서 근거는 CASE DB가 아니라 키워드 자산 파일이다.
+// 모듈마다 "지어내지 않고 실제로 채울 수 있는가"를 여기서 한 번만 판정하고,
+// 조립기(content-model.mjs)와 화면(page.tsx)이 같은 판정을 쓴다.
+function moduleEvidence(kw, region, imageSet) {
+  const localPool = kw.content.local_pool
+  const hasVerifiedRegion =
+    region.profile.verification_status === 'verified' &&
+    Boolean(region.profile.research_raw) &&
+    Boolean(region.profile.display_text)
+
+  return {
+    M01: Boolean(kw.content.tagline),
+    M03: kw.content.symptoms.length > 0 || (localPool?.requests?.length ?? 0) > 0,
+    M04: Boolean(localPool?.sections?.some((section) => !section.final)),
+    M09: kw.content.services.length > 0 || kw.content.why_pro.length > 0,
+    M20: imageSet.length > 0,
+    M21: kw.content.faqs.length > 0,
+    M24: true, // 사진 상담 안내는 모든 지역 페이지가 실제로 제공하는 다음 행동이다.
+    M28: hasVerifiedRegion,
+    // 아래 모듈들은 현장 사실이 있어야 채울 수 있다. 운영자가 CASE·공정·단가·안전 기준을
+    // 넣기 전까지는 근거가 없으므로 false로 둔다 — 문장을 만들어 채우지 않는다(문서 07절).
+    M02: false, M05: false, M06: false, M07: false, M08: false, M10: false,
+    M11: false, M12: false, M13: false, M14: false, M15: false, M16: false,
+    M17: false, M18: false, M19: false, M25: false, M26: false, M27: false,
+  }
+}
+
 const pages = pairs.map(([kwName, token], i) => {
   const kw = keywords.find((k) => k.display_name === kwName)
   const region = regionByToken.get(token)
   const phrase = `${token} ${kwName}`
   const imageSet = photos.keywordSets[kw.slug] ?? photos.familySets[kw.family] ?? []
-  const hasVerifiedRegion =
-    region.profile.verification_status === 'verified' &&
-    Boolean(region.profile.research_raw) &&
-    Boolean(region.profile.display_text)
+  const evidence = moduleEvidence(kw, region, imageSet)
+
+  const intent = KEYWORD_INTENT.keywords[kw.slug]
+  if (!intent) throw new Error(`keyword-intent.json에 ${kw.slug}의 검색 의도가 없습니다`)
+
   const blueprint = buildLandingBlueprint({
-    hasImages: imageSet.length > 0,
-    hasFaqs: kw.content.faqs.length > 0,
-    hasVerifiedRegion,
+    intendedContentType: intent.ct,
+    evidence,
+    danger: intent.danger === true,
   })
-  const hasRequiredEvidence =
-    Boolean(kw.content.tagline) &&
-    kw.content.symptoms.length > 0 &&
-    kw.content.services.length > 0 &&
-    Boolean(kw.content.local_pool?.sections?.some((section) => !section.final))
+
   return {
     id: i + 1,
     page_type: 'LANDING',
@@ -191,21 +216,27 @@ const pages = pairs.map(([kwName, token], i) => {
     repair_keyword_id: keywordIdByName.get(kwName),
     category_id: kw.category_id,
     source_case_id: null,
-    search_intent: phrase,
+    // 문서 10절 search_intent = "검색자가 궁금한 핵심 질문 1문장".
+    // 운영자가 준 키워드 표기 그대로는 target_phrase가 따로 보관한다.
+    search_intent: intent.question.replaceAll('{region}', token),
+    target_phrase: phrase,
+    intended_content_type: blueprint.intendedContentType,
+    content_type_fell_back: blueprint.fellBack,
+    hold_reason: blueprint.holdReason,
     required_modules: blueprint.requiredModules,
     selected_modules: blueprint.selectedModules,
     module_order: blueprint.moduleOrder,
     evidence_ids: [
       `keyword-content:${kw.slug}`,
       ...imageSet.map((name) => `keyword-image-set:${name}`),
-      ...(hasVerifiedRegion ? [`region-profile:${region.id}`] : []),
+      ...(evidence.M28 ? [`region-profile:${region.id}`] : []),
     ],
     image_set: imageSet,
     meta_title: `${phrase} | 수리위키`,
     meta_description:
       `${phrase} 출장 안내 — ${firstDongs(region.profile.dongs, 4)} 등. ${kw.description} ` +
       '사진을 보내주시면 가능 여부와 일정을 먼저 회신드립니다.',
-    decision: hasRequiredEvidence ? 'CREATE' : 'HOLD',
+    decision: blueprint.decision,
     region_profile_id: region.id,
     merged_into_page_id: null,
     diy_vs_pro: null,

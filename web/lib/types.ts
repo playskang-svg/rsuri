@@ -167,7 +167,15 @@ export interface Page {
   repair_keyword_id: number | null
   category_id: number | null
   source_case_id: number | null
+  /** 문서 10절 — 검색자가 궁금한 핵심 질문 1문장. 키워드 표기가 아니다. */
   search_intent: string
+  /** 운영자가 준 "지역 + 키워드" 표기. 띄어쓰기까지 그대로 쓴다. */
+  target_phrase: string
+  /** 검색 의도상 고르려 했던 CT. 근거가 모자라 내려앉았으면 content_type과 다르다. */
+  intended_content_type: ContentType
+  content_type_fell_back: boolean
+  /** decision이 HOLD일 때 왜 멈췄는지. 발행 재개 조건을 여기서 읽는다. */
+  hold_reason: string | null
   required_modules: string[]
   selected_modules: string[]
   module_order: string[]
