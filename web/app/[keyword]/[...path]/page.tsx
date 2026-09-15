@@ -495,6 +495,50 @@ export default async function LandingPage({
         </section>
       )}
 
+      {/* ── M05 상태 구분 ── */}
+      {hasModule('M05') && kc?.status_criteria && (
+        <section className="border-b border-[var(--line)] bg-[var(--paper)]" data-module="M05">
+          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+            <Pill>DIAGNOSIS</Pill>
+            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
+              {kc.status_criteria.title}
+            </h2>
+            <ul className="mt-7 space-y-4">
+              {kc.status_criteria.list.map((item: string, i: number) => {
+                const [badge, ...rest] = item.split(': ')
+                return (
+                  <li key={i} className="rounded-lg border border-[var(--line)] bg-white p-5">
+                    <span className="inline-block rounded bg-[var(--ink-base)] px-2.5 py-1 text-[13px] font-bold text-white mb-2">
+                      {badge}
+                    </span>
+                    <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
+                      {rest.join(': ')}
+                    </p>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* ── M06 전문가 판단 ── */}
+      {hasModule('M06') && kc?.pro_judgment && (
+        <section className="border-b border-[var(--line)] bg-white" data-module="M06">
+          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+            <Pill>PRO TIP</Pill>
+            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
+              {kc.pro_judgment.title}
+            </h2>
+            <div className="mt-6 rounded-xl border border-[var(--copper)]/30 bg-[var(--copper)]/5 p-6">
+              <p className="prose-kr text-[15.5px] font-medium leading-relaxed text-[var(--ink-base)]">
+                {kc.pro_judgment.body}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── 지역 롱폼 본문 ──
           검색 엔진이 이 페이지를 "지역명만 바꾼 복붙"이 아니라고 판단하는 근거가 되는 본문.
           소제목마다 지역+키워드를 붙인다 — 목차만 훑어도 이 페이지가 무엇에 대한 글인지
@@ -619,16 +663,30 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 자가수리 vs 전문가 ── */}
-      {hasModule('M07') && page.diy_vs_pro && (
-        <section className="mx-auto max-w-3xl px-4 sm:px-6" data-module="M07">
+      {/* ── M07 수리·교체 기준 (또는 자가수리 vs 전문가) ── */}
+      {hasModule('M07') && (page.diy_vs_pro || kc?.repair_vs_replace) && (
+        <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6" data-module="M07">
           <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
             <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--gold)]">
-              직접 할까, 맡길까
+              {kc?.repair_vs_replace ? kc.repair_vs_replace.title : '직접 할까, 맡길까'}
             </p>
-            <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[var(--on-ink)]">
-              {page.diy_vs_pro}
-            </p>
+            {kc?.repair_vs_replace ? (
+              <ul className="mt-5 space-y-3">
+                {kc.repair_vs_replace.list.map((item: string, i: number) => {
+                  const [badge, ...rest] = item.split(': ')
+                  return (
+                    <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-[var(--on-ink)]">
+                      <span className="shrink-0 font-bold text-[var(--gold)]">{badge}</span>
+                      <span className="text-[var(--paper)] opacity-80">{rest.join(': ')}</span>
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : (
+              <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[var(--on-ink)]">
+                {page.diy_vs_pro}
+              </p>
+            )}
           </div>
         </section>
       )}
