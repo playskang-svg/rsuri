@@ -38,12 +38,6 @@ export function PageHero({
           <h1>{title}</h1>
           {desc && <div className="hero-desc">{desc}</div>}
           {children && <div className="mt-7 flex flex-wrap gap-3">{children}</div>}
-          {tags && (
-            <div className="hero-tags" aria-hidden>
-              <span>{tags[0]}</span>
-              <span>{tags[1]}</span>
-            </div>
-          )}
         </div>
         {photo ? (
           <div className="hero-photo">
