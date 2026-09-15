@@ -183,9 +183,12 @@ function moduleEvidence(kw, region, imageSet) {
     M21: kw.content.faqs.length > 0,
     M24: true, // 사진 상담 안내는 모든 지역 페이지가 실제로 제공하는 다음 행동이다.
     M28: hasVerifiedRegion,
+    M05: Boolean(kw.content.status_criteria),
+    M06: Boolean(kw.content.pro_judgment),
+    M07: Boolean(kw.content.repair_vs_replace),
     // 아래 모듈들은 현장 사실이 있어야 채울 수 있다. 운영자가 CASE·공정·단가·안전 기준을
     // 넣기 전까지는 근거가 없으므로 false로 둔다 — 문장을 만들어 채우지 않는다(문서 07절).
-    M02: false, M05: false, M06: false, M07: false, M08: false, M10: false,
+    M02: false, M08: false, M10: false,
     M11: false, M12: false, M13: false, M14: false, M15: false, M16: false,
     M17: false, M18: false, M19: false, M25: false, M26: false, M27: false,
   }

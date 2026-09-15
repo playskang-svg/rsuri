@@ -34,7 +34,7 @@ for (const [code, ct] of Object.entries(CT_MOD_GUIDE.content_types)) {
 // LANDING 화면이 실제로 그리는 순서. 문서 10절이 module_order를 "본문에 배치된 모듈 순서"로
 // 정의하므로, 이 배열이 page.tsx의 섹션 순서와 어긋나면 저장값이 거짓말이 된다.
 export const LANDING_RENDER_ORDER = [
-  'M01', 'M28', 'M20', 'M03', 'M04', 'M09', 'M08', 'M10', 'M07', 'M17', 'M19', 'M21', 'M24',
+  'M01', 'M28', 'M20', 'M03', 'M05', 'M06', 'M04', 'M09', 'M08', 'M10', 'M07', 'M17', 'M19', 'M21', 'M24',
 ]
 
 // 문서의 CT·MOD는 본문 모듈 조합을 규정한다. 아래 두 블록은 글이 아니라 사이트 내비게이션이라

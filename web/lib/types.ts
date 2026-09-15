@@ -95,6 +95,9 @@ export interface KeywordContent {
   symptoms: string[]
   why_pro: string[]
   faqs: GuideFaq[]
+  status_criteria?: { title: string; list: string[] }
+  pro_judgment?: { title: string; body: string }
+  repair_vs_replace?: { title: string; list: string[] }
   local_pool: KeywordLocalPool | null
 }
 
