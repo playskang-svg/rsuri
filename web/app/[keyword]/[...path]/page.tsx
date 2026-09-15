@@ -637,7 +637,7 @@ export default async function LandingPage({
           {photoB && (
             <div className="hero-photo mt-6 aspect-[16/7]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photoB.src} alt={photoB.note ?? ''} loading="lazy" />
+              <img referrerPolicy="no-referrer" src={photoB.src} alt={photoB.note ?? ''} loading="lazy" />
               <span className="tag">{photoB.label}</span>
             </div>
           )}
@@ -863,7 +863,7 @@ export default async function LandingPage({
                         {ph && (
                           <div className="aspect-[16/9] overflow-hidden">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
+                            <img referrerPolicy="no-referrer"
                               src={ph}
                               alt=""
                               loading="lazy"
@@ -907,7 +907,7 @@ export default async function LandingPage({
                     {photoA ? (
                       <div className="relative aspect-[16/9] overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={photoA.src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        <img referrerPolicy="no-referrer" src={photoA.src} alt="" loading="lazy" className="h-full w-full object-cover" />
                         <span className="absolute right-2.5 top-2.5 rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
                           현재 페이지
                         </span>
@@ -940,7 +940,7 @@ export default async function LandingPage({
                         {ph && (
                           <div className="aspect-[16/9] overflow-hidden">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
+                            <img referrerPolicy="no-referrer"
                               src={ph}
                               alt=""
                               loading="lazy"

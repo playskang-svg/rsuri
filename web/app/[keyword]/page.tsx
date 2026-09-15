@@ -352,7 +352,7 @@ export default async function KeywordHubPage({
                       {src && (
                         <div className="relative aspect-[16/9] overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <img referrerPolicy="no-referrer"
                             src={src}
                             alt=""
                             loading="lazy"

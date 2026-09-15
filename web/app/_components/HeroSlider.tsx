@@ -33,7 +33,7 @@ export function HeroSlider({ images, alt, isFullBleed }: { images: HeroImage[]; 
         {/* Stacked images */}
         {images.map((img, idx) => (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <img referrerPolicy="no-referrer"
             key={idx}
             src={img.src}
             alt={img.alt || (idx === 0 ? alt : '')}
@@ -60,7 +60,7 @@ export function HeroSlider({ images, alt, isFullBleed }: { images: HeroImage[]; 
     <>
       {images.map((img, idx) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <img referrerPolicy="no-referrer"
           key={idx}
           src={img.src}
           alt={img.alt || (idx === 0 ? alt : '')}

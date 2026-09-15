@@ -148,7 +148,7 @@ export default async function HomePage() {
               {photo && (
                 <Link href={`/category/${category.slug}`} className="relative block aspect-[16/9] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <img referrerPolicy="no-referrer"
                     src={photo}
                     alt={`${category.display_name} 시공 현장`}
                     loading="lazy"

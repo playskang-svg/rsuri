@@ -96,7 +96,7 @@ export function BeforeAfterSlider({
           <>
             {/* 뒤: 시공 후 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <img referrerPolicy="no-referrer"
               src={current.after!}
               alt={`${alt} 시공 후`}
               draggable={false}
@@ -109,7 +109,7 @@ export function BeforeAfterSlider({
               style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <img referrerPolicy="no-referrer"
                 src={current.before!}
                 alt={`${alt} 시공 전`}
                 draggable={false}
@@ -157,7 +157,7 @@ export function BeforeAfterSlider({
         ) : (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <img referrerPolicy="no-referrer"
               src={singleImage(current)!}
               alt={alt}
               draggable={false}
