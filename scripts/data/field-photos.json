@@ -67,6 +67,11 @@
       "before": "/illustrations/wallpaper-restoration/tear-before.svg",
       "after": "/illustrations/wallpaper-restoration/tear-after.svg",
       "caption": "찢김·들뜸을 결 따라 이어 붙이기"
+    },
+    "ill-floor-scratch": {
+      "before": "/illustrations/floor/scratch-before.svg",
+      "after": "/illustrations/floor/scratch-after.svg",
+      "caption": "찍힘·스크래치·물자국을 뜯지 않고 결·색 맞춰 부분 복원"
     }
   },
   "_keywordSets_note": "키워드 slug → 시공 전후 세트. 여기 없는 키워드는 계열(family) 기본값을 쓴다. 실사와 개념도를 한 키워드에 섞지 않는다 — 섞으면 개념도 표기가 사라져 그림이 실제 현장처럼 보인다.",
@@ -92,7 +97,9 @@
     "stair": [
       "ill-stair-nosing"
     ],
-    "floor": [],
+    "floor": [
+      "ill-floor-scratch"
+    ],
     "wall": [
       "ill-wall-mold",
       "ill-wall-tear"

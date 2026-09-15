@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="찍힘·스크래치를 결과 색을 맞춰 복원한 마루 개념도">
+  <defs>
+    <linearGradient id="fbg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1eb"/><stop offset="1" stop-color="#e4dfd5"/>
+    </linearGradient>
+    <linearGradient id="plank2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#dcb37e"/><stop offset="1" stop-color="#c0975f"/>
+    </linearGradient>
+    <linearGradient id="fsheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="fwood2" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.16 0.012" numOctaves="4" seed="21"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="fsf2"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#fbg2)"/>
+
+  <g>
+    <path d="M60 160 L1140 160 L1140 260 L60 260 Z" fill="url(#plank2)"/>
+    <path d="M60 268 L1140 268 L1140 368 L60 368 Z" fill="url(#plank2)"/>
+    <path d="M60 376 L1140 376 L1140 476 L60 476 Z" fill="url(#plank2)"/>
+    <path d="M60 484 L1140 484 L1140 584 L60 584 Z" fill="url(#plank2)"/>
+    <path d="M60 592 L1140 592 L1140 692 L60 692 Z" fill="url(#plank2)"/>
+    <path d="M60 700 L1140 700 L1140 800 L60 800 Z" fill="url(#plank2)"/>
+  </g>
+  <g filter="url(#fwood2)" opacity="0.55">
+    <rect x="60" y="160" width="1080" height="640" fill="#caa06c"/>
+  </g>
+  <g stroke="#8d6b45" stroke-width="2" opacity="0.4">
+    <path d="M60 264 H1140"/><path d="M60 372 H1140"/><path d="M60 480 H1140"/>
+    <path d="M60 588 H1140"/><path d="M60 696 H1140"/>
+  </g>
+  <g stroke="#8d6b45" stroke-width="1" opacity="0.22">
+    <path d="M340 160 V800"/><path d="M760 160 V800"/>
+  </g>
+
+  <!-- 자리는 같지만 흠 없이 결·색이 이어진다 -->
+  <g fill="url(#fsheen)" opacity="0.6">
+    <ellipse cx="330" cy="330" rx="90" ry="52"/>
+    <ellipse cx="880" cy="470" rx="120" ry="66"/>
+  </g>
+  <g stroke="url(#fsheen)" stroke-width="10" stroke-linecap="round" opacity="0.7">
+    <path d="M540 210 L980 640" fill="none"/>
+  </g>
+
+  <!-- 은은한 광택 하이라이트 -->
+  <g fill="#fff" opacity="0.12">
+    <ellipse cx="700" cy="230" rx="360" ry="30"/>
+    <ellipse cx="700" cy="600" rx="360" ry="24"/>
+  </g>
+
+  <ellipse cx="600" cy="840" rx="380" ry="14" fill="#7b7362" opacity="0.16" filter="url(#fsf2)"/>
+</svg>

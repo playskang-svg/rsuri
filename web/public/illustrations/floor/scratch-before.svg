@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-label="찍힘·스크래치·물자국이 있는 마루 개념도">
+  <defs>
+    <linearGradient id="fbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eeeae2"/><stop offset="1" stop-color="#ddd8cd"/>
+    </linearGradient>
+    <linearGradient id="plank" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c9a06c"/><stop offset="1" stop-color="#ab8355"/>
+    </linearGradient>
+    <filter id="fwood" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.16 0.012" numOctaves="4" seed="9"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.22"/></feComponentTransfer>
+      <feBlend in2="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="fdent" x="-40%" y="-40%" width="180%" height="180%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" seed="41"/>
+      <feDisplacementMap in="SourceGraphic" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="fsf"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#fbg)"/>
+
+  <!-- 마루 판재 6줄 (평행 널마루, 살짝 원근) -->
+  <g>
+    <path d="M60 160 L1140 160 L1140 260 L60 260 Z" fill="url(#plank)"/>
+    <path d="M60 268 L1140 268 L1140 368 L60 368 Z" fill="url(#plank)"/>
+    <path d="M60 376 L1140 376 L1140 476 L60 476 Z" fill="url(#plank)"/>
+    <path d="M60 484 L1140 484 L1140 584 L60 584 Z" fill="url(#plank)"/>
+    <path d="M60 592 L1140 592 L1140 692 L60 692 Z" fill="url(#plank)"/>
+    <path d="M60 700 L1140 700 L1140 800 L60 800 Z" fill="url(#plank)"/>
+  </g>
+  <!-- 나뭇결 -->
+  <g filter="url(#fwood)" opacity="0.65">
+    <rect x="60" y="160" width="1080" height="640" fill="#b1875a"/>
+  </g>
+  <!-- 판재 이음선 -->
+  <g stroke="#6d5236" stroke-width="3" opacity="0.55">
+    <path d="M60 264 H1140"/><path d="M60 372 H1140"/><path d="M60 480 H1140"/>
+    <path d="M60 588 H1140"/><path d="M60 696 H1140"/>
+  </g>
+  <g stroke="#6d5236" stroke-width="1.5" opacity="0.3">
+    <path d="M340 160 V800"/><path d="M760 160 V800"/>
+  </g>
+
+  <!-- 찍힘·패임: 어둡게 눌린 자국 + 주변 들뜬 결 -->
+  <g filter="url(#fdent)">
+    <ellipse cx="330" cy="330" rx="46" ry="30" fill="#5c4224" opacity="0.75"/>
+    <ellipse cx="330" cy="330" rx="70" ry="46" fill="#7a5c37" opacity="0.35"/>
+  </g>
+
+  <!-- 긴 스크래치: 결을 가로지르는 밝은 흠집선 -->
+  <g stroke="#f1e2c4" stroke-width="5" stroke-linecap="round" opacity="0.85" filter="url(#fdent)">
+    <path d="M540 210 L980 640" fill="none"/>
+  </g>
+  <g stroke="#8a6a45" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+    <path d="M540 210 L980 640" fill="none"/>
+  </g>
+
+  <!-- 물자국·변색: 검게 번진 얼룩 -->
+  <g opacity="0.55" filter="url(#fdent)">
+    <ellipse cx="880" cy="470" rx="95" ry="55" fill="#3f3222"/>
+    <ellipse cx="880" cy="470" rx="130" ry="78" fill="#5a4a34" opacity="0.4"/>
+  </g>
+
+  <ellipse cx="600" cy="840" rx="420" ry="18" fill="#6b6252" opacity="0.25" filter="url(#fsf)"/>
+</svg>
