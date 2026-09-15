@@ -44,7 +44,17 @@ export default async function HomePage() {
     })
     .filter((x) => x.kw && x.chain.length > 0)
 
-  const heroPhoto = homeHeroPhoto()
+  const heroPhotos = [
+    '/photos/field/frame-bluedoor-after.webp',
+    '/photos/field/frame-bath-rot-after.webp',
+    '/photos/field/frame-sliding-after.webp',
+    '/photos/field/frame-paint-process.webp',
+    '/photos/field/frame-terrazzo-after.webp'
+  ].map(src => ({
+    src,
+    alt: '수리위키 실제 시공 현장',
+    style: { objectPosition: '50% 60%' }
+  }))
 
   const regionCountByKeyword = new Map<number, number>()
   for (const { kw } of landings) {
@@ -108,11 +118,7 @@ export default async function HomePage() {
           </>
         }
         tags={['Photo First', 'Repair Before Replace']}
-        photo={
-          heroPhoto
-            ? { src: heroPhoto, alt: '하단을 새로 이어 화이트로 마감한 욕실 문틀 — 실제 시공 현장', style: { objectPosition: '50% 60%' } }
-            : undefined
-        }
+        images={heroPhotos}
       >
         <a href="#services" className="btn-call">
           수리 분야 보기

@@ -1,23 +1,16 @@
 'use client'
 
-// 히어로 배경 사진 슬라이드.
-//
-// 사진 한 장으로 고정하면 첫 화면이 정지 화면처럼 보이고, 그 한 장이 현장과 안 맞으면
-// 페이지 전체 인상이 그 사진에 묶인다. 여러 장을 돌리면 "이런 작업을 한다"는 폭이 보인다.
-//
-// 자동 전환은 하되 화살표·점으로 사람이 직접 넘길 수 있어야 한다 — 자동만 있으면
-// 보고 싶은 장면을 붙잡을 수 없다.
-
 import { useEffect, useState } from 'react'
 
 export interface HeroImage {
   src: string
   style?: React.CSSProperties
+  alt?: string
 }
 
 const INTERVAL_MS = 5000
 
-export function HeroSlider({ images, alt }: { images: HeroImage[]; alt: string }) {
+export function HeroSlider({ images, alt, isFullBleed }: { images: HeroImage[]; alt: string; isFullBleed?: boolean }) {
   const [i, setI] = useState(0)
   const n = images.length
 
@@ -33,15 +26,22 @@ export function HeroSlider({ images, alt }: { images: HeroImage[]; alt: string }
 
   return (
     <>
+      {isFullBleed && <div className="absolute inset-0 z-0 bg-black pointer-events-none" />}
+      
       {images.map((img, idx) => (
-        // 이미지를 갈아끼우지 않고 겹쳐 두고 투명도만 바꾼다 — src를 바꾸면 매 전환마다
-        // 흰 화면이 한 번 번쩍인다(다음 장이 아직 안 받아졌기 때문).
         // eslint-disable-next-line @next/next/no-img-element
         <img
           key={idx}
           src={img.src}
-          alt={idx === 0 ? alt : ''}
-          style={img.style}
+          alt={img.alt || (idx === 0 ? alt : '')}
+          style={{
+            ...img.style,
+            ...(isFullBleed ? {
+              opacity: idx === i ? 1 : 0,
+              transform: idx === i ? 'scale(1.05)' : 'scale(1.1)',
+              transition: 'opacity 1.2s ease-in-out, transform 5s ease-out',
+            } : {}),
+          }}
           loading={idx === 0 ? 'eager' : 'lazy'}
           aria-hidden={idx !== i}
           className={`absolute inset-0 -z-10 h-full w-full object-cover transition-opacity duration-700 ${
@@ -50,9 +50,15 @@ export function HeroSlider({ images, alt }: { images: HeroImage[]; alt: string }
         />
       ))}
 
-      {n > 1 && (
+      {isFullBleed && (
         <>
-          {/* 화살표는 데스크톱에서만. 모바일에서는 화면 폭을 먹고 글자 위에 겹친다. */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/80 via-black/50 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 -z-10 bg-black/20 sm:hidden pointer-events-none" />
+        </>
+      )}
+
+      {n > 1 && !isFullBleed && (
+        <>
           <button
             type="button"
             onClick={() => go(i - 1)}
