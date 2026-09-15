@@ -24,24 +24,47 @@ export function HeroSlider({ images, alt, isFullBleed }: { images: HeroImage[]; 
 
   const go = (next: number) => setI(((next % n) + n) % n)
 
+  if (isFullBleed) {
+    return (
+      <div className="absolute inset-0 overflow-hidden" style={{ zIndex: 0 }}>
+        {/* Black base so fades don't show page background */}
+        <div className="absolute inset-0 bg-black" />
+
+        {/* Stacked images */}
+        {images.map((img, idx) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={idx}
+            src={img.src}
+            alt={img.alt || (idx === 0 ? alt : '')}
+            style={{
+              ...img.style,
+              opacity: idx === i ? 1 : 0,
+              transform: idx === i ? 'scale(1.02)' : 'scale(1.08)',
+              transition: 'opacity 1.2s ease-in-out, transform 6s ease-out',
+            }}
+            loading={idx === 0 ? 'eager' : 'lazy'}
+            aria-hidden={idx !== i}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ))}
+
+        {/* Gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/15" />
+      </div>
+    )
+  }
+
+  // Non-fullbleed (original inline slider for landing pages)
   return (
     <>
-      {isFullBleed && <div className="absolute inset-0 z-0 bg-black pointer-events-none" />}
-      
       {images.map((img, idx) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           key={idx}
           src={img.src}
           alt={img.alt || (idx === 0 ? alt : '')}
-          style={{
-            ...img.style,
-            ...(isFullBleed ? {
-              opacity: idx === i ? 1 : 0,
-              transform: idx === i ? 'scale(1.05)' : 'scale(1.1)',
-              transition: 'opacity 1.2s ease-in-out, transform 5s ease-out',
-            } : {}),
-          }}
+          style={img.style}
           loading={idx === 0 ? 'eager' : 'lazy'}
           aria-hidden={idx !== i}
           className={`absolute inset-0 -z-10 h-full w-full object-cover transition-opacity duration-700 ${
@@ -50,14 +73,7 @@ export function HeroSlider({ images, alt, isFullBleed }: { images: HeroImage[]; 
         />
       ))}
 
-      {isFullBleed && (
-        <>
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/80 via-black/50 to-transparent pointer-events-none" />
-          <div className="absolute inset-0 -z-10 bg-black/20 sm:hidden pointer-events-none" />
-        </>
-      )}
-
-      {n > 1 && !isFullBleed && (
+      {n > 1 && (
         <>
           <button
             type="button"

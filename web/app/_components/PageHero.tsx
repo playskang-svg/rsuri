@@ -30,24 +30,27 @@ export function PageHero({
   const finalImages = images ? images : (photo ? [photo] : [])
 
   return (
-    <section className={`page-hero ${hasBackground ? 'has-bg' : ''}`} data-tone={hasBackground ? 'image' : tone}>
+    <section
+      className={`page-hero ${hasBackground ? 'has-bg' : ''}`}
+      data-tone={hasBackground ? 'image' : tone}
+    >
       {hasBackground && <HeroSlider images={finalImages} alt="히어로 배경 이미지" isFullBleed={true} />}
       
-      <div className={`hero-inner relative z-10 ${hasBackground || !aside ? " solo" : ""}`}>
-        <div className="min-w-0 py-8 lg:py-16">
+      <div className={`hero-inner ${hasBackground || !aside ? " solo" : ""}`} style={hasBackground ? { position: 'relative', zIndex: 2 } : undefined}>
+        <div className="min-w-0">
           {above}
           {eyebrow && (
-            <p className={`eyebrow ${hasBackground ? 'text-white/80' : ''}`}>
+            <p className={`eyebrow ${hasBackground ? '!text-white/70 !opacity-100' : ''}`}>
               {eyebrow}
             </p>
           )}
-          <h1 className={hasBackground ? 'text-white drop-shadow-md' : ''}>{title}</h1>
+          <h1 className={hasBackground ? '!text-white' : ''}>{title}</h1>
           {desc && (
-            <div className={`hero-desc ${hasBackground ? 'text-white/95 font-medium drop-shadow-md' : ''}`}>
+            <div className={`hero-desc ${hasBackground ? '!text-white/90 !opacity-100' : ''}`}>
               {desc}
             </div>
           )}
-          {children && <div className="mt-7 flex flex-wrap gap-3">{children}</div>}
+          {children && <div className="mt-5 flex flex-wrap gap-3">{children}</div>}
         </div>
         {!hasBackground && aside && <div className="min-w-0">{aside}</div>}
       </div>

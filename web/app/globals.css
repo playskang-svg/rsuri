@@ -406,23 +406,29 @@ a:focus-visible, summary:focus-visible, button:focus-visible {
 .on-dark .logo-mark i:nth-child(1) { background: #fff; }
 
 /* 색 블록 히어로 */
-.page-hero { position: relative; }
+.page-hero { position: relative; overflow: hidden; }
 .page-hero[data-tone="yellow"] { background: var(--gold); color: var(--ink-deep); }
 .page-hero[data-tone="blue"]   { background: var(--blue); color: #fff; }
 .page-hero[data-tone="dark"]   { background: var(--ink); color: #fff; }
 .page-hero[data-tone="beige"]  { background: var(--beige); color: var(--ink); }
+.page-hero[data-tone="image"]  { background: transparent; color: #fff; }
 .page-hero .hero-inner {
   margin-inline: auto; max-width: 72rem;
   display: grid; gap: 2rem; align-items: center;
-  padding: 2.75rem 1rem 2.5rem;
+  padding: 2rem 1rem 1.75rem;
 }
+.page-hero.has-bg .hero-inner { padding: 2.5rem 1rem 2rem; }
+.page-hero.has-bg .btn-call { background: #fff; color: var(--ink-deep); border-color: #fff; font-weight: 700; }
+.page-hero.has-bg .btn-call:hover { background: var(--gold); border-color: var(--gold); }
+.page-hero.has-bg .btn-ghost { border-color: rgba(255,255,255,0.5); color: #fff; }
+.page-hero.has-bg .btn-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
 @media (min-width: 640px) { .page-hero .hero-inner { padding-inline: 1.5rem; } }
 @media (min-width: 1024px) {
-  .page-hero .hero-inner { grid-template-columns: 1fr 1.15fr; gap: 3.5rem; padding-block: 3.75rem; }
+  .page-hero .hero-inner { grid-template-columns: 1fr 1.15fr; gap: 3.5rem; padding-block: 2rem; }
 }
 .page-hero h1 {
   font-family: "Noto Sans KR", system-ui, sans-serif; font-weight: 900;
-  font-size: clamp(2.35rem, 8.2vw, 4.4rem); line-height: 1.1; letter-spacing: -0.055em;
+  font-size: clamp(2rem, 7vw, 3.2rem); line-height: 1.1; letter-spacing: -0.055em;
   word-break: keep-all; margin-top: 0.9rem;
 }
 .page-hero .hero-desc { margin-top: 1.25rem; max-width: 30rem; font-size: 0.97rem; line-height: 1.75; opacity: 0.88; }
