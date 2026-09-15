@@ -67,6 +67,30 @@
       "before": "/illustrations/wallpaper-restoration/tear-before.svg",
       "after": "/illustrations/wallpaper-restoration/tear-after.svg",
       "caption": "찢김·들뜸을 결 따라 이어 붙이기"
+    },
+    "wall-partial-1": {
+      "before": "https://postfiles.pstatic.net/MjAyNjA4MTRfNDYg/MDAxNzg2Njk1NDI1OTE5.khcfC6rPBcLgF30XemZOAxUvGfk-ulCg0ItpJxRi4Jog.mHXaZi-R5JFow5my3sLsWoLNdVjkFrDbp7uIfFjywsAg.JPEG/SE-de11340d-60fc-4adf-9d55-2bec512279c1.jpg?type=w773",
+      "process": [
+        "https://postfiles.pstatic.net/MjAyNjA4MTRfMjM0/MDAxNzg2Njk1NDU2NDE4.d6KWognXUBPjbcs8M7P0mXQCkOaOBAZXQOHkO2-DxJAg.HMoumhF6NQ94RRBgctfq3OTi8xYqEWNAGAgAp00ERZIg.JPEG/KakaoTalk_Image_2026-06-08-09-32-39_013.jpeg?type=w773",
+        "https://postfiles.pstatic.net/MjAyNjA4MTRfMTIy/MDAxNzg2Njk1Njg0MDQw.w9OtmS-cfz_t4D4r2Ar9-nzdqNkZteMyWueDj19s5HEg.PdCVYkybZQcLM4YzsZtNTSZkDqUbn5jC9MwrOI9Qhicg.JPEG/KakaoTalk_Image_2026-06-08-09-32-42_026.jpeg?type=w773"
+      ],
+      "after": "https://postfiles.pstatic.net/MjAyNjA4MTRfMTU1/MDAxNzg2Njk1NDI0MzU0.RzHwKou6f7nYSop0b0dCVvuSR4kK1ctN86IOy4ynGeIg.T4C2SGqIQls6zYA6YU8w9d2SDp5Ht_pZZmfLW82JwQAg.JPEG/SE-f6e9b8d9-9718-49db-898e-16f0254bc789.jpg?type=w773",
+      "caption": "손상된 벽지 철거 및 바탕 작업 후 부분도배 시공"
+    },
+    "wall-partial-2": {
+      "before": "https://postfiles.pstatic.net/MjAyNjA4MTRfMTEz/MDAxNzg2Njk1NDk4ODQy.deTuWrV0WXg0D7Q60FrVrKgK2DkOZ9p4UqE-6_k9oNAg.uadqGut33-8A0hhRLeV_fcFjJx7B89cLdlpvis05ML4g.JPEG/KakaoTalk_Image_2026-06-08-09-32-38_010.jpeg?type=w773",
+      "process": [
+        "https://postfiles.pstatic.net/MjAyNjA4MTRfMTg3/MDAxNzg2Njk1NjUzNzg1.FKheUU7ZZlUcW-lUQ6BUtsI1KtOFaKvdmu26_aqoAcgg.eI63IA4rBj6JXnGyZFs4TACpEwjXrnLqqczVHq260IAg.JPEG/KakaoTalk_Image_2026-06-08-09-32-41_022.jpeg?type=w773"
+      ],
+      "after": "https://postfiles.pstatic.net/MjAyNjA4MTRfMTU4/MDAxNzg2Njk1NjcyMzk0.FgKJ5TkhZzRRMs995k2p5Tdv-WOuhgTwrJ8NDENvqg4g.b1oilka6JwsA_FigA5zmYnypUzWB4UmYcrAnMGfilOAg.JPEG/KakaoTalk_Image_2026-06-08-09-32-42_024.jpeg?type=w773",
+      "caption": "정밀한 벽지 재단 및 깔끔한 부분도배 마감"
+    },
+    "wall-partial-3": {
+      "before": "https://postfiles.pstatic.net/MjAyNjA4MTRfMTU1/MDAxNzg2Njk1NTUxMjcy.OC1c2PX_uAH-D6vExl15DRFMNV8gKfqKcYyyZ4-UrhIg.H1acQZgQUh0M_aM7AOWZ64LagKSVJSbHaP19dx35kNMg.JPEG/KakaoTalk_Image_2026-06-08-09-32-39_012.jpeg?type=w773",
+      "process": [
+        "https://postfiles.pstatic.net/MjAyNjA4MTRfMjMx/MDAxNzg2Njk1Nzg1MjM5.5ENmfaQlUQ6vfy28UFnRo_P-wzVArzLe2CZ2CtEgKvwg.zuOtmmWt2_0dkQ17noLULkbyDTuTp93mJyKjV3rcVQEg.JPEG/KakaoTalk_Image_2026-06-08-09-32-41_021.jpeg?type=w773"
+      ],
+      "caption": "벽지 손상 상태 확인 및 부분도배 준비"
     }
   },
   "_keywordSets_note": "키워드 slug → 시공 전후 세트. 여기 없는 키워드는 계열(family) 기본값을 쓴다. 실사와 개념도를 한 키워드에 섞지 않는다 — 섞으면 개념도 표기가 사라져 그림이 실제 현장처럼 보인다.",
@@ -175,7 +199,12 @@
       "frame-corner",
       "frame-sliding"
     ],
-    "molding-film": []
+    "molding-film": [],
+    "partial-wallpapering": [
+      "wall-partial-1",
+      "wall-partial-2",
+      "wall-partial-3"
+    ]
   },
   "_familyPhotos_note": "히어로·카드용 대표 사진(완성 모습 위주). 키워드에 실사 세트가 있으면 그 세트의 사진이 먼저 쓰이고, 없을 때 계열 사진으로 내려간다. 빈 배열이면 사진 칸 없이 글만 둔다.",
   "familyPhotos": {
