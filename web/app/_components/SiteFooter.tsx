@@ -125,7 +125,11 @@ export async function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs">
-          <p>수리위키 · 지역별 집수리 안내 · 표시광고법·전자상거래법 준수</p>
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>수리위키 · 지역별 집수리 안내 · 표시광고법·전자상거래법 준수</span>
+            <Link href="/privacy" className="underline">개인정보처리방침</Link>
+            <Link href="/terms" className="underline">이용약관</Link>
+          </p>
           <p className="tracking-[0.08em]" style={{ fontFamily: "var(--mono)" }}>© 2026 SURIWIKI REPAIR LAB.</p>
         </div>
       </div>
