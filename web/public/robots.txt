@@ -1,6 +1,12 @@
 # Cloudflare 관리형 robots.txt가 이 파일 앞에 크롤러 규칙(AI 학습 봇 차단)을 붙여서 서빙한다.
 # 여기에는 검색엔진이 사이트맵과 피드를 스스로 찾아가도록 위치만 적는다.
 # 구글·빙·네이버(Yeti)·다음·Yandex 모두 robots.txt의 Sitemap 줄을 읽고, RSS 2.0도 사이트맵으로 받는다.
+#
+# 애드센스 광고 크롤러는 명시적으로 허용한다. Cloudflare 관리형 규칙이 이보다 앞서
+# 적용되므로, Cloudflare 대시보드의 봇 차단 설정에서도 Mediapartners-Google이
+# 막혀 있지 않은지 별도로 확인할 것.
+User-agent: Mediapartners-Google
+Allow: /
 
 Sitemap: https://suriwiki.com/sitemap.xml
 Sitemap: https://suriwiki.com/rss.xml

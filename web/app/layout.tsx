@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     google: 'eOG92jGwvKx_XpUBPUbTfmSsdop0Py2RlLfasfobFcU',
     other: {
       'naver-site-verification': '9004a322fa5ed99f5e2fe01e0297d22c2a5e6e08',
+      'google-adsense-account': 'ca-pub-4030620718116834',
     },
   },
 }
