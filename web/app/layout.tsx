@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Script from 'next/script'
 import { SiteFooter } from './_components/SiteFooter'
 import { CtaBand } from './_components/CtaBand'
 import { KeywordSearch, type SearchItem } from './_components/KeywordSearch'
@@ -70,6 +71,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-ZJMBS6B7YX" strategy="afterInteractive" />
+        <Script id="ga4-init" strategy="afterInteractive">{"window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZJMBS6B7YX');"}</Script>
         {/* 상단 유틸바 — 참고 스킨의 어두운 얇은 띠. 모바일은 44px 터치 영역을 못 채워 숨기고 삼선 메뉴가 대신한다 */}
         <div className="util-bar hidden sm:block">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
