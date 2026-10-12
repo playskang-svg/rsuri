@@ -12,6 +12,7 @@
 <header class="hero">
   <div class="hero-brand">SURIWIKI ADMIN</div>
   <h1 class="hero-biz" id="hero-biz">업체명</h1>
+  <button type="button" id="logout-btn" class="logout-btn">로그아웃</button>
   <div class="hero-sub">사이트 제작 현황 리포트</div>
 </header>
 
@@ -21,5 +22,6 @@
 
 <footer class="footer">Powered by <span class="brand">SuriWiki</span></footer>
 <script type="module" src="/js/report.js"></script>
+<script>document.getElementById("logout-btn").addEventListener("click",function(){fetch("/api/logout",{method:"POST"}).then(function(){location.reload();});});</script>
 </body>
 </html>

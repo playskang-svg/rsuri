@@ -45,13 +45,46 @@ textarea{resize:vertical}
 pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:10px;max-height:200px;overflow:auto;margin-top:8px}
 .parsed{font-size:13px;margin-top:8px}.parsed div{padding:3px 0;border-bottom:1px solid var(--g100)}.parsed b{display:inline-block;min-width:90px;color:var(--g600)}
 .sec{cursor:pointer}
+/* 템플릿 선택 */
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.tpl{border:2px solid var(--g200);border-radius:12px;padding:12px;background:#fff}.tpl.on{border-color:#4f46e5;background:#f5f3ff}
+.tpl .sw{display:flex;gap:4px;margin-bottom:8px}.tpl .sw i{width:26px;height:14px;border-radius:4px;display:inline-block}
+.tpl b{font-size:14px}.tpl p{font-size:12px;color:var(--g600);line-height:1.5;margin:4px 0 8px}.tpl .tb{display:flex;gap:6px;flex-wrap:wrap}
+.tpl .tb .btn{padding:6px 10px;font-size:12px}.tpl .meta{font-size:11px;color:#6366f1;font-weight:700}
+.pv-back{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;z-index:90;padding:10px}.pv-back.on{display:flex}
+.pv{background:#fff;border-radius:14px;width:100%;max-width:1000px;height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.pv-hd{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--g200);flex-wrap:wrap}.pv-hd b{font-size:14px}
+.pv-body{flex:1;background:#e5e7eb;display:flex;justify-content:center;overflow:hidden}.pv-body iframe{border:0;background:#fff;height:100%;width:100%;transition:width .2s}.pv-body.m iframe{width:390px}
+@media(max-width:560px){.tpl-grid{grid-template-columns:1fr}}
+/* 사용법 팝업 */
+.help-btn{margin-top:10px;border:1.5px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);color:#fff;border-radius:99px;padding:6px 16px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.hb{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;z-index:80;padding:12px}.hb.on{display:flex}
+.hm{background:#fff;border-radius:16px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.hm-hd{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--g200);position:sticky;top:0;background:#fff}.hm-hd h3{font-size:16px}
+.hm-x{border:0;background:var(--g100);border-radius:8px;width:32px;height:32px;cursor:pointer}
+.hm-body{padding:16px 18px}
+.flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+.fs{flex:1 1 90px;min-width:88px;border:1.5px solid var(--g200);border-radius:12px;padding:10px 8px;text-align:center;font-size:12px;line-height:1.45;background:#f8fafc}
+.fs b{display:block;font-size:13px;margin:3px 0 2px}.fs .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#4f46e5;color:#fff;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.fa{align-self:center;color:#94a3b8;font-weight:800}
+.hm h4{font-size:13px;margin:18px 0 8px}
+.map{width:100%;border-collapse:collapse;font-size:12.5px}.map td{padding:7px 8px;border-bottom:1px solid var(--g100);vertical-align:top}.map td:first-child{font-weight:700;white-space:nowrap;width:42%}.map td:nth-child(2){color:#4f46e5;text-align:center;width:24px}
+.map .no td{color:#94a3b8}
+.hm-tip{margin-top:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6}
+.hm-ft{padding:12px 18px;border-top:1px solid var(--g200);text-align:right}
 </style>
 </head>
 <body>
-<div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small></div>
+<div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small><button type="button" class="help-btn" id="help-btn">📖 사용법 보기</button></div>
 <div class="container">
 
   <div class="card" id="storage-note" style="display:none"><h3>업로드 안내</h3><p class="hint">사진과 사업자등록증은 1.2MB 이하로 자동 축소되어 올라갑니다(PDF는 1.2MB 이하만 가능). 동영상은 대용량 파일 저장소를 연결하면 열립니다.</p></div>
+
+  <div class="card" id="tpl-card">
+    <h3>디자인 템플릿 <span class="hint">· 고르면 사이트의 구성과 디자인이 바뀝니다. 입력한 내용과 사진은 그대로 유지됩니다</span></h3>
+    <div class="tpl-grid" id="tpl-grid"></div>
+  </div>
+
 
   <div class="card">
     <h3 class="sec" id="lic-head">사업자등록증 <span id="lic-icon">▼</span></h3>
@@ -79,6 +112,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <div class="row"><label>대표자</label><input type="text" id="f-ceo" maxlength="40" placeholder="예: 홍길동"></div>
     <div class="row"><label>사업자등록번호</label><input type="text" id="f-regno" maxlength="20" placeholder="예: 123-45-67890"></div>
     <div class="row"><label>사업장 주소</label><input type="text" id="f-address" maxlength="200" placeholder="사업자등록증의 주소"></div>
+    <div class="row"><label>영업시간</label><input type="text" id="f-hours" maxlength="60" placeholder="예: 평일·토 08:00~19:00"></div>
     <div class="row"><label>연락처(전화번호)</label><input type="tel" id="f-phone" maxlength="20"></div>
     <p class="hint" style="margin:6px 0">채널 링크 — 입력한 것만 푸터에 아이콘으로 표시됩니다(https:// 없이 적어도 됩니다)</p>
     <div class="row"><label>카카오톡</label><input type="text" id="f-kakao" placeholder="https://pf.kakao.com/..."></div>
@@ -95,9 +129,10 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   <div style="margin-bottom:14px"><button class="btn out" id="copy-all" style="width:100%">사이트 정보 + 사업자등록증 전체 복사</button></div>
 
   <div class="card" id="ba-card">
-    <h3>공사 전/후 사진 <span class="hint">· 작업 사례 1~4 · 전·후를 한 장씩 올리면 사이트의 BEFORE/AFTER 칸에 들어갑니다</span></h3>
+    <h3>공사 전/후 사진 <span class="hint" id="ba-range">· 작업 사례 1~4 · 전·후를 한 장씩 올리면 사이트의 BEFORE/AFTER 칸에 들어갑니다</span></h3>
     <div class="row"><label>적용 범위</label><select id="ba-scope"><option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option></select></div>
     <p class="hint" id="ba-hint" style="margin-bottom:10px"></p>
+    <div id="ba-intro-wrap" style="display:none;margin-bottom:12px"><label style="display:block;font-size:13px;font-weight:700;margin-bottom:4px">이 지역 소개 문구 <span class="hint">(선택 · 이 지역 페이지 '안내' 칸에 표시됩니다. 지역마다 다르게 쓰면 검색에 유리합니다)</span></label><textarea id="ba-intro" rows="4" maxlength="1200" placeholder="예: 이 지역 현장 특성, 자주 접수되는 작업, 가까운 동네 등을 적어 주세요"></textarea><span class="status" id="ba-intro-status"></span></div>
     <div id="ba-grid"></div>
     <input type="file" id="ba-input" accept="image/jpeg,image/png,image/webp,image/*" style="display:none">
     <p class="hint">사진은 1.2MB 이하로 자동 축소됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
@@ -135,6 +170,31 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   </div>
 </div>
 
+<div class="hb" id="help-back"><div class="hm" role="dialog" aria-modal="true" aria-labelledby="hm-title">
+  <div class="hm-hd"><h3 id="hm-title">업로드 페이지 사용법</h3><button type="button" class="hm-x" id="help-x" aria-label="닫기">✕</button></div>
+  <div class="hm-body">
+    <div class="flow">
+      <div class="fs"><span class="n">1</span><b>정보 입력</b>상호·연락처·채널</div><div class="fa">→</div>
+      <div class="fs"><span class="n">2</span><b>사진 올리기</b>공사 전/후 · 설명</div><div class="fa">→</div>
+      <div class="fs"><span class="n">3</span><b>저장</b>입력칸을 벗어나면 자동 저장(정보는 저장 버튼)</div><div class="fa">→</div>
+      <div class="fs"><span class="n">4</span><b>반영</b>다음 배포 때<br>(매일 05:00)</div>
+    </div>
+    <h4>입력한 내용이 키워드 사이트 어디에 나오나요?</h4>
+    <table class="map">
+      <tr><td>상호·대표자·사업자번호·주소·영업시간</td><td>→</td><td>모든 페이지 맨 아래(푸터)</td></tr>
+      <tr><td>연락처(전화번호)</td><td>→</td><td>상단 전화 버튼 · 하단 고정 바 · 문자 문의 번호</td></tr>
+      <tr><td>카카오톡·인스타그램·블로그·유튜브·스레드·웹사이트</td><td>→</td><td>푸터 아이콘 (입력한 것만)</td></tr>
+      <tr><td>디자인 템플릿 선택</td><td>→</td><td>사이트의 구성·디자인 전체 (사진 칸 수도 템플릿에 맞춰짐)</td></tr>
+      <tr><td>공사 전/후 사진 (작업 사례)</td><td>→</td><td>대표 이미지 · 전후 비교 슬라이더 (전·후 둘 다 올린 사례만, 사례 3은 대표 이미지)</td></tr>
+      <tr><td>사진 설명</td><td>→</td><td>사진 아래 글귀</td></tr>
+      <tr><td>지역 선택 + 사진·설명·지역 소개</td><td>→</td><td>그 지역 페이지에만 (없으면 공통 사진 사용)</td></tr>
+      <tr class="no"><td>카테고리별 사진 · 메모 · 사업자등록증 · 참고 사이트</td><td>✕</td><td>사이트에 표시되지 않음 (보관용)</td></tr>
+    </table>
+    <div class="hm-tip">💡 사진은 1.2MB 이하로 자동 축소됩니다 · 비워 둔 칸은 기본값(상호 수리위키, 기본 연락처)이나 기본 사진이 쓰입니다 · 아직 로그인이 없으니 실제 사업자등록증은 올리지 마세요.</div>
+  </div>
+  <div class="hm-ft"><label style="font-size:12px;color:var(--g600);margin-right:12px"><input type="checkbox" id="help-never"> 다시 열지 않기</label><button type="button" class="btn" id="help-ok">닫기</button></div>
+</div></div>
+<div class="pv-back" id="pv-back"><div class="pv" role="dialog" aria-modal="true"><div class="pv-hd"><b id="pv-title">미리보기</b><span><button type="button" class="btn out sm" id="pv-d">PC</button> <button type="button" class="btn out sm" id="pv-m">모바일</button> <button type="button" class="btn sm" id="pv-pick">이 템플릿 선택</button> <button type="button" class="btn out sm" id="pv-x">닫기</button></span></div><div class="pv-body" id="pv-body"><iframe id="pv-frame" title="템플릿 미리보기"></iframe></div></div></div>
 <div class="lb" id="lb"></div>
 <div class="modal" id="mv"><div>
   <h3 style="margin-bottom:6px" id="mv-title">카테고리 이동</h3>
@@ -161,12 +221,14 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     document.title = `${o.keyword} 파일 업로드`; $('title').textContent = `${o.keyword} 파일 업로드`; $('host').textContent = `${slug}.suriwiki.com`;
     S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
     S.defaults = o.defaults || {};
-    for (const k of ['company', 'ceo', 'regno', 'address', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
+    for (const k of ['company', 'ceo', 'regno', 'address', 'hours', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
     const counts = Object.fromEntries(o.counts.map((c) => [c.category, c.n]));
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     $('tabs').innerHTML = [['', '전체'], ...S.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button class="tab${id === S.tab ? ' on' : ''}" data-t="${id}">${esc(n)}</button>`).join('');
-    S.mode = o.storage; S.max = o.maxFile; S.video = o.video; S.ba = o.ba || [];
+    S.mode = o.storage; S.max = o.maxFile; S.video = o.video; S.ba = o.ba || []; S.captions = o.captions || []; S.intros = o.intros || [];
+    S.templates = o.templates || []; S.tplId = o.template; S.tpl = S.templates.find((t) => t.id === o.template) || { photoSlots: 4 };
+    renderTemplates();
     { const cur = $('ba-scope').value; $('ba-scope').innerHTML = '<option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option>' + (o.regions || []).map((r) => `<option value="${r.slug}">${esc(r.name)} 페이지만</option>`).join(''); $('ba-scope').value = cur; }
     renderBa();
     $('storage-note').style.display = o.video ? 'none' : '';
@@ -216,23 +278,60 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('lic-copy').onclick = () => navigator.clipboard.writeText(S.ocr).then(() => alert('복사했습니다'));
 
   // ── 사이트 정보
-  // ── 공사 전/후 사진 (작업 사례 1~4 × 전/후, 범위 = 공통 또는 지역)
+  // ── 디자인 템플릿 선택(미리보기 → 선택). 선택하면 사진 칸 수가 그 템플릿에 맞춰진다.
+  function renderTemplates() {
+    $('tpl-grid').innerHTML = (S.templates || []).map((t) => `<div class="tpl${t.id === S.tplId ? ' on' : ''}" data-id="${esc(t.id)}"><div class="sw">${(t.swatch || []).map((c) => `<i style="background:${esc(c)}"></i>`).join('')}</div><b>${esc(t.name)}</b>${t.id === S.tplId ? ' <span class="meta">✓ 사용 중</span>' : ''}<p>${esc(t.desc)}</p><div class="meta">사진 칸 ${t.photoSlots}개</div><div class="tb" style="margin-top:6px"><button type="button" class="btn out sm" data-pv="${esc(t.id)}">미리보기</button>${t.id === S.tplId ? '' : `<button type="button" class="btn sm" data-sel="${esc(t.id)}">선택</button>`}</div></div>`).join('');
+  }
+  async function pickTemplate(id) {
+    try { await api('template', { method: 'PUT', body: JSON.stringify({ template: id }) }); closePv(); await load(); alert('템플릿을 바꿨습니다. 다음 배포 때 사이트에 반영됩니다(매일 05:00).'); } catch (x) { alert(x.message); }
+  }
+  let pvId = '';
+  function openPv(id) {
+    pvId = id; const t = (S.templates || []).find((x) => x.id === id) || {};
+    $('pv-title').textContent = `${t.name || ''} 미리보기 (입력한 내용·사진 기준)`;
+    $('pv-pick').style.display = id === S.tplId ? 'none' : '';
+    $('pv-frame').src = `${API}preview?template=${encodeURIComponent(id)}`; $('pv-back').classList.add('on');
+  }
+  function closePv() { $('pv-back').classList.remove('on'); $('pv-frame').src = 'about:blank'; }
+  $('tpl-grid').onclick = (e) => { const v = e.target.closest('[data-pv]'), p = e.target.closest('[data-sel]'); if (v) openPv(v.dataset.pv); if (p && confirm('이 템플릿으로 바꿀까요? 입력한 내용과 사진은 그대로 유지됩니다.')) pickTemplate(p.dataset.sel); };
+  $('pv-x').onclick = closePv; $('pv-pick').onclick = () => { if (confirm('이 템플릿으로 바꿀까요?')) pickTemplate(pvId); };
+  $('pv-d').onclick = () => $('pv-body').classList.remove('m'); $('pv-m').onclick = () => $('pv-body').classList.add('m');
+  $('pv-back').addEventListener('click', (e) => { if (e.target === $('pv-back')) closePv(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('pv-back').classList.contains('on')) closePv(); });
+
+  // ── 공사 전/후 사진 (작업 사례 × 전/후, 범위 = 공통 또는 지역)
   const baPath = (n, ph) => `ba/${$('ba-scope').value ? $('ba-scope').value + '/' : ''}${n}/${ph}`;
   function renderBa() {
     const region = $('ba-scope').value, ph2 = { before: '공사 전', after: '공사 후' };
     const find = (n, ph) => (S.ba || []).find((x) => (x.region || '') === region && x.slot === n && x.phase === ph);
     $('ba-hint').textContent = region ? '선택한 지역 페이지에만 적용됩니다. 이 지역에 전·후를 둘 다 올리지 않은 사례는 공통 사진이 표시됩니다.' : '메인과 모든 지역 페이지에 공통으로 적용됩니다. 전·후를 둘 다 올린 사례만 표시되고, 나머지는 기본 사진이 표시됩니다.';
-    $('ba-grid').innerHTML = [1, 2, 3, 4].map((n) => {
+    $('ba-intro-wrap').style.display = region ? '' : 'none';
+    if (region) $('ba-intro').value = ((S.intros || []).find((x) => x.region === region) || {}).intro || '';
+    const nSlots = (S.tpl && S.tpl.photoSlots) || 4;
+    $('ba-range').textContent = `· 작업 사례 1~${nSlots} · 전·후를 한 장씩 올리면 사이트의 전후 비교 칸에 들어갑니다${S.tpl && S.tpl.photoNote ? ' · ' + S.tpl.photoNote : ''}`;
+    $('ba-grid').innerHTML = Array.from({ length: nSlots }, (_, i) => i + 1).map((n) => {
       const b = find(n, 'before'), a = find(n, 'after');
       const st = b && a ? '<span style="color:#16a34a;font-size:12px">✅ 사이트에 표시됨</span>' : (b || a) ? '<span style="color:#d97706;font-size:12px">전·후 둘 다 올려야 표시됩니다</span>' : '';
       const box = (ph) => { const x = find(n, ph); return x
         ? `<div class="ba-box" data-n="${n}" data-ph="${ph}" style="position:relative;cursor:pointer"><img src="${API}${baPath(n, ph)}?v=${x.updated_at}" alt="${ph2[ph]}" style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;display:block"><span style="position:absolute;left:6px;top:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 7px;border-radius:4px">${ph2[ph]}</span><button type="button" class="btn bad sm ba-del" data-n="${n}" data-ph="${ph}" style="position:absolute;right:6px;top:6px">삭제</button></div>`
         : `<div class="ba-box" data-n="${n}" data-ph="${ph}" style="cursor:pointer;aspect-ratio:4/5;border:2px dashed var(--g200);border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--g600);font-size:13px">+ ${ph2[ph]}<br>사진 선택</div>`; };
-      return `<div style="margin-bottom:14px"><b style="font-size:13px">작업 사례 ${n}</b> ${st}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${box('before')}${box('after')}</div></div>`;
+      const cap = ((S.captions || []).find((x) => (x.region || '') === region && x.slot === n) || {}).caption || '';
+      return `<div style="margin-bottom:14px"><b style="font-size:13px">작업 사례 ${n}</b> ${st}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${box('before')}${box('after')}</div><input type="text" class="ba-cap" data-n="${n}" maxlength="60" value="${esc(cap)}" placeholder="사진 설명 (예: 배수관 막힘 사례${region ? ' · 이 지역' : ''})" style="margin-top:6px"></div>`;
     }).join('');
   }
   let baTarget = null;
   $('ba-scope').onchange = renderBa;
+  // 사진 설명·지역 소개: 입력칸을 벗어나면 저장
+  $('ba-grid').addEventListener('change', async (e) => {
+    const i = e.target.closest('.ba-cap'); if (!i) return;
+    const region = $('ba-scope').value, n = Number(i.dataset.n);
+    try { await api('ba-caption', { method: 'PUT', body: JSON.stringify({ region, slot: n, caption: i.value }) }); S.captions = (S.captions || []).filter((x) => !((x.region || '') === region && x.slot === n)); if (i.value.trim()) S.captions.push({ region, slot: n, caption: i.value.trim() }); } catch (x) { alert(x.message); }
+  });
+  $('ba-intro').onchange = async () => {
+    const region = $('ba-scope').value; if (!region) return;
+    try { await api('region-intro', { method: 'PUT', body: JSON.stringify({ region, intro: $('ba-intro').value }) }); S.intros = (S.intros || []).filter((x) => x.region !== region); if ($('ba-intro').value.trim()) S.intros.push({ region, intro: $('ba-intro').value.trim() }); flash($('ba-intro-status'), '저장했습니다'); } catch (x) { flash($('ba-intro-status'), x.message, true); }
+  };
+
   $('ba-grid').onclick = async (e) => {
     const del = e.target.closest('.ba-del');
     if (del) { e.stopPropagation(); if (!confirm('이 사진을 삭제할까요?')) return; try { await api(baPath(Number(del.dataset.n), del.dataset.ph), { method: 'DELETE' }); await load(); } catch (x) { alert(x.message); } return; }
@@ -244,11 +343,11 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     try { await put(baPath(baTarget.n, baTarget.ph), await shrink(f, true)); await load(); } catch (x) { alert(x.message); }
   };
   $('save-profile').onclick = async () => {
-    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, phone: $('f-phone').value, kakao: $('f-kakao').value, instagram: $('f-instagram').value, blog: $('f-blog').value, youtube: $('f-youtube').value, threads: $('f-threads').value, website: $('f-website').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
+    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, hours: $('f-hours').value, phone: $('f-phone').value, kakao: $('f-kakao').value, instagram: $('f-instagram').value, blog: $('f-blog').value, youtube: $('f-youtube').value, threads: $('f-threads').value, website: $('f-website').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
     catch (x) { flash($('profile-status'), x.message, true); }
   };
   $('copy-all').onclick = () => {
-    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
+    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `영업시간: ${$('f-hours').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
     navigator.clipboard.writeText(t).then(() => alert('복사했습니다'));
   };
 
@@ -347,6 +446,18 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('mv-go').onclick = async () => { const body = { category: $('mv-cat').value }; if (mvMode === 'group') body.group = $('mv-group').value; else body.ids = [...S.sel]; await api('files/move', { method: 'POST', body: JSON.stringify(body) }); $('mv').classList.remove('on'); await load(); };
 
   load().catch((x) => { document.body.innerHTML = `<div class="container"><div class="card">불러오지 못했습니다: ${esc(x.message)}</div></div>`; });
+})();
+</script>
+<script>
+(() => {
+  const back = document.getElementById('help-back'), KEY = 'upload-help-hidden';
+  const open = () => back.classList.add('on');
+  const close = () => { back.classList.remove('on'); try { if (document.getElementById('help-never').checked) localStorage.setItem(KEY, '1'); } catch (_) {} };
+  document.getElementById('help-btn').onclick = open;
+  document.getElementById('help-x').onclick = close; document.getElementById('help-ok').onclick = close;
+  back.addEventListener('click', (e) => { if (e.target === back) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && back.classList.contains('on')) close(); });
+  try { if (!localStorage.getItem(KEY)) open(); } catch (_) { open(); }
 })();
 </script>
 </body>

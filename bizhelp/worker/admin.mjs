@@ -4,9 +4,11 @@
 //       D1 방식은 카드 등록 없이 쓰는 임시 방식이라 사진·사업자등록증(1.2MB 이하, 화면에서 자동 축소)만 받고 동영상은 받지 않는다.
 // 보안: authorize() 한 곳에서 접근을 통제한다. 지금은 로그인이 없다(나중에 Cloudflare Access JWT 검증을 이 함수에 넣는다).
 //       네이버·구글 계정 비밀번호처럼 제3자 비밀번호는 받지도 저장하지도 않는다.
-import SITES from './sites-meta.json';
-import { DEFAULT_PROFILE } from '../scripts/site-defaults.mjs';
+import { DEFAULT_PROFILE, resolveProfile } from '../scripts/site-defaults.mjs';
+import SITE_IMAGES from './site-images-index.json';
+import { TEMPLATES, DEFAULT_TEMPLATE, templateOf, templateList, setImages, homePage, regionPage } from '../scripts/templates.mjs';
 import REGISTRY from '../registry/sites.json';
+import { allRegions, regionOf, setExtraRegions, extraRegions, romanize, RESERVED_REGION_SLUGS, normalizeGroup, groupPages, groupsToRegistry, registryToGroups, groupHost } from '../scripts/group-model.mjs';
 
 const MAX_IMAGE = 50 * 1024 * 1024;
 const MAX_VIDEO = 100 * 1024 * 1024;
@@ -32,13 +34,20 @@ async function ensureSchema(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, slug TEXT, category TEXT, name TEXT, type TEXT, size INTEGER, file_key TEXT, grp TEXT, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS blobs (key TEXT PRIMARY KEY, type TEXT, data TEXT)'),
     db.prepare('CREATE TABLE IF NOT EXISTS ba_photos (slug TEXT, region TEXT, slot INTEGER, phase TEXT, type TEXT, size INTEGER, updated_at INTEGER, PRIMARY KEY (slug, region, slot, phase))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS groups (slug TEXT PRIMARY KEY, main_keyword TEXT, en TEXT, subs TEXT, regions TEXT, content TEXT, status TEXT, created_at INTEGER, updated_at INTEGER)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS regions_extra (slug TEXT PRIMARY KEY, name TEXT UNIQUE)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS ba_captions (slug TEXT, region TEXT, slot INTEGER, caption TEXT, PRIMARY KEY (slug, region, slot))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS region_intro (slug TEXT, region TEXT, intro TEXT, PRIMARY KEY (slug, region))'),
     db.prepare('CREATE TABLE IF NOT EXISTS shares (id TEXT PRIMARY KEY, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS page_seen (page_key TEXT PRIMARY KEY, first_seen TEXT)'),
     db.prepare('CREATE TABLE IF NOT EXISTS rank_log (page_key TEXT, check_date TEXT, rank_position INTEGER, PRIMARY KEY (page_key, check_date))'),
     db.prepare('CREATE INDEX IF NOT EXISTS files_slug_cat ON files (slug, category, created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS memos (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, category TEXT, content TEXT, created_at INTEGER)'),
   ]);
-  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services', 'instagram', 'threads', 'website']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
+  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services', 'instagram', 'threads', 'website', 'hours']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
+  try { await db.prepare('ALTER TABLE groups ADD COLUMN template TEXT').run(); } catch (_) { /* 이미 있음 */ }
+  await seedGroups(db);
   schemaReady = true;
 }
 
@@ -65,7 +74,7 @@ async function delObj(env, db, key) {
 }
 
 // 사이트 정보(푸터에 노출): 전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스 링크
-const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, kakao, instagram, threads, website, services';
+const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, hours, kakao, instagram, threads, website, services';
 const isUrl = (v) => /^https?:\/\//i.test(String(v || '').trim());
 // 주소 입력 보정: 'blog.naver.com/abc' 처럼 https:// 없이 적어도 받아 주고, 주소 형태가 아니면 버린다.
 const normUrl = (v) => { const t = clean(v, 300); if (!t) return ''; const u = isUrl(t) ? t : (/^[^\s/]+\.[^\s/]+/.test(t) ? `https://${t}` : ''); try { return u && new URL(u).hostname.includes('.') ? u : ''; } catch (_) { return ''; } };
@@ -73,14 +82,53 @@ const parseServices = (v) => { try { const a = JSON.parse(v || '[]'); return Arr
 const cleanServices = (a) => (Array.isArray(a) ? a : []).map((x) => ({ name: clean(x?.name, 30), url: clean(x?.url, 300) })).filter((x) => x.name && isUrl(x.url)).slice(0, 8);
 const shapeProfile = (row) => { const r = row || {}; return { ...r, services: parseServices(r.services) }; };
 
-// ── 리포트: 사이트·페이지 목록은 registry(실제 배포 대상), 처음 만든 날은 D1(page_seen), 순위는 D1(rank_log)
+// ── 그룹(메인 키워드 = 사이트 1개 = 분양 단위): D1이 원본. 처음에는 registry/sites.json 의 8개를 시드로 넣는다.
+async function seedGroups(db) {
+  if ((await db.prepare('SELECT COUNT(*) n FROM groups').first()).n) return;
+  const now = Date.now();
+  await db.batch(registryToGroups(REGISTRY).map((g) => db.prepare('INSERT OR IGNORE INTO groups (slug, main_keyword, en, subs, regions, content, status, created_at, updated_at, template) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(g.slug, g.main_keyword, g.en, JSON.stringify(g.subs), JSON.stringify(g.regions), JSON.stringify(g.content || {}), 'active', now, now, g.template || DEFAULT_TEMPLATE)));
+}
+const shapeGroup = (r) => ({ slug: r.slug, main_keyword: r.main_keyword, en: r.en || '', subs: JSON.parse(r.subs || '[]'), regions: JSON.parse(r.regions || '[]'), content: JSON.parse(r.content || '{}'), status: r.status, created_at: r.created_at, updated_at: r.updated_at, template: TEMPLATES[r.template] ? r.template : DEFAULT_TEMPLATE });
+// 추가 지역을 먼저 읽어 카탈로그에 반영한 뒤 그룹을 읽는다(그룹이 쓰는 지역 주소를 풀려면 필요)
+const loadGroups = async (db) => { setExtraRegions((await db.prepare('SELECT slug, name FROM regions_extra').all()).results); return (await db.prepare("SELECT * FROM groups WHERE status='active' ORDER BY created_at, slug").all()).results.map(shapeGroup); };
+const getGroup = async (db, slug) => (await loadGroups(db)).find((g) => g.slug === slug) || null;
+const regionsOf = (g) => g.regions.filter((r) => regionOf(r)).map((r) => ({ slug: r, name: regionOf(r).name })).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+const categoriesOf = (g) => (g?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
+
+// 미리보기 렌더: 빌드와 같은 템플릿 코드를 워커에서 실행한다. 사진은 업로드한 것(없으면 기본 사진, 그것도 없으면 빈 칸).
+async function renderPreview(env, g, tplId, regionSlug) {
+  const db = env.DB, slug = g.slug, host = groupHost(slug);
+  const profile = resolveProfile(shapeProfile(await db.prepare(`SELECT ${PROFILE_COLS} FROM profile WHERE slug=?`).bind(slug).first()));
+  const ba = (await db.prepare('SELECT region, slot, phase, updated_at FROM ba_photos WHERE slug=?').bind(slug).all()).results;
+  const caps = (await db.prepare('SELECT region, slot, caption FROM ba_captions WHERE slug=?').bind(slug).all()).results;
+  const intros = (await db.prepare('SELECT region, intro FROM region_intro WHERE slug=?').bind(slug).all()).results;
+  const has = (r, n, ph) => ba.find((x) => (x.region || '') === r && x.slot === n && x.phase === ph);
+  const defaults = SITE_IMAGES[slug] || [];
+  const reg = groupsToRegistry([g], REGISTRY), meta = { ...reg.site_meta[host], template: tplId }, pages = reg.pages;
+  const names = new Set(defaults), src = {};
+  for (const n of defaults) src[n] = `/site-images/${slug}/${n}.webp`;
+  for (let n = 1; n <= 8; n++) {
+    const r = regionSlug && has(regionSlug, n, 'before') && has(regionSlug, n, 'after') ? regionSlug : (has('', n, 'before') && has('', n, 'after') ? '' : null);
+    if (r === null) continue;
+    for (const ph of ['before', 'after']) { names.add(`ba-${n}-${ph}`); src[`ba-${n}-${ph}`] = `/api/s/${slug}/ba/${r ? r + '/' : ''}${n}/${ph}?v=${has(r, n, ph).updated_at}`; }
+  }
+  setImages([...names], src);
+  const captions = {}; for (const c of caps) if (!c.region) captions[c.slot] = c.caption; if (regionSlug) for (const c of caps) if (c.region === regionSlug) captions[c.slot] = c.caption;
+  const media = { captions, intro: (intros.find((x) => x.region === regionSlug) || {}).intro || '' };
+  const page = regionSlug ? pages.find((p) => p.region_slug === regionSlug) : null;
+  let html = page ? regionPage({ site: host, meta, page, pages, data: reg, profile, media }) : homePage({ site: host, meta, pages, data: reg, profile, media });
+  html = html.replace('</body>', `<script>document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='/'&&h.indexOf('//')!==0){e.preventDefault();}},true);</script></body>`);
+  return html;
+}
+
+// ── 리포트: 사이트·페이지 목록은 그룹(D1)(실제 배포 대상), 처음 만든 날은 D1(page_seen), 순위는 D1(rank_log)
 const kstDate = (t = Date.now()) => new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
 const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
-const PAGES = [...REGISTRY.pages].sort((a, b) => (a.site + a.page_path).localeCompare(b.site + b.page_path));
 const pageKey = (p) => `${p.site}${p.page_path}`;
 
 async function buildReport(env) {
   const db = env.DB, today = kstDate();
+  const reg = groupsToRegistry(await loadGroups(db), REGISTRY), PAGES = reg.pages;
   const dates = Array.from({ length: 16 }, (_, i) => addDays(today, -i)); // 최신순
   // 새로 생긴 페이지는 처음 본 날을 기록한다(이미 있으면 그대로 둔다)
   for (let i = 0; i < PAGES.length; i += 80) await db.batch(PAGES.slice(i, i + 80).map((p) => db.prepare('INSERT OR IGNORE INTO page_seen (page_key, first_seen) VALUES (?,?)').bind(pageKey(p), today)));
@@ -90,11 +138,12 @@ async function buildReport(env) {
   const checkedToday = new Set(logs.filter((r) => r.check_date === today).map((r) => r.page_key)).size;
   const lastCheck = (await db.prepare('SELECT MAX(check_date) d FROM rank_log').first())?.d || null;
   return {
-    success: true, business_name: REGISTRY.business_name, generated_at: today, dates, site_meta: REGISTRY.site_meta,
+    success: true, business_name: reg.business_name, generated_at: today, dates, site_meta: reg.site_meta,
     keywords: PAGES.map((p) => ({ id: id.get(pageKey(p)), keyword: p.h1_title, site: p.site, page_path: p.page_path, created_at: seen.get(pageKey(p)) || today })),
     ranks: logs.filter((r) => r.rank_position && id.has(r.page_key)).map((r) => ({ tracking_id: id.get(r.page_key), check_date: r.check_date, rank_position: r.rank_position })),
     pages: PAGES.map((p) => ({ ...p, first_seen: seen.get(pageKey(p)) || today })),
-    rank_status: { configured: !!(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET), noindex: !!REGISTRY.noindex, last_check: lastCheck, checked_today: checkedToday, total: PAGES.length },
+    templates: templateList(),
+    rank_status: { configured: !!(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET), noindex: !!reg.noindex, last_check: lastCheck, checked_today: checkedToday, total: PAGES.length },
   };
 }
 
@@ -103,6 +152,7 @@ async function collectRanks(env) {
   if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) return { skipped: 'no-keys' };
   const db = env.DB, today = kstDate();
   await ensureSchema(db);
+  const PAGES = groupsToRegistry(await loadGroups(db), REGISTRY).pages;
   const done = new Set((await db.prepare('SELECT page_key FROM rank_log WHERE check_date=?').bind(today).all()).results.map((r) => r.page_key));
   const todo = PAGES.filter((p) => !done.has(pageKey(p))).slice(0, 30);
   const writes = []; let stopped = '';
@@ -139,8 +189,44 @@ async function readShare(env, id) {
   return new Response(b64dec(row.data), { headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=31536000, immutable', 'x-robots-tag': 'noindex' } });
 }
 
-const regionsOf = (slug) => REGISTRY.pages.filter((p) => p.site.split('.')[0] === slug).map((p) => ({ slug: p.region_slug, name: p.region })).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-const categoriesOf = (slug) => (SITES[slug]?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
+// ── 대시보드 로그인: 비밀번호 하나(기본값은 코드에 해시로만 둔다). 워커 시크릿 ADMIN_PASSWORD(또는 ADMIN_PASSWORD_HASH)를 등록하면 그 값이 우선한다.
+//    세션은 서명된 쿠키(7일). 대시보드(/)와 관리 API(report·groups·regions·deploy·share)만 보호하고, 업로드 페이지와 사이트 빌드용 내보내기는 열려 있다.
+const DEFAULT_ADMIN_HASH = '8aa65ead2de522e1fd71426b4774bbb5f8f1ca8947e95081d74de0ba79b72083';
+const ADMIN_API = /^\/api\/(report|groups|regions|deploy|share)(\/|$)/;
+const enc = new TextEncoder();
+const toHex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+const sha256Hex = async (str) => toHex(await crypto.subtle.digest('SHA-256', enc.encode(str)));
+const adminHash = async (env) => (env.ADMIN_PASSWORD ? sha256Hex(`suriwiki-admin:${env.ADMIN_PASSWORD}`) : String(env.ADMIN_PASSWORD_HASH || DEFAULT_ADMIN_HASH).toLowerCase());
+const hmacHex = async (key, msg) => { const k = await crypto.subtle.importKey('raw', enc.encode(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']); return toHex(await crypto.subtle.sign('HMAC', k, enc.encode(msg))); };
+const safeEq = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
+const sessionKey = async (env) => String(env.SESSION_SECRET || (await adminHash(env)));
+async function makeSession(env) { const exp = Date.now() + 7 * 864e5; return `${exp}.${await hmacHex(await sessionKey(env), String(exp))}`; }
+async function isAdmin(request, env) {
+  const m = /(?:^|;\s*)admin_session=(\d+)\.([0-9a-f]{64})/.exec(request.headers.get('cookie') || '');
+  if (!m || Number(m[1]) < Date.now()) return false;
+  return safeEq(m[2], await hmacHex(await sessionKey(env), m[1]));
+}
+const cookie = (url, value, maxAge) => `admin_session=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${url.protocol === 'https:' ? '; Secure' : ''}`;
+async function login(request, env, url) {
+  const ip = request.headers.get('cf-connecting-ip') || 'local', key = `login_fail:${ip}`, now = Date.now();
+  const [cnt, ts] = String((await env.DB.prepare('SELECT v FROM kv WHERE k=?').bind(key).first())?.v || '0|0').split('|').map(Number);
+  if (cnt >= 5 && now - ts < 10 * 60e3) return json({ ok: false, error: '시도가 너무 많습니다. 10분 뒤에 다시 시도하세요.' }, 429);
+  const b = await request.json().catch(() => ({}));
+  const ok = typeof b.password === 'string' && b.password.length > 0 && safeEq(await sha256Hex(`suriwiki-admin:${b.password}`), await adminHash(env));
+  if (!ok) { await env.DB.prepare('INSERT OR REPLACE INTO kv (k, v) VALUES (?,?)').bind(key, `${now - ts < 10 * 60e3 ? cnt + 1 : 1}|${now}`).run(); return json({ ok: false, error: '비밀번호가 맞지 않습니다.' }, 401); }
+  await env.DB.prepare('DELETE FROM kv WHERE k=?').bind(key).run();
+  const res = json({ ok: true }); res.headers.append('set-cookie', cookie(url, await makeSession(env), 7 * 86400)); return res;
+}
+const loginPage = () => new Response(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>수리위키 관리자 로그인</title>
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0b1e3f,#12356b);font-family:Pretendard,"Noto Sans KR",system-ui,sans-serif;padding:16px}
+.c{background:#fff;border-radius:18px;padding:30px 26px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.35)}h1{font-size:20px;margin:0 0 4px;color:#0f172a}p{margin:0 0 18px;font-size:13px;color:#64748b}
+input{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:10px;background:#1e3a8a;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+.e{color:#dc2626;font-size:13px;min-height:20px;margin-top:10px}</style></head><body><form class="c" id="f"><h1>수리위키 관리자</h1><p>비밀번호를 입력하세요</p>
+<input type="password" id="pw" autocomplete="current-password" autofocus placeholder="비밀번호"><button type="submit">로그인</button><div class="e" id="e"></div></form>
+<script>document.getElementById('f').addEventListener('submit',async function(ev){ev.preventDefault();var e=document.getElementById('e');e.textContent='';
+var r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:document.getElementById('pw').value})});var j=await r.json().catch(function(){return{}});
+if(j.ok){location.reload();}else{e.textContent=j.error||'로그인하지 못했습니다';}});</script></body></html>`, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
+
 const clean = (v, max = 300) => String(v ?? '').trim().slice(0, max);
 const uid = () => crypto.randomUUID().replace(/-/g, '');
 
@@ -150,10 +236,19 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // 대시보드(/)는 로그인해야 열린다
+    if (path === '/' || path === '/index.html') {
+      if (!(await isAdmin(request, env))) return loginPage();
+      const res = await env.ASSETS.fetch(request);
+      const h = new Headers(res.headers); h.set('cache-control', 'no-store'); h.set('x-robots-tag', 'noindex, nofollow');
+      return new Response(res.body, { status: res.status, headers: h });
+    }
+
     // 업로드 페이지: /upload/<slug>[/]
     const up = path.match(/^\/upload\/([a-z0-9-]+)\/?$/);
     if (up) {
-      if (!SITES[up[1]]) return new Response('Not found', { status: 404 });
+      await ensureSchema(env.DB);
+      if (!(await getGroup(env.DB, up[1]))) return new Response('Not found', { status: 404 });
       if (!(await authorize(request, env))) return new Response('Forbidden', { status: 403 });
       const page = await env.ASSETS.fetch(new Request(new URL('/upload/', url), request));
       const headers = new Headers(page.headers);
@@ -171,13 +266,111 @@ export default {
     if (!(await authorize(request, env))) return err(403, 'forbidden');
     await ensureSchema(env.DB);
 
+    if (path === '/api/login' && request.method === 'POST') return login(request, env, url);
+    if (path === '/api/logout' && request.method === 'POST') { const res = json({ ok: true }); res.headers.append('set-cookie', cookie(url, '', 0)); return res; }
+    // 관리 API는 로그인한 대시보드만 쓸 수 있다
+    if (ADMIN_API.test(path) && !(await isAdmin(request, env))) return json({ ok: false, error: '로그인이 필요합니다', login: true }, 401);
+
     if (path === '/api/share' && request.method === 'PUT') return saveShare(env, request);
+
+
+    // ── 그룹(메인 키워드 단위) 관리: 대시보드가 만들고 고친다. 만들면 사이트·업로드 페이지·지역 페이지가 같은 규칙으로 함께 생긴다.
+    if (path === '/api/groups' && request.method === 'GET') {
+      const gs = await loadGroups(env.DB);
+      return json({ ok: true, regions: allRegions(), groups: gs.map((x) => ({ slug: x.slug, main_keyword: x.main_keyword, host: groupHost(x.slug), subs: x.subs, region_count: x.regions.length, template: x.template })), deploy: { enabled: !!env.GH_DISPATCH_TOKEN } });
+    }
+    const gm = path.match(/^\/api\/groups\/([a-z0-9-]+)$/);
+    if (gm && request.method === 'GET') { const x = await getGroup(env.DB, gm[1]); return x ? json({ ok: true, group: x }) : err(404, '없는 그룹입니다'); }
+    if (gm && request.method === 'PUT') {
+      let body; try { body = await request.json(); } catch (_) { return err(400, '요청 형식이 올바르지 않습니다'); }
+      const r = normalizeGroup(body, { slug: gm[1] });
+      if (r.error) return err(400, r.error);
+      const exists = await env.DB.prepare('SELECT status FROM groups WHERE slug=?').bind(r.value.slug).first();
+      const v = r.value, now = Date.now();
+      await env.DB.prepare('INSERT INTO groups (slug, main_keyword, en, subs, regions, content, status, created_at, updated_at, template) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET main_keyword=excluded.main_keyword, en=excluded.en, subs=excluded.subs, regions=excluded.regions, content=excluded.content, status=\'active\', updated_at=excluded.updated_at')
+        .bind(v.slug, v.main_keyword, v.en, JSON.stringify(v.subs), JSON.stringify(v.regions), JSON.stringify(v.content), 'active', now, now, TEMPLATES[body.template] ? body.template : DEFAULT_TEMPLATE).run();
+      return json({ ok: true, created: !exists, group: v, host: groupHost(v.slug), upload: `/upload/${v.slug}/` });
+    }
+
+    // ── 지역 추가: 카탈로그에 없는 지역을 더한다. 주소(slug)는 비우면 한글에서 자동으로 만든다. 지역 페이지 주소는 /<slug>
+    async function addRegion(name, slugIn, persist = true) {
+      name = String(name || '').trim(); if (name.length < 1 || name.length > 12) return { error: '지역 이름은 1~12자로 입력하세요' };
+      await loadGroups(env.DB);
+      const hit = allRegions().find((r) => r.name === name); if (hit) return { region: hit, existed: true };
+      const slug = String(slugIn || romanize(name)).toLowerCase();
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return { error: `'${name}'의 주소(영문)를 만들 수 없습니다. 영문 주소를 직접 입력하세요` };
+      if (RESERVED_REGION_SLUGS.includes(slug) || regionOf(slug)) return { error: `지역 주소 '${slug}'는 이미 쓰이고 있습니다. 다른 주소를 입력하세요` };
+      if (persist) await env.DB.prepare('INSERT INTO regions_extra (slug, name) VALUES (?,?)').bind(slug, name).run();
+      setExtraRegions([...extraRegions(), { slug, name }]);
+      return { region: { slug, name }, existed: false };
+    }
+    if (path === '/api/regions' && request.method === 'POST') {
+      const b = await request.json().catch(() => ({}));
+      const r = await addRegion(b.name, b.slug); if (r.error) return err(400, r.error);
+      return json({ ok: true, region: r.region, existed: r.existed, regions: allRegions() });
+    }
+    // ── 키워드 일괄 등록: rows[{main_keyword, subs, regions(이름 또는 주소), slug?, en?, template?}]. apply=false 면 검증 결과만 돌려준다.
+    if (path === '/api/groups/import' && request.method === 'POST') {
+      const b = await request.json().catch(() => ({}));
+      const rows = Array.isArray(b.rows) ? b.rows.slice(0, 200) : [];
+      if (!rows.length) return err(400, '등록할 줄이 없습니다');
+      const apply = b.apply === true, auto = b.auto_regions === true;
+      const existing = await loadGroups(env.DB);
+      const byKw = new Map(existing.map((x) => [x.main_keyword, x.slug])), taken = new Set(existing.map((x) => x.slug));
+      const results = [], toWrite = [], newRegions = [];
+      for (const [i, row] of rows.entries()) {
+        const out = { line: i + 1, main_keyword: String(row.main_keyword || '').trim(), ok: false };
+        try {
+          const names = Array.isArray(row.regions) ? row.regions : String(row.regions || '').split(/[,，、|]/);
+          const slugs = [], unknown = [], added = [];
+          for (const raw of names.map((x) => String(x).trim()).filter(Boolean)) {
+            const hit = allRegions().find((r) => r.slug === raw.toLowerCase() || r.name === raw);
+            if (hit) { slugs.push(hit.slug); continue; }
+            if (!auto) { unknown.push(raw); continue; }
+            const r = await addRegion(raw, '', false); if (r.error) { unknown.push(raw); continue; }
+            slugs.push(r.region.slug); if (!r.existed) added.push(r.region);
+          }
+          if (unknown.length) { out.error = `목록에 없는 지역: ${unknown.join(', ')} (자동 추가를 켜거나 지역을 먼저 추가하세요)`; results.push(out); continue; }
+          // 같은 키워드가 이미 있으면 그 그룹을 갱신하고, 없으면 새로 만든다. 주소 이름은 입력 > 기존 > 한글 자동
+          let slug = String(row.slug || '').trim().toLowerCase() || byKw.get(out.main_keyword) || romanize(out.main_keyword);
+          const isUpdate = byKw.get(out.main_keyword) === slug;
+          if (!isUpdate && taken.has(slug)) { let n = 2; while (taken.has(`${slug}-${n}`)) n++; slug = `${slug}-${n}`; }
+          const r = normalizeGroup({ main_keyword: out.main_keyword, en: row.en, subs: row.subs, regions: slugs, content: row.content }, { slug });
+          if (r.error) { out.error = r.error; results.push(out); continue; }
+          Object.assign(out, { ok: true, slug: r.value.slug, action: isUpdate ? 'update' : 'create', region_count: r.value.regions.length, new_regions: added.map((x) => x.name), host: groupHost(r.value.slug) });
+          taken.add(r.value.slug); byKw.set(out.main_keyword, r.value.slug);
+          toWrite.push({ v: r.value, isUpdate, template: TEMPLATES[row.template] ? row.template : null }); newRegions.push(...added);
+        } catch (e) { out.error = String(e.message || e).slice(0, 120); }
+        results.push(out);
+      }
+      if (apply && toWrite.length) {
+        const now = Date.now();
+        const seenNew = new Set();
+        for (const r of newRegions) if (!seenNew.has(r.slug)) { seenNew.add(r.slug); await env.DB.prepare('INSERT OR IGNORE INTO regions_extra (slug, name) VALUES (?,?)').bind(r.slug, r.name).run(); }
+        await env.DB.batch(toWrite.map(({ v, isUpdate, template }) => env.DB.prepare('INSERT INTO groups (slug, main_keyword, en, subs, regions, content, status, created_at, updated_at, template) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET main_keyword=excluded.main_keyword, en=excluded.en, subs=excluded.subs, regions=excluded.regions, content=CASE WHEN excluded.content=\'{"headline":"","lead":"","symptoms":[],"guide":{}}\' THEN groups.content ELSE excluded.content END, status=\'active\', updated_at=excluded.updated_at')
+          .bind(v.slug, v.main_keyword, v.en, JSON.stringify(v.subs), JSON.stringify(v.regions), JSON.stringify(v.content), 'active', now, now, template || DEFAULT_TEMPLATE)));
+      }
+      return json({ ok: true, applied: apply, summary: { total: rows.length, ok: results.filter((x) => x.ok).length, failed: results.filter((x) => !x.ok).length, created: results.filter((x) => x.action === 'create').length, updated: results.filter((x) => x.action === 'update').length, new_regions: apply ? newRegions.length : 0 }, results });
+    }
+
+    // 사이트 빌드가 읽는 그룹 정의 전체(공개 정보만)
+    if (path === '/api/export/groups' && request.method === 'GET') { const groups = await loadGroups(env.DB); return json({ ok: true, groups, regions: extraRegions() }); }
+    // 지금 반영: GitHub Actions 배포를 바로 실행한다(토큰이 등록된 경우). 연타를 막으려고 60초에 한 번만 받는다.
+    if (path === '/api/deploy' && request.method === 'POST') {
+      if (!env.GH_DISPATCH_TOKEN) return json({ ok: false, error: 'not_configured', message: '지금 반영 기능은 GitHub 토큰(GH_DISPATCH_TOKEN) 등록 후 사용할 수 있습니다. 등록 전에는 매일 05:00(KST) 자동 배포 때 반영됩니다.' }, 200);
+      const last = Number((await env.DB.prepare("SELECT v FROM kv WHERE k='deploy_at'").first())?.v || 0);
+      if (Date.now() - last < 60000) return json({ ok: false, error: 'too_soon', message: '방금 배포를 요청했습니다. 1분 뒤에 다시 시도하세요.' }, 200);
+      const r = await fetch('https://api.github.com/repos/playskang-svg/rsuri/actions/workflows/suriwiki-deploy.yml/dispatches', { method: 'POST', headers: { authorization: `Bearer ${env.GH_DISPATCH_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': 'suriwiki-admin', 'x-github-api-version': '2022-11-28' }, body: JSON.stringify({ ref: 'main' }) });
+      if (r.status !== 204) return json({ ok: false, error: 'github', message: `GitHub 요청이 거절되었습니다(${r.status}). 토큰 권한(Actions 쓰기)을 확인하세요.` }, 200);
+      await env.DB.prepare("INSERT OR REPLACE INTO kv (k, v) VALUES ('deploy_at', ?)").bind(String(Date.now())).run();
+      return json({ ok: true, message: '배포를 시작했습니다. 보통 2~3분 뒤 반영됩니다.' });
+    }
 
     // 리포트 화면이 읽는 실제 집계(사이트·페이지·순위)
     if (path === '/api/report' && request.method === 'GET') return json(await buildReport(env));
 
     // 키워드 사이트 빌드가 읽어가는 공사 전/후 사진 목록(파일 본문은 /api/s/<slug>/ba/<사례>/<전후>)
-    if (path === '/api/export/ba' && request.method === 'GET') return json({ ok: true, items: (await env.DB.prepare('SELECT slug, region, slot, phase, type, updated_at FROM ba_photos').all()).results });
+    if (path === '/api/export/ba' && request.method === 'GET') return json({ ok: true, items: (await env.DB.prepare('SELECT slug, region, slot, phase, type, updated_at FROM ba_photos').all()).results, captions: (await env.DB.prepare('SELECT slug, region, slot, caption FROM ba_captions').all()).results, intros: (await env.DB.prepare('SELECT slug, region, intro FROM region_intro').all()).results });
 
     // 키워드 사이트 빌드가 읽어가는 공개 정보(전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스). 사업자등록증·메모·파일은 포함하지 않는다.
     if (path === '/api/export/profiles' && request.method === 'GET') {
@@ -186,18 +379,19 @@ export default {
     }
 
     const m = path.match(/^\/api\/s\/([a-z0-9-]+)\/(.*)$/);
-    if (!m || !SITES[m[1]]) return err(404, 'not found');
+    const g = m ? await getGroup(env.DB, m[1]) : null;
+    if (!m || !g) return err(404, 'not found');
     const slug = m[1];
     const rest = m[2].replace(/\/$/, '');
     try {
-      return await route(request, env, url, slug, rest);
+      return await route(request, env, url, slug, rest, g);
     } catch (e) {
       return err(500, String(e?.message || e).slice(0, 200));
     }
   },
 };
 
-async function route(request, env, url, slug, rest) {
+async function route(request, env, url, slug, rest, g) {
   const db = env.DB;
   const method = request.method;
 
@@ -207,14 +401,48 @@ async function route(request, env, url, slug, rest) {
     const lic = await db.prepare('SELECT name, type, size, ocr_text, updated_at FROM license WHERE slug=?').bind(slug).first();
     const counts = (await db.prepare('SELECT category, COUNT(*) n FROM files WHERE slug=? GROUP BY category').bind(slug).all()).results;
     const ba = (await db.prepare('SELECT region, slot, phase, type, size, updated_at FROM ba_photos WHERE slug=?').bind(slug).all()).results;
-    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), regions: regionsOf(slug), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts, ba });
+    const captions = (await db.prepare('SELECT region, slot, caption FROM ba_captions WHERE slug=?').bind(slug).all()).results;
+    const intros = (await db.prepare('SELECT region, intro FROM region_intro WHERE slug=?').bind(slug).all()).results;
+    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: g.main_keyword, categories: categoriesOf(g), regions: regionsOf(g), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts, ba, captions, intros, template: templateOf(g.template).id, templates: templateList() });
+  }
+
+
+  // ── 템플릿 선택: 사이트의 디자인·구성을 바꾼다. 입력해 둔 내용·사진은 그대로 유지되고, 업로드 화면의 사진 칸 수만 템플릿에 맞춰진다.
+  if (rest === 'template' && method === 'PUT') {
+    const b = await request.json();
+    if (!TEMPLATES[b.template]) return err(400, '없는 템플릿입니다');
+    await db.prepare('UPDATE groups SET template=?, updated_at=? WHERE slug=?').bind(b.template, Date.now(), slug).run();
+    return json({ ok: true, template: b.template });
+  }
+  // 미리보기: 입력한 내용·사진으로 선택 전 템플릿을 그려서 보여 준다(저장하지 않는다). ?template=<id>&region=<지역slug>
+  if (rest === 'preview' && method === 'GET') {
+    const tplId = url.searchParams.get('template') || g.template, region = url.searchParams.get('region') || '';
+    if (!TEMPLATES[tplId]) return err(400, '없는 템플릿입니다');
+    const html = await renderPreview(env, g, tplId, region);
+    return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
+  }
+
+  // ── 사진 설명(캡션)과 지역 소개 문구: 키워드 사이트 전후 비교·지역 페이지에 표시된다(범위: 공통 '' 또는 지역)
+  if (rest === 'ba-caption' && method === 'PUT') {
+    const b = await request.json(), region = clean(b.region, 40), slot = Number(b.slot);
+    if (!(slot >= 1 && slot <= 8) || (region && !regionsOf(g).some((r) => r.slug === region))) return err(400, '잘못된 요청입니다');
+    const cap = clean(b.caption, 60);
+    await (cap ? db.prepare('INSERT OR REPLACE INTO ba_captions (slug, region, slot, caption) VALUES (?,?,?,?)').bind(slug, region, slot, cap) : db.prepare('DELETE FROM ba_captions WHERE slug=? AND region=? AND slot=?').bind(slug, region, slot)).run();
+    return json({ ok: true });
+  }
+  if (rest === 'region-intro' && method === 'PUT') {
+    const b = await request.json(), region = clean(b.region, 40);
+    if (!region || !regionsOf(g).some((r) => r.slug === region)) return err(400, '지역을 선택하세요');
+    const intro = clean(b.intro, 1200);
+    await (intro ? db.prepare('INSERT OR REPLACE INTO region_intro (slug, region, intro) VALUES (?,?,?)').bind(slug, region, intro) : db.prepare('DELETE FROM region_intro WHERE slug=? AND region=?').bind(slug, region)).run();
+    return json({ ok: true });
   }
 
   // ── 공사 전/후 사진: 작업 사례 1~4 × 전/후 한 장씩. 범위 = 전체 공통(region '') 또는 특정 지역 페이지. 전·후 둘 다 있는 사례만 쓰고, 지역에 없으면 공통 → 기본 사진 순으로 대신한다.
-  const bam = rest.match(/^ba\/(?:([a-z0-9-]+)\/)?([1-4])\/(before|after)$/);
+  const bam = rest.match(/^ba\/(?:([a-z0-9-]+)\/)?([1-8])\/(before|after)$/);
   if (bam) {
     const region = bam[1] || '', slot = Number(bam[2]), phase = bam[3], key = `ba/${slug}/${region}/${slot}/${phase}`;
-    if (region && !regionsOf(slug).some((r) => r.slug === region)) return err(404, '없는 지역입니다');
+    if (region && !regionsOf(g).some((r) => r.slug === region)) return err(404, '없는 지역입니다');
     if (method === 'PUT') {
       const type = (request.headers.get('content-type') || '').split(';')[0];
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(type)) return err(415, '사진(JPG·PNG·WebP)만 가능합니다');
@@ -240,8 +468,8 @@ async function route(request, env, url, slug, rest) {
   // ── 사이트 정보 저장
   if (rest === 'profile' && method === 'PUT') {
     const b = await request.json();
-    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, kakao, instagram, threads, website, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, kakao=excluded.kakao, instagram=excluded.instagram, threads=excluded.threads, website=excluded.website, updated_at=excluded.updated_at')
-      .bind(slug, clean(b.phone, 30), normUrl(b.blog), normUrl(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), normUrl(b.kakao), normUrl(b.instagram), normUrl(b.threads), normUrl(b.website), Date.now()).run();
+    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, hours, kakao, instagram, threads, website, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, hours=excluded.hours, kakao=excluded.kakao, instagram=excluded.instagram, threads=excluded.threads, website=excluded.website, updated_at=excluded.updated_at')
+      .bind(slug, clean(b.phone, 30), normUrl(b.blog), normUrl(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), clean(b.hours, 60), normUrl(b.kakao), normUrl(b.instagram), normUrl(b.threads), normUrl(b.website), Date.now()).run();
     return json({ ok: true });
   }
 
@@ -286,7 +514,7 @@ async function route(request, env, url, slug, rest) {
     const type = (request.headers.get('content-type') || '').split(';')[0];
     const size = Number(request.headers.get('content-length') || 0);
     const category = clean(url.searchParams.get('category'), 10);
-    if (!categoriesOf(slug).some((c) => c.id === category)) return err(400, '카테고리를 선택하세요');
+    if (!categoriesOf(g).some((c) => c.id === category)) return err(400, '카테고리를 선택하세요');
     const isImg = IMAGE_TYPES.includes(type), isVid = VIDEO_TYPES.includes(type);
     if (!isImg && !(isVid && env.FILES)) return err(415, env.FILES ? '사진(JPG·PNG·GIF·WebP) 또는 동영상(MP4·WebM·MOV·AVI)만 가능합니다' : '지금은 사진(JPG·PNG·GIF·WebP)만 올릴 수 있습니다. 동영상은 파일 저장소를 연결하면 열립니다');
     if (!size || size > (env.FILES ? (isImg ? MAX_IMAGE : MAX_VIDEO) : D1_MAX)) return err(413, env.FILES ? (isImg ? '사진은 최대 50MB입니다' : '동영상은 최대 100MB입니다') : '사진은 최대 1.2MB입니다(화면에서 자동으로 줄어듭니다)');
@@ -327,7 +555,7 @@ async function route(request, env, url, slug, rest) {
   if (rest === 'files/move' && method === 'POST') { // 선택한 파일 또는 폴더(묶음) 단위 카테고리 이동
     const b = await request.json();
     const category = clean(b.category, 10);
-    if (!categoriesOf(slug).some((c) => c.id === category)) return err(400, '카테고리 오류');
+    if (!categoriesOf(g).some((c) => c.id === category)) return err(400, '카테고리 오류');
     if (b.group) await db.prepare('UPDATE files SET category=? WHERE slug=? AND grp=?').bind(category, slug, clean(b.group, 80)).run();
     for (const id of (Array.isArray(b.ids) ? b.ids : []).slice(0, 200)) if (/^[a-f0-9]{32}$/.test(id)) await db.prepare('UPDATE files SET category=? WHERE id=? AND slug=?').bind(category, id, slug).run();
     return json({ ok: true });
@@ -343,7 +571,7 @@ async function route(request, env, url, slug, rest) {
       const b = await request.json();
       const content = clean(b.content, 4000);
       if (!content) return err(400, '내용이 없습니다');
-      const category = categoriesOf(slug).some((c) => c.id === b.category) ? b.category : '';
+      const category = categoriesOf(g).some((c) => c.id === b.category) ? b.category : '';
       const r = await db.prepare('INSERT INTO memos (slug, category, content, created_at) VALUES (?,?,?,?)').bind(slug, category, content, Date.now()).run();
       return json({ ok: true, id: r.meta.last_row_id });
     }
