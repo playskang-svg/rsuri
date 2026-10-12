@@ -52,8 +52,10 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const host = url.hostname.toLowerCase();
-    if (!host.endsWith('.suriwiki.com')) return new Response('Not found', { status: 404 });
-    const sub = host.slice(0, -'.suriwiki.com'.length);
+    // 다른 존의 고정 호스트(마케팅 페이지)는 /s/<이름>/ 로 바로 매핑한다
+    const FIXED = { 'make.bizhelp.kr': 'make' };
+    if (!FIXED[host] && !host.endsWith('.suriwiki.com')) return new Response('Not found', { status: 404 });
+    const sub = FIXED[host] || host.slice(0, -'.suriwiki.com'.length);
     if (!/^[a-z0-9-]+$/.test(sub)) return new Response('Not found', { status: 404 });
     // /upload 는 관리자 업로드 페이지로 보낸다(내용은 이 호스트에 두지 않는다).
     if (/^\/upload\/?$/.test(url.pathname)) return Response.redirect(`https://admin.suriwiki.com/upload/${sub}/`, 302);
@@ -61,8 +63,8 @@ export default {
     // 확장자 없는 경로는 끝에 /를 붙여 에셋을 바로 조회한다(안 그러면 ASSETS가 내부 경로(/s/<sub>/…/)로 리다이렉트한다).
     const origPath = url.pathname;
     if (isHtml && !url.pathname.endsWith('/')) url.pathname += '/';
-    // 홍보 페이지(builder)는 그룹이 아니므로 실시간 렌더 대상이 아니다
-    if (isHtml && sub !== 'builder' && request.method === 'GET') {
+    // 홍보·마케팅 페이지(builder·make)는 그룹이 아니므로 실시간 렌더 대상이 아니다
+    if (isHtml && sub !== 'builder' && sub !== 'make' && request.method === 'GET') {
       const dyn = await liveHtml(env, ctx, request, url.origin, sub, origPath).catch(() => null);
       if (dyn) { if (dyn.status === 404) return env.ASSETS.fetch(new Request(`${url.origin}/s/${sub}/__missing__/`)); return dyn; }
     }
