@@ -23,7 +23,9 @@ nav.top .logo i{width:10px;height:10px;border-radius:50%;background:var(--teal);
 .nav-links a{color:#d3e0ee;font-size:14px;padding:7px 11px;border-radius:8px}
 .nav-links a:hover{background:rgba(255,255,255,.1);text-decoration:none;color:#fff}
 .nav-links .nav-cta{background:var(--btn);color:#fff;font-weight:700}
-@media (max-width:640px){.nav-links a:not(.nav-cta):not(:first-child){display:none}}
+nav.top .wrap{flex-wrap:nowrap}.nav-links{flex-wrap:nowrap;white-space:nowrap}
+@media (max-width:640px){.nav-links a:not(.nav-cta):not(:first-child){display:none}.nav-links a{padding:7px 9px;font-size:13px}nav.top .logo{font-size:15px;min-width:0}}
+@media (max-width:480px){.lg{display:none}}
 /* hero */
 header.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--navy2) 60%,#0e5a8a);color:#fff;padding:76px 0 70px;border-bottom:4px solid var(--teal)}
 .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;animation:drift 14s ease-in-out infinite alternate}
@@ -155,7 +157,7 @@ footer{padding:30px 0 60px;color:var(--sub);font-size:14px;text-align:center}
 </head>
 <body>
 <nav class="top"><div class="wrap">
-<a class="logo" href="/"><i></i>수리위키 사이트빌더</a>
+<a class="logo" href="/"><i></i><span><span class="lg">수리위키 </span>사이트빌더</span></a>
 <div class="nav-links">
 <a href="https://admin.suriwiki.com/demo/">대시보드 둘러보기</a>
 <a href="#cases">완성 사이트</a>
