@@ -97,6 +97,15 @@ const header = (c) => `<header class="fixed top-0 inset-x-0 z-50 backdrop-blur b
 </header>
 <div class="h-16"></div>`;
 
+// 업로드 페이지에서 입력된 사이트 정보(전화·블로그·유튜브). 값이 없으면 아무것도 그리지 않는다.
+const telHref = (p) => `tel:${String(p).replace(/[^0-9+]/g, "")}`;
+const extUrl = (v) => { const s = String(v || "").trim(); return /^https?:\/\//i.test(s) ? s : ""; };
+const contactItems = (c) => {
+  const p = c.profile || {};
+  return (p.phone ? `<li class="opacity-80 leading-relaxed pt-2"><span class="block text-[11px] uppercase tracking-widest opacity-60">CONTACT</span><a class="inline-block mt-1 font-semibold text-white" href="${esc(telHref(p.phone))}">${esc(p.phone)}</a></li>` : "")
+    + (extUrl(p.blog) ? `<li><a href="${esc(extUrl(p.blog))}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">블로그</a></li>` : "")
+    + (extUrl(p.youtube) ? `<li><a href="${esc(extUrl(p.youtube))}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">유튜브</a></li>` : "");
+};
 const footer = (c) => `<footer class="bg-brand-ink text-white/90">
   <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-3">
     <div class="sm:col-span-2 md:col-span-2">
@@ -107,7 +116,7 @@ const footer = (c) => `<footer class="bg-brand-ink text-white/90">
     <div>
       <p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">바로가기</p>
       <ul class="space-y-2.5 text-sm">
-        <li><a href="/sangdam" class="opacity-80 hover:opacity-100 transition">상담 안내</a></li>
+        <li><a href="/sangdam" class="opacity-80 hover:opacity-100 transition">상담 안내</a></li>${contactItems(c)}
       </ul>
     </div>
   </div>
@@ -161,13 +170,18 @@ const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class=
   <p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(p.region)} ${esc(c.kw)} 안내. ${esc(c.subs[0])} 등 상담.</p></div></a>`;
 
 function ctx(site, meta, data, extra = {}) {
-  return { site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.sample, host: site, ...extra };
+  return { profile: extra.profile || {}, site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.sample, host: site, ...extra };
 }
+const businessLd = (c) => {
+  const p = c.profile || {};
+  const same = [extUrl(p.blog), extUrl(p.youtube)].filter(Boolean);
+  return json({ "@context": "https://schema.org", "@type": "HomeAndConstructionBusiness", name: `${c.brand} ${c.kw}`, url: `https://${c.host}/`, ...(p.phone ? { telephone: p.phone } : {}), ...(same.length ? { sameAs: same } : {}) });
+};
 const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.brand} ${c.kw} 페이지 목록`,
   itemListElement: [{ "@type": "ListItem", position: 1, url: `https://${c.host}/`, name: c.kw }, ...pages.map((p, i) => ({ "@type": "ListItem", position: i + 2, url: `https://${c.host}${p.page_path}`, name: p.h1_title }))] });
 
-export function homePage({ site, meta, pages, data }) {
-  const c = ctx(site, meta, data, { title: meta.main_keyword });
+export function homePage({ site, meta, pages, data, profile }) {
+  const c = ctx(site, meta, data, { title: meta.main_keyword, profile });
   const desc = `${c.kw} 안내 페이지입니다. ${c.subs.slice(0, 3).join("·")} 등 ${c.kw}를 지역별로 확인하세요. 사진과 지역을 보내 주시면 확인 후 안내합니다.`;
   const kwMeta = [c.kw, ...c.subs.slice(0, 4), c.brand].join(", ");
   const faq = [
@@ -228,11 +242,11 @@ ${cta(c, "사진과 지역만 보내주세요")}
 function go(n){s[cur].style.opacity='0';s[cur].style.zIndex='0';d[cur].style.width='7px';d[cur].style.background='rgba(255,255,255,.45)';cur=(n+s.length)%s.length;s[cur].style.opacity='1';s[cur].style.zIndex='1';d[cur].style.width='22px';d[cur].style.background='#4472B8';}
 function auto(){t=setInterval(function(){go(cur+1);},5000);}d.forEach(function(x){x.addEventListener('click',function(){go(parseInt(x.dataset.target));clearInterval(t);auto();});});auto();})();</script>
 ${footer(c)}
-${tail(itemListLd(c, pages))}`;
+${tail(businessLd(c) + itemListLd(c, pages))}`;
 }
 
-export function regionPage({ site, meta, page, pages, data }) {
-  const region = page.region, c = ctx(site, meta, data, { region, title: page.h1_title });
+export function regionPage({ site, meta, page, pages, data, profile }) {
+  const region = page.region, c = ctx(site, meta, data, { region, title: page.h1_title, profile });
   const hub = pages.filter((p) => p.page_path !== page.page_path).slice(0, 5);
   const desc = `${region} 전 지역 ${c.kw} 안내입니다. ${c.subs.slice(0, 3).join("·")} 등을 상담합니다. 사진과 지역을 보내 주시면 확인 후 안내합니다.`;
   const kwMeta = [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`), c.brand].join(", ");
@@ -285,14 +299,14 @@ ${footer(c)}
 ${tail(itemListLd(c, [page, ...hub]))}`;
 }
 
-export function sangdamPage({ site, meta, data }) {
-  const c = ctx(site, meta, data, { title: "상담 안내" });
+export function sangdamPage({ site, meta, data, profile }) {
+  const c = ctx(site, meta, data, { title: "상담 안내", profile });
   return `${head({ title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내 페이지입니다. 사진과 지역을 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, brandName: c.brand, sample: c.sample, ogLabel: `${c.brand} ${c.kw}` })}
 <body class="bg-brand-bg text-brand-ink">${header(c)}
 <section class="py-20 sm:py-28"><div class="max-w-3xl mx-auto px-5 sm:px-8"><span class="eyebrow">상담 안내</span>
   <h1 class="mt-3 text-3xl sm:text-5xl font-normal tracking-tight">${esc(c.kw)} 상담</h1>
   <p class="mt-5 text-brand-ink/80 leading-relaxed">현장 사진과 지역을 보내 주시면 확인 후 회신합니다. 현장 사진과 지역을 남겨 주세요.</p>
-  <div class="mt-9 flex gap-3"><a href="/" class="btn btn-primary">메인페이지</a></div></div></section>
+  <div class="mt-9 flex flex-wrap gap-3">${c.profile.phone ? `<a href="${esc(telHref(c.profile.phone))}" class="btn btn-primary">전화 ${esc(c.profile.phone)}</a>` : ""}<a href="/" class="btn ${c.profile.phone ? "btn-ghost" : "btn-primary"}">메인페이지</a></div></div></section>
 ${footer(c)}
 ${tail("")}`;
 }
