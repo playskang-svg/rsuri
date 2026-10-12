@@ -140,7 +140,7 @@ const platformOf = (url) => {
 // 카카오톡·블로그·유튜브 + 업로드 페이지에서 넣은 관련 링크를 한 목록으로 합친다(같은 주소는 한 번만).
 const linkList = (c) => {
   const p = c.profile || {};
-  const all = [{ name: "카카오톡", url: p.kakao }, { name: "블로그", url: p.blog }, { name: "유튜브", url: p.youtube }, ...(Array.isArray(p.services) ? p.services : [])];
+  const all = [{ name: "카카오톡", url: p.kakao }, { name: "인스타그램", url: p.instagram }, { name: "블로그", url: p.blog }, { name: "유튜브", url: p.youtube }, { name: "스레드", url: p.threads }, { name: "웹사이트", url: p.website }, ...(Array.isArray(p.services) ? p.services : [])];
   const seen = new Set();
   return all.filter((x) => x && extUrl(x.url) && (x.name || "").trim()).filter((x) => { const k = extUrl(x.url).replace(/\/+$/, "").toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
 };

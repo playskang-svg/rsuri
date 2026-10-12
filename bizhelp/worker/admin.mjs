@@ -37,7 +37,7 @@ async function ensureSchema(db) {
     db.prepare('CREATE INDEX IF NOT EXISTS files_slug_cat ON files (slug, category, created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS memos (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, category TEXT, content TEXT, created_at INTEGER)'),
   ]);
-  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
+  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services', 'instagram', 'threads', 'website']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
   schemaReady = true;
 }
 
@@ -64,8 +64,10 @@ async function delObj(env, db, key) {
 }
 
 // 사이트 정보(푸터에 노출): 전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스 링크
-const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, kakao, services';
+const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, kakao, instagram, threads, website, services';
 const isUrl = (v) => /^https?:\/\//i.test(String(v || '').trim());
+// 주소 입력 보정: 'blog.naver.com/abc' 처럼 https:// 없이 적어도 받아 주고, 주소 형태가 아니면 버린다.
+const normUrl = (v) => { const t = clean(v, 300); if (!t) return ''; const u = isUrl(t) ? t : (/^[^\s/]+\.[^\s/]+/.test(t) ? `https://${t}` : ''); try { return u && new URL(u).hostname.includes('.') ? u : ''; } catch (_) { return ''; } };
 const parseServices = (v) => { try { const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a : []; } catch (_) { return []; } };
 const cleanServices = (a) => (Array.isArray(a) ? a : []).map((x) => ({ name: clean(x?.name, 30), url: clean(x?.url, 300) })).filter((x) => x.name && isUrl(x.url)).slice(0, 8);
 const shapeProfile = (row) => { const r = row || {}; return { ...r, services: parseServices(r.services) }; };
@@ -104,7 +106,7 @@ async function collectRanks(env) {
   const todo = PAGES.filter((p) => !done.has(pageKey(p))).slice(0, 30);
   const writes = []; let stopped = '';
   for (const p of todo) {
-    const res = await fetch(`https://openapi.naver.com/v1/search/webkr.json?query=${encodeURIComponent(p.h1_title)}&display=100&start=1`, { headers: { 'X-Naver-Client-Id': env.NAVER_CLIENT_ID, 'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET } });
+    const res = await fetch(`${env.NAVER_API_BASE || 'https://openapi.naver.com'}/v1/search/webkr.json?query=${encodeURIComponent(p.h1_title)}&display=100&start=1`, { headers: { 'X-Naver-Client-Id': env.NAVER_CLIENT_ID, 'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET } });
     if (!res.ok) { stopped = `naver ${res.status}`; break; } // 한도·키 오류면 이번 회차는 멈추고 다음에 이어서
     const items = (await res.json()).items || [];
     const host = new URL(p.page_url).hostname, path = p.page_path.replace(/\/+$/, '');
@@ -205,9 +207,8 @@ async function route(request, env, url, slug, rest) {
   // ── 사이트 정보 저장
   if (rest === 'profile' && method === 'PUT') {
     const b = await request.json();
-    const kakao = clean(b.kakao); const services = JSON.stringify(cleanServices(b.services));
-    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, kakao, services, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, kakao=excluded.kakao, services=excluded.services, updated_at=excluded.updated_at')
-      .bind(slug, clean(b.phone, 30), clean(b.blog), clean(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), isUrl(kakao) ? kakao : '', services, Date.now()).run();
+    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, kakao, instagram, threads, website, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, kakao=excluded.kakao, instagram=excluded.instagram, threads=excluded.threads, website=excluded.website, updated_at=excluded.updated_at')
+      .bind(slug, clean(b.phone, 30), normUrl(b.blog), normUrl(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), normUrl(b.kakao), normUrl(b.instagram), normUrl(b.threads), normUrl(b.website), Date.now()).run();
     return json({ ok: true });
   }
 
