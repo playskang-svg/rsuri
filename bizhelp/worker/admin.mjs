@@ -1,6 +1,6 @@
 // admin.suriwiki.com 워커 — 정적 리포트는 ASSETS가 그대로 서빙하고, /upload/* 와 /api/* 만 이 워커가 처리한다.
 // 업로드 구조(키워드 슬러그 = 메인 키워드 단위): 사업자등록증 · 사이트 정보(전화/블로그/유튜브/참고) · 카테고리별 사진·영상 · 메모 · 갤러리.
-// 저장소: D1(DB) = 정보·메타데이터·메모, R2(FILES) = 파일 본문.
+// 저장소: D1(DB) = 정보·메타데이터·메모, R2(FILES) = 파일 본문. R2 바인딩이 없으면 파일 기능만 꺼진다(storage:false).
 // 보안: authorize() 한 곳에서 접근을 통제한다. 지금은 로그인이 없다(나중에 Cloudflare Access JWT 검증을 이 함수에 넣는다).
 //       네이버·구글 계정 비밀번호처럼 제3자 비밀번호는 받지도 저장하지도 않는다.
 import SITES from './sites-meta.json';
@@ -85,7 +85,7 @@ async function route(request, env, url, slug, rest) {
     const profile = (await db.prepare('SELECT phone, blog, youtube, reference FROM profile WHERE slug=?').bind(slug).first()) || {};
     const lic = await db.prepare('SELECT name, type, size, ocr_text, updated_at FROM license WHERE slug=?').bind(slug).first();
     const counts = (await db.prepare('SELECT category, COUNT(*) n FROM files WHERE slug=? GROUP BY category').bind(slug).all()).results;
-    return json({ ok: true, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, license: lic || null, counts });
+    return json({ ok: true, storage: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, license: lic || null, counts });
   }
 
   // ── 사이트 정보 저장
@@ -95,6 +95,9 @@ async function route(request, env, url, slug, rest) {
       .bind(slug, clean(b.phone, 30), clean(b.blog), clean(b.youtube), clean(b.reference), Date.now()).run();
     return json({ ok: true });
   }
+
+  // ── 파일 저장소(R2)가 없으면 파일 관련 경로는 막는다
+  if (!env.FILES && (rest === 'license' || rest === 'files' || /^file\//.test(rest) || rest === 'files/move')) return err(503, '파일 저장소가 아직 연결되지 않았습니다');
 
   // ── 사업자등록증
   if (rest === 'license') {

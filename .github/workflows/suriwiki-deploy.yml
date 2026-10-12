@@ -2,19 +2,19 @@
 # 본 사이트 deploy.yml(suriwiki 워커)과 Worker 이름이 달라 서로 덮어쓰지 않는다.
 # 키워드 서브도메인 페이지는 아직 배포하지 않는다(와일드카드 방식 폐기, 개별 커스텀 도메인 방식으로 재설계 예정).
 # 배포 규칙은 CLAUDE.md와 같다: main 머지로만 배포, PR에서는 빌드 검증만.
-name: bizhelp-deploy
+name: suriwiki-deploy
 on:
   schedule:
     - cron: '0 20 * * *'   # 매일 05:00 KST — 업로드 페이지에서 바뀐 전화번호·블로그 등을 키워드 사이트에 반영
   push:
     branches: [main]
-    paths: ['bizhelp/**', '.github/workflows/bizhelp-deploy.yml']
+    paths: ['bizhelp/**', '.github/workflows/suriwiki-deploy.yml']
   pull_request:
-    paths: ['bizhelp/**', '.github/workflows/bizhelp-deploy.yml']
+    paths: ['bizhelp/**', '.github/workflows/suriwiki-deploy.yml']
   workflow_dispatch:
 
 concurrency:
-  group: deploy-bizhelp
+  group: deploy-suriwiki
   cancel-in-progress: false
 
 defaults:

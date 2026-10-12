@@ -51,7 +51,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 <div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small></div>
 <div class="container">
 
-  <div class="card">
+  <div class="card" id="storage-note" style="display:none"><h3>파일 저장소 준비 중</h3><p class="hint">지금은 사이트 정보(전화·블로그·유튜브·참고 사이트)와 메모를 입력할 수 있습니다. 사진·동영상·사업자등록증 업로드는 저장소를 연결하면 열립니다.</p></div>
+
+  <div class="card" data-storage>
     <h3 class="sec" id="lic-head">사업자등록증 <span id="lic-icon">▼</span></h3>
     <div id="lic-body" style="display:none">
       <div id="lic-preview" class="hint" style="margin-bottom:8px">사업자등록증을 업로드해주세요 (JPG, PNG, PDF · 최대 10MB)</div>
@@ -85,7 +87,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 
   <div class="card"><h3>1. 카테고리를 선택하세요</h3><div class="cats" id="cats"></div></div>
 
-  <div class="card">
+  <div class="card" data-storage>
     <h3>2. 파일 업로드 <span class="hint" id="sel-label"></span></h3>
     <div class="zone" id="zone"><div style="font-size:28px">📂</div>
       <p id="zone-msg"><strong>위에서 카테고리를 먼저 선택</strong>해주세요</p>
@@ -107,7 +109,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <div id="memo-list"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-storage>
     <h3>업로드된 파일 <span><button class="btn out sm" id="btn-move">선택 항목 이동</button> <button class="btn out sm" id="btn-move-group">폴더(묶음) 이동</button></span></h3>
     <div class="tabs" id="tabs"></div>
     <div class="grid" id="gallery"></div>
@@ -145,7 +147,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     $('tabs').innerHTML = [['', '전체'], ...S.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button class="tab${id === S.tab ? ' on' : ''}" data-t="${id}">${esc(n)}</button>`).join('');
-    renderLicense(); loadFiles(); loadMemos();
+    document.querySelectorAll('[data-storage]').forEach((e) => { e.style.display = o.storage ? '' : 'none'; });
+    $('storage-note').style.display = o.storage ? 'none' : '';
+    renderLicense(); if (o.storage) loadFiles(); loadMemos();
   }
 
   // ── 사업자등록증
