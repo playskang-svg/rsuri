@@ -17,6 +17,17 @@ const meta = {};
 for (const [site, m] of Object.entries(data.site_meta || {})) meta[site.split('.')[0]] = { keyword: m.main_keyword, subs: m.sub_keywords };
 writeFileSync('worker/sites-meta.json', JSON.stringify(meta));
 
+// 업로드 페이지에서 올린 공사 전/후 사진(작업 사례 1~4). 전·후가 둘 다 있는 사례만 쓴다(없으면 건너뜀).
+const baBySub = {};
+if (process.env.BIZHELP_BA_URL) {
+  try {
+    const r = await fetch(process.env.BIZHELP_BA_URL, { signal: AbortSignal.timeout(15000) });
+    if (r.ok) for (const it of (await r.json()).items || []) (((baBySub[it.slug] ||= {})[it.region || ''] ||= {})[it.slot] ||= {})[it.phase] = it;
+    console.log(`전후 사진: ${Object.keys(baBySub).length}개 사이트`);
+  } catch (e) { console.log('전후 사진 조회 실패(무시):', e.message); }
+}
+const EXT_OF = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+
 // 업로드 페이지에서 입력된 전화번호·블로그·유튜브를 키워드 사이트에 반영한다(없으면 건너뜀).
 let profiles = {};
 if (process.env.BIZHELP_PROFILES_URL) {
@@ -37,14 +48,41 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   hosts.push(site);
   const imgDir = `site-images/${sub}`;
   const imgNames = existsSync(imgDir) ? readdirSync(imgDir).filter((f) => f.endsWith('.webp')).map((f) => f.replace('.webp', '')) : [];
-  setImages(imgNames);
   const profile = resolveProfile(profiles[sub] || {});
   if (imgNames.length) cpSync(imgDir, `dist-sites/s/${sub}/img`, { recursive: true });
+  // 올라온 전/후 쌍은 같은 칸의 기본 사진을 대신한다. 범위: 공통('') → 지역별. 지역에 없는 사례는 공통 → 기본 사진.
+  const baseUrl = (process.env.BIZHELP_BA_URL || '').replace(/\/api\/export\/ba$/, '');
+  const fetched = {}; // 'region/slot' → { before: src, after: src }  (src = 사이트 안 경로)
+  for (const [region, slots] of Object.entries(baBySub[sub] || {})) {
+    for (const [slot, ph] of Object.entries(slots)) {
+      if (!ph.before || !ph.after) continue;
+      const pair = {};
+      for (const phase of ['before', 'after']) {
+        const res = await fetch(`${baseUrl}/api/s/${sub}/ba/${region ? region + '/' : ''}${slot}/${phase}`, { signal: AbortSignal.timeout(20000) });
+        if (!res.ok) continue;
+        const ext = EXT_OF[ph[phase].type] || 'jpg', rel = `${region ? `r/${region}/` : ''}ba-${slot}-${phase}.${ext}`;
+        mkdirSync(`dist-sites/s/${sub}/img/${region ? `r/${region}` : ''}`, { recursive: true });
+        writeFileSync(`dist-sites/s/${sub}/img/${rel}`, Buffer.from(await res.arrayBuffer()));
+        pair[phase] = `/img/${rel}`;
+      }
+      if (pair.before && pair.after) fetched[`${region}/${slot}`] = pair;
+    }
+  }
+  // 페이지(공통/지역)별 사진 경로 지도: 지역 쌍 > 공통 쌍 > 기본 사진
+  const apply = (region) => {
+    const names = new Set(imgNames), src = {};
+    for (const slot of [1, 2, 3, 4]) {
+      const pair = (region && fetched[`${region}/${slot}`]) || fetched[`/${slot}`];
+      if (pair) { src[`ba-${slot}-before`] = pair.before; src[`ba-${slot}-after`] = pair.after; names.add(`ba-${slot}-before`); names.add(`ba-${slot}-after`); }
+    }
+    setImages([...names], src);
+  };
   const pages = data.pages.filter((p) => p.site === site && !p.pending && p.region).sort((a, b) => a.page_path.localeCompare(b.page_path));
   const put = (rel, html) => { const dir = `dist-sites/s/${sub}${rel}`.replace(/\/$/, ''); mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/index.html`, html); n++; };
+  apply('');
   put('/', homePage({ site, meta: m, pages, data, profile }));
   put('/sangdam', sangdamPage({ site, meta: m, data, profile }));
-  for (const page of pages) put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile }));
+  for (const page of pages) { apply(page.region_slug); put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile })); }
   const urls = ['/', ...pages.map((p) => p.page_path)];
   writeFileSync(`dist-sites/s/${sub}/robots.txt`, sample ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: https://${site}/sitemap.xml\n`);
   writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${site}${u}</loc></url>`).join('\n')}\n</urlset>\n`);

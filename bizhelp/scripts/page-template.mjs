@@ -49,9 +49,10 @@ const UP = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="
 const GRAD = ["#3b5b8c,#1a3159", "#5a7bb0,#2c4a7a", "#7d92b5,#3f5a86", "#4a6a9c,#1f3a66", "#6f87ad,#34507d", "#2f4d7c,#16294a"];
 // 이미지 슬롯: site-images/<slug>/<name>.webp 가 있으면 사진, 없으면 자리표시자
 let IMGS = new Set();
-export const setImages = (names) => { IMGS = new Set(names); };
+let SRC = {};
+export const setImages = (names, src = {}) => { IMGS = new Set(names); SRC = src; };
 const img = (name, alt, i = 0, extra = "") => IMGS.has(name)
-  ? `<img src="/img/${name}.webp" alt="${esc(alt)}" class="w-full h-full object-cover ${extra}" loading="lazy" decoding="async">`
+  ? `<img src="${SRC[name] || `/img/${name}.webp`}" alt="${esc(alt)}" class="w-full h-full object-cover ${extra}" loading="lazy" decoding="async">`
   : ph(i, "");
 const ph = (i, label = "") => `<div class="ph" style="background:linear-gradient(135deg,${GRAD[i % GRAD.length]})">${esc(label)}</div>`;
 

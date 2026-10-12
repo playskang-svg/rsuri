@@ -94,6 +94,15 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 
   <div style="margin-bottom:14px"><button class="btn out" id="copy-all" style="width:100%">사이트 정보 + 사업자등록증 전체 복사</button></div>
 
+  <div class="card" id="ba-card">
+    <h3>공사 전/후 사진 <span class="hint">· 작업 사례 1~4 · 전·후를 한 장씩 올리면 사이트의 BEFORE/AFTER 칸에 들어갑니다</span></h3>
+    <div class="row"><label>적용 범위</label><select id="ba-scope"><option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option></select></div>
+    <p class="hint" id="ba-hint" style="margin-bottom:10px"></p>
+    <div id="ba-grid"></div>
+    <input type="file" id="ba-input" accept="image/jpeg,image/png,image/webp,image/*" style="display:none">
+    <p class="hint">사진은 1.2MB 이하로 자동 축소됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
+  </div>
+
   <div class="card"><h3>1. 카테고리를 선택하세요</h3><div class="cats" id="cats"></div></div>
 
   <div class="card">
@@ -157,7 +166,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     $('tabs').innerHTML = [['', '전체'], ...S.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button class="tab${id === S.tab ? ' on' : ''}" data-t="${id}">${esc(n)}</button>`).join('');
-    S.mode = o.storage; S.max = o.maxFile; S.video = o.video;
+    S.mode = o.storage; S.max = o.maxFile; S.video = o.video; S.ba = o.ba || [];
+    { const cur = $('ba-scope').value; $('ba-scope').innerHTML = '<option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option>' + (o.regions || []).map((r) => `<option value="${r.slug}">${esc(r.name)} 페이지만</option>`).join(''); $('ba-scope').value = cur; }
+    renderBa();
     $('storage-note').style.display = o.video ? 'none' : '';
     if (o.video) $('zone-limit').textContent = '사진: JPG, PNG, GIF, WebP (최대 50MB) | 동영상: MP4, WebM, MOV, AVI (최대 100MB)';
     $('file-input').accept = o.video ? 'image/*,video/*' : 'image/*';
@@ -205,6 +216,33 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('lic-copy').onclick = () => navigator.clipboard.writeText(S.ocr).then(() => alert('복사했습니다'));
 
   // ── 사이트 정보
+  // ── 공사 전/후 사진 (작업 사례 1~4 × 전/후, 범위 = 공통 또는 지역)
+  const baPath = (n, ph) => `ba/${$('ba-scope').value ? $('ba-scope').value + '/' : ''}${n}/${ph}`;
+  function renderBa() {
+    const region = $('ba-scope').value, ph2 = { before: '공사 전', after: '공사 후' };
+    const find = (n, ph) => (S.ba || []).find((x) => (x.region || '') === region && x.slot === n && x.phase === ph);
+    $('ba-hint').textContent = region ? '선택한 지역 페이지에만 적용됩니다. 이 지역에 전·후를 둘 다 올리지 않은 사례는 공통 사진이 표시됩니다.' : '메인과 모든 지역 페이지에 공통으로 적용됩니다. 전·후를 둘 다 올린 사례만 표시되고, 나머지는 기본 사진이 표시됩니다.';
+    $('ba-grid').innerHTML = [1, 2, 3, 4].map((n) => {
+      const b = find(n, 'before'), a = find(n, 'after');
+      const st = b && a ? '<span style="color:#16a34a;font-size:12px">✅ 사이트에 표시됨</span>' : (b || a) ? '<span style="color:#d97706;font-size:12px">전·후 둘 다 올려야 표시됩니다</span>' : '';
+      const box = (ph) => { const x = find(n, ph); return x
+        ? `<div class="ba-box" data-n="${n}" data-ph="${ph}" style="position:relative;cursor:pointer"><img src="${API}${baPath(n, ph)}?v=${x.updated_at}" alt="${ph2[ph]}" style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;display:block"><span style="position:absolute;left:6px;top:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 7px;border-radius:4px">${ph2[ph]}</span><button type="button" class="btn bad sm ba-del" data-n="${n}" data-ph="${ph}" style="position:absolute;right:6px;top:6px">삭제</button></div>`
+        : `<div class="ba-box" data-n="${n}" data-ph="${ph}" style="cursor:pointer;aspect-ratio:4/5;border:2px dashed var(--g200);border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--g600);font-size:13px">+ ${ph2[ph]}<br>사진 선택</div>`; };
+      return `<div style="margin-bottom:14px"><b style="font-size:13px">작업 사례 ${n}</b> ${st}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${box('before')}${box('after')}</div></div>`;
+    }).join('');
+  }
+  let baTarget = null;
+  $('ba-scope').onchange = renderBa;
+  $('ba-grid').onclick = async (e) => {
+    const del = e.target.closest('.ba-del');
+    if (del) { e.stopPropagation(); if (!confirm('이 사진을 삭제할까요?')) return; try { await api(baPath(Number(del.dataset.n), del.dataset.ph), { method: 'DELETE' }); await load(); } catch (x) { alert(x.message); } return; }
+    const box = e.target.closest('.ba-box'); if (!box) return;
+    baTarget = { n: Number(box.dataset.n), ph: box.dataset.ph }; $('ba-input').click();
+  };
+  $('ba-input').onchange = async (e) => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f || !baTarget) return;
+    try { await put(baPath(baTarget.n, baTarget.ph), await shrink(f, true)); await load(); } catch (x) { alert(x.message); }
+  };
   $('save-profile').onclick = async () => {
     try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, phone: $('f-phone').value, kakao: $('f-kakao').value, instagram: $('f-instagram').value, blog: $('f-blog').value, youtube: $('f-youtube').value, threads: $('f-threads').value, website: $('f-website').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
     catch (x) { flash($('profile-status'), x.message, true); }
@@ -217,8 +255,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   // ── 카테고리 + 업로드
   $('cats').onclick = (e) => { const c = e.target.closest('.cat'); if (!c) return; S.cat = c.dataset.c; document.querySelectorAll('.cat').forEach((x) => x.classList.toggle('on', x === c)); $('sel-label').textContent = `· ${catName(S.cat)}`; $('zone-msg').innerHTML = '파일을 끌어다 놓거나 <strong>클릭해서 선택</strong>하세요'; };
   // D1 저장 방식에서는 사진을 1.2MB 이하 JPEG로 줄여서 올린다(R2가 연결되면 원본 그대로).
-  async function shrink(file) {
-    if (S.mode !== 'd1' || !/^image\//.test(file.type) || file.size <= S.max) return file;
+  async function shrink(file, force) {
+    const lim = force ? 1200000 : S.max;
+    if ((S.mode !== 'd1' && !force) || !/^image\//.test(file.type) || file.size <= lim) return file;
     try {
       const bmp = await createImageBitmap(file);
       for (let dim = 2000; dim >= 700; dim = Math.round(dim * 0.75)) {
@@ -227,7 +266,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
         c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
         for (const q of [0.85, 0.7, 0.55]) {
           const b = await new Promise((r) => c.toBlob(r, 'image/jpeg', q));
-          if (b && b.size <= S.max) return new File([b], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+          if (b && b.size <= lim) return new File([b], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
         }
       }
     } catch (_) {}
