@@ -1,0 +1,6 @@
+{
+  "name": "bizhelp-admin",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./dist" },
+  "routes": [{ "pattern": "admin.bizhelp.kr", "custom_domain": true, "zone_name": "bizhelp.kr" }]
+}
