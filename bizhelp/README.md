@@ -21,11 +21,9 @@
 main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (suriwiki.com 존이 있는 계정).
 
 ## 키워드 구조 (사이트 → 키워드 페이지 → 서브키워드)
-- 관리자: `admin.suriwiki.com` (이 저장소의 `dist/`, `wrangler.jsonc`).
-- 열릴 페이지: `https://<키워드slug>.suriwiki.com/<지역slug>` (예: `munjjak-film.suriwiki.com/ansan`). 사이트 메인 = `https://<키워드slug>.suriwiki.com/`.
-  `dist-sites/` + `worker/sites.mjs` + `wrangler.sites.jsonc`(워커 `suriwiki-sites`, 라우트 `*.suriwiki.com/*`). 워커가 호스트명의 서브도메인을 `/s/<키워드slug>/` 에셋 경로로 매핑한다.
+- 관리자: `https://admin.suriwiki.com` (`dist/`, `wrangler.jsonc`, 커스텀 도메인 — DNS는 배포 때 자동 생성).
+- 열릴 페이지: `https://<키워드slug>.suriwiki.com/<지역slug>` 구조. **아직 배포하지 않는다.** `dist-sites/` 는 샘플 생성물이며, 와일드카드 라우트/DNS는 기존 서브도메인(battery 등)을 가로채므로 쓰지 않는다. 배포할 때는 키워드마다 개별 커스텀 도메인을 붙이고, 기존 서브도메인과 이름이 겹치는지 배포 전에 검사한다.
 - 사이트 1개 = 메인 키워드 1개 = 서브도메인 1개. 페이지 1개 = `{지역} {메인키워드}` = `/<지역slug>`. 서브 키워드는 별도 페이지 없이 키워드 페이지가 품는다(대표 서비스 카드 6개).
-- 데이터: `site_meta[site] = {main_keyword, slug, sub_keywords[], url}` + `pages[].region / region_slug / page_url`. 새 키워드 사이트는 데이터만 추가하면 서브도메인이 자동으로 열린다(와일드카드 DNS).
-- 배포: 저장소 루트 `.github/workflows/bizhelp-deploy.yml` (main 머지 시, `bizhelp/**` 변경만). 시크릿은 rsuri의 `CLOUDFLARE_API_TOKEN/ACCOUNT_ID`를 쓴다. 토큰에 suriwiki.com 존 DNS 편집 권한이 필요하다(와일드카드 `*` 레코드 자동 생성).
-- 현재는 샘플이라 sites 쪽에 noindex/robots 차단이 걸려 있다. 실제 공개 시 `scripts/build.mjs`의 두 줄(robots.txt, _headers)을 제거한다.
+- 데이터: `site_meta[site] = {main_keyword, slug, sub_keywords[], url}` + `pages[].region / region_slug / page_url`.
+- 배포: 저장소 루트 `.github/workflows/bizhelp-deploy.yml` (main 머지 시, `bizhelp/**` 변경만). 시크릿은 rsuri의 `CLOUDFLARE_API_TOKEN/ACCOUNT_ID`.
 - 페이지 템플릿: `scripts/page-template.mjs`, 스타일: `src/css/keyword-page.css`. 본문은 샘플 문구이며 가격·연락처·사업자 정보는 넣지 않았다.
