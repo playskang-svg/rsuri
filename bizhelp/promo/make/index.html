@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MAKE — 검색되는 회사를 만듭니다 | bizhelp</title>
+<meta name="description" content="키워드 홈페이지 분양, 지역 노출 페이지 자동 생성, 콘텐츠 자동 발행, 사이트빌더 시스템 구축까지. 제작에서 노출·운영까지 한 팀이 한 번에.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#070d18">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MAKE — 검색되는 회사를 만듭니다">
+<meta property="og:description" content="홈페이지 분양 · 지역 노출 · 콘텐츠 자동 발행 · 시스템 구축. 제작에서 운영까지 한 번에.">
+<meta property="og:image" content="https://make.bizhelp.kr/img/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://make.bizhelp.kr/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://make.bizhelp.kr/img/og.jpg">
+<link rel="preload" as="image" href="/img/hero.webp" type="image/webp" fetchpriority="high">
+<style>
+:root{--bg:#070d18;--bg2:#0b1424;--card:rgba(255,255,255,.04);--line:rgba(255,255,255,.1);--ink:#eef3fa;--sub:#9fb0c6;--teal:#19d3c0;--teal2:#5eead4;--gold:#f5b301;--btn:#0fa99b;--btn-d:#0b8c80;--glow:rgba(25,211,192,.35)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--teal2);text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+strong{color:#fff;font-weight:800}
+/* progress bar */
+#prog{position:fixed;left:0;top:0;height:3px;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));z-index:50;box-shadow:0 0 12px var(--glow)}
+/* nav */
+nav.top{position:sticky;top:0;z-index:40;background:rgba(7,13,24,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;min-height:60px;gap:10px}
+.logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:900;letter-spacing:.5px;font-size:18px;white-space:nowrap}
+.logo i{width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,var(--teal),var(--gold));box-shadow:0 0 0 4px rgba(25,211,192,.18);transform:rotate(45deg)}
+.logo small{font-weight:600;color:var(--sub);font-size:12px;letter-spacing:0}
+.nl{display:flex;gap:2px;white-space:nowrap}
+.nl a{color:#c9d6e6;font-size:14px;padding:8px 11px;border-radius:9px}
+.nl a:hover{background:rgba(255,255,255,.08);color:#fff}
+.nl .ncta{background:var(--btn);color:#fff;font-weight:800;margin-left:6px}
+@media (max-width:720px){.nl a:not(.ncta){display:none}.logo small{display:none}}
+/* hero */
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;background:radial-gradient(900px 500px at 15% 20%,#12304f 0,transparent 60%),radial-gradient(700px 500px at 90% 80%,#0b3a40 0,transparent 60%),var(--bg)}
+.hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.hero-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% 30%;opacity:.42;animation:kb 26s ease-in-out infinite alternate;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 38%);mask-image:linear-gradient(to right,transparent 0,#000 38%)}
+@keyframes kb{to{transform:scale(1.07) translateX(-1.2%)}}
+.hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0,transparent 35%)}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+.gridl{position:absolute;left:-10%;right:-10%;bottom:-20%;height:60%;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(25,211,192,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(25,211,192,.14) 1px,transparent 1px);background-size:60px 60px;transform:perspective(600px) rotateX(64deg);animation:gm 6s linear infinite;-webkit-mask-image:linear-gradient(to top,#000 10%,transparent 90%);mask-image:linear-gradient(to top,#000 10%,transparent 90%)}
+@keyframes gm{to{background-position:0 60px}}
+.hero .wrap{position:relative;z-index:2;padding-top:70px;padding-bottom:60px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(25,211,192,.45);background:rgba(25,211,192,.1);color:var(--teal2);font-weight:700;font-size:13px;padding:6px 14px;border-radius:99px;margin-bottom:22px}
+.eyebrow b{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(25,211,192,.7)}70%{box-shadow:0 0 0 9px rgba(25,211,192,0)}}
+h1{margin:0 0 18px;font-size:clamp(38px,7.2vw,76px);line-height:1.06;letter-spacing:-1.5px;font-weight:900;text-shadow:0 6px 30px rgba(0,0,0,.5)}
+h1 .w{display:inline-block;opacity:0;transform:translateY(26px);animation:up .75s cubic-bezier(.2,.8,.2,1) forwards}
+h1 .w:nth-child(2){animation-delay:.14s}h1 .w:nth-child(3){animation-delay:.28s}h1 .w:nth-child(4){animation-delay:.42s}
+@keyframes up{to{opacity:1;transform:none}}
+h1 em{font-style:normal;background:linear-gradient(90deg,#5eead4,#f5b301,#5eead4);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+@keyframes shine{to{background-position:-200% 0}}
+.sub{font-size:clamp(18px,2.6vw,24px);font-weight:700;color:#dbe6f3;margin:0 0 26px;max-width:640px}
+.sub b{color:var(--teal2)}
+.kw{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.kw span{font-size:14px;font-weight:800;padding:8px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);backdrop-filter:blur(6px)}
+.kw span.g{background:linear-gradient(135deg,var(--btn),#0e5a8a);border-color:transparent}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:15px 24px;border-radius:14px;font-weight:800;background:var(--btn);color:#fff;transition:transform .15s,box-shadow .15s;font-size:16px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px var(--glow);background:var(--btn-d)}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.35)}
+.btn.ghost:hover{background:rgba(255,255,255,.14);box-shadow:none}
+.btn.gold{background:linear-gradient(135deg,#f5b301,#f97316);color:#1a1200}
+.trust{display:flex;flex-wrap:wrap;gap:16px;margin-top:28px;color:#b9cde3;font-size:14px}
+.trust span:before{content:"✓";color:var(--teal2);font-weight:900;margin-right:6px}
+/* stats */
+.stats{position:relative;z-index:3;margin-top:-30px}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:760px){.stats .wrap{grid-template-columns:repeat(2,1fr)}}
+.stat{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:18px;padding:20px 16px;text-align:center;backdrop-filter:blur(10px)}
+.stat .n{font-size:clamp(30px,4.6vw,44px);font-weight:900;letter-spacing:-1px;line-height:1;background:linear-gradient(90deg,#fff,#9ff0e6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .n small{font-size:.45em;margin-left:2px}
+.stat .l{color:var(--sub);font-size:14px;margin-top:6px}
+/* marquee */
+.marquee{overflow:hidden;margin:56px 0 0;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+.marquee .track{display:flex;gap:10px;width:max-content;animation:scroll 42s linear infinite}
+.marquee span{white-space:nowrap;border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:6px 14px;font-size:14px;color:#c9d6e6}
+.marquee span.k{background:var(--btn);border-color:var(--btn);color:#fff;font-weight:800}
+@keyframes scroll{to{transform:translateX(-50%)}}
+/* sections */
+section{padding:84px 0 10px;position:relative}
+.kicker{display:inline-block;color:var(--teal2);font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+h2{font-size:clamp(28px,4.4vw,44px);margin:0 0 10px;line-height:1.15;letter-spacing:-.8px;font-weight:900}
+h2 em{font-style:normal;color:var(--teal2)}
+.lead{color:var(--sub);margin:0 0 30px;max-width:680px;font-size:17px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px;overflow:hidden;transition:transform .25s,border-color .25s}
+.card:before{content:"";position:absolute;inset:0;background:radial-gradient(260px 200px at var(--mx,50%) var(--my,50%),rgba(25,211,192,.18),transparent 70%);opacity:0;transition:opacity .3s;pointer-events:none}
+.card:hover{transform:translateY(-6px);border-color:rgba(25,211,192,.5)}.card:hover:before{opacity:1}
+.card h3{margin:0 0 8px;font-size:20px;letter-spacing:-.3px}
+.card p{margin:0;color:var(--sub);font-size:15px}
+.card .no{position:absolute;right:18px;top:14px;font-size:44px;font-weight:900;color:rgba(255,255,255,.06);letter-spacing:-2px}
+.ico{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(25,211,192,.25),rgba(245,179,1,.15));font-size:24px;margin-bottom:14px}
+.tag{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;background:rgba(25,211,192,.15);color:var(--teal2);margin-top:12px}
+.tag.gold{background:rgba(245,179,1,.15);color:#ffd766}
+/* service big cards */
+.svc{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.svc .card{min-height:230px;display:flex;flex-direction:column}
+.svc .card .tag{margin-top:auto;align-self:flex-start}
+/* compare */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.cmp{grid-template-columns:1fr}}
+.cmp .tagx{position:absolute;top:-12px;left:20px;font-size:12px;font-weight:900;padding:5px 14px;border-radius:99px;background:#2b3648;color:#c9d6e6}
+.cmp .good .tagx{background:linear-gradient(135deg,var(--teal),#0e5a8a);color:#fff}
+.cmp ul{margin:10px 0 0;padding:0;list-style:none}
+.cmp li{padding:10px 0;border-bottom:1px dashed var(--line);display:flex;gap:10px;font-size:15.5px;color:#d5deea}
+.cmp li:last-child{border:0}
+.cmp .bad li:before{content:"✕";color:#f87171;font-weight:900}
+.cmp .good li:before{content:"✓";color:var(--teal2);font-weight:900}
+.cmp .good{border-color:rgba(25,211,192,.45);box-shadow:0 0 0 1px rgba(25,211,192,.15),0 30px 60px rgba(0,0,0,.35)}
+/* flow */
+.flow{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));counter-reset:s;margin:0;padding:0;list-style:none}
+.flow li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px;position:relative}
+.flow li:before{content:"0" counter(s);font-size:13px;font-weight:900;color:var(--gold);letter-spacing:.1em;display:block;margin-bottom:10px}
+.flow b{display:block;font-size:18px;margin-bottom:6px}
+.flow span{color:var(--sub);font-size:14.5px}
+/* cases */
+.cases{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.case{display:block;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;color:var(--ink);transition:transform .25s,border-color .25s}
+.case:hover{transform:translateY(-6px);border-color:rgba(25,211,192,.5)}
+.case .img{aspect-ratio:16/10;background:#13203a;position:relative;overflow:hidden}
+.case .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.case:hover .img img{transform:scale(1.06)}
+.case .img:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(7,13,24,.85),transparent 60%)}
+.case .img b{position:absolute;left:12px;bottom:10px;color:#fff;font-size:18px;z-index:1}
+.case .img i{position:absolute;right:10px;top:10px;z-index:1;font-style:normal;font-size:11px;font-weight:800;background:rgba(255,255,255,.92);color:#0b6b62;padding:3px 8px;border-radius:99px}
+.case .meta{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--sub)}
+.case .meta b{color:#fff}.case .meta .go{color:var(--teal2);font-weight:800;white-space:nowrap}
+/* faq */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary:after{content:"+";color:var(--teal2);font-size:20px;line-height:1}
+details[open] summary:after{content:"−"}
+details p{margin:10px 0 0;color:var(--sub);font-size:15px}
+/* cta */
+.cta{position:relative;overflow:hidden;margin:84px 0 0;border-radius:28px;padding:64px 24px;text-align:center;background:radial-gradient(600px 300px at 50% 0,rgba(25,211,192,.35),transparent 70%),linear-gradient(135deg,#0f2a47,#0b3a40);border:1px solid rgba(25,211,192,.35)}
+.cta h2{margin:0 0 10px}.cta p{margin:0 0 24px;color:#d3e0ee;font-size:17px}
+.cta .btns{justify-content:center}
+footer{padding:36px 0 70px;color:var(--sub);font-size:13.5px;text-align:center}
+footer a{color:#c9d6e6}
+/* reveal */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}*{animation:none!important}h1 .w{opacity:1;transform:none}#fx{display:none}}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<nav class="top"><div class="wrap">
+<a class="logo" href="/"><i></i>MAKE <small>by bizhelp</small></a>
+<div class="nl">
+<a href="#services">서비스</a><a href="#cases">사례</a><a href="#process">진행</a><a href="#build">시스템 구축</a><a class="ncta" href="#contact">상담</a>
+</div>
+</div></nav>
+
+<header class="hero">
+<div class="hero-bg" aria-hidden="true"><img src="/img/hero.webp" alt="" width="1344" height="752" fetchpriority="high" decoding="async"></div>
+<div class="gridl" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+<span class="eyebrow"><b></b>제작 · 노출 · 발행 · 운영 — 한 팀이 한 번에</span>
+<h1><span class="w">검색되는</span> <span class="w">회사를</span><br><span class="w"><em>만듭니다</em></span></h1>
+<p class="sub"><b>키워드</b>로 홈페이지를, <b>지역</b>으로 페이지를, <b>자동 발행</b>으로 콘텐츠를. 만들고 끝이 아니라 <b>계속 노출</b>되게.</p>
+<div class="kw"><span class="g">키워드 홈페이지</span><span>지역 페이지 자동</span><span>콘텐츠 자동 발행</span><span>시스템 구축</span></div>
+<div class="btns">
+<a class="btn gold" href="#contact">무료 상담 →</a>
+<a class="btn ghost" href="#services">서비스 보기</a>
+<a class="btn ghost" href="https://builder.suriwiki.com/" target="_blank" rel="noopener">운영 중 사이트 ↗</a>
+</div>
+<div class="trust"><span>실제 운영 중</span><span>코딩 불필요</span><span>매일 자동 갱신</span><span>모바일 최적화</span></div>
+</div>
+</header>
+
+<div class="stats"><div class="wrap">
+<div class="stat rv"><div class="n"><span data-count="{{SITES}}">0</span><small>개</small></div><div class="l">운영 중 키워드 사이트</div></div>
+<div class="stat rv"><div class="n"><span data-count="{{PAGES}}">0</span><small>개</small></div><div class="l">자동 생성 지역 페이지</div></div>
+<div class="stat rv"><div class="n"><span data-count="{{REGIONS}}">0</span><small>곳</small></div><div class="l">선택 가능 지역</div></div>
+<div class="stat rv"><div class="n">24<small>h</small></div><div class="l">매일 자동 갱신</div></div>
+</div></div>
+
+<div class="marquee" aria-hidden="true"><div class="track">{{MARQUEE}}{{MARQUEE}}</div></div>
+
+<main class="wrap">
+
+<section id="services">
+<span class="kicker rv">Services</span>
+<h2 class="rv">만드는 데서 끝나지 않습니다.<br><em>노출되고, 쌓이고, 돌아갑니다.</em></h2>
+<p class="lead rv">홈페이지 하나 만들어 주는 곳은 많습니다. 우리는 <strong>검색 노출 구조</strong>와 <strong>운영 자동화</strong>까지 한 번에 세팅합니다.</p>
+<div class="svc">
+<div class="card rv"><span class="no">01</span><div class="ico">🎯</div><h3>키워드 홈페이지 분양</h3><p><strong>키워드 1개 = 사이트 1개.</strong> 전/후 사진, 체크하면 완성되는 상담 문자, 디자인 4종. 사진만 올리면 끝.</p><span class="tag">즉시 분양</span></div>
+<div class="card rv"><span class="no">02</span><div class="ico">📍</div><h3>지역 노출 페이지 자동 생성</h3><p>서비스 지역마다 <strong>'지역 + 키워드' 페이지</strong>가 자동으로. 지역명 입력 → 1분 안에 페이지 생성.</p><span class="tag">분양에 포함</span></div>
+<div class="card rv"><span class="no">03</span><div class="ico">⚡</div><h3>콘텐츠 자동 발행</h3><p>블로그·스레드에 <strong>꾸준히 올라가는 구조</strong>를 세팅합니다. 손으로 매일 쓰지 않아도 쌓입니다.</p><span class="tag gold">맞춤 세팅</span></div>
+<div class="card rv"><span class="no">04</span><div class="ico">🏗️</div><h3>사이트빌더 시스템 구축</h3><p>대시보드·관리 페이지·사이트 자동 생성 전체를 <strong>귀사 도메인·브랜드</strong>로. 대행사·프랜차이즈·다지점.</p><span class="tag gold">구축 의뢰</span></div>
+</div>
+</section>
+
+<section>
+<span class="kicker rv">Why</span>
+<h2 class="rv">일반 제작 vs <em>MAKE</em></h2>
+<div class="cmp">
+<div class="card bad rv"><span class="tagx">일반 홈페이지 제작</span><ul>
+<li>페이지 1개 만들고 끝</li>
+<li>수정은 요청 → 대기</li>
+<li>지역 늘리면 추가 제작비</li>
+<li>노출은 알아서</li>
+<li>현황을 볼 화면이 없다</li>
+</ul></div>
+<div class="card good rv"><span class="tagx">MAKE</span><ul>
+<li><strong>키워드 × 지역</strong> 페이지 자동 생성</li>
+<li><strong>업로드</strong>하면 바로 반영</li>
+<li>지역 추가 <strong>1분</strong>, 추가비 없음</li>
+<li>검색 노출 구조 + <strong>자동 발행</strong></li>
+<li><strong>대시보드</strong>로 사이트·페이지 현황</li>
+</ul></div>
+</div>
+</section>
+
+<section id="process">
+<span class="kicker rv">Process</span>
+<h2 class="rv">4단계, <em>빠르게</em></h2>
+<ol class="flow">
+<li class="rv"><b>상담</b><span>업종·키워드·지역만 알려주세요</span></li>
+<li class="rv"><b>세팅</b><span>사이트·지역 페이지·관리 페이지 발급</span></li>
+<li class="rv"><b>업로드</b><span>사진·정보 올리기 → 자동 반영</span></li>
+<li class="rv"><b>운영</b><span>매일 자동 갱신 · 현황 대시보드</span></li>
+</ol>
+</section>
+
+<section id="cases">
+<span class="kicker rv">Live</span>
+<h2 class="rv">말보다 <em>실제 화면</em></h2>
+<p class="lead rv">지금 운영 중인 사이트입니다. 눌러서 지역 페이지·상담 문자까지 직접 써 보세요.</p>
+<div class="cases">{{CASES}}</div>
+<p class="lead rv" style="margin-top:18px">관리 화면: <a href="https://admin.suriwiki.com/demo/" target="_blank" rel="noopener">대시보드 둘러보기 →</a> · 업체 화면: <a href="https://admin.suriwiki.com/upload/baegwan-nusu/" target="_blank" rel="noopener">관리 페이지 →</a> · 빌더 소개: <a href="https://builder.suriwiki.com/" target="_blank" rel="noopener">builder.suriwiki.com →</a></p>
+</section>
+
+<section id="build">
+<span class="kicker rv">Enterprise</span>
+<h2 class="rv">이 시스템을 <em>통째로</em> 가져가세요</h2>
+<p class="lead rv">귀사 도메인 아래 키워드별 주소가 생기고, 로고·색·문구는 귀사 기준으로. <strong>업종 제한 없음</strong>, 인수인계·교육 포함.</p>
+<div class="grid">
+<div class="card rv"><div class="ico">🧩</div><h3>구축 범위</h3><p>대시보드 · 관리 페이지 · 사이트 자동 생성 · 템플릿 · 상담 문자 · 순위 리포트</p></div>
+<div class="card rv"><div class="ico">🏷️</div><h3>브랜드 적용</h3><p>도메인 · 로고 · 색상 · 문구 · 입력 항목 · 문의 방식</p></div>
+<div class="card rv"><div class="ico">⚙️</div><h3>가벼운 운영</h3><p>정적 페이지라 서버 관리 거의 없음 · 사이트가 늘어도 같은 방식</p></div>
+</div>
+</section>
+
+<section>
+<span class="kicker rv">FAQ</span>
+<h2 class="rv">자주 묻는 질문</h2>
+<details class="rv"><summary>검색 1위가 보장되나요?</summary><p>아니요. 순위는 검색 엔진이 정합니다. 우리는 <strong>노출에 유리한 구조</strong>를 갖추고 꾸준히 쌓이게 만드는 일을 합니다.</p></details>
+<details class="rv"><summary>어떤 업종이 가능한가요?</summary><p>지역 고객을 상대하고, 사진으로 보여줄 결과가 있고, 문의가 상담으로 이어지는 업종이면 됩니다. 수리·시공으로 시작했고 청소·이사·인테리어·설비·학원 등으로 넓힙니다.</p></details>
+<details class="rv"><summary>직접 만들 줄 몰라도 되나요?</summary><p>됩니다. 관리 페이지에 사진과 정보만 올리면 제작·반영은 시스템이 합니다.</p></details>
+<details class="rv"><summary>비용은요?</summary><p>분양·세팅·구축 범위에 따라 다릅니다. 상담 때 바로 안내합니다.</p></details>
+</section>
+
+<div class="cta rv" id="contact">
+<h2>지금, <em>검색되는 회사</em>로</h2>
+<p>업종 · 키워드 · 지역 세 가지만 알려주세요. 당일 안내합니다.</p>
+<div class="btns">
+<a class="btn gold" href="https://pf.kakao.com/_bcVPX">💬 카카오톡 상담</a>
+<a class="btn ghost" href="tel:010-4684-8838">📞 010-4684-8838</a>
+</div>
+</div>
+
+</main>
+<footer><div class="wrap">MAKE by bizhelp · 사이트·페이지 수는 배포 시점 실제 값 · <a href="https://builder.suriwiki.com/">수리위키 사이트빌더</a></div></footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // 스크롤 진행 바
+  var prog = document.getElementById('prog');
+  function onScroll(){ var h = document.documentElement; var p = h.scrollTop / (h.scrollHeight - h.clientHeight || 1); prog.style.width = (p * 100) + '%'; }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  // 카운트업
+  function countUp(el){ var to = parseInt(el.getAttribute('data-count'), 10) || 0; if (reduce) { el.textContent = to.toLocaleString(); return; }
+    var t0 = null, dur = 1500; function step(ts){ if (!t0) t0 = ts; var p = Math.min(1, (ts - t0) / dur); var e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(to * e).toLocaleString(); if (p < 1) requestAnimationFrame(step); } requestAnimationFrame(step); }
+  var counted = new WeakSet();
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (!e.isIntersecting) return; e.target.classList.add('in');
+      e.target.querySelectorAll('[data-count]').forEach(function(c){ if (!counted.has(c)) { counted.add(c); countUp(c); } }); io.unobserve(e.target); }); }, { threshold: .12 });
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  } else { document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); }); document.querySelectorAll('[data-count]').forEach(countUp); }
+  // 카드 포인터 글로우
+  document.querySelectorAll('.card').forEach(function(c){ c.addEventListener('pointermove', function(e){ var r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); }); });
+  // 히어로 입자(가벼운 캔버스, 모션 줄이기면 끔)
+  var cv = document.getElementById('fx'); if (!cv || reduce) return;
+  var ctx = cv.getContext('2d'), W, H, ps = [], N = 46;
+  function size(){ var h = cv.parentElement; W = cv.width = h.clientWidth; H = cv.height = h.clientHeight; }
+  function mk(){ return { x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.8 + .6, vx: (Math.random() - .5) * .25, vy: -(Math.random() * .35 + .1), a: Math.random() }; }
+  size(); for (var i = 0; i < N; i++) ps.push(mk());
+  addEventListener('resize', size);
+  var hidden = false; document.addEventListener('visibilitychange', function(){ hidden = document.hidden; });
+  (function draw(){ requestAnimationFrame(draw); if (hidden) return; ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < ps.length; i++){ var p = ps[i]; p.x += p.vx; p.y += p.vy; p.a += .01; if (p.y < -10 || p.x < -10 || p.x > W + 10) ps[i] = p = mk(), p.y = H + 5;
+      var al = .35 + Math.sin(p.a) * .3; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fillStyle = 'rgba(94,234,212,' + al + ')'; ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(25,211,192,.9)'; ctx.fill(); }
+    for (var i = 0; i < ps.length; i++) for (var j = i + 1; j < ps.length; j++){ var a = ps[i], b = ps[j], dx = a.x - b.x, dy = a.y - b.y, d = dx * dx + dy * dy; if (d < 9000){ ctx.strokeStyle = 'rgba(94,234,212,' + (.12 * (1 - d / 9000)) + ')'; ctx.lineWidth = 1; ctx.shadowBlur = 0; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); } }
+  })();
+})();
+</script>
+</body>
+</html>

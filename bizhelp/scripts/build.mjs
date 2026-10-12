@@ -153,6 +153,27 @@ if (existsSync('promo/index.html')) {
   hosts.push('builder.suriwiki.com');
 }
 
+// 마케팅 페이지: make.bizhelp.kr (다른 존의 고정 호스트). 원본은 promo/make/index.html — 수치·사례·마키는 builder 와 같은 실제 값
+if (existsSync('promo/make/index.html') && existsSync('promo/index.html')) {
+  mkdirSync('dist-sites/s/make/img', { recursive: true });
+  const sitesArr = Object.entries(data.site_meta || {});
+  const escH = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const cases = sitesArr.map(([site, m]) => {
+    const sub = site.split('.')[0], cnt = (data.pages || []).filter((p) => p.site === site).length;
+    const srcImg = [`dist-sites/s/${sub}/img/ba-3-after.webp`, `site-images/${sub}/ba-3-after.webp`].find((f) => existsSync(f));
+    if (srcImg) cpSync(srcImg, `dist-sites/s/make/img/${sub}.webp`);
+    return `<a class="case rv" href="https://${site}/" target="_blank" rel="noopener"><div class="img">${srcImg ? `<img src="/img/${sub}.webp" alt="${escH(m.main_keyword)} 시공 사례" loading="lazy" decoding="async" width="640" height="400">` : ''}<i>LIVE</i><b>${escH(m.main_keyword)}</b></div><div class="meta"><span>지역 페이지 <b>${cnt}</b>개</span><span class="go">열기 →</span></div></a>`;
+  }).join('');
+  const marquee = sitesArr.map(([, m]) => `<span class="k">${escH(m.main_keyword)}</span>` + (m.sub_keywords || []).slice(0, 3).map((k) => `<span>${escH(k)}</span>`).join('')).join('');
+  const html = readFileSync('promo/make/index.html', 'utf8')
+    .replace(/\{\{SITES\}\}/g, String(sitesArr.length)).replace(/\{\{PAGES\}\}/g, String((data.pages || []).length))
+    .replace(/\{\{REGIONS\}\}/g, String(allRegions().length)).replace('{{CASES}}', cases).replace(/\{\{MARQUEE\}\}/g, marquee);
+  writeFileSync('dist-sites/s/make/index.html', html);
+  for (const f of readdirSync('promo/make/img')) cpSync(`promo/make/img/${f}`, `dist-sites/s/make/img/${f}`);
+  writeFileSync('dist-sites/s/make/robots.txt', sample ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
+  hosts.push('make.bizhelp.kr');
+}
+
 writeFileSync('wrangler.sites.generated.jsonc', JSON.stringify({
   name: 'suriwiki-keyword-sites',
   main: 'worker/sites.mjs',
