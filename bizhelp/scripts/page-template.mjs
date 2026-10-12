@@ -3,6 +3,13 @@
 //  지역(/<지역>): 헤더 → 히어로 → 작업 사진 → 한눈에 보기 → 서비스(서브키워드) 6종 → 지역 안내 → 허브(대표+지역 5) → FAQ 5 → 상담 CTA → 푸터
 //  /sangdam   : 상담 안내
 // 본문은 샘플 문구다. 가격·소요시간·연락처·사업자정보 등 확인되지 않은 사실은 넣지 않는다. 사진은 자리표시자.
+import { readFileSync } from "node:fs";
+// 유형별 안내(대상·소요 시간·특징): registry/type-guide.json. 일반적인 작업 기준이며 금액은 적지 않는다.
+const GUIDE = JSON.parse(readFileSync(new URL("../registry/type-guide.json", import.meta.url), "utf8")).guide;
+const guideOf = (sub) => GUIDE[sub] || null;
+// 받침 유무에 따라 은/는
+const eunNeun = (w) => { const ch = String(w).trim().slice(-1).charCodeAt(0); return ch >= 0xac00 && ch <= 0xd7a3 && (ch - 0xac00) % 28 !== 0 ? "은" : "는"; };
+const timeLine = (c, n = 3) => c.subs.map((x) => [x, guideOf(x)]).filter(([, g]) => g).slice(0, n).map(([x, g]) => `${x}${eunNeun(x)} ${g.time}`).join(", ");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const json = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`;
 
@@ -212,7 +219,7 @@ const cta = (c, title) => `<section class="py-20 sm:py-28 bg-brand-ink text-whit
   <p class="mt-5 text-white/75 max-w-2xl mx-auto leading-relaxed">${esc(c.kw)}는 현장 상태에 따라 방식이 달라 사진이 있어야 정확한 안내가 가능합니다. 사진과 지역을 보내 주시면 확인 후 회신합니다.</p>
   <div class="mt-9 flex flex-wrap items-center justify-center gap-3"><a href="/sangdam" class="btn !bg-white !text-brand-ink hover:!bg-brand-accent hover:!text-white">상담 페이지로 이동</a></div>
   <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 max-w-xl mx-auto text-center text-[11px] sm:text-[12px] uppercase tracking-widest text-white/60">
-    <div class="border-t border-white/15 pt-4">사진·지역만 전송</div><div class="border-t border-white/15 pt-4">현장 확인 후 안내</div><div class="border-t border-white/15 pt-4">지역별 안내</div></div></div></div></section>`;
+    <div class="border-t border-white/15 pt-4">사진·지역만 전송</div><div class="border-t border-white/15 pt-4">사진 확인 후 일정 조율</div><div class="border-t border-white/15 pt-4">지역별 안내</div></div></div></div></section>`;
 
 const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${img(`card-${(i % 4) + 1}`, `${p.h1_title} 시공 사례`, i + 2)}</div></div>
   <div class="p-3.5 sm:p-5"><span class="num-label">${labelText}</span><h3 class="mt-1 text-sm sm:text-base font-semibold text-brand-ink line-clamp-1">${esc(p.h1_title)}</h3>
@@ -235,7 +242,7 @@ export function homePage({ site, meta, pages, data, profile }) {
   const kwMeta = [c.kw, ...c.subs.slice(0, 4)].join(", ");
   const faq = [
     [`${c.kw}는 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).join(", ")} 등 ${c.kw} 관련 상담이 필요한 경우입니다. 현장 사진을 보내 주시면 가능 여부를 확인해 드립니다.`],
-    [`진행 기간은 얼마나 걸리나요?`, `작업 범위와 현장 상태에 따라 다릅니다. 정확한 일정은 상담 시 안내합니다.`],
+    [`진행 기간은 얼마나 걸리나요?`, `${timeLine(c) ? `대표 작업 기준으로 ${timeLine(c)}입니다. ` : ""}면적과 현장 상태에 따라 달라지며 정확한 일정은 상담 시 안내합니다.`],
     [`비용은 어떻게 정해지나요?`, `현장 상태와 작업 범위에 따라 달라지므로 확인 후 안내합니다. 이 페이지는 금액을 단정하지 않습니다.`],
     [`일부만 진행할 수도 있나요?`, `${c.subs[c.subs.length - 1]}처럼 필요한 부분만 진행하는 것도 상담할 수 있습니다.`],
     [`어느 지역까지 가능한가요?`, `아래 지역별 ${c.kw} 안내에서 확인하시고, 없는 지역은 문의해 주세요.`],
@@ -257,7 +264,7 @@ ${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListEl
     <p class="mt-4 max-w-md text-base sm:text-lg text-white/80 leading-relaxed">${esc(c.subs.slice(0, 3).join("·"))} ${esc(c.kw)}<br>지역별 페이지에서 가까운 지역을 확인하세요</p>
     <div class="mt-7 flex flex-wrap gap-3"><a href="/sangdam" class="btn btn-primary">상담 문의</a><a href="#works" class="btn btn-outline">시공사례 보기</a></div></div></div></div>
   <div class="bg-brand-ink text-white/85"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-[12.5px] sm:text-sm">
-    ${[["대응 시간", "상담 시 안내"], ["대상 지역", `${pages.length}개 지역 안내`], ["진행 방식", "현장 확인 후 안내"], ["문의 방법", "사진 · 지역 전송"]].map(([a, b]) => `<div><span class="block text-[11px] uppercase tracking-widest opacity-60">${a}</span><span class="mt-1 inline-block font-semibold text-white">${b}</span></div>`).join("")}</div></div>
+    ${[["문의 방법", "사진 · 지역 전송"], ["대상 지역", `${pages.length}개 지역 안내`], ["진행 방식", "사진 확인 후 일정 조율"], ["비용 안내", "현장 확인 후 안내"]].map(([a, b]) => `<div><span class="block text-[11px] uppercase tracking-widest opacity-60">${a}</span><span class="mt-1 inline-block font-semibold text-white">${b}</span></div>`).join("")}</div></div>
 </section>
 ${works(c, 4)}
 <section class="py-16 sm:py-20 bg-brand-sub"><div class="max-w-7xl mx-auto px-5 sm:px-8">
@@ -265,7 +272,8 @@ ${works(c, 4)}
   <p class="mt-4 text-sm muted leading-relaxed">현장 상태와 범위에 따라 방식과 일정이 달라집니다. 대표 유형을 정리했습니다.</p></div>
   <div class="mt-10 overflow-x-auto fade-up"><table class="w-full text-sm border-collapse"><thead><tr class="border-b border-brand-line text-left">
     <th class="py-3 pr-4 font-semibold text-brand-ink">항목</th><th class="py-3 pr-4 font-semibold text-brand-ink">대상</th><th class="py-3 pr-4 font-semibold text-brand-ink">소요 시간</th><th class="py-3 font-semibold text-brand-ink">특징</th></tr></thead>
-  <tbody class="divide-y divide-brand-line muted">${c.subs.slice(0, 4).map((s) => `<tr><td class="py-3 pr-4">${esc(s)}</td><td class="py-3 pr-4">현장 확인 후 안내</td><td class="py-3 pr-4">상담 시 안내</td><td class="py-3">사진 확인 후 안내</td></tr>`).join("")}</tbody></table></div></div></section>
+  <tbody class="divide-y divide-brand-line muted">${c.subs.map((x) => [x, guideOf(x)]).filter(([, g]) => g).map(([x, g]) => `<tr><td class="py-3 pr-4 font-semibold text-brand-ink whitespace-nowrap">${esc(x)}</td><td class="py-3 pr-4">${esc(g.target)}</td><td class="py-3 pr-4">${esc(g.time)}</td><td class="py-3">${esc(g.point)}</td></tr>`).join("")}</tbody></table></div>
+  <p class="mt-4 text-[12px] muted">소요 시간은 일반적인 작업 기준이며 면적과 현장 상태에 따라 달라집니다. 비용은 현장 확인 후 안내합니다.</p></div></section>
 ${services(c, "서비스", `${c.kw} 종류`, `${c.subs.slice(0, 3).join(", ")} 등 ${c.kw}를 한 곳에서 안내합니다.`)}
 <section class="py-16 sm:py-20 bg-brand-sub" id="process"><div class="max-w-7xl mx-auto px-5 sm:px-8">
   <div class="max-w-2xl fade-up"><span class="eyebrow">진행 과정</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">사진 한 장이 상담의 시작입니다</h2><p class="mt-3 text-sm muted">현장 사진과 지역을 받으면, 다음과 같은 흐름으로 진행됩니다.</p></div>
@@ -280,7 +288,7 @@ ${services(c, "서비스", `${c.kw} 종류`, `${c.subs.slice(0, 3).join(", ")} �
     <p>${esc(c.subs.slice(0, 3).join(", "))}은 작업 방식과 일정이 서로 다릅니다. 같은 이름의 작업이라도 현장 조건에 따라 달라질 수 있어 확인 후 안내합니다.</p>
     <h3 class="text-xl font-semibold text-brand-ink mt-8">지역별 안내</h3>
     <p>아래 지역별 페이지에서 가까운 지역의 ${esc(c.kw)} 안내를 확인할 수 있습니다. 없는 지역은 문의해 주세요.</p>
-  </div><p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.dates?.[0] || "")}</p></div></section>
+  </div><p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.updated || "")}</p></div></section>
 <section class="py-16 sm:py-20 scroll-mt bg-brand-sub" id="area"><div class="max-w-7xl mx-auto px-5 sm:px-8">
   <div class="flex items-end justify-between flex-wrap gap-3 mb-9 fade-up"><div><span class="eyebrow">연관 페이지</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">지역별 ${esc(c.kw)} 보기</h2>
   <p class="mt-3 text-sm muted max-w-xl">가까운 지역 페이지에서 안내를 확인하세요.</p></div></div>
@@ -301,7 +309,7 @@ export function regionPage({ site, meta, page, pages, data, profile }) {
   const kwMeta = [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`)].join(", ");
   const faq = [
     [`${region} ${c.kw}는 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).join(", ")} 등이 필요한 경우입니다. ${region} 현장 사진을 보내 주시면 확인해 드립니다.`],
-    [`진행 기간은 얼마나 걸리나요?`, `작업 범위와 현장 상태에 따라 다릅니다. 상담 시 안내합니다.`],
+    [`진행 기간은 얼마나 걸리나요?`, `${timeLine(c) ? `대표 작업 기준으로 ${timeLine(c)}입니다. ` : ""}면적과 현장 상태에 따라 달라지며 ${region} 현장 일정은 상담 시 안내합니다.`],
     [`비용은 어떻게 정해지나요?`, `현장 확인 후 안내합니다. 이 페이지는 금액을 단정하지 않습니다.`],
     [`${region} 어느 곳까지 가능한가요?`, `${region} 지역 안에서 가능 여부를 사진과 위치로 확인합니다.`],
     [`상담은 어떻게 신청하나요?`, `상담 페이지에서 현장 사진과 ${region} 내 위치를 남겨 주세요.`],
@@ -323,9 +331,9 @@ ${works(c, 2)}
   <div class="mt-6 overflow-x-auto"><table class="w-full text-sm border-collapse"><tbody class="divide-y divide-brand-line">
     <tr><td class="py-3 pr-4 font-semibold text-brand-ink w-36">대상 지역</td><td class="py-3 muted">${esc(region)} 전 지역</td></tr>
     <tr><td class="py-3 pr-4 font-semibold text-brand-ink">대표 서비스</td><td class="py-3 muted">${esc(c.subs.slice(0, 3).join(", "))} 외</td></tr>
-    <tr><td class="py-3 pr-4 font-semibold text-brand-ink">소요 시간·비용</td><td class="py-3 muted">현장 확인 후 안내</td></tr>
+    <tr><td class="py-3 pr-4 font-semibold text-brand-ink">소요 시간·비용</td><td class="py-3 muted">${esc(timeLine(c, 2) || "작업 범위에 따라 다릅니다")} · 비용은 현장 확인 후 안내</td></tr>
     <tr><td class="py-3 pr-4 font-semibold text-brand-ink">문의 방법</td><td class="py-3 muted">사진 · 지역 전송</td></tr></tbody></table></div>
-  <p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.dates?.[0] || "")}</p></div></section>
+  <p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.updated || "")}</p></div></section>
 ${services(c, "대표 서비스", `${region}에서 자주 받는 의뢰`, "")}
 <section class="py-14 sm:py-16"><div class="max-w-4xl mx-auto px-5 sm:px-8 fade-up"><span class="eyebrow">${esc(region)} 안내</span>
   <h2 class="mt-3 text-2xl sm:text-3xl font-normal tracking-tight">${esc(page.h1_title)}, 어떻게 진행되나요</h2>
