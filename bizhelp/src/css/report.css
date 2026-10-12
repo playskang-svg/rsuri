@@ -205,3 +205,10 @@ a{color:inherit}
 .gm-err{color:#dc2626;font-size:13px;font-weight:700;margin-top:12px;min-height:18px}
 .gm-btn{border:0;border-radius:10px;padding:10px 20px;background:#1e3a8a;color:#fff;font:inherit;font-weight:800;font-size:14px;cursor:pointer}.gm-btn.ghost{background:#f1f5f9;color:#334155}.gm-btn[disabled]{opacity:.5;cursor:default}
 .gm-list{margin:10px 0 0 18px;font-size:14px;line-height:1.8}.gm-deploy{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+
+.gm-add{display:flex;gap:6px;margin-top:10px;align-items:center}.gm-add input{margin-top:0!important;flex:1}
+.gm textarea#gi-text{font-size:13px;line-height:1.6}
+.gm-resbox{margin-top:12px}.gm-sum{font-size:13px;font-weight:700;margin-bottom:6px}
+.gm-tbl{width:100%;border-collapse:collapse;font-size:12.5px}.gm-tbl td{padding:6px 6px;border-bottom:1px solid #e5e7eb;vertical-align:top}.gm-tbl td:first-child{width:28px;color:#94a3b8}.gm-tbl td:nth-child(2){font-weight:700;white-space:nowrap}.gm-tbl tr.bad td:last-child{color:#dc2626}.gm-tbl tr.ok td:last-child{color:#166534}
+
+.hero{position:relative}.logout-btn{position:absolute;right:14px;top:12px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);color:#fff;border-radius:99px;padding:5px 13px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;z-index:3}

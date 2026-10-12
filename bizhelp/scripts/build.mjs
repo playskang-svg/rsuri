@@ -4,7 +4,7 @@
 //  wrangler.sites.generated.jsonc  키워드마다 개별 커스텀 도메인(와일드카드 라우트·DNS는 쓰지 않는다)
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolveProfile } from './site-defaults.mjs';
-import { groupsToRegistry } from './group-model.mjs';
+import { groupsToRegistry, setExtraRegions } from './group-model.mjs';
 import { homePage, regionPage, sangdamPage, setImages } from './templates.mjs';
 import { readdirSync } from 'node:fs';
 
@@ -25,7 +25,7 @@ if (process.env.BIZHELP_GROUPS_URL) {
   try {
     const r = await fetch(process.env.BIZHELP_GROUPS_URL, { signal: AbortSignal.timeout(15000) });
     const j = r.ok ? await r.json() : null;
-    if (j && Array.isArray(j.groups) && j.groups.length) { data = groupsToRegistry(j.groups, data); console.log(`그룹: ${j.groups.length}개 (대시보드)`); }
+    if (j && Array.isArray(j.groups) && j.groups.length) { setExtraRegions(j.regions || []); data = groupsToRegistry(j.groups, data); console.log(`그룹: ${j.groups.length}개 (대시보드)`); }
     else console.log('그룹 조회 결과가 비어 있어 registry/sites.json 을 씁니다');
   } catch (e) { console.log('그룹 조회 실패, registry/sites.json 사용:', e.message); }
 }

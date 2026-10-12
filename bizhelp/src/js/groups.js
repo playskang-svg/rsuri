@@ -4,7 +4,7 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let CATALOG = null;
 
-async function api(path, opt) { const r = await fetch(path, opt); return r.json().catch(() => ({ ok: false, error: `오류 ${r.status}` })); }
+async function api(path, opt) { const r = await fetch(path, opt); if (r.status === 401) { location.reload(); return { ok: false, error: '로그인이 필요합니다' }; } return r.json().catch(() => ({ ok: false, error: `오류 ${r.status}` })); }
 
 function modal(html) {
   closeModal();
@@ -46,6 +46,7 @@ async function openForm(slug) {
     <label>서브 키워드 (3~8개, 한 줄에 하나)<textarea id="gf-subs" rows="6" placeholder="누수 탐지&#10;급수관 교체&#10;배수관 막힘">${esc(g.subs.join('\n'))}</textarea></label>
     <div class="gm-lbl">지역 (선택한 지역마다 지역 페이지가 만들어집니다) <button type="button" class="gm-mini" data-all>전체 선택</button> <button type="button" class="gm-mini" data-none>전체 해제</button></div>
     <div class="gm-chips" id="gf-regions">${regionBoxes}</div>
+    <div class="gm-add"><input id="gf-newregion" maxlength="12" placeholder="목록에 없는 지역 이름 (예: 광주)"><button type="button" class="gm-mini" data-addregion>＋ 지역 추가</button></div>
     <details class="gm-det"${(c.headline || c.symptoms?.length || Object.keys(c.guide || {}).length) ? ' open' : ''}><summary>페이지 내용 (선택 — 비워 두면 키워드로 자동 생성)</summary>
       <label>대표 문구 (질문형 한 줄)<input id="gf-headline" maxlength="60" placeholder="예: 집 어딘가에서 물이 새고 있나요?" value="${esc(c.headline || '')}"></label>
       <label>소개 문장<textarea id="gf-lead" rows="2" maxlength="220" placeholder="예: 누수 탐지부터 급수관·배수관까지 — 원인 위치를 먼저 확인합니다.">${esc(c.lead || '')}</textarea></label>
@@ -61,6 +62,7 @@ async function openForm(slug) {
   m.addEventListener('click', (e) => {
     if (e.target.closest('[data-x]')) closeModal();
     if (e.target.closest('[data-all]')) m.querySelectorAll('#gf-regions input').forEach((i) => { i.checked = true; });
+    if (e.target.closest('[data-addregion]')) addRegionFromForm(m);
     if (e.target.closest('[data-none]')) m.querySelectorAll('#gf-regions input').forEach((i) => { i.checked = false; });
     if (e.target.closest('[data-refresh]')) {
       const keep = collectGuide(m), subs = $('#gf-subs', m).value.split('\n').map((x) => x.trim()).filter(Boolean);
@@ -68,6 +70,17 @@ async function openForm(slug) {
     }
   });
   $('#gf-save', m).addEventListener('click', () => save(m, !!slug));
+}
+async function addRegionFromForm(m) {
+  const inp = $('#gf-newregion', m), name = inp.value.trim(), err = $('#gf-err', m); err.textContent = '';
+  if (!name) return;
+  const j = await api('/api/regions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) });
+  if (!j.ok) { err.textContent = j.error || '추가하지 못했습니다'; return; }
+  CATALOG.regions = j.regions;
+  const box = $('#gf-regions', m);
+  let el = box.querySelector(`input[value="${j.region.slug}"]`);
+  if (!el) { const l = document.createElement('label'); l.className = 'gm-chip'; l.innerHTML = `<input type="checkbox" value="${esc(j.region.slug)}">${esc(j.region.name)}`; box.appendChild(l); el = l.querySelector('input'); }
+  el.checked = true; inp.value = '';
 }
 const collectGuide = (m) => Object.fromEntries([...m.querySelectorAll('.gm-guide')].map((d) => [d.dataset.sub, { target: $('.g-target', d).value, time: $('.g-time', d).value, point: $('.g-point', d).value }]));
 
@@ -101,11 +114,51 @@ function done(j, isEdit) {
   $('#gd-btn', m).addEventListener('click', (e) => deploy(e.currentTarget, $('#gd-out', m)));
 }
 
+
+// ── 키워드 일괄 등록: 한 줄 = 그룹 하나.  메인키워드 | 서브키워드(쉼표) | 지역(쉼표) | 주소이름(선택)
+const SAMPLE = '천장도색 | 천장 도색, 곰팡이 도색, 누수 자국 도색 | 안산, 고양, 수원\n벽면방수 | 벽면 방수, 외벽 방수, 옥상 방수 | 인천, 부천 | wall-waterproof';
+function parseLines(text) {
+  return text.split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#')).map((l) => {
+    const p = l.split(/\t|\|/).map((x) => x.trim());
+    return { main_keyword: p[0] || '', subs: (p[1] || '').split(/[,，、]/).map((x) => x.trim()).filter(Boolean), regions: (p[2] || '').split(/[,，、]/).map((x) => x.trim()).filter(Boolean), slug: p[3] || '' };
+  });
+}
+function openImport() {
+  const m = modal(`<div class="gm-hd"><h3>키워드 일괄 등록</h3><button type="button" class="gm-x" data-x aria-label="닫기">✕</button></div>
+  <div class="gm-body"><p class="gm-note">한 줄에 그룹 하나를 적습니다: <b>메인키워드 | 서브키워드(쉼표로 3~8개) | 지역(쉼표) | 주소 이름(선택)</b><br>엑셀에서 복사해 붙여 넣어도 됩니다(탭 구분). 주소 이름을 비우면 한글 키워드에서 자동으로 만들고, 같은 키워드가 이미 있으면 그 그룹을 갱신합니다.</p>
+    <textarea id="gi-text" rows="9" placeholder="${esc(SAMPLE)}"></textarea>
+    <label class="gm-chip" style="margin-top:10px"><input type="checkbox" id="gi-auto" checked>목록에 없는 지역은 자동으로 추가</label>
+    <div id="gi-result" class="gm-resbox"></div><div class="gm-err" id="gi-err"></div></div>
+  <div class="gm-ft"><button type="button" class="gm-btn ghost" data-x>닫기</button><button type="button" class="gm-btn ghost" id="gi-check">검증</button><button type="button" class="gm-btn" id="gi-apply" disabled>등록</button></div>`);
+  const run = async (apply) => {
+    const rows = parseLines($('#gi-text', m).value), err = $('#gi-err', m); err.textContent = '';
+    if (!rows.length) { err.textContent = '등록할 줄을 입력하세요'; return null; }
+    const j = await api('/api/groups/import', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rows, apply, auto_regions: $('#gi-auto', m).checked }) });
+    if (!j.ok) { err.textContent = j.error || '요청에 실패했습니다'; return null; }
+    return j;
+  };
+  const show = (j) => {
+    const sm = j.summary;
+    $('#gi-result', m).innerHTML = `<div class="gm-sum">${j.applied ? '등록 완료' : '검증 결과'}: 전체 ${sm.total}줄 · 성공 ${sm.ok}(새로 ${sm.created} · 갱신 ${sm.updated}) · 실패 ${sm.failed}${sm.new_regions ? ` · 새 지역 ${sm.new_regions}곳` : ''}</div>
+      <table class="gm-tbl"><tbody>${j.results.map((r) => `<tr class="${r.ok ? 'ok' : 'bad'}"><td>${r.line}</td><td>${esc(r.main_keyword)}</td><td>${r.ok ? `${r.action === 'update' ? '갱신' : '새로 만듦'} · ${esc(r.host)} · 지역 ${r.region_count}개${r.new_regions && r.new_regions.length ? ` (새 지역: ${esc(r.new_regions.join(', '))})` : ''}` : `✕ ${esc(r.error || '')}`}</td></tr>`).join('')}</tbody></table>`;
+  };
+  $('#gi-check', m).addEventListener('click', async () => { const j = await run(false); if (j) { show(j); $('#gi-apply', m).disabled = !j.summary.ok; } });
+  $('#gi-apply', m).addEventListener('click', async () => {
+    const btn = $('#gi-apply', m); btn.disabled = true; const j = await run(true); if (!j) { btn.disabled = false; return; }
+    show(j); btn.style.display = 'none'; $('#gi-check', m).style.display = 'none';
+    const ft = m.querySelector('.gm-ft'); ft.insertAdjacentHTML('afterbegin', '<button type="button" class="gm-btn" id="gi-deploy">🚀 지금 반영</button><button type="button" class="gm-btn ghost" id="gi-reload">닫고 새로고침</button>');
+    $('#gi-reload', m).addEventListener('click', () => { closeModal(); location.reload(); });
+    $('#gi-deploy', m).addEventListener('click', (e) => deploy(e.currentTarget, $('#gi-err', m)));
+  });
+  m.addEventListener('click', (e) => { if (e.target.closest('[data-x]')) closeModal(); });
+}
+
 export function initGroups() {
   document.addEventListener('click', async (e) => {
     const t = e.target.closest('[data-grp]'); if (!t) return;
     e.preventDefault();
     if (t.dataset.grp === 'new') openForm(null);
+    if (t.dataset.grp === 'import') openImport();
     if (t.dataset.grp === 'edit') openForm(t.dataset.slug);
     if (t.dataset.grp === 'deploy') {
       if (!CATALOG) { const j = await api('/api/groups'); CATALOG = { regions: j.regions || [], deploy: j.deploy || {} }; }

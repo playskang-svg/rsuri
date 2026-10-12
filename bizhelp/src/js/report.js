@@ -178,7 +178,7 @@ function renderSites(c) {
   let h = `<div class="section-title">사이트별 페이지 목록 <span class="section-sub">${c.mainCount}개 사이트 / ${c.subCount}개 페이지</span>
     <span class="top-new-badge${c.newPages ? '' : ' zero'}" title="이번 주(${c.weekStart} 월요일 이후) 새로 생긴 페이지 합계">🆕 이번주 신규 <b>${c.newPages}</b>개</span>
     <span class="badge-legend"><span><i style="background:#22c55e"></i>타이틀·H1 정상</span><span><i style="background:#3b82f6"></i>1개 불일치</span><span><i style="background:#ef4444"></i>둘다 불일치</span></span></div>
-    <div class="grp-bar"><button type="button" class="btn indigo" data-grp="new">＋ 새 메인키워드 그룹</button><button type="button" class="btn sky" data-grp="deploy">🚀 지금 반영</button></div>
+    <div class="grp-bar"><button type="button" class="btn indigo" data-grp="new">＋ 새 메인키워드 그룹</button><button type="button" class="btn indigo" style="background:#0f766e" data-grp="import">📥 키워드 일괄 등록</button><button type="button" class="btn sky" data-grp="deploy">🚀 지금 반영</button></div>
     <div class="site-grid">`;
   c.siteNames.forEach((site, si) => {
     const list = c.sitesMap.get(site).slice().sort((a, b) => (a.page_path || '').localeCompare(b.page_path || ''));
@@ -291,7 +291,7 @@ function renderNotice(st) {
 async function start() {
   let data;
   try {
-    data = await fetch(DATA_URL, { cache: 'no-store' }).then((r) => r.json());
+    data = await fetch(DATA_URL, { cache: 'no-store' }).then((r) => { if (r.status === 401) { location.reload(); return null; } return r.json(); });
   } catch { data = null; }
   if (!data || !data.success) { $app.innerHTML = '<div class="empty">데이터를 불러올 수 없습니다.</div>'; return; }
   document.getElementById('hero-biz').textContent = data.business_name || '';

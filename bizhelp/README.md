@@ -92,3 +92,14 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - 미리보기는 워커가 빌드와 같은 템플릿 코드를 실행한다(`/api/s/<주소>/preview?template=&region=`, 저장하지 않음). 기본 사진은 `dist/site-images`로 함께 배포된다
 - 그룹 수정(대시보드)은 템플릿 선택을 바꾸지 않는다. 템플릿 변경은 `/api/s/<주소>/template`
 - 사이트별 일부 변경은 코드가 아니라 그룹 내용(문구·증상·안내·사진 설명·지역 소개)으로 한다
+
+## 키워드 일괄 등록 · 지역 추가
+- 대시보드 '📥 키워드 일괄 등록': 한 줄에 그룹 하나 — `메인키워드 | 서브키워드(쉼표 3~8개) | 지역(쉼표) | 주소 이름(선택)`. 엑셀에서 복사해 붙여 넣어도 된다(탭 구분). '검증'은 저장하지 않고 결과만 보여 주고, '등록'에서 만든다. 같은 키워드가 이미 있으면 그 그룹을 갱신(내용은 유지)하고, 주소 이름을 비우면 한글에서 자동으로 만든다(`scripts/group-model.mjs romanize`)
+- 목록(37곳)에 없는 지역은 '자동 추가'를 켜면 D1 `regions_extra`에 더해지고 지역 페이지가 만들어진다. 지역 주소는 한글에서 자동으로 만들고, 그룹 수정 화면의 '＋ 지역 추가'로도 더할 수 있다
+- API: `POST /api/groups/import {rows, apply, auto_regions}`, `POST /api/regions {name, slug?}`. 빌드는 `/api/export/groups`에서 그룹과 추가 지역을 함께 읽는다
+- 등록 후 '지금 반영'(배포)까지 이어진다(GH_DISPATCH_TOKEN 등록 시)
+
+## 대시보드 로그인
+- 대시보드(`/`)와 관리 API(report·groups·regions·deploy·share)는 로그인해야 열린다. 비밀번호 하나, 세션은 서명된 쿠키 7일, 5회 틀리면 10분 잠금. 오른쪽 위 '로그아웃'
+- 업로드 페이지(`/upload/<주소>`)와 그 API, 사이트 빌드용 내보내기(`/api/export/*`), 공유 이미지(`/share/*`)는 열려 있다. 업로드 페이지 로그인은 분양 시점에 따로 만든다
+- 기본 비밀번호는 코드에 해시로만 들어 있다. 바꾸려면 GitHub 시크릿 `ADMIN_PASSWORD`(선택: `SESSION_SECRET`)를 등록하면 다음 배포 때 워커 시크릿으로 올라가고 그 값이 우선한다

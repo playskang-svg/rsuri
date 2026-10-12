@@ -3,7 +3,8 @@
 //  새 그룹을 만들면 같은 규칙으로 세 가지가 함께 생긴다 — 코드를 따로 만들지 않는다.
 
 export const BASE_DOMAIN = 'suriwiki.com';
-export const RESERVED_SLUGS = ['admin', 'www', 'api', 'mail', 'in', 'upload', 'share', 'battery', 'ftp', 'smtp', 'dev', 'test'];
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const RESERVED_SLUGS = ['admin', 'www', 'api', 'mail', 'in', 'upload', 'share', 'battery', 'ftp', 'smtp', 'dev', 'test', 'import', 'regions', 'groups'];
 
 // 지역 카탈로그: [이름, 영문 slug]. 지역 페이지 주소는 /<slug> 이다.
 export const REGIONS = [
@@ -14,11 +15,36 @@ export const REGIONS = [
   ['화성', 'hwaseong'], ['평택', 'pyeongtaek'], ['하남', 'hanam'], ['구리', 'guri'], ['남양주', 'namyangju'], ['의정부', 'uijeongbu'],
   ['고양', 'goyang'], ['성남', 'seongnam'], ['과천', 'gwacheon'], ['군포', 'gunpo'], ['의왕', 'uiwang'], ['오산', 'osan'], ['용인', 'yongin'],
 ].map(([name, slug]) => ({ name, slug }));
-export const regionBySlug = Object.fromEntries(REGIONS.map((r) => [r.slug, r]));
+// 대시보드에서 추가한 지역(D1 regions_extra)을 더한 카탈로그. 워커는 요청마다, 빌드는 그룹을 읽을 때 setExtraRegions 로 채운다.
+export const RESERVED_REGION_SLUGS = ['sangdam', 'img', 'robots', 'sitemap', 'upload', 'api', 'share', 'favicon', 'index'];
+let EXTRA_REGIONS = [];
+let REGION_MAP = Object.fromEntries(REGIONS.map((r) => [r.slug, r]));
+export function setExtraRegions(list) {
+  const base = new Set(REGIONS.map((r) => r.slug));
+  EXTRA_REGIONS = (list || []).filter((r) => r && SLUG_RE.test(r.slug) && !base.has(r.slug) && !RESERVED_REGION_SLUGS.includes(r.slug) && r.name).map((r) => ({ name: String(r.name), slug: r.slug }));
+  REGION_MAP = Object.fromEntries([...REGIONS, ...EXTRA_REGIONS].map((r) => [r.slug, r]));
+}
+export const allRegions = () => [...REGIONS, ...EXTRA_REGIONS];
+export const regionOf = (slug) => REGION_MAP[slug] || null;
+export const extraRegions = () => EXTRA_REGIONS;
+
+// 한글 → 영문 소문자 slug (국어의 로마자 표기 단순형: 받침 음가만 쓰고 연음·동화는 무시). 주소 이름·지역 주소를 자동으로 만들 때 쓴다.
+const CHO = ['g', 'kk', 'n', 'd', 'tt', 'r', 'm', 'b', 'pp', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'];
+const JUNG = ['a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yu', 'eu', 'ui', 'i'];
+const JONG = ['', 'k', 'k', 'k', 'n', 'n', 'n', 't', 'l', 'k', 'm', 'p', 'l', 'l', 'p', 'l', 'm', 'p', 'p', 't', 't', 'ng', 't', 't', 'k', 't', 'p', 't'];
+export function romanize(text) {
+  let out = '';
+  for (const ch of String(text || '')) {
+    const c = ch.charCodeAt(0);
+    if (c >= 0xac00 && c <= 0xd7a3) { const n = c - 0xac00; out += CHO[Math.floor(n / 588)] + JUNG[Math.floor((n % 588) / 28)] + JONG[n % 28]; }
+    else if (/[a-zA-Z0-9]/.test(ch)) out += ch.toLowerCase();
+    else if (/\s|-|_/.test(ch)) out += '-';
+  }
+  return out.replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
 
 export const groupHost = (slug) => `${slug}.${BASE_DOMAIN}`;
 const trim = (v, max) => String(v ?? '').trim().slice(0, max);
-const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 // 입력을 검증·정리한다. 성공하면 { value }, 실패하면 { error }.
 export function normalizeGroup(input, { slug } = {}) {
@@ -28,9 +54,9 @@ export function normalizeGroup(input, { slug } = {}) {
   if (RESERVED_SLUGS.includes(s)) return { error: `'${s}'는 사용할 수 없는 주소 이름입니다` };
   const kw = trim(g.main_keyword, 20);
   if (kw.length < 2) return { error: '메인 키워드를 입력하세요' };
-  const subs = [...new Set((Array.isArray(g.subs) ? g.subs : String(g.subs || '').split('\n')).map((x) => trim(x, 20)).filter(Boolean))];
+  const subs = [...new Set((Array.isArray(g.subs) ? g.subs : String(g.subs || '').split(/[\n,，、]/)).map((x) => trim(x, 20)).filter(Boolean))];
   if (subs.length < 3 || subs.length > 8) return { error: '서브 키워드는 3~8개를 입력하세요 (한 줄에 하나)' };
-  const regions = [...new Set((Array.isArray(g.regions) ? g.regions : []).map((x) => trim(x, 40)))].filter((x) => regionBySlug[x]);
+  const regions = [...new Set((Array.isArray(g.regions) ? g.regions : []).map((x) => trim(x, 40)))].filter((x) => regionOf(x));
   if (!regions.length) return { error: '지역을 1개 이상 선택하세요' };
   const c = g.content || {};
   const guide = {};
@@ -51,8 +77,8 @@ export function normalizeGroup(input, { slug } = {}) {
 // 그룹의 페이지 목록(지역 × 키워드). 제목·H1 = "{지역} {메인키워드}"
 export function groupPages(g) {
   const site = groupHost(g.slug);
-  return g.regions.filter((r) => regionBySlug[r]).map((r) => {
-    const name = regionBySlug[r].name, h1 = `${name} ${g.main_keyword}`;
+  return g.regions.filter((r) => regionOf(r)).map((r) => {
+    const name = regionOf(r).name, h1 = `${name} ${g.main_keyword}`;
     return { site, page_path: `/${r}`, page_url: `https://${site}/${r}`, region: name, region_slug: r, h1_title: h1, page_title: h1 };
   });
 }
