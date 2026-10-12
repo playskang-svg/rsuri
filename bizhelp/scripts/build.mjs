@@ -60,7 +60,7 @@ cpSync('public/favicon.svg', 'dist-sites/favicon.svg');
 // 응답 헤더: 사진은 하루 캐시(+재검증, 파일명이 같아도 새 사진으로 바뀌므로 immutable 은 쓰지 않는다), 기본 보안 헤더. 검색 노출 차단은 공개 전까지 유지
 const headers = ['/*', '  X-Content-Type-Options: nosniff', '  Referrer-Policy: strict-origin-when-cross-origin'];
 if (sample) headers.push('  X-Robots-Tag: noindex, nofollow');
-headers.push('/s/*/img/*', '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800', '/favicon.svg', '  Cache-Control: public, max-age=604800');
+headers.push('/s/:site/img/*', '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800', '/favicon.svg', '  Cache-Control: public, max-age=604800');
 writeFileSync('dist-sites/_headers', headers.join('\n') + '\n');
 
 let n = 0;
@@ -123,9 +123,13 @@ if (existsSync('promo/index.html')) {
   const TPL_FIT = { consult: '상담 문의를 늘리고 싶은 업체. 전/후 비교와 문자 보내기 중심의 표준 구성', gallery: '시공 사례가 많은 업체. 사례를 크게 보여주는 갤러리 구성', guide: '설명이 필요한 작업을 하는 업체. 유형별 안내 표를 앞세운 구성', simple: '핵심만 빠르게 보여주고 싶은 업체. 짧은 한 페이지 구성' };
   const cases = sitesArr.map(([site, m]) => {
     const sub = site.split('.')[0], cnt = (data.pages || []).filter((p) => p.site === site).length;
-    const hasImg = existsSync(`site-images/${sub}/ba-3-after.webp`);
+    // 사례 사진은 홍보 페이지와 같은 호스트(/img/<주소>.webp)에서 불러온다 — 사이트 8곳에서 따로 받으면 연결이 8번 필요해 휴대폰에서 느리거나 비는 경우가 있었다.
+    // 각 사이트가 실제로 쓰는 사진(업로드한 사진 포함)을 복사한다.
+    const srcImg = [`dist-sites/s/${sub}/img/ba-3-after.webp`, `site-images/${sub}/ba-3-after.webp`].find((f) => existsSync(f));
+    const hasImg = !!srcImg;
+    if (srcImg) { mkdirSync('dist-sites/s/builder/img', { recursive: true }); cpSync(srcImg, `dist-sites/s/builder/img/${sub}.webp`); }
     const tpl = tplList.find((t) => t.id === (m.template || 'consult'));
-    return `<a class="case rv" href="https://${site}/" target="_blank" rel="noopener"><div class="img">${hasImg ? `<img src="https://${site}/img/ba-3-after.webp" alt="${escH(m.main_keyword)} 시공 사례" loading="lazy" decoding="async" width="640" height="400">` : ''}<i>${escH(tpl ? tpl.name : '')}</i><b>${escH(m.main_keyword)}</b></div><div class="meta"><span>지역 페이지 <b>${cnt}</b>개 · ${escH((m.sub_keywords || []).slice(0, 2).join('·'))}</span><span class="go">보기 →</span></div></a>`;
+    return `<a class="case rv" href="https://${site}/" target="_blank" rel="noopener"><div class="img">${hasImg ? `<img src="/img/${sub}.webp" alt="${escH(m.main_keyword)} 시공 사례" loading="lazy" decoding="async" width="640" height="400">` : ''}<i>${escH(tpl ? tpl.name : '')}</i><b>${escH(m.main_keyword)}</b></div><div class="meta"><span>지역 페이지 <b>${cnt}</b>개 · ${escH((m.sub_keywords || []).slice(0, 2).join('·'))}</span><span class="go">보기 →</span></div></a>`;
   }).join('');
   let reviews = [];
   try { reviews = JSON.parse(readFileSync('promo/reviews.json', 'utf8')); } catch {}
