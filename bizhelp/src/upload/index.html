@@ -74,12 +74,18 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   </div>
 
   <div class="card">
-    <h3>사이트 정보</h3>
-    <div class="row"><label>사이트 노출 전화번호</label><input type="tel" id="f-phone" placeholder="예: 010-1234-5678" maxlength="20"></div>
+    <h3>사이트 정보 <span class="hint">· 이 키워드 사이트의 푸터와 상담 페이지에 표시됩니다</span></h3>
+    <div class="row"><label>상호</label><input type="text" id="f-company" maxlength="60"></div>
+    <div class="row"><label>대표자</label><input type="text" id="f-ceo" maxlength="40" placeholder="예: 홍길동"></div>
+    <div class="row"><label>사업자등록번호</label><input type="text" id="f-regno" maxlength="20" placeholder="예: 123-45-67890"></div>
+    <div class="row"><label>사업장 주소</label><input type="text" id="f-address" maxlength="200" placeholder="사업자등록증의 주소"></div>
+    <div class="row"><label>연락처(전화번호)</label><input type="tel" id="f-phone" maxlength="20"></div>
+    <div class="row"><label>카카오톡 채널 주소</label><input type="text" id="f-kakao" placeholder="https://pf.kakao.com/..."></div>
     <div class="row"><label>블로그 이름 또는 주소</label><input type="text" id="f-blog" placeholder="예: https://blog.naver.com/..."></div>
     <div class="row"><label>유튜브 이름 또는 주소</label><input type="text" id="f-youtube" placeholder="예: https://youtube.com/@..."></div>
-    <div class="row"><label>참고 사이트</label><input type="text" id="f-reference" placeholder="참고할 사이트 주소를 입력하세요"></div>
-    <p class="hint" style="margin-bottom:8px">입력한 전화번호·블로그·유튜브는 이 키워드 사이트에 노출됩니다(다음 배포 때 반영).</p>
+    <div class="row"><label>관련 서비스 링크 <span class="hint">(푸터 &#39;관련 서비스&#39;, 최대 8개)</span></label><div id="f-services"></div><button class="btn out sm" id="svc-add" type="button" style="margin-top:6px">+ 서비스 추가</button></div>
+    <div class="row"><label>참고 사이트 <span class="hint">(사이트에는 표시되지 않는 내부 메모용)</span></label><input type="text" id="f-reference" placeholder="참고할 사이트 주소를 입력하세요"></div>
+    <p class="hint" style="margin-bottom:8px">비워 두면 기본값(상호·연락처·카카오톡 채널)이 표시되고, 대표자·사업자등록번호·주소·블로그·유튜브·관련 서비스는 입력한 경우에만 표시됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
     <button class="btn" id="save-profile">저장</button><span class="status" id="profile-status"></span>
   </div>
 
@@ -142,7 +148,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     const o = await api('overview');
     document.title = `${o.keyword} 파일 업로드`; $('title').textContent = `${o.keyword} 파일 업로드`; $('host').textContent = `${slug}.suriwiki.com`;
     S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
-    for (const k of ['phone', 'blog', 'youtube', 'reference']) $('f-' + k).value = o.profile[k] || '';
+    S.defaults = o.defaults || {};
+    for (const k of ['company', 'ceo', 'regno', 'address', 'phone', 'kakao', 'blog', 'youtube', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
+    renderServices(o.profile.services || []);
     const counts = Object.fromEntries(o.counts.map((c) => [c.category, c.n]));
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
@@ -195,12 +203,18 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('lic-copy').onclick = () => navigator.clipboard.writeText(S.ocr).then(() => alert('복사했습니다'));
 
   // ── 사이트 정보
+  // ── 관련 서비스 링크(이름 + 주소 한 줄씩)
+  function svcRow(x = {}) { const d = document.createElement('div'); d.className = 'svc'; d.style.cssText = 'display:flex;gap:6px;margin-bottom:6px'; d.innerHTML = '<input type="text" class="svc-n" maxlength="30" placeholder="서비스 이름" style="flex:1"><input type="text" class="svc-u" placeholder="https://..." style="flex:2"><button class="btn out sm svc-x" type="button">삭제</button>'; d.querySelector('.svc-n').value = x.name || ''; d.querySelector('.svc-u').value = x.url || ''; return d; }
+  function renderServices(list) { const box = $('f-services'); box.innerHTML = ''; (list.length ? list : []).forEach((x) => box.appendChild(svcRow(x))); }
+  $('svc-add').onclick = () => { if ($('f-services').children.length >= 8) return alert('최대 8개까지 추가할 수 있습니다'); $('f-services').appendChild(svcRow()); };
+  $('f-services').onclick = (e) => { if (e.target.classList.contains('svc-x')) e.target.closest('.svc').remove(); };
+  const readServices = () => [...document.querySelectorAll('#f-services .svc')].map((d) => ({ name: d.querySelector('.svc-n').value, url: d.querySelector('.svc-u').value }));
   $('save-profile').onclick = async () => {
-    try { await api('profile', { method: 'PUT', body: JSON.stringify({ phone: $('f-phone').value, blog: $('f-blog').value, youtube: $('f-youtube').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
+    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, phone: $('f-phone').value, kakao: $('f-kakao').value, blog: $('f-blog').value, youtube: $('f-youtube').value, services: readServices(), reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
     catch (x) { flash($('profile-status'), x.message, true); }
   };
   $('copy-all').onclick = () => {
-    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `전화번호: ${$('f-phone').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
+    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
     navigator.clipboard.writeText(t).then(() => alert('복사했습니다'));
   };
 
