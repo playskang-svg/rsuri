@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>파일 업로드</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#4f46e5;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--ok:#16a34a;--bad:#dc2626}
+body{font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:#f5f6fa;color:var(--g800);padding-bottom:60px}
+.header{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:22px 16px;text-align:center}
+.header h1{font-size:20px;font-weight:800}.header small{display:block;margin-top:4px;opacity:.85;font-size:12px}
+.container{max-width:760px;margin:0 auto;padding:14px}
+.card{background:#fff;border:1px solid var(--g200);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h3{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}.row label{font-size:12px;font-weight:700;color:var(--g600)}
+input[type=text],input[type=tel],textarea,select{width:100%;border:1px solid var(--g200);border-radius:8px;padding:10px;font:inherit;font-size:14px;background:#fff}
+textarea{resize:vertical}
+.btn{border:0;border-radius:8px;padding:9px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--p);color:#fff}
+.btn.out{background:#fff;color:var(--g800);border:1px solid var(--g200)}.btn.sm{padding:6px 10px;font-size:12px}.btn.bad{background:#fff;color:var(--bad);border:1px solid #fecaca}
+.btn[disabled]{opacity:.5;cursor:default}
+.status{font-size:12px;color:var(--ok);margin-left:8px}.status.err{color:var(--bad)}
+.hint{font-size:12px;color:var(--g400)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.cat{border:2px solid var(--g200);border-radius:10px;padding:11px 8px;text-align:center;font-weight:700;font-size:13px;cursor:pointer;background:#fff}
+.cat.on{border-color:var(--p);background:#eef2ff;color:var(--p)}.cat small{display:block;font-weight:500;color:var(--g400);margin-top:2px}
+.zone{border:2px dashed var(--g200);border-radius:12px;padding:22px 12px;text-align:center;cursor:pointer;background:var(--g50)}
+.zone.drag{border-color:var(--p);background:#eef2ff}.zone p{font-size:12px;color:var(--g400);margin-top:4px}.zone strong{color:var(--g800)}
+.bar{height:8px;background:var(--g100);border-radius:6px;overflow:hidden;margin-top:10px;display:none}.bar i{display:block;height:100%;width:0;background:var(--p);transition:width .15s}
+.mob{display:none;gap:8px;margin-top:10px}@media(max-width:700px){.mob{display:flex}.mob .btn{flex:1}}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tab{border:1px solid var(--g200);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer}.tab.on{background:var(--p);color:#fff;border-color:var(--p)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.th{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--g100);cursor:zoom-in;border:2px solid transparent}
+.th.sel{border-color:var(--p)}.th img,.th video{width:100%;height:100%;object-fit:cover;display:block}
+.th .x{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px}
+.th .ck{position:absolute;top:4px;left:4px;width:20px;height:20px}
+.th .nm{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:10px;padding:10px 5px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.memo{border:1px solid var(--g200);border-radius:8px;padding:9px;margin-top:8px;font-size:13px;white-space:pre-wrap;position:relative;background:var(--g50)}
+.memo b{font-size:11px;color:var(--p);display:block;margin-bottom:2px}.memo .x{position:absolute;top:6px;right:8px;border:0;background:none;color:var(--g400);cursor:pointer}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}.lb.on{display:flex}.lb img,.lb video{max-width:100%;max-height:100%}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:40;padding:16px}.modal.on{display:flex}.modal>div{background:#fff;border-radius:14px;padding:18px;max-width:420px;width:100%}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:10px;max-height:200px;overflow:auto;margin-top:8px}
+.parsed{font-size:13px;margin-top:8px}.parsed div{padding:3px 0;border-bottom:1px solid var(--g100)}.parsed b{display:inline-block;min-width:90px;color:var(--g600)}
+.sec{cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small></div>
+<div class="container">
+
+  <div class="card">
+    <h3 class="sec" id="lic-head">사업자등록증 <span id="lic-icon">▼</span></h3>
+    <div id="lic-body" style="display:none">
+      <div id="lic-preview" class="hint" style="margin-bottom:8px">사업자등록증을 업로드해주세요 (JPG, PNG, PDF · 최대 10MB)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm" id="lic-pick">파일 선택</button>
+        <button class="btn out sm" id="lic-ocr" style="display:none">텍스트 추출</button>
+        <button class="btn bad sm" id="lic-del" style="display:none">삭제</button>
+      </div>
+      <input type="file" id="lic-input" accept="image/jpeg,image/png,application/pdf" style="display:none">
+      <p class="hint" style="margin-top:8px">⚠ 개인정보가 포함된 문서입니다. 로그인 보호가 적용되기 전에는 실제 서류 업로드를 권하지 않습니다.</p>
+      <div id="lic-ocr-box" style="display:none">
+        <div class="parsed" id="lic-parsed"></div>
+        <pre id="lic-raw"></pre>
+        <button class="btn out sm" id="lic-copy" style="margin-top:8px">복사</button>
+      </div>
+    </div>
+    <p class="hint" id="lic-summary" style="display:none;margin-top:6px;cursor:pointer">등록됨 (클릭하여 펼치기)</p>
+  </div>
+
+  <div class="card">
+    <h3>사이트 정보</h3>
+    <div class="row"><label>사이트 노출 전화번호</label><input type="tel" id="f-phone" placeholder="예: 010-1234-5678" maxlength="20"></div>
+    <div class="row"><label>블로그 이름 또는 주소</label><input type="text" id="f-blog" placeholder="예: https://blog.naver.com/..."></div>
+    <div class="row"><label>유튜브 이름 또는 주소</label><input type="text" id="f-youtube" placeholder="예: https://youtube.com/@..."></div>
+    <div class="row"><label>참고 사이트</label><input type="text" id="f-reference" placeholder="참고할 사이트 주소를 입력하세요"></div>
+    <p class="hint" style="margin-bottom:8px">입력한 전화번호·블로그·유튜브는 이 키워드 사이트에 노출됩니다(다음 배포 때 반영).</p>
+    <button class="btn" id="save-profile">저장</button><span class="status" id="profile-status"></span>
+  </div>
+
+  <div style="margin-bottom:14px"><button class="btn out" id="copy-all" style="width:100%">사이트 정보 + 사업자등록증 전체 복사</button></div>
+
+  <div class="card"><h3>1. 카테고리를 선택하세요</h3><div class="cats" id="cats"></div></div>
+
+  <div class="card">
+    <h3>2. 파일 업로드 <span class="hint" id="sel-label"></span></h3>
+    <div class="zone" id="zone"><div style="font-size:28px">📂</div>
+      <p id="zone-msg"><strong>위에서 카테고리를 먼저 선택</strong>해주세요</p>
+      <p>사진: JPG, PNG, GIF, WebP (최대 50MB) | 동영상: MP4, WebM, MOV, AVI (최대 100MB)</p>
+      <p>여러 파일을 한 번에 선택할 수 있습니다 · 사진을 복사한 뒤 이 페이지에서 Ctrl+V로 바로 업로드할 수 있습니다</p></div>
+    <input type="file" id="file-input" multiple accept="image/*,video/*" style="display:none">
+    <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none">
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none">
+    <div style="margin-top:10px"><button class="btn out sm" id="btn-folder">폴더 업로드 (폴더명이 파일명 앞에 자동 추가됨)</button></div>
+    <div class="mob"><button class="btn out" id="btn-album">📷 앨범에서 선택</button><button class="btn out" id="btn-camera">📸 카메라 촬영</button></div>
+    <div class="bar" id="bar"><i id="bar-i"></i></div><p class="hint" id="bar-t"></p>
+    <p class="hint" style="margin-top:8px">이번 세션 업로드: <b id="sess">0</b>개</p>
+  </div>
+
+  <div class="card">
+    <h3>메모 <span class="status" id="memo-status"></span></h3>
+    <select id="memo-cat" style="margin-bottom:8px"><option value="">전체 (카테고리 무관)</option></select>
+    <textarea id="memo-new" rows="3" placeholder="메모를 입력하면 자동으로 저장됩니다..."></textarea>
+    <div id="memo-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>업로드된 파일 <span><button class="btn out sm" id="btn-move">선택 항목 이동</button> <button class="btn out sm" id="btn-move-group">폴더(묶음) 이동</button></span></h3>
+    <div class="tabs" id="tabs"></div>
+    <div class="grid" id="gallery"></div>
+    <div class="pg" id="pg"></div>
+  </div>
+</div>
+
+<div class="lb" id="lb"></div>
+<div class="modal" id="mv"><div>
+  <h3 style="margin-bottom:6px" id="mv-title">카테고리 이동</h3>
+  <p class="hint" style="margin-bottom:10px" id="mv-desc"></p>
+  <select id="mv-group" style="display:none;margin-bottom:8px"></select>
+  <select id="mv-cat" style="margin-bottom:12px"></select>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn out" id="mv-cancel">취소</button><button class="btn" id="mv-go">이동</button></div>
+</div></div>
+
+<script>
+(() => {
+  const slug = location.pathname.split('/').filter(Boolean)[1];
+  const API = `/api/s/${slug}/`;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const S = { cats: [], cat: '', tab: '', page: 1, sel: new Set(), files: [], sess: 0, license: null, ocr: '' };
+  const api = async (path, opt = {}) => { const r = await fetch(API + path, opt); const j = await r.json().catch(() => ({})); if (!r.ok || j.ok === false) throw new Error(j.error || `오류 ${r.status}`); return j; };
+  const flash = (el, msg, bad) => { el.textContent = msg; el.className = 'status' + (bad ? ' err' : ''); setTimeout(() => { el.textContent = ''; }, 2500); };
+  const catName = (id) => (S.cats.find((c) => c.id === id) || {}).name || '전체';
+
+  // ── 개요
+  async function load() {
+    const o = await api('overview');
+    document.title = `${o.keyword} 파일 업로드`; $('title').textContent = `${o.keyword} 파일 업로드`; $('host').textContent = `${slug}.suriwiki.com`;
+    S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
+    for (const k of ['phone', 'blog', 'youtube', 'reference']) $('f-' + k).value = o.profile[k] || '';
+    const counts = Object.fromEntries(o.counts.map((c) => [c.category, c.n]));
+    $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
+    $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    $('tabs').innerHTML = [['', '전체'], ...S.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button class="tab${id === S.tab ? ' on' : ''}" data-t="${id}">${esc(n)}</button>`).join('');
+    renderLicense(); loadFiles(); loadMemos();
+  }
+
+  // ── 사업자등록증
+  function renderLicense() {
+    const l = S.license;
+    $('lic-del').style.display = l ? '' : 'none';
+    $('lic-ocr').style.display = l && l.type !== 'application/pdf' ? '' : 'none';
+    $('lic-summary').style.display = l ? '' : 'none';
+    if (!l) { $('lic-preview').innerHTML = '사업자등록증을 업로드해주세요 (JPG, PNG, PDF · 최대 10MB)'; $('lic-ocr-box').style.display = 'none'; return; }
+    $('lic-preview').innerHTML = l.type === 'application/pdf' ? `<a href="${API}license" target="_blank" rel="noopener">PDF 파일 보기 (${esc(l.name)})</a>` : `<img src="${API}license?v=${l.updated_at}" alt="사업자등록증" style="max-width:100%;border-radius:8px;cursor:pointer" id="lic-img">`;
+    if (S.ocr) showOcr(S.ocr);
+  }
+  $('lic-head').onclick = $('lic-summary').onclick = () => { const b = $('lic-body'); const open = b.style.display === 'none'; b.style.display = open ? '' : 'none'; $('lic-icon').textContent = open ? '▲' : '▼'; };
+  $('lic-pick').onclick = () => $('lic-input').click();
+  $('lic-input').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try { await put(`license?name=${encodeURIComponent(f.name)}`, f); await load(); } catch (x) { alert(x.message); }
+    e.target.value = '';
+  };
+  $('lic-del').onclick = async () => { if (!confirm('사업자등록증을 삭제할까요?')) return; await api('license', { method: 'DELETE' }); S.license = null; S.ocr = ''; await load(); };
+  document.addEventListener('click', (e) => { if (e.target.id === 'lic-img') openLb(e.target.src, 'image/png'); });
+  function parseBiz(t) {
+    const flat = t.replace(/[ \t]+/g, ' ');
+    const pick = (re) => { const m = flat.match(re); return m ? m[1].trim() : ''; };
+    return { '사업자등록번호': pick(/(\d{3}\s*-\s*\d{2}\s*-\s*\d{5})/), '상호(법인명)': pick(/(?:상\s*호|법인명)\s*[:：]?\s*(?:\(단체명\))?\s*[:：]?\s*([^\n]{1,40})/), '대표자': pick(/(?:성\s*명|대\s*표\s*자)\s*[:：]?\s*([가-힣 ]{2,10})/), '개업연월일': pick(/개\s*업\s*연\s*월\s*일\s*[:：]?\s*([0-9년월일. ]{8,16})/), '소재지': pick(/사업장\s*소재지\s*[:：]?\s*([^\n]{5,80})/) };
+  }
+  function showOcr(text) {
+    S.ocr = text; $('lic-ocr-box').style.display = ''; $('lic-raw').textContent = text;
+    const p = parseBiz(text); $('lic-parsed').innerHTML = Object.entries(p).filter(([, v]) => v).map(([k, v]) => `<div><b>${k}</b>${esc(v)}</div>`).join('');
+  }
+  $('lic-ocr').onclick = async () => {
+    const b = $('lic-ocr'); b.disabled = true; b.textContent = '텍스트 추출 중... (처음엔 한글 데이터를 내려받아 시간이 걸립니다)';
+    try {
+      if (!window.Tesseract) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js'; s.onload = ok; s.onerror = () => no(new Error('OCR 라이브러리를 불러오지 못했습니다')); document.head.appendChild(s); });
+      const r = await window.Tesseract.recognize(`${API}license?v=${Date.now()}`, 'kor+eng');
+      const text = r.data.text.trim(); showOcr(text);
+      await api('license/text', { method: 'PUT', body: JSON.stringify({ text }) });
+    } catch (x) { alert('텍스트 추출 실패: ' + x.message); }
+    b.disabled = false; b.textContent = '텍스트 추출';
+  };
+  $('lic-copy').onclick = () => navigator.clipboard.writeText(S.ocr).then(() => alert('복사했습니다'));
+
+  // ── 사이트 정보
+  $('save-profile').onclick = async () => {
+    try { await api('profile', { method: 'PUT', body: JSON.stringify({ phone: $('f-phone').value, blog: $('f-blog').value, youtube: $('f-youtube').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
+    catch (x) { flash($('profile-status'), x.message, true); }
+  };
+  $('copy-all').onclick = () => {
+    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `전화번호: ${$('f-phone').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
+    navigator.clipboard.writeText(t).then(() => alert('복사했습니다'));
+  };
+
+  // ── 카테고리 + 업로드
+  $('cats').onclick = (e) => { const c = e.target.closest('.cat'); if (!c) return; S.cat = c.dataset.c; document.querySelectorAll('.cat').forEach((x) => x.classList.toggle('on', x === c)); $('sel-label').textContent = `· ${catName(S.cat)}`; $('zone-msg').innerHTML = '파일을 끌어다 놓거나 <strong>클릭해서 선택</strong>하세요'; };
+  function put(path, file, onProgress) {
+    return new Promise((ok, no) => {
+      const x = new XMLHttpRequest(); x.open('PUT', API + path); x.setRequestHeader('content-type', file.type || 'application/octet-stream');
+      if (onProgress) x.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
+      x.onload = () => { let j = {}; try { j = JSON.parse(x.responseText); } catch (_) {} x.status < 300 && j.ok !== false ? ok(j) : no(new Error(j.error || `오류 ${x.status}`)); };
+      x.onerror = () => no(new Error('네트워크 오류')); x.send(file);
+    });
+  }
+  async function uploadFiles(list, group = '') {
+    if (!S.cat) { alert('위에서 카테고리를 먼저 선택해주세요'); return; }
+    const files = [...list].filter((f) => /^(image|video)\//.test(f.type)); if (!files.length) { alert('사진 또는 동영상만 업로드할 수 있습니다'); return; }
+    $('bar').style.display = 'block'; let done = 0, fail = 0;
+    for (const f of files) {
+      $('bar-t').textContent = `${done + 1}/${files.length} 업로드 중: ${f.name}`;
+      const name = group ? `${group}_${f.name}` : (f.name || `paste_${Date.now()}.png`);
+      try { await put(`files?category=${S.cat}&name=${encodeURIComponent(name)}&group=${encodeURIComponent(group)}`, f, (p) => { $('bar-i').style.width = ((done + p) / files.length * 100) + '%'; }); S.sess++; } catch (x) { fail++; alert(`${f.name}: ${x.message}`); }
+      done++; $('bar-i').style.width = (done / files.length * 100) + '%';
+    }
+    $('bar-t').textContent = `완료 ${files.length - fail}개${fail ? ` · 실패 ${fail}개` : ''}`; $('sess').textContent = S.sess;
+    setTimeout(() => { $('bar').style.display = 'none'; }, 1500); await load();
+  }
+  const zone = $('zone');
+  zone.onclick = () => { if (!S.cat) return alert('위에서 카테고리를 먼저 선택해주세요'); $('file-input').click(); };
+  zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag'); }; zone.ondragleave = () => zone.classList.remove('drag');
+  zone.ondrop = (e) => { e.preventDefault(); zone.classList.remove('drag'); uploadFiles(e.dataTransfer.files); };
+  $('file-input').onchange = (e) => { uploadFiles(e.target.files); e.target.value = ''; };
+  $('camera-input').onchange = (e) => { uploadFiles(e.target.files); e.target.value = ''; };
+  $('btn-album').onclick = () => zone.click(); $('btn-camera').onclick = () => { if (!S.cat) return alert('위에서 카테고리를 먼저 선택해주세요'); $('camera-input').click(); };
+  $('btn-folder').onclick = () => { if (!S.cat) return alert('위에서 카테고리를 먼저 선택해주세요'); $('folder-input').click(); };
+  $('folder-input').onchange = (e) => { const fs = [...e.target.files]; const g = fs[0] && fs[0].webkitRelativePath ? fs[0].webkitRelativePath.split('/')[0] : ''; uploadFiles(fs, g); e.target.value = ''; };
+  document.addEventListener('paste', (e) => { const fs = [...(e.clipboardData?.files || [])]; if (fs.length) uploadFiles(fs.map((f, i) => (f.name && f.name !== 'image.png' ? f : new File([f], `paste_${Date.now()}_${i}.png`, { type: f.type })))); });
+
+  // ── 메모
+  let mt;
+  $('memo-new').oninput = () => { clearTimeout(mt); mt = setTimeout(async () => { const v = $('memo-new').value.trim(); if (!v) return; try { await api('memos', { method: 'POST', body: JSON.stringify({ content: v, category: $('memo-cat').value }) }); $('memo-new').value = ''; flash($('memo-status'), '저장됨'); loadMemos(); } catch (x) { flash($('memo-status'), x.message, true); } }, 1800); };
+  async function loadMemos() {
+    const { memos } = await api('memos');
+    $('memo-list').innerHTML = memos.map((m) => `<div class="memo"><b>${esc(catName(m.category))} · ${new Date(m.created_at).toLocaleString('ko-KR')}</b>${esc(m.content)}<button class="x" data-m="${m.id}">✕</button></div>`).join('');
+  }
+  $('memo-list').onclick = async (e) => { const b = e.target.closest('[data-m]'); if (!b || !confirm('메모를 삭제할까요?')) return; await api('memos/' + b.dataset.m, { method: 'DELETE' }); loadMemos(); };
+
+  // ── 갤러리
+  async function loadFiles() {
+    const j = await api(`files?category=${S.tab}&page=${S.page}`); S.files = j.files; S.sel.clear();
+    $('gallery').innerHTML = j.files.length ? j.files.map((f) => {
+      const src = `${API}file/${f.id}`; const media = f.type.startsWith('video') ? `<video src="${src}#t=0.1" preload="metadata" muted></video>` : `<img src="${src}" loading="lazy" alt="${esc(f.name)}">`;
+      return `<div class="th" data-id="${f.id}" data-type="${f.type}">${media}<input class="ck" type="checkbox"><button class="x" data-del="${f.id}">✕</button><div class="nm">${esc(f.name)}</div></div>`;
+    }).join('') : '<p class="hint">업로드된 파일이 없습니다</p>';
+    const pages = Math.max(1, Math.ceil(j.total / j.pageSize));
+    $('pg').innerHTML = pages > 1 ? Array.from({ length: pages }, (_, i) => `<button class="btn ${i + 1 === S.page ? '' : 'out'} sm" data-p="${i + 1}">${i + 1}</button>`).join('') : '';
+  }
+  $('tabs').onclick = (e) => { const t = e.target.closest('.tab'); if (!t) return; S.tab = t.dataset.t; S.page = 1; document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === t)); loadFiles(); };
+  $('pg').onclick = (e) => { const b = e.target.closest('[data-p]'); if (b) { S.page = Number(b.dataset.p); loadFiles(); } };
+  $('gallery').onclick = async (e) => {
+    const d = e.target.closest('[data-del]'); if (d) { e.stopPropagation(); if (confirm('파일을 삭제할까요?')) { await api('file/' + d.dataset.del, { method: 'DELETE' }); await load(); } return; }
+    const th = e.target.closest('.th'); if (!th) return;
+    if (e.target.classList.contains('ck')) { e.target.checked ? S.sel.add(th.dataset.id) : S.sel.delete(th.dataset.id); th.classList.toggle('sel', e.target.checked); return; }
+    openLb(`${API}file/${th.dataset.id}`, th.dataset.type);
+  };
+  function openLb(src, type) { $('lb').innerHTML = type.startsWith('video') ? `<video src="${src}" controls autoplay></video>` : `<img src="${src}" alt="">`; $('lb').classList.add('on'); }
+  $('lb').onclick = (e) => { if (e.target.tagName !== 'VIDEO') { $('lb').classList.remove('on'); $('lb').innerHTML = ''; } };
+
+  // ── 카테고리 이동(선택 항목 / 폴더 묶음)
+  let mvMode = 'sel';
+  function openMove(mode) {
+    mvMode = mode; $('mv-cat').innerHTML = S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    $('mv-group').style.display = mode === 'group' ? '' : 'none';
+    if (mode === 'group') { const gs = [...new Set(S.files.map((f) => f.grp).filter(Boolean))]; if (!gs.length) return alert('이 화면에 폴더(묶음)로 올린 파일이 없습니다'); $('mv-group').innerHTML = gs.map((g) => `<option>${esc(g)}</option>`).join(''); $('mv-title').textContent = '📁 폴더(묶음) 카테고리 이동'; $('mv-desc').textContent = '선택한 묶음의 사진을 다른 카테고리로 옮깁니다.'; }
+    else { if (!S.sel.size) return alert('이동할 파일을 체크해주세요'); $('mv-title').textContent = '선택 항목 카테고리 이동'; $('mv-desc').textContent = `${S.sel.size}개 파일을 옮깁니다.`; }
+    $('mv').classList.add('on');
+  }
+  $('btn-move').onclick = () => openMove('sel'); $('btn-move-group').onclick = () => openMove('group'); $('mv-cancel').onclick = () => $('mv').classList.remove('on');
+  $('mv-go').onclick = async () => { const body = { category: $('mv-cat').value }; if (mvMode === 'group') body.group = $('mv-group').value; else body.ids = [...S.sel]; await api('files/move', { method: 'POST', body: JSON.stringify(body) }); $('mv').classList.remove('on'); await load(); };
+
+  load().catch((x) => { document.body.innerHTML = `<div class="container"><div class="card">불러오지 못했습니다: ${esc(x.message)}</div></div>`; });
+})();
+</script>
+</body>
+</html>

@@ -11,6 +11,20 @@ cpSync('src', 'dist', { recursive: true });
 if (existsSync('public')) cpSync('public', 'dist', { recursive: true });
 
 const data = JSON.parse(readFileSync('src/data/report.json', 'utf8'));
+// 관리자 워커가 슬러그를 검증하고 카테고리(=서브키워드)를 알 수 있게 메타를 넘긴다.
+const meta = {};
+for (const [site, m] of Object.entries(data.site_meta || {})) meta[site.split('.')[0]] = { keyword: m.main_keyword, subs: m.sub_keywords };
+writeFileSync('worker/sites-meta.json', JSON.stringify(meta));
+
+// 업로드 페이지에서 입력된 전화번호·블로그·유튜브를 키워드 사이트에 반영한다(없으면 건너뜀).
+let profiles = {};
+if (process.env.BIZHELP_PROFILES_URL) {
+  try {
+    const r = await fetch(process.env.BIZHELP_PROFILES_URL, { signal: AbortSignal.timeout(15000) });
+    if (r.ok) for (const p of (await r.json()).profiles || []) profiles[p.slug] = p;
+    console.log(`profiles: ${Object.keys(profiles).length}개`);
+  } catch (e) { console.log('profiles 조회 실패(무시):', e.message); }
+}
 const sample = !!data.sample;
 cpSync('public/favicon.svg', 'dist-sites/favicon.svg');
 if (sample) writeFileSync('dist-sites/_headers', '/*\n  X-Robots-Tag: noindex, nofollow\n'); // 샘플 단계 — 실제 공개 시 data.sample=false
@@ -23,12 +37,13 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   const imgDir = `site-images/${sub}`;
   const imgNames = existsSync(imgDir) ? readdirSync(imgDir).filter((f) => f.endsWith('.webp')).map((f) => f.replace('.webp', '')) : [];
   setImages(imgNames);
+  const profile = profiles[sub] || {};
   if (imgNames.length) cpSync(imgDir, `dist-sites/s/${sub}/img`, { recursive: true });
   const pages = data.pages.filter((p) => p.site === site && !p.pending && p.region).sort((a, b) => a.page_path.localeCompare(b.page_path));
   const put = (rel, html) => { const dir = `dist-sites/s/${sub}${rel}`.replace(/\/$/, ''); mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/index.html`, html); n++; };
-  put('/', homePage({ site, meta: m, pages, data }));
-  put('/sangdam', sangdamPage({ site, meta: m, data }));
-  for (const page of pages) put(page.page_path, regionPage({ site, meta: m, page, pages, data }));
+  put('/', homePage({ site, meta: m, pages, data, profile }));
+  put('/sangdam', sangdamPage({ site, meta: m, data, profile }));
+  for (const page of pages) put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile }));
   const urls = ['/', ...pages.map((p) => p.page_path)];
   writeFileSync(`dist-sites/s/${sub}/robots.txt`, sample ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: https://${site}/sitemap.xml\n`);
   writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${site}${u}</loc></url>`).join('\n')}\n</urlset>\n`);

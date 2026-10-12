@@ -198,7 +198,7 @@ function renderSites(c) {
     const nw = fresh.length;
     h += `<div class="site-card c${si % 8}"><div class="site-head"><div class="site-head-left"><div class="site-icon">${si + 1}</div>
       <div class="site-info"><div class="site-domain">${esc(site)}</div><div class="site-title">메인사이트 ${si + 1}/${c.mainCount}${c.createdBySite.get(site) ? ` · 📅 생성 ${c.createdBySite.get(site)}` : ''}</div></div></div>
-      <div class="site-meta"><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
+      <div class="site-meta"><a class="site-link-btn" style="background:#475569" href="/upload/${esc(site.split('.')[0])}" target="_blank" rel="noopener" title="사진·정보 업로드">업로드</a><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
       <div class="site-badges"><span class="site-cnt-badge" title="총 페이지 수">📄 <b>${list.length}</b>개</span>
       <span class="site-wow-badge ${nw ? 'up' : 'zero'}" title="이번 주 신규 ${nw}개 (${c.weekStart} 월요일 이후)">📈 <b>${nw ? '+' + nw : '±0'}</b></span></div>
       <div class="page-list">`;

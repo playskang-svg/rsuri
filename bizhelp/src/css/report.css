@@ -91,6 +91,7 @@ a{color:inherit}
 .site-info{min-width:0;flex:1}
 .site-domain{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .site-title{font-size:10px;color:var(--pri);font-weight:700;margin-top:1px}
+.site-meta{display:flex;gap:5px;flex-shrink:0}
 .site-link-btn{background:var(--pri);color:#fff;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:800;text-decoration:none;white-space:nowrap}
 .site-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 14px 0}
 .site-cnt-badge,.site-wow-badge{padding:6px 13px;border-radius:8px;font-size:12px;font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;line-height:1}

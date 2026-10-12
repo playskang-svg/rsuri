@@ -4,6 +4,8 @@
 # 배포 규칙은 CLAUDE.md와 같다: main 머지로만 배포, PR에서는 빌드 검증만.
 name: bizhelp-deploy
 on:
+  schedule:
+    - cron: '0 20 * * *'   # 매일 05:00 KST — 업로드 페이지에서 바뀐 전화번호·블로그 등을 키워드 사이트에 반영
   push:
     branches: [main]
     paths: ['bizhelp/**', '.github/workflows/bizhelp-deploy.yml']
@@ -41,11 +43,14 @@ jobs:
   # 배포 전에 (1) 계정에 이미 같은 호스트가 다른 워커로 붙어 있는지 검사하고, (2) wrangler가 기존 DNS 레코드가 있는 호스트는 거부한다.
   sites:
     runs-on: ubuntu-latest
+    needs: admin   # 관리자(API)가 먼저 배포돼야 사이트 정보(전화번호 등)를 읽어올 수 있다
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: node scripts/build.mjs
+        env:
+          BIZHELP_PROFILES_URL: https://admin.suriwiki.com/api/export/profiles
       - name: Check hostname conflicts
         if: github.event_name != 'pull_request'
         run: |
