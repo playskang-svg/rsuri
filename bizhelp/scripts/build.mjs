@@ -4,8 +4,8 @@
 //  wrangler.sites.generated.jsonc  키워드마다 개별 커스텀 도메인(와일드카드 라우트·DNS는 쓰지 않는다)
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolveProfile } from './site-defaults.mjs';
-import { groupsToRegistry, setExtraRegions } from './group-model.mjs';
-import { homePage, regionPage, sangdamPage, setImages } from './templates.mjs';
+import { groupsToRegistry, setExtraRegions, allRegions } from './group-model.mjs';
+import { homePage, regionPage, sangdamPage, setImages, templateList } from './templates.mjs';
 import { readdirSync } from 'node:fs';
 
 for (const d of ['dist', 'dist-sites']) { rmSync(d, { recursive: true, force: true }); mkdirSync(d, { recursive: true }); }
@@ -111,7 +111,32 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
 // 홍보 페이지: builder.suriwiki.com (그룹이 아닌 고정 호스트). 원본은 promo/index.html
 if (existsSync('promo/index.html')) {
   mkdirSync('dist-sites/s/builder', { recursive: true });
-  cpSync('promo/index.html', 'dist-sites/s/builder/index.html');
+  // 숫자·사례·템플릿·후기는 빌드 시점의 실제 값으로 채운다(추측 수치 없음). 후기는 promo/reviews.json(실제 후기만, 비어 있으면 섹션 생략)
+  const escH = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const sitesArr = Object.entries(data.site_meta || {});
+  const tplList = templateList();
+  const TPL_FIT = { consult: '상담 문의를 늘리고 싶은 업체. 전/후 비교와 문자 보내기 중심의 표준 구성', gallery: '시공 사례가 많은 업체. 사례를 크게 보여주는 갤러리 구성', guide: '설명이 필요한 작업을 하는 업체. 유형별 안내 표를 앞세운 구성', simple: '핵심만 빠르게 보여주고 싶은 업체. 짧은 한 페이지 구성' };
+  const cases = sitesArr.map(([site, m]) => {
+    const sub = site.split('.')[0], cnt = (data.pages || []).filter((p) => p.site === site).length;
+    const hasImg = existsSync(`site-images/${sub}/ba-3-after.webp`);
+    const tpl = tplList.find((t) => t.id === (m.template || 'consult'));
+    return `<a class="case rv" href="https://${site}/" target="_blank" rel="noopener"><div class="img"${hasImg ? ` style="background-image:url('https://${site}/img/ba-3-after.webp')"` : ''}><i>${escH(tpl ? tpl.name : '')}</i><b>${escH(m.main_keyword)}</b></div><div class="meta"><span>지역 페이지 <b>${cnt}</b>개 · ${escH((m.sub_keywords || []).slice(0, 2).join('·'))}</span><span class="go">보기 →</span></div></a>`;
+  }).join('');
+  let reviews = [];
+  try { reviews = JSON.parse(readFileSync('promo/reviews.json', 'utf8')); } catch {}
+  reviews = (Array.isArray(reviews) ? reviews : []).filter((r) => r && r.text && r.name && r.rating >= 1 && r.rating <= 5);
+  const stars = (n) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+  const avg = reviews.length ? reviews.reduce((a, r) => a + Number(r.rating), 0) / reviews.length : 0;
+  const reviewsHtml = reviews.length ? `<section id="reviews"><span class="kicker rv">Reviews</span><h2 class="rv">이용 업체 후기</h2><p class="lead rv">분양받아 운영 중인 업체가 직접 남긴 후기입니다.</p>
+<div class="rating-summary rv"><div class="big">${avg.toFixed(1)}</div><div><div class="stars">${stars(avg)}</div><div style="color:var(--sub);font-size:14px">후기 ${reviews.length}건 평균</div></div></div>
+<div class="grid">${reviews.map((r) => `<div class="review rv"><div class="stars">${stars(r.rating)}</div><p>${escH(r.text)}</p><div class="who">${escH(r.name)}${r.keyword ? ` · ${escH(r.keyword)}` : ''}${r.date ? ` · ${escH(r.date)}` : ''}</div></div>`).join('')}</div></section>` : '';
+  const marquee = sitesArr.map(([, m]) => `<span class="k">${escH(m.main_keyword)}</span>` + (m.sub_keywords || []).slice(0, 3).map((k) => `<span>${escH(k)}</span>`).join('')).join('');
+  const tplRows = tplList.map((t) => `<tr><td><span class="sw" style="background:linear-gradient(135deg,${escH((t.swatch || ['#0fa99b'])[0])},${escH((t.swatch || ['#0fa99b'])[1] || (t.swatch || ['#0fa99b'])[0])})"></span><b>${escH(t.name)}</b></td><td>${escH(TPL_FIT[t.id] || t.desc || '')}</td><td>전/후 ${t.photoSlots}쌍${t.id === 'guide' ? '(선택)' : ''}</td></tr>`).join('');
+  const promo = readFileSync('promo/index.html', 'utf8')
+    .replace(/\{\{SITES\}\}/g, String(sitesArr.length)).replace(/\{\{PAGES\}\}/g, String((data.pages || []).length))
+    .replace(/\{\{REGIONS\}\}/g, String(allRegions().length)).replace(/\{\{TEMPLATES\}\}/g, String(tplList.length))
+    .replace('{{CASES}}', cases).replace('{{REVIEWS}}', reviewsHtml).replace(/\{\{MARQUEE\}\}/g, marquee).replace('{{TEMPLATE_ROWS}}', tplRows);
+  writeFileSync('dist-sites/s/builder/index.html', promo);
   writeFileSync('dist-sites/s/builder/robots.txt', sample ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
   hosts.push('builder.suriwiki.com');
 }

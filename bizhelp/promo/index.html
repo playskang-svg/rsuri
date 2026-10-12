@@ -5,199 +5,353 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>수리위키 사이트빌더 — 키워드 홈페이지 분양</title>
 <meta name="description" content="수리·시공 업체를 위한 키워드 홈페이지 빌더. 키워드와 지역만 정하면 홈, 지역별 페이지, 상담 문자까지 갖춘 사이트가 만들어지고, 사진과 업체 정보만 올리면 계속 최신으로 유지됩니다.">
-<link rel="icon" href="/favicon.svg" type="image/svg+x">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
-:root{--bg:#f6f8fb;--card:#fff;--ink:#0f2236;--sub:#52627a;--line:#e1e7ef;--navy:#0f2a47;--teal:#0fa99b;--teal-d:#0b8c80;--soft:#e8f7f5}
-@media (prefers-color-scheme:dark){:root{--bg:#0c1622;--card:#142235;--ink:#e8eef6;--sub:#9fb0c6;--line:#243650;--navy:#0a1a2c;--soft:#10333a}}
+:root{--bg:#f6f8fb;--card:#fff;--ink:#0f2236;--sub:#52627a;--line:#e1e7ef;--navy:#0f2a47;--navy2:#16406b;--teal:#0fa99b;--teal-d:#0b8c80;--soft:#e8f7f5;--gold:#f5b301;--shadow:0 10px 30px rgba(15,34,54,.08)}
+@media (prefers-color-scheme:dark){:root{--bg:#0c1622;--card:#142235;--ink:#e8eef6;--sub:#9fb0c6;--line:#243650;--navy:#0a1a2c;--navy2:#12304f;--soft:#10333a;--shadow:0 10px 30px rgba(0,0,0,.35)}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;overflow-x:hidden}
 a{color:var(--teal-d);text-decoration:none}a:hover{text-decoration:underline}
-.wrap{max-width:980px;margin:0 auto;padding:0 16px}
-nav.top{background:var(--navy);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
-nav.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px}
-nav.top .logo{color:#fff;font-weight:800;white-space:nowrap}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+/* nav */
+nav.top{position:sticky;top:0;z-index:20;background:rgba(15,42,71,.92);backdrop-filter:blur(10px);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px}
+nav.top .logo{color:#fff;font-weight:800;white-space:nowrap;display:flex;align-items:center;gap:8px}
+nav.top .logo i{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(15,169,155,.25)}
 .nav-links{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
-.nav-links a{color:#d3e0ee;font-size:14px;padding:6px 10px;border-radius:8px}
+.nav-links a{color:#d3e0ee;font-size:14px;padding:7px 11px;border-radius:8px}
 .nav-links a:hover{background:rgba(255,255,255,.1);text-decoration:none;color:#fff}
 .nav-links .nav-cta{background:var(--teal);color:#fff;font-weight:700}
 @media (max-width:640px){.nav-links a:not(.nav-cta):not(:first-child){display:none}}
-header.hero{background:linear-gradient(135deg,var(--navy),#16406b);color:#fff;padding:64px 0 56px;border-bottom:4px solid var(--teal)}
-.eyebrow{display:inline-block;background:rgba(15,169,155,.22);color:#9ff0e6;font-weight:700;font-size:13px;padding:4px 12px;border-radius:99px;margin-bottom:14px}
-.hero h1{margin:0 0 14px;font-size:clamp(28px,5.5vw,44px);line-height:1.28}
-.hero p{margin:0 0 26px;max-width:620px;color:#d3e0ee;font-size:17px}
+/* hero */
+header.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--navy2) 60%,#0e5a8a);color:#fff;padding:76px 0 70px;border-bottom:4px solid var(--teal)}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;animation:drift 14s ease-in-out infinite alternate}
+.blob.a{width:420px;height:420px;background:#0fa99b;top:-140px;right:-80px}
+.blob.b{width:360px;height:360px;background:#3b82f6;bottom:-160px;left:-100px;animation-delay:-6s}
+.blob.c{width:220px;height:220px;background:#f5b301;top:40%;left:55%;opacity:.25;animation-delay:-10s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,30px) scale(1.12)}}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center}
+@media (max-width:820px){.hero .wrap{grid-template-columns:1fr}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(15,169,155,.22);color:#9ff0e6;font-weight:700;font-size:13px;padding:5px 12px;border-radius:99px;margin-bottom:16px}
+.eyebrow b{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2ee6d3;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,230,211,.6)}70%{box-shadow:0 0 0 8px rgba(46,230,211,0)}}
+.hero h1{margin:0 0 16px;font-size:clamp(30px,5.6vw,48px);line-height:1.22;letter-spacing:-.5px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#5eead4,#a7f3d0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0 0 26px;max-width:600px;color:#d3e0ee;font-size:17px}
 .btns{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-block;padding:13px 22px;border-radius:10px;font-weight:700;background:var(--teal);color:#fff}
-.btn:hover{background:var(--teal-d);text-decoration:none}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.55)}
-section{padding:44px 0 6px}
-h2{font-size:26px;margin:0 0 6px;line-height:1.35}
-.lead{color:var(--sub);margin:0 0 22px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:700;background:var(--teal);color:#fff;transition:transform .15s,box-shadow .15s}
+.btn:hover{background:var(--teal-d);text-decoration:none;transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,169,155,.35)}
+.btn.ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.5)}
+.btn.ghost:hover{background:rgba(255,255,255,.16);box-shadow:none}
+.trust{display:flex;flex-wrap:wrap;gap:16px;margin-top:26px;color:#b9cde3;font-size:14px}
+.trust span:before{content:"✓";color:#5eead4;font-weight:800;margin-right:6px}
+/* hero mock */
+.mock{position:relative;background:#fff;color:var(--ink);border-radius:18px;box-shadow:0 30px 60px rgba(0,0,0,.35);overflow:hidden;transform:rotate(-2deg);animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(-2deg) translateY(-10px)}}
+.mock .bar{display:flex;gap:6px;padding:10px 12px;background:#eef2f7;border-bottom:1px solid #e1e7ef}
+.mock .bar i{width:10px;height:10px;border-radius:50%;background:#cbd5e1}.mock .bar i:first-child{background:#fb7185}.mock .bar i:nth-child(2){background:#fbbf24}.mock .bar i:nth-child(3){background:#34d399}
+.mock .url{margin-left:8px;flex:1;background:#fff;border-radius:6px;font-size:11px;color:#64748b;padding:1px 8px;line-height:16px}
+.mock .body{padding:16px}
+.mock .h{height:14px;border-radius:4px;background:#0f2236;width:70%;margin-bottom:8px}
+.mock .s{height:8px;border-radius:4px;background:#e2e8f0;width:90%;margin-bottom:6px}.mock .s.short{width:55%;margin-bottom:12px}
+.mock .ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.mock .ba div{aspect-ratio:4/3;border-radius:8px;background:linear-gradient(135deg,#cbd5e1,#94a3b8);position:relative;overflow:hidden}
+.mock .ba div:after{content:attr(data-l);position:absolute;left:6px;top:6px;font-size:10px;font-weight:800;background:rgba(15,34,54,.8);color:#fff;padding:2px 6px;border-radius:4px}
+.mock .ba div.after{background:linear-gradient(135deg,#99f6e4,#0fa99b)}
+.mock .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.mock .chips span{font-size:10px;border:1px solid #cbd5e1;border-radius:99px;padding:2px 8px;color:#475569}
+.mock .chips span.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.mock .cta{height:30px;border-radius:8px;background:var(--teal);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.badge-float{position:absolute;right:-6px;bottom:-14px;background:#fff;color:var(--ink);border-radius:14px;padding:10px 14px;box-shadow:0 14px 30px rgba(0,0,0,.3);font-size:13px;font-weight:700;display:flex;gap:8px;align-items:center;animation:float2 5s ease-in-out infinite}
+@keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.badge-float b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--soft);color:var(--teal-d)}
+@media (max-width:820px){.mock{transform:none;animation:none;max-width:420px;margin:8px auto 0}.badge-float{right:8px}}
+/* stats strip */
+.stats{position:relative;z-index:2;margin-top:-34px}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:760px){.stats .wrap{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;text-align:center;box-shadow:var(--shadow)}
+.stat .n{font-size:clamp(28px,4.5vw,40px);font-weight:900;color:var(--navy2);letter-spacing:-1px;line-height:1.1}
+@media (prefers-color-scheme:dark){.stat .n{color:#8de3d8}}
+.stat .n small{font-size:.5em;font-weight:800;margin-left:2px}
+.stat .l{color:var(--sub);font-size:14px;margin-top:4px}
+.stat .d{font-size:12px;color:var(--teal-d);font-weight:700;margin-top:4px}
+/* sections */
+section{padding:56px 0 8px}
+h2{font-size:clamp(23px,3.4vw,30px);margin:0 0 8px;line-height:1.3;letter-spacing:-.3px}
+.lead{color:var(--sub);margin:0 0 24px;max-width:720px}
+.kicker{display:inline-block;color:var(--teal-d);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
 .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
 .card h3{margin:0 0 6px;font-size:18px}
 .card p{margin:0;color:var(--sub);font-size:15px}
-.ico{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:var(--soft);font-size:20px;margin-bottom:10px}
-.flow{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));counter-reset:s;margin:0;padding:0;list-style:none}
-.flow li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-.flow li:before{content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;margin-bottom:8px}
+.ico{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--soft);font-size:22px;margin-bottom:12px}
+/* marquee */
+.marquee{overflow:hidden;background:var(--navy);color:#fff;padding:12px 0;margin-top:48px;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1)}
+.marquee .track{display:flex;gap:10px;width:max-content;animation:scroll 40s linear infinite}
+.marquee span{white-space:nowrap;border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:5px 14px;font-size:14px;color:#d3e0ee}
+.marquee span.k{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:700}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* compare */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.cmp{grid-template-columns:1fr}}
+.cmp .card{position:relative}
+.cmp .tagx{position:absolute;top:-12px;left:18px;font-size:12px;font-weight:800;padding:4px 12px;border-radius:99px;background:#e2e8f0;color:#475569}
+.cmp .card.good .tagx{background:var(--teal);color:#fff}
+.cmp ul{margin:8px 0 0;padding-left:0;list-style:none}
+.cmp li{padding:7px 0;border-bottom:1px dashed var(--line);color:var(--sub);font-size:15px;display:flex;gap:10px}
+.cmp li:last-child{border:0}
+.cmp .bad li:before{content:"✕";color:#ef4444;font-weight:800}
+.cmp .good li:before{content:"✓";color:var(--teal-d);font-weight:800}
+/* flow */
+.flow{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));counter-reset:s;margin:0;padding:0;list-style:none;position:relative}
+.flow li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;transition:transform .2s}
+.flow li:hover{transform:translateY(-4px)}
+.flow li:before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#3b82f6);color:#fff;font-weight:800;margin-bottom:10px}
 .flow b{display:block;margin-bottom:4px;font-size:17px}
 .flow span{color:var(--sub);font-size:14.5px}
-.split{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.who h3{margin:0 0 8px}
-.who ul{margin:0;padding-left:18px;color:var(--sub);font-size:15px}
-.tpl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:15px}
-.tpl th,.tpl td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+/* cases */
+.cases{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.case{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;color:var(--ink);transition:transform .2s,box-shadow .2s}
+.case:hover{transform:translateY(-5px);box-shadow:var(--shadow);text-decoration:none}
+.case .img{aspect-ratio:16/10;background:#dbe3ec center/cover no-repeat;position:relative}
+.case .img:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(15,34,54,.65),transparent 60%)}
+.case .img b{position:absolute;left:12px;bottom:10px;color:#fff;font-size:18px;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.case .img i{position:absolute;right:10px;top:10px;z-index:1;font-style:normal;font-size:11px;font-weight:800;background:rgba(255,255,255,.92);color:var(--teal-d);padding:3px 8px;border-radius:99px}
+.case .meta{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--sub)}
+.case .meta b{color:var(--ink)}
+.case .meta .go{color:var(--teal-d);font-weight:700;white-space:nowrap}
+/* reviews */
+.stars{color:var(--gold);letter-spacing:1px;font-size:15px}
+.review{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.review p{margin:8px 0 10px;color:var(--ink);font-size:15px}
+.review .who{color:var(--sub);font-size:13px}
+.rating-summary{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:14px;flex-wrap:wrap}
+.rating-summary .big{font-size:38px;font-weight:900;line-height:1}
+/* templates */
+.tpl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:15px}
+.tpl th,.tpl td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 .tpl th{background:var(--soft);font-size:14px}
 .tpl tr:last-child td{border:0}
-.demo a{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--ink)}
-.demo a:hover{border-color:var(--teal);text-decoration:none}
-.demo small{display:block;color:var(--sub);margin-top:2px}
-.demo{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:8px}
+/* faq */
 details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
 summary{cursor:pointer;font-weight:700}
 details p{margin:8px 0 0;color:var(--sub);font-size:15px}
-.cta{margin:44px 0 0;background:linear-gradient(135deg,var(--navy),#16406b);color:#fff;border-radius:18px;padding:34px 24px;text-align:center}
-.cta h2{margin:0 0 8px}.cta p{margin:0 0 18px;color:#d3e0ee}
+.note{background:var(--soft);border-radius:12px;padding:14px 16px;color:var(--ink);font-size:15px;margin-top:16px}
+/* cta */
+.cta{position:relative;overflow:hidden;margin:56px 0 0;background:linear-gradient(135deg,var(--navy),var(--navy2) 60%,#0e5a8a);color:#fff;border-radius:22px;padding:44px 24px;text-align:center}
+.cta h2{margin:0 0 8px}.cta p{margin:0 0 20px;color:#d3e0ee}
 .cta .btns{justify-content:center}
-footer{padding:30px 0 56px;color:var(--sub);font-size:14px;text-align:center}
+footer{padding:30px 0 60px;color:var(--sub);font-size:14px;text-align:center}
+/* reveal */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.blob,.mock,.badge-float,.marquee .track,.eyebrow b{animation:none}}
 </style>
 </head>
 <body>
 <nav class="top"><div class="wrap">
-<a class="logo" href="/">수리위키 사이트빌더</a>
+<a class="logo" href="/"><i></i>수리위키 사이트빌더</a>
 <div class="nav-links">
 <a href="https://admin.suriwiki.com/demo/">대시보드 둘러보기</a>
-<a href="https://baegwan-nusu.suriwiki.com/">완성 사이트</a>
+<a href="#cases">완성 사이트</a>
 <a href="https://admin.suriwiki.com/upload/baegwan-nusu/">업로드 페이지</a>
+<a href="#industries">다른 업종</a>
 <a href="#project">구축 의뢰</a>
 <a class="nav-cta" href="#contact">문의</a>
 </div>
 </div></nav>
-<header class="hero"><div class="wrap">
-<span class="eyebrow">수리·시공 업체 전용 사이트빌더</span>
-<h1>키워드와 지역만 정하면<br>내 업체 홈페이지가 완성됩니다</h1>
-<p>홈 화면, 지역별 페이지, 사진으로 보는 시공 사례, 체크하면 작성되는 상담 문자까지. 코딩도 디자인도 필요 없이, 사진과 업체 정보만 올리면 사이트가 알아서 만들어지고 최신으로 유지됩니다.</p>
+
+<header class="hero">
+<div class="blob a"></div><div class="blob b"></div><div class="blob c"></div>
+<div class="wrap">
+<div>
+<span class="eyebrow"><b></b>수리·시공부터 다른 업종까지 · 운영 중</span>
+<h1>키워드와 지역만 정하면<br><em>내 업체 홈페이지</em>가 완성됩니다</h1>
+<p>홈 화면, 지역별 페이지, 사진으로 보는 작업 사례, 체크하면 작성되는 상담 문자까지. 코딩도 디자인도 필요 없이, 사진과 업체 정보만 올리면 사이트가 알아서 만들어지고 최신으로 유지됩니다. 수리·시공으로 시작했고, 지역 기반으로 고객을 만나는 업종이면 같은 방식으로 만들 수 있습니다.</p>
 <div class="btns">
-<a class="btn" href="#demo">완성된 사이트 둘러보기</a>
+<a class="btn" href="#cases">완성된 사이트 둘러보기 →</a>
 <a class="btn ghost" href="https://admin.suriwiki.com/demo/">대시보드 둘러보기</a>
-<a class="btn ghost" href="#contact">분양 문의하기</a>
+<a class="btn ghost" href="#contact">분양 문의</a>
 </div>
-</div></header>
+<div class="trust"><span>코딩·디자인 불필요</span><span>지역 페이지 자동 생성</span><span>매일 자동 갱신</span><span>모바일 최적화</span></div>
+</div>
+<div>
+<div class="mock" aria-hidden="true">
+<div class="bar"><i></i><i></i><i></i><span class="url">baegwan-nusu.suriwiki.com/ansan</span></div>
+<div class="body">
+<div class="h"></div><div class="s"></div><div class="s short"></div>
+<div class="ba"><div data-l="BEFORE"></div><div class="after" data-l="AFTER"></div></div>
+<div class="chips"><span class="on">누수 탐지</span><span>급수관 교체</span><span class="on">천장 얼룩</span><span>안산</span></div>
+<div class="cta">📱 체크한 내용으로 문자 보내기</div>
+</div>
+</div>
+<div class="badge-float"><b>✓</b>지역 페이지 {{PAGES}}개 자동 생성</div>
+</div>
+</div>
+</header>
+
+<div class="stats"><div class="wrap">
+<div class="stat rv"><div class="n"><span data-count="{{SITES}}">0</span><small>개</small></div><div class="l">운영 중인 키워드 사이트</div><div class="d">실제 배포 기준</div></div>
+<div class="stat rv"><div class="n"><span data-count="{{PAGES}}">0</span><small>개</small></div><div class="l">자동 생성된 지역 페이지</div><div class="d">키워드 × 지역</div></div>
+<div class="stat rv"><div class="n"><span data-count="{{REGIONS}}">0</span><small>곳</small></div><div class="l">선택 가능한 지역</div><div class="d">추가 등록 가능</div></div>
+<div class="stat rv"><div class="n"><span data-count="{{TEMPLATES}}">0</span><small>종</small></div><div class="l">디자인 템플릿</div><div class="d">미리보기 후 선택</div></div>
+</div></div>
+
+<div class="marquee" aria-hidden="true"><div class="track">{{MARQUEE}}{{MARQUEE}}</div></div>
 
 <main class="wrap">
 
 <section>
-<h2>이런 점이 좋습니다</h2>
-<p class="lead">수리·시공 업체가 직접 홈페이지를 만들고 관리할 때 가장 번거로운 부분을 없앴습니다.</p>
+<span class="kicker rv">Why</span>
+<h2 class="rv">이런 점이 다릅니다</h2>
+<p class="lead rv">수리·시공 업체가 직접 홈페이지를 만들고 관리할 때 가장 번거로운 부분을 없앴습니다.</p>
 <div class="grid">
-<div class="card"><div class="ico">🎯</div><h3>키워드 한 개가 사이트 한 개</h3><p>배관누수, 욕실방수처럼 업체의 대표 키워드마다 전용 사이트가 만들어져 한 주제에 집중한 페이지를 운영할 수 있습니다.</p></div>
-<div class="card"><div class="ico">📍</div><h3>지역 페이지가 자동으로</h3><p>서비스하는 지역을 고르면 지역마다 별도 페이지가 생성됩니다. 지역별 사진과 소개 문구를 따로 올리면 그 페이지에 우선 적용됩니다.</p></div>
-<div class="card"><div class="ico">💬</div><h3>상담 문의가 쉬워집니다</h3><p>고객이 필요한 작업과 증상, 지역을 체크하면 문자 내용이 자동 작성되어 업체 번호로 바로 연결됩니다. 타이핑 없이 문의할 수 있습니다.</p></div>
-<div class="card"><div class="ico">📷</div><h3>사진만 올리면 끝</h3><p>공사 전·후 사진을 올리면 슬라이더로 비교해 보여주는 시공 사례 화면이 만들어집니다. 사진은 용량에 맞게 자동으로 줄여서 올라갑니다.</p></div>
-<div class="card"><div class="ico">🎨</div><h3>디자인 4종 중 선택</h3><p>미리보기를 보고 업체 성격에 맞는 템플릿을 고릅니다. 바꾸고 싶을 때 다시 선택하면 사이트 전체가 새 디자인으로 바뀝니다.</p></div>
-<div class="card"><div class="ico">🔄</div><h3>한 번 입력하면 계속 반영</h3><p>연락처, 영업시간, 채널 링크를 바꾸면 사이트의 모든 페이지에 같은 정보가 반영됩니다. 매일 새벽 자동으로 갱신됩니다.</p></div>
+<div class="card rv"><div class="ico">🎯</div><h3>키워드 한 개가 사이트 한 개</h3><p>배관누수, 욕실방수처럼 업체의 대표 키워드마다 전용 사이트가 만들어져 한 주제에 집중한 페이지를 운영할 수 있습니다.</p></div>
+<div class="card rv"><div class="ico">📍</div><h3>지역 페이지가 자동으로</h3><p>서비스 지역을 고르면 지역마다 별도 페이지가 생깁니다. 지역별 사진과 소개 문구를 따로 올리면 그 페이지에 우선 적용됩니다.</p></div>
+<div class="card rv"><div class="ico">💬</div><h3>상담 문의가 쉬워집니다</h3><p>고객이 작업·증상·지역을 체크하면 문자 내용이 자동 작성되어 업체 번호로 바로 연결됩니다. 타이핑 없이 문의합니다.</p></div>
+<div class="card rv"><div class="ico">📷</div><h3>사진만 올리면 끝</h3><p>공사 전·후 사진을 올리면 슬라이더로 비교하는 시공 사례 화면이 만들어집니다. 용량은 자동으로 맞춰 올라갑니다.</p></div>
+<div class="card rv"><div class="ico">🎨</div><h3>디자인 {{TEMPLATES}}종 중 선택</h3><p>미리보기를 보고 업체 성격에 맞는 템플릿을 고릅니다. 다시 선택하면 사이트 전체가 새 디자인으로 바뀝니다.</p></div>
+<div class="card rv"><div class="ico">🔄</div><h3>한 번 입력하면 계속 반영</h3><p>연락처, 영업시간, 채널 링크를 바꾸면 모든 페이지에 같은 정보가 반영됩니다. 매일 새벽 자동으로 갱신됩니다.</p></div>
 </div>
 </section>
 
 <section>
-<h2>제공하는 기능</h2>
-<p class="lead">사이트 하나에 들어가는 구성과, 운영을 돕는 도구입니다.</p>
-<div class="split">
-<div class="card who"><h3>사이트에 들어가는 것</h3><ul>
-<li>대표 사진과 공사 전·후 비교 슬라이더</li>
-<li>작업 항목과 증상별 안내, 유형별 소요 시간 표</li>
-<li>진행 절차와 자주 묻는 질문</li>
-<li>체크하고 문자 보내기</li>
-<li>업체 정보와 사업자 정보, 영업시간</li>
-<li>카카오톡·인스타그램·블로그·유튜브·스레드·웹사이트 아이콘</li>
-<li>스크롤해도 따라오는 하단 전화·카카오톡 상담 바</li>
-<li>휴대폰 화면에 맞춰 보이는 모바일 대응 화면</li>
+<span class="kicker rv">Compare</span>
+<h2 class="rv">직접 만들 때와 무엇이 다를까요</h2>
+<p class="lead rv">홈페이지 제작 업체에 맡기거나 직접 만들 때 반복되던 일이 사라집니다.</p>
+<div class="cmp">
+<div class="card bad rv"><span class="tagx">일반적인 홈페이지</span><ul>
+<li>지역마다 페이지를 따로 만들고 따로 고친다</li>
+<li>사진 바꾸려면 제작자에게 요청하고 기다린다</li>
+<li>문의는 전화 아니면 빈 폼, 고객이 상황을 길게 설명해야 한다</li>
+<li>디자인을 바꾸려면 다시 만든다</li>
+<li>연락처가 바뀌면 페이지마다 수정한다</li>
 </ul></div>
-<div class="card who"><h3>운영을 돕는 것</h3><ul>
-<li>전용 업로드 페이지: 업체 정보·사진·사업자등록증을 한곳에서</li>
-<li>템플릿 미리보기: PC·모바일 화면으로 보고 선택</li>
-<li>사용법 안내 팝업: 처음 접속해도 순서를 바로 파악</li>
-<li>관리자 대시보드: 사이트 현황과 그룹 관리, 키워드 일괄 등록 — <a href="https://admin.suriwiki.com/demo/">둘러보기</a></li>
-<li>순위 현황 리포트: 키워드별 노출 순위 확인(연동 설정 시)</li>
-<li>사업자등록증 사진으로 입력 보조</li>
+<div class="card good rv"><span class="tagx">수리위키 사이트빌더</span><ul>
+<li>지역을 고르면 페이지가 자동 생성되고 한 번에 갱신된다</li>
+<li>업로드 페이지에 사진을 올리면 사이트에 반영된다</li>
+<li>체크 몇 번으로 문자가 완성되어 바로 전송된다</li>
+<li>템플릿을 다시 고르면 전체 디자인이 바뀐다</li>
+<li>한 곳만 고치면 모든 페이지에 반영된다</li>
 </ul></div>
 </div>
 </section>
 
 <section>
-<h2>이렇게 이용합니다</h2>
-<p class="lead">네 단계면 사이트가 열립니다.</p>
+<span class="kicker rv">How</span>
+<h2 class="rv">이렇게 이용합니다</h2>
+<p class="lead rv">네 단계면 사이트가 열립니다.</p>
 <ol class="flow">
-<li><b>분양 문의</b><span>대표 키워드와 서비스 지역을 알려주세요. 업체 전용 사이트와 업로드 페이지 주소를 만들어 드립니다.</span></li>
-<li><b>업체 정보 입력</b><span>업로드 페이지에서 상호, 연락처, 영업시간, 채널 링크를 입력합니다.</span></li>
-<li><b>템플릿 선택·사진 업로드</b><span>디자인을 고르고 공사 전·후 사진을 올립니다. 지역별로 따로 올릴 수도 있습니다.</span></li>
-<li><b>사이트 반영</b><span>올린 내용으로 홈과 지역 페이지가 다시 만들어집니다. 이후 수정은 같은 업로드 페이지에서 하면 됩니다.</span></li>
+<li class="rv"><b>분양 문의</b><span>대표 키워드와 서비스 지역을 알려주세요. 업체 전용 사이트와 업로드 페이지 주소를 만들어 드립니다.</span></li>
+<li class="rv"><b>업체 정보 입력</b><span>업로드 페이지에서 상호, 연락처, 영업시간, 채널 링크를 입력합니다.</span></li>
+<li class="rv"><b>템플릿 선택·사진 업로드</b><span>디자인을 고르고 공사 전·후 사진을 올립니다. 지역별로 따로 올릴 수도 있습니다.</span></li>
+<li class="rv"><b>사이트 반영</b><span>올린 내용으로 홈과 지역 페이지가 다시 만들어집니다. 이후 수정도 같은 업로드 페이지에서 합니다.</span></li>
 </ol>
 </section>
 
+<section id="cases">
+<span class="kicker rv">Live</span>
+<h2 class="rv">운영 중인 사이트를 직접 확인하세요</h2>
+<p class="lead rv">키워드별로 만들어진 실제 화면입니다. 지역 페이지와 상담 문자 기능도 눌러볼 수 있습니다.</p>
+<div class="cases">{{CASES}}</div>
+<p class="lead rv" style="margin-top:18px">지역 페이지 예시: <a href="https://baegwan-nusu.suriwiki.com/ansan">안산 배관누수 →</a> · 상담 페이지: <a href="https://baegwan-nusu.suriwiki.com/sangdam">문의 화면 →</a><br>
+업체가 쓰는 화면: <a href="https://admin.suriwiki.com/upload/baegwan-nusu/">업로드 페이지 →</a> · 운영자가 보는 화면: <a href="https://admin.suriwiki.com/demo/">대시보드 둘러보기 →</a> (읽기 전용)</p>
+</section>
+
+{{REVIEWS}}
+
 <section>
-<h2>디자인(템플릿) 4종</h2>
-<p class="lead">템플릿을 바꾸면 사이트 디자인과 함께 업로드 페이지의 사진 칸 수와 안내도 맞춰 바뀝니다.</p>
-<table class="tpl">
+<span class="kicker rv">Design</span>
+<h2 class="rv">디자인(템플릿) {{TEMPLATES}}종</h2>
+<p class="lead rv">템플릿을 바꾸면 사이트 디자인과 함께 업로드 페이지의 사진 칸 수와 안내도 맞춰 바뀝니다.</p>
+<table class="tpl rv">
 <tr><th>템플릿</th><th>이런 업체에 어울려요</th><th>사진</th></tr>
-<tr><td><b>기본 상담형</b></td><td>상담 문의를 늘리고 싶은 업체. 전/후 비교와 문자 보내기 중심의 표준 구성</td><td>전/후 4쌍</td></tr>
-<tr><td><b>사진 중심형</b></td><td>시공 사례가 많은 업체. 사례를 크게 보여주는 갤러리 구성</td><td>전/후 8쌍</td></tr>
-<tr><td><b>정보 안내형</b></td><td>설명이 필요한 작업을 하는 업체. 유형별 안내 표를 앞세운 구성</td><td>전/후 2쌍(선택)</td></tr>
-<tr><td><b>간편 원페이지형</b></td><td>핵심만 빠르게 보여주고 싶은 업체. 짧은 한 페이지 구성</td><td>전/후 2쌍</td></tr>
+{{TEMPLATE_ROWS}}
 </table>
 </section>
 
-<section id="demo">
-<h2>완성된 사이트를 직접 확인하세요</h2>
-<p class="lead">키워드별로 만들어진 실제 화면입니다. 지역 페이지와 상담 문자 기능도 눌러볼 수 있습니다.</p>
-<div class="demo">
-<a href="https://baegwan-nusu.suriwiki.com/">배관누수<small>홈 화면 보기</small></a>
-<a href="https://baegwan-nusu.suriwiki.com/ansan">안산 배관누수<small>지역 페이지 보기</small></a>
-<a href="https://baegwan-nusu.suriwiki.com/sangdam">상담 페이지<small>문의 화면 보기</small></a>
-<a href="https://yokshil-bangsu.suriwiki.com/">욕실방수</a>
-<a href="https://dobae-jangpan.suriwiki.com/">도배장판</a>
-<a href="https://munjjak-film.suriwiki.com/">문짝필름시공</a>
-<a href="https://tail-sigong.suriwiki.com/">타일시공</a>
-<a href="https://syasi-gyoche.suriwiki.com/">샷시교체</a>
-<a href="https://hyeongwanmun-gyoche.suriwiki.com/">현관문교체</a>
-<a href="https://singkdae-reform.suriwiki.com/">싱크대리폼</a>
+<section>
+<span class="kicker rv">Features</span>
+<h2 class="rv">제공하는 기능</h2>
+<div class="grid">
+<div class="card rv"><h3>사이트에 들어가는 것</h3><p>대표 사진과 전·후 비교 슬라이더 · 작업 항목과 증상별 안내 · 유형별 소요 시간 표 · 진행 절차와 FAQ · 체크하고 문자 보내기 · 업체·사업자 정보와 영업시간 · 카카오톡·인스타그램·블로그·유튜브·스레드·웹사이트 아이콘 · 하단 고정 상담 바 · 모바일 대응</p></div>
+<div class="card rv"><h3>운영을 돕는 것</h3><p>전용 업로드 페이지(정보·사진·사업자등록증) · 템플릿 PC/모바일 미리보기 · 사용법 안내 팝업 · 관리자 대시보드(현황·그룹 관리·키워드 일괄 등록) — <a href="https://admin.suriwiki.com/demo/">둘러보기</a> · 순위 현황 리포트(연동 설정 시) · 사업자등록증 사진으로 입력 보조</p></div>
 </div>
-<p class="lead" style="margin-top:16px">업체가 사용하는 화면: <a href="https://admin.suriwiki.com/upload/baegwan-nusu/">업로드 페이지 보기 →</a> (템플릿 미리보기와 사용법 안내가 들어 있습니다)<br>
-운영자가 보는 화면: <a href="https://admin.suriwiki.com/demo/">대시보드 둘러보기 →</a> (읽기 전용으로 실제 현황을 보여 줍니다)</p>
 </section>
 
-<section id="project" class="project">
-<h2>사이트빌더 시스템 전체 구축도 의뢰할 수 있습니다</h2>
-<p class="lead">키워드 사이트 한 개를 분양받는 것 외에, 이 사이트빌더 시스템 자체를 귀사의 도메인과 브랜드로 구축해 드립니다. 여러 업체나 지점을 관리하는 회사, 대행사, 프랜차이즈에 맞습니다.</p>
-<div class="grid">
-<div class="card"><div class="ico">🏗️</div><h3>구축 범위</h3><p>관리자 대시보드, 업로드 페이지, 키워드·지역 사이트 자동 생성, 템플릿, 상담 문자 연결, 순위 리포트까지 지금 보고 계신 시스템 전체입니다.</p></div>
-<div class="card"><div class="ico">🏷️</div><h3>귀사 도메인·브랜드로</h3><p>귀사 도메인 아래에 키워드별 주소가 생기고, 로고·색상·문구를 귀사 기준으로 맞춥니다. 업종도 수리·시공에 한정하지 않습니다.</p></div>
-<div class="card"><div class="ico">🧩</div><h3>맞춤 조정</h3><p>템플릿 추가, 입력 항목 변경, 지역 목록, 문의 방식(문자·카카오톡·전화·폼) 등 필요한 부분만 바꿔 드립니다.</p></div>
-<div class="card"><div class="ico">⚙️</div><h3>운영 비용이 가볍습니다</h3><p>정적 페이지로 만들어 서버 관리가 거의 없고, 사이트 수가 늘어도 같은 방식으로 운영됩니다. 인수인계 문서와 운영 교육을 포함합니다.</p></div>
+<section id="industries">
+<span class="kicker rv">Industries</span>
+<h2 class="rv">다른 업종도 같은 방식으로 만듭니다</h2>
+<p class="lead rv">키워드 + 지역 + 사진 + 체크 문자라는 구조는 업종을 가리지 않습니다. 지역 고객을 상대하는 업종이면 작업 항목·증상·안내 표의 문구만 그 업종에 맞춰 바꿔서 같은 사이트를 만들 수 있습니다.</p>
+<div class="grid ind">
+<div class="card rv"><div class="ico">🧹</div><h3>청소·방역</h3><p>입주 청소, 에어컨 청소, 해충 방역 — 전·후 사진과 지역 페이지가 그대로 맞습니다.</p></div>
+<div class="card rv"><div class="ico">🚚</div><h3>이사·용달</h3><p>포장이사, 원룸 이사, 용달 — 출발·도착 지역을 체크해 문자로 보내는 구조로 바꿉니다.</p></div>
+<div class="card rv"><div class="ico">🛋️</div><h3>인테리어·리모델링</h3><p>주방·욕실·전체 리모델링 — 사진 중심형 템플릿으로 사례를 크게 보여줍니다.</p></div>
+<div class="card rv"><div class="ico">🔌</div><h3>전기·설비·가전 설치</h3><p>콘센트·조명·에어컨 설치, 보일러 — 증상 체크 항목을 업종 용어로 바꿉니다.</p></div>
+<div class="card rv"><div class="ico">🌿</div><h3>조경·외부 공사</h3><p>정원, 데크, 울타리, 방수·외벽 — 지역별 시공 사진을 따로 올릴 수 있습니다.</p></div>
+<div class="card rv"><div class="ico">🚗</div><h3>자동차 정비·세차·출장 서비스</h3><p>출장 정비, 배터리 교체, 출장 세차 — 지역 페이지와 바로 문자 구조가 잘 맞습니다.</p></div>
+<div class="card rv"><div class="ico">🏫</div><h3>학원·교습·레슨</h3><p>과목·대상·지역을 체크해 상담 문자를 보내는 형태로 바꿉니다. 정보 안내형 템플릿이 어울립니다.</p></div>
+<div class="card rv"><div class="ico">💇</div><h3>뷰티·반려동물·생활 서비스</h3><p>출장 미용, 반려동물 미용·훈련, 가사 도우미 — 서비스 항목과 지역만 바꾸면 됩니다.</p></div>
 </div>
-<div class="note">구축 기간과 비용은 범위에 따라 달라집니다. 현재 운영 중인 사이트 수와 원하시는 업종·지역 범위를 알려주시면 견적과 일정을 안내해 드립니다. <a href="#contact">문의하기 →</a></div>
+<div class="note rv">여기 없는 업종도 가능합니다. 지역 단위로 고객을 만나고, 사진으로 보여줄 결과가 있고, 문의가 상담으로 이어지는 업종이면 됩니다. 업종에 따라 입력 항목·문구·템플릿을 맞춰 드리며, 의료·법률처럼 광고 표현에 규제가 있는 업종은 해당 규정 범위 안에서 구성합니다. <a href="#contact">업종 문의하기 →</a></div>
+</section>
+
+<section id="project">
+<span class="kicker rv">Enterprise</span>
+<h2 class="rv">사이트빌더 시스템 전체 구축도 의뢰할 수 있습니다</h2>
+<p class="lead rv">키워드 사이트 한 개를 분양받는 것 외에, 이 사이트빌더 시스템 자체를 귀사의 도메인과 브랜드로 구축해 드립니다. 여러 업체나 지점을 관리하는 회사, 대행사, 프랜차이즈에 맞습니다.</p>
+<div class="grid">
+<div class="card rv"><div class="ico">🏗️</div><h3>구축 범위</h3><p>관리자 대시보드, 업로드 페이지, 키워드·지역 사이트 자동 생성, 템플릿, 상담 문자 연결, 순위 리포트까지 지금 보고 계신 시스템 전체입니다.</p></div>
+<div class="card rv"><div class="ico">🏷️</div><h3>귀사 도메인·브랜드로</h3><p>귀사 도메인 아래에 키워드별 주소가 생기고, 로고·색상·문구를 귀사 기준으로 맞춥니다. 업종도 수리·시공에 한정하지 않습니다.</p></div>
+<div class="card rv"><div class="ico">🧩</div><h3>맞춤 조정</h3><p>템플릿 추가, 입력 항목 변경, 지역 목록, 문의 방식(문자·카카오톡·전화·폼) 등 필요한 부분만 바꿔 드립니다.</p></div>
+<div class="card rv"><div class="ico">⚙️</div><h3>운영 비용이 가볍습니다</h3><p>정적 페이지라 서버 관리가 거의 없고, 사이트 수가 늘어도 같은 방식으로 운영됩니다. 인수인계 문서와 운영 교육을 포함합니다.</p></div>
+</div>
+<div class="note rv">구축 기간과 비용은 범위에 따라 달라집니다. 현재 운영 중인 사이트 수와 원하시는 업종·지역 범위를 알려주시면 견적과 일정을 안내해 드립니다. <a href="#contact">문의하기 →</a></div>
 </section>
 
 <section>
-<h2>자주 묻는 질문</h2>
-<details><summary>검색 순위 1위가 보장되나요?</summary><p>아니요. 검색 순위는 검색 엔진이 정하는 것이라 보장할 수 없습니다. 키워드와 지역에 맞춘 구조의 페이지를 쉽게 갖추고 꾸준히 관리할 수 있도록 돕는 도구입니다.</p></details>
-<details><summary>홈페이지를 직접 만들 줄 몰라도 되나요?</summary><p>됩니다. 업로드 페이지에 정보와 사진을 올리는 것이 전부이고, 페이지 제작과 반영은 시스템이 처리합니다.</p></details>
-<details><summary>지역은 몇 개까지 넣을 수 있나요?</summary><p>서비스하는 지역을 선택해 지역마다 페이지를 만듭니다. 기본 지역 목록에 없는 지역은 추가할 수 있습니다. 구체적인 구성은 문의 시 안내해 드립니다.</p></details>
-<details><summary>수정한 내용은 언제 사이트에 반영되나요?</summary><p>업로드 페이지에 올린 내용은 매일 새벽에 자동으로 반영되고, 급하면 운영자가 즉시 반영할 수 있습니다.</p></details>
-<details><summary>우리 회사 전용으로 시스템 전체를 만들 수 있나요?</summary><p>가능합니다. 귀사 도메인과 브랜드로 대시보드·업로드 페이지·사이트 생성까지 같은 구조를 구축해 드리고, 업종과 입력 항목은 맞춰 조정합니다. 아래 문의로 연락 주세요.</p></details>
-<details><summary>비용은 어떻게 되나요?</summary><p>분양 조건과 비용은 문의해 주시면 안내해 드립니다.</p></details>
+<span class="kicker rv">FAQ</span>
+<h2 class="rv">자주 묻는 질문</h2>
+<details class="rv"><summary>검색 순위 1위가 보장되나요?</summary><p>아니요. 검색 순위는 검색 엔진이 정하는 것이라 보장할 수 없습니다. 키워드와 지역에 맞춘 구조의 페이지를 쉽게 갖추고 꾸준히 관리할 수 있도록 돕는 도구입니다.</p></details>
+<details class="rv"><summary>홈페이지를 직접 만들 줄 몰라도 되나요?</summary><p>됩니다. 업로드 페이지에 정보와 사진을 올리는 것이 전부이고, 페이지 제작과 반영은 시스템이 처리합니다.</p></details>
+<details class="rv"><summary>지역은 몇 개까지 넣을 수 있나요?</summary><p>서비스하는 지역을 선택해 지역마다 페이지를 만듭니다. 기본 지역 {{REGIONS}}곳 외의 지역도 추가할 수 있습니다. 구체적인 구성은 문의 시 안내해 드립니다.</p></details>
+<details class="rv"><summary>수정한 내용은 언제 사이트에 반영되나요?</summary><p>업로드 페이지에 올린 내용은 매일 새벽에 자동으로 반영되고, 급하면 운영자가 즉시 반영할 수 있습니다.</p></details>
+<details class="rv"><summary>우리 회사 전용으로 시스템 전체를 만들 수 있나요?</summary><p>가능합니다. 귀사 도메인과 브랜드로 대시보드·업로드 페이지·사이트 생성까지 같은 구조를 구축해 드리고, 업종과 입력 항목은 맞춰 조정합니다. 아래 문의로 연락 주세요.</p></details>
+<details class="rv"><summary>비용은 어떻게 되나요?</summary><p>분양 조건과 비용은 문의해 주시면 안내해 드립니다.</p></details>
 </section>
 
-<div class="cta" id="contact">
+<div class="cta rv" id="contact">
+<div class="blob a" style="opacity:.35"></div>
+<div style="position:relative">
 <h2>내 업체 사이트, 지금 시작해 보세요</h2>
 <p>키워드 사이트 분양은 대표 키워드와 서비스 지역을, 시스템 전체 구축은 업종과 사이트 규모를 알려주시면 안내해 드립니다.</p>
 <div class="btns">
-<a class="btn" href="https://pf.kakao.com/_bcVPX">카카오톡으로 문의</a>
-<a class="btn ghost" href="tel:010-4684-8838">010-4684-8838</a>
+<a class="btn" href="https://pf.kakao.com/_bcVPX">💬 카카오톡으로 문의</a>
+<a class="btn ghost" href="tel:010-4684-8838">📞 010-4684-8838</a>
+</div>
 </div>
 </div>
 
 </main>
-<footer><div class="wrap">수리위키 사이트빌더</div></footer>
+<footer><div class="wrap">수리위키 사이트빌더 · 사이트 수와 페이지 수는 배포 시점 기준 실제 값입니다.</div></footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // 숫자 카운트업: 화면에 들어올 때 0 → 실제 값
+  function countUp(el){ var to = parseInt(el.getAttribute('data-count'), 10) || 0; if (reduce) { el.textContent = to.toLocaleString(); return; }
+    var t0 = null, dur = 1400; function step(ts){ if (!t0) t0 = ts; var p = Math.min(1, (ts - t0) / dur); var e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(to * e).toLocaleString(); if (p < 1) requestAnimationFrame(step); } requestAnimationFrame(step); }
+  var counted = new WeakSet();
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (!e.isIntersecting) return; e.target.classList.add('in');
+      e.target.querySelectorAll('[data-count]').forEach(function(c){ if (!counted.has(c)) { counted.add(c); countUp(c); } }); io.unobserve(e.target); }); }, { threshold: .15 });
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  } else { document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); }); document.querySelectorAll('[data-count]').forEach(countUp); }
+})();
+</script>
 </body>
 </html>
