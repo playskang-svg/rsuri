@@ -56,6 +56,25 @@ if (process.env.BIZHELP_PROFILES_URL) {
   } catch (e) { console.log('profiles 조회 실패(무시):', e.message); }
 }
 const sample = !!data.noindex; // 실제 공개 전에는 검색 노출을 막는다
+
+// ── SEO 공통: 사이트맵(lastmod)·robots(네이버 Yeti·구글봇 명시)·홍보 페이지 head 보강
+const TODAY = new Date().toISOString().slice(0, 10);
+const sitemapXml = (host, urls) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${host}${u}</loc><lastmod>${TODAY}</lastmod></url>`).join('\n')}\n</urlset>\n`;
+const robotsTxt = (host) => sample ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\nUser-agent: Yeti\nAllow: /\n\nUser-agent: Googlebot\nAllow: /\n\nSitemap: https://${host}/sitemap.xml\n`;
+const ldTag = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`;
+const verifyMeta = [
+  process.env.SEO_NAVER_VERIFY ? `<meta name="naver-site-verification" content="${process.env.SEO_NAVER_VERIFY}">` : '',
+  process.env.SEO_GOOGLE_VERIFY ? `<meta name="google-site-verification" content="${process.env.SEO_GOOGLE_VERIFY}">` : '',
+].join('');
+// 홍보 페이지 head 에 canonical·robots·확인 태그·구조화 데이터를 더한다(이미 있으면 중복해 넣지 않는다)
+function seoHead(html, { host, ld }) {
+  const add = [];
+  if (!/rel="canonical"/.test(html)) add.push(`<link rel="canonical" href="https://${host}/">`);
+  if (!/name="robots"/.test(html)) add.push(`<meta name="robots" content="${sample ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'}">`);
+  if (!/property="og:locale"/.test(html)) add.push('<meta property="og:locale" content="ko_KR">');
+  add.push(verifyMeta, ...ld.map(ldTag));
+  return html.replace('</head>', `${add.join('')}</head>`);
+}
 cpSync('public/favicon.svg', 'dist-sites/favicon.svg');
 // 응답 헤더: 사진은 하루 캐시(+재검증, 파일명이 같아도 새 사진으로 바뀌므로 immutable 은 쓰지 않는다), 기본 보안 헤더. 검색 노출 차단은 공개 전까지 유지
 const headers = ['/*', '  X-Content-Type-Options: nosniff', '  Referrer-Policy: strict-origin-when-cross-origin'];
@@ -109,8 +128,8 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   for (const page of pages) { apply(page.region_slug); put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile, media: mediaFor(page.region_slug) })); }
   writeFileSync(`dist-sites/s/${sub}/regions.json`, JSON.stringify(pages.map((p) => p.region_slug).sort())); // 마지막 배포에 들어간 지역 목록(사이트 워커가 지금 목록과 비교)
   const urls = ['/', ...pages.map((p) => p.page_path)];
-  writeFileSync(`dist-sites/s/${sub}/robots.txt`, sample ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: https://${site}/sitemap.xml\n`);
-  writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${site}${u}</loc></url>`).join('\n')}\n</urlset>\n`);
+  writeFileSync(`dist-sites/s/${sub}/robots.txt`, robotsTxt(site));
+  writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, sitemapXml(site, urls));
 }
 
 // 홍보 페이지: builder.suriwiki.com (그룹이 아닌 고정 호스트). 원본은 promo/index.html
@@ -145,11 +164,15 @@ if (existsSync('promo/index.html')) {
     .replace(/\{\{SITES\}\}/g, String(sitesArr.length)).replace(/\{\{PAGES\}\}/g, String((data.pages || []).length))
     .replace(/\{\{REGIONS\}\}/g, String(allRegions().length)).replace(/\{\{TEMPLATES\}\}/g, String(tplList.length))
     .replace('{{CASES}}', cases).replace('{{REVIEWS}}', reviewsHtml).replace(/\{\{MARQUEE\}\}/g, marquee).replace('{{TEMPLATE_ROWS}}', tplRows);
-  writeFileSync('dist-sites/s/builder/index.html', promo);
+  writeFileSync('dist-sites/s/builder/index.html', seoHead(promo, { host: 'builder.suriwiki.com', ld: [
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: '수리위키 사이트빌더', url: 'https://builder.suriwiki.com/', inLanguage: 'ko-KR' },
+    { '@context': 'https://schema.org', '@type': 'Service', name: '키워드 홈페이지 빌더', serviceType: '수리·시공 업체 키워드 홈페이지 제작', provider: { '@type': 'Organization', name: '애드블스', url: 'https://make.bizhelp.kr/' }, areaServed: { '@type': 'Country', name: '대한민국' }, description: '키워드와 지역만 정하면 홈, 지역별 페이지, 상담 문자까지 갖춘 사이트를 만들어 드립니다.' },
+  ] }));
+  writeFileSync('dist-sites/s/builder/sitemap.xml', sitemapXml('builder.suriwiki.com', ['/']));
   // 히어로 배경·OG 이미지 (promo/img → /img/…, 이미지 캐시 규칙 적용)
   mkdirSync('dist-sites/s/builder/img', { recursive: true });
   if (existsSync('promo/img')) for (const f of readdirSync('promo/img')) cpSync(`promo/img/${f}`, `dist-sites/s/builder/img/${f}`);
-  writeFileSync('dist-sites/s/builder/robots.txt', sample ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
+  writeFileSync('dist-sites/s/builder/robots.txt', robotsTxt('builder.suriwiki.com'));
   hosts.push('builder.suriwiki.com');
 }
 
@@ -168,9 +191,13 @@ if (existsSync('promo/make/index.html') && existsSync('promo/index.html')) {
   const html = readFileSync('promo/make/index.html', 'utf8')
     .replace(/\{\{SITES\}\}/g, String(sitesArr.length)).replace(/\{\{PAGES\}\}/g, String((data.pages || []).length))
     .replace(/\{\{REGIONS\}\}/g, String(allRegions().length)).replace('{{CASES}}', cases).replace(/\{\{MARQUEE\}\}/g, marquee);
-  writeFileSync('dist-sites/s/make/index.html', html);
+  writeFileSync('dist-sites/s/make/index.html', seoHead(html, { host: 'make.bizhelp.kr', ld: [
+    { '@context': 'https://schema.org', '@type': 'Organization', name: '애드블스', alternateName: '애드블스 메이크', url: 'https://make.bizhelp.kr/', telephone: '+82-10-5516-0301', email: 'cosmos0302@naver.com', founder: { '@type': 'Person', name: '박서희' }, taxID: '479-93-02093' },
+    { '@context': 'https://schema.org', '@type': 'Service', name: 'AI 에이전트 마케팅 자동화 구축·교육', serviceType: '마케팅 자동화 구축 및 교육', provider: { '@type': 'Organization', name: '애드블스', url: 'https://make.bizhelp.kr/' }, areaServed: { '@type': 'Country', name: '대한민국' }, description: '검색 노출 사이트 자동 생성, 콘텐츠 자동 발행, 상담 접수 자동화를 기업 맞춤으로 구축하거나 직접 만드는 법을 교육합니다.' },
+  ] }));
+  writeFileSync('dist-sites/s/make/sitemap.xml', sitemapXml('make.bizhelp.kr', ['/']));
   for (const f of readdirSync('promo/make/img')) cpSync(`promo/make/img/${f}`, `dist-sites/s/make/img/${f}`);
-  writeFileSync('dist-sites/s/make/robots.txt', sample ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
+  writeFileSync('dist-sites/s/make/robots.txt', robotsTxt('make.bizhelp.kr'));
   hosts.push('make.bizhelp.kr');
 }
 

@@ -162,11 +162,20 @@ footer strong{color:#fff}
  .card h3,.step h3{font-size:19px}.card p,.step p{font-size:16.5px}summary{font-size:18px}details p{font-size:17px}.chip{font-size:16.5px}.btn{font-size:17.5px}
 }`;
 
-const head = (c, { title, desc, keywords, canonical, ogImage }) => `<!DOCTYPE html>
+// 검색엔진 확인 태그: 서치어드바이저(네이버)·서치콘솔(구글)에서 받은 값을 환경변수로 넣으면 모든 페이지 head 에 들어간다
+const verifyTags = () => [
+  process.env.SEO_NAVER_VERIFY ? `<meta name="naver-site-verification" content="${esc(process.env.SEO_NAVER_VERIFY)}">` : "",
+  process.env.SEO_GOOGLE_VERIFY ? `<meta name="google-site-verification" content="${esc(process.env.SEO_GOOGLE_VERIFY)}">` : "",
+].join("");
+// 큰 이미지 미리보기·전체 스니펫을 허용(구글), 네이버는 robots 를 그대로 따른다
+const robotsContent = (noindex, follow = true) => (noindex ? "noindex, nofollow" : `${follow ? "index, follow" : "noindex, follow"}, max-image-preview:large, max-snippet:-1, max-video-preview:-1`);
+
+const head = (c, { title, desc, keywords, canonical, ogImage, noindex = false }) => `<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="keywords" content="${esc(keywords)}">
-<meta name="robots" content="${c.noindex ? "noindex, nofollow" : "index, follow"}"><link rel="canonical" href="${esc(canonical)}">
-<meta property="og:type" content="website"><meta property="og:site_name" content="${esc(c.kw)}"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">` : ""}
+<meta name="robots" content="${robotsContent(c.noindex, !noindex)}"><link rel="canonical" href="${esc(canonical)}">${verifyTags()}
+<meta property="og:type" content="website"><meta property="og:site_name" content="${esc(c.kw)}"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">${ogImage ? `<meta property="og:image" content="${esc(ogImage)}"><meta property="og:image:alt" content="${esc(c.kw)}"><meta name="twitter:image" content="${esc(ogImage)}">` : ""}
+<meta name="twitter:card" content="${ogImage ? "summary_large_image" : "summary"}"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}">
 <link rel="icon" href="/favicon.svg"><meta name="theme-color" content="#12294d"><style>${CSS}${c.tpl.themeCss || ""}</style>`;
 
 const header = (c) => `<header><div class="wrap hd"><a class="logo" href="/">${esc(c.kw)}</a>${c.phone ? `<a class="hd-call" href="${esc(telHref(c.phone))}">${esc(c.phoneShow)}</a>` : ""}</div></header>`;
@@ -277,6 +286,12 @@ const businessLd = (c, extra = {}) => jsonLd({
   areaServed: areaNames(c).map((n) => ({ "@type": "City", name: n })), ...(linkList(c.profile).length ? { sameAs: linkList(c.profile).map((x) => extUrl(x.url)) } : {}), ...extra,
 });
 
+const websiteLd = (c) => jsonLd({ "@context": "https://schema.org", "@type": "WebSite", name: c.kw, url: `https://${c.host}/`, inLanguage: "ko-KR" });
+const breadcrumbLd = (c, region, path) => jsonLd({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+  { "@type": "ListItem", position: 1, name: c.kw, item: `https://${c.host}/` },
+  { "@type": "ListItem", position: 2, name: `${region} ${c.kw}`, item: `https://${c.host}${path}` },
+] });
+
 const ogImageOf = (c) => { const a = heroSlotName(c, "after"); const n = a && hasImg(a) ? a : hasImg("hero-1") ? "hero-1" : ""; return n ? `https://${c.host}${imgSrc(n)}` : ""; };
 
 // ── 페이지: 템플릿(tpl)이 섹션 순서와 변형을 정한다. 섹션 이름은 아래 SEC 에 있다.
@@ -308,7 +323,7 @@ export function homePage({ site, meta, pages, data, profile, media, tpl }) {
   const ct = c.content, faq = faqItems(c);
   const desc = `${c.kw} 상담. ${c.subs.slice(0, 4).join("·")} 등 ${c.pages.length}개 지역에서 사진을 보내 주시면 가능 여부부터 안내합니다.`;
   return `${head(c, { title: `${c.kw} | ${c.subs.slice(0, 4).join("·")}`, desc, keywords: [c.kw, ...c.subs].join(", "), canonical: `https://${c.host}/`, ogImage: ogImageOf(c) })}
-${businessLd(c)}${c.tpl.home.includes("faq") ? faqLd(faq) : ""}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
+${websiteLd(c)}${businessLd(c)}${c.tpl.home.includes("faq") ? faqLd(faq) : ""}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
 ${heroBlock(c, { h1: c.kw, headline: ct.headline || `${c.kw}, 어떻게 해야 할지 고민이신가요?`, lead: ct.lead || desc })}
 ${renderSections(c, c.tpl.home, {})}
 ${footer(c)}${SCRIPT(c, c.kw, "")}</body></html>`;
@@ -320,7 +335,7 @@ export function regionPage({ site, meta, page, pages, data, profile, media, tpl 
   const ct = c.content, faq = faqItems(c, region);
   const desc = `${region} ${c.kw} 상담. ${c.subs.slice(0, 3).join("·")} 등을 사진으로 먼저 확인하고 안내합니다.`;
   return `${head(c, { title: `${region} ${c.kw} | ${c.kw}`, desc, keywords: [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`)].join(", "), canonical: `https://${c.host}${page.page_path}`, ogImage: ogImageOf(c) })}
-${businessLd(c, { areaServed: [{ "@type": "City", name: region }] })}${c.tpl.region.includes("faq") ? faqLd(faq) : ""}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
+${breadcrumbLd(c, region, page.page_path)}${businessLd(c, { areaServed: [{ "@type": "City", name: region }] })}${c.tpl.region.includes("faq") ? faqLd(faq) : ""}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
 ${heroBlock(c, { h1: page.h1_title, headline: `${region}에서 ${ct.headline || `${c.kw}, 어떻게 해야 할지 고민이신가요?`}`, lead: ct.lead || desc, crumb: `<a href="/">${esc(c.kw)}</a> › ${esc(region)}` })}
 ${renderSections(c, c.tpl.region, { region })}
 ${footer(c)}${SCRIPT(c, `${region} ${c.kw}`, region)}</body></html>`;
@@ -328,7 +343,7 @@ ${footer(c)}${SCRIPT(c, `${region} ${c.kw}`, region)}</body></html>`;
 
 export function sangdamPage({ site, meta, data, profile, pages, media, tpl }) {
   const c = ctx(site, meta, data, { profile, pages, media, tpl });
-  return `${head(c, { title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내. 체크하고 사진을 첨부해 문자로 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, ogImage: "" })}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
+  return `${head(c, { title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내. 작업 항목과 지역을 체크하고 현장 사진을 첨부해 문자로 보내 주시면 확인 후 안내해 드립니다.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, ogImage: "", noindex: true })}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
 <div class="wrap" style="padding-top:36px"><h1 style="color:var(--navy);font-size:32px">${esc(c.kw)} 상담</h1><p class="sec-sub">현장 사진과 지역을 보내 주시면 확인 후 안내합니다.</p></div>
 <div class="wrap">${pickerBlock(c, { pageName: `${c.kw} 상담`, region: "" })}</div>${footer(c)}${SCRIPT(c, `${c.kw} 상담`, "")}</body></html>`;
 }
