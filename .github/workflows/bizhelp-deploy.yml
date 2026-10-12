@@ -1,5 +1,6 @@
-# bizhelp/ 하위(관리자 리포트 admin.suriwiki.com + 키워드 서브도메인 워커 *.suriwiki.com)만 배포한다.
+# bizhelp/ 하위(관리자 리포트 admin.suriwiki.com)만 배포한다.
 # 본 사이트 deploy.yml(suriwiki 워커)과 Worker 이름이 달라 서로 덮어쓰지 않는다.
+# 키워드 서브도메인 페이지는 아직 배포하지 않는다(와일드카드 방식 폐기, 개별 커스텀 도메인 방식으로 재설계 예정).
 # 배포 규칙은 CLAUDE.md와 같다: main 머지로만 배포, PR에서는 빌드 검증만.
 name: bizhelp-deploy
 on:
@@ -32,41 +33,6 @@ jobs:
           export CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
           export CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
           npx --yes wrangler@4 deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-  sites:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: node scripts/build.mjs
-      - name: Wildcard DNS (*.suriwiki.com)
-        if: github.event_name != 'pull_request'
-        run: |
-          T="$(printf '%s' "$CF_TOKEN" | tr -d '[:space:]')"
-          api() { curl -sS -H "Authorization: Bearer $T" -H "Content-Type: application/json" "$@"; }
-          ZONE="$(api "https://api.cloudflare.com/client/v4/zones?name=suriwiki.com" | jq -r '.result[0].id // empty')"
-          if [ -z "$ZONE" ]; then echo "::error::suriwiki.com 존을 찾을 수 없습니다"; exit 1; fi
-          EXIST="$(api "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records?name=*.suriwiki.com" | jq -r 'if .success then (.result | length) else "ERR" end')"
-          echo "existing wildcard records: $EXIST"
-          [ "$EXIST" != "ERR" ] || { echo "::error::DNS 조회 권한이 없습니다 (토큰에 Zone > DNS > Edit 필요)"; exit 1; }
-          if [ "$EXIST" = "0" ]; then
-            RES="$(api -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records" \
-              --data '{"type":"AAAA","name":"*","content":"100::","proxied":true,"comment":"suriwiki-sites worker (wildcard)"}')"
-            echo "$RES" | jq -c '{success, errors}'
-            [ "$(echo "$RES" | jq -r '.success')" = "true" ] || { echo "::error::와일드카드 DNS 생성 실패"; exit 1; }
-          else echo "wildcard DNS already exists"; fi
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      - name: Deploy sites worker
-        if: github.event_name != 'pull_request'
-        run: |
-          export CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
-          export CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
-          npx --yes wrangler@4 deploy -c wrangler.sites.jsonc
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
