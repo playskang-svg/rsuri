@@ -36,3 +36,39 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  # 키워드 사이트(<키워드>.suriwiki.com/<지역>): 키워드마다 개별 커스텀 도메인. 와일드카드 라우트/DNS는 쓰지 않는다.
+  # 배포 전에 (1) 계정에 이미 같은 호스트가 다른 워커로 붙어 있는지 검사하고, (2) wrangler가 기존 DNS 레코드가 있는 호스트는 거부한다.
+  sites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/build.mjs
+      - name: Check hostname conflicts
+        if: github.event_name != 'pull_request'
+        run: |
+          T="$(printf '%s' "$CF_TOKEN" | tr -d '[:space:]')"; A="$(printf '%s' "$CF_ACCOUNT" | tr -d '[:space:]')"
+          LIST="$(curl -sS -H "Authorization: Bearer $T" "https://api.cloudflare.com/client/v4/accounts/$A/workers/domains")"
+          [ "$(echo "$LIST" | jq -r '.success')" = "true" ] || { echo "::error::도메인 목록 조회 실패"; exit 1; }
+          BAD=0
+          while read -r H; do
+            [ -n "$H" ] || continue
+            OWNER="$(echo "$LIST" | jq -r --arg h "$H" '.result[] | select(.hostname==$h) | .service' | head -1)"
+            if [ -n "$OWNER" ] && [ "$OWNER" != "suriwiki-keyword-sites" ]; then echo "::error::$H 는 이미 워커 '$OWNER' 에 연결돼 있습니다"; BAD=1; fi
+          done < sites-hosts.txt
+          [ "$BAD" = "0" ] || exit 1
+          echo "충돌 없음: $(wc -l < sites-hosts.txt) 호스트"
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Deploy keyword sites
+        if: github.event_name != 'pull_request'
+        run: |
+          export CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
+          export CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
+          npx --yes wrangler@4 deploy -c wrangler.sites.generated.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -22,7 +22,13 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 
 ## 키워드 구조 (사이트 → 키워드 페이지 → 서브키워드)
 - 관리자: `https://admin.suriwiki.com` (`dist/`, `wrangler.jsonc`, 커스텀 도메인 — DNS는 배포 때 자동 생성).
-- 열릴 페이지: `https://<키워드slug>.suriwiki.com/<지역slug>` 구조. **아직 배포하지 않는다.** `dist-sites/` 는 샘플 생성물이며, 와일드카드 라우트/DNS는 기존 서브도메인(battery 등)을 가로채므로 쓰지 않는다. 배포할 때는 키워드마다 개별 커스텀 도메인을 붙이고, 기존 서브도메인과 이름이 겹치는지 배포 전에 검사한다.
+- 키워드 사이트: `https://<키워드slug>.suriwiki.com/` (사이트 메인) · `/<지역slug>` (지역 페이지) · `/sangdam` (상담 안내).
+  기준 사이트(wrapping.koreajipsurimaster.com)의 홈/지역 페이지 구조를 그대로 따른다(`scripts/page-template.mjs`, Tailwind CDN + 동일 CSS).
+  키워드마다 **개별 커스텀 도메인**으로 배포한다(`wrangler.sites.generated.jsonc`는 빌드가 생성). 와일드카드 라우트/DNS는 쓰지 않는다 — 기존 서브도메인(battery 등)을 가로챈 사고가 있었다.
+  배포 전 호스트 충돌 검사(계정의 기존 워커 도메인) + wrangler의 기존 DNS 레코드 거부로 이중 방어한다.
+  `data.sample=true`인 동안은 noindex·robots 차단. 실제 공개 시 `sample:false`.
+  메타: 홈 title=키워드, description·keywords에 키워드/서브키워드, canonical·og·JSON-LD(Breadcrumb·FAQ·ItemList).
+  사진은 자리표시자(데이터에 이미지 경로를 넣으면 교체 예정). 연락처·사업자정보·가격·소요시간은 확인된 데이터가 없어 넣지 않았다.
 - 사이트 1개 = 메인 키워드 1개 = 서브도메인 1개. 페이지 1개 = `{지역} {메인키워드}` = `/<지역slug>`. 서브 키워드는 별도 페이지 없이 키워드 페이지가 품는다(대표 서비스 카드 6개).
 - 데이터: `site_meta[site] = {main_keyword, slug, sub_keywords[], url}` + `pages[].region / region_slug / page_url`.
 - 배포: 저장소 루트 `.github/workflows/bizhelp-deploy.yml` (main 머지 시, `bizhelp/**` 변경만). 시크릿은 rsuri의 `CLOUDFLARE_API_TOKEN/ACCOUNT_ID`.
