@@ -7,6 +7,8 @@ export default {
     if (!host.endsWith('.suriwiki.com')) return new Response('Not found', { status: 404 });
     const sub = host.slice(0, -'.suriwiki.com'.length);
     if (!/^[a-z0-9-]+$/.test(sub)) return new Response('Not found', { status: 404 });
+    // /upload 는 관리자 업로드 페이지로 보낸다(내용은 이 호스트에 두지 않는다).
+    if (/^\/upload\/?$/.test(url.pathname)) return Response.redirect(`https://admin.suriwiki.com/upload/${sub}/`, 302);
     // 확장자 없는 경로는 끝에 /를 붙여 에셋을 바로 조회한다(안 그러면 ASSETS가 내부 경로(/s/<sub>/…/)로 리다이렉트한다).
     if (!url.pathname.endsWith('/') && !/\.[a-z0-9]+$/i.test(url.pathname)) url.pathname += '/';
     if (url.pathname !== '/favicon.svg') url.pathname = `/s/${sub}${url.pathname}`;
