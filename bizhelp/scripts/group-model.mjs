@@ -4,7 +4,7 @@
 
 export const BASE_DOMAIN = 'suriwiki.com';
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-export const RESERVED_SLUGS = ['admin', 'www', 'api', 'mail', 'in', 'upload', 'share', 'battery', 'ftp', 'smtp', 'dev', 'test', 'import', 'regions', 'groups'];
+export const RESERVED_SLUGS = ['admin', 'www', 'api', 'mail', 'in', 'upload', 'share', 'battery', 'ftp', 'smtp', 'dev', 'test', 'import', 'regions', 'groups', 'builder'];
 
 // 지역 카탈로그: [이름, 영문 slug]. 지역 페이지 주소는 /<slug> 이다.
 export const REGIONS = [

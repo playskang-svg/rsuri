@@ -108,6 +108,14 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${site}${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 }
 
+// 홍보 페이지: builder.suriwiki.com (그룹이 아닌 고정 호스트). 원본은 promo/index.html
+if (existsSync('promo/index.html')) {
+  mkdirSync('dist-sites/s/builder', { recursive: true });
+  cpSync('promo/index.html', 'dist-sites/s/builder/index.html');
+  writeFileSync('dist-sites/s/builder/robots.txt', sample ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
+  hosts.push('builder.suriwiki.com');
+}
+
 writeFileSync('wrangler.sites.generated.jsonc', JSON.stringify({
   name: 'suriwiki-keyword-sites',
   main: 'worker/sites.mjs',
