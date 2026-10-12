@@ -1,6 +1,7 @@
 // admin.suriwiki.com 워커 — 정적 리포트는 ASSETS가 그대로 서빙하고, /upload/* 와 /api/* 만 이 워커가 처리한다.
 // 업로드 구조(키워드 슬러그 = 메인 키워드 단위): 사업자등록증 · 사이트 정보(전화/블로그/유튜브/참고) · 카테고리별 사진·영상 · 메모 · 갤러리.
-// 저장소: D1(DB) = 정보·메타데이터·메모, R2(FILES) = 파일 본문. R2 바인딩이 없으면 파일 기능만 꺼진다(storage:false).
+// 저장소: D1(DB) = 정보·메타데이터·메모. 파일 본문은 R2(FILES)가 있으면 R2, 없으면 D1(blobs 테이블, base64)에 둔다.
+//       D1 방식은 카드 등록 없이 쓰는 임시 방식이라 사진·사업자등록증(1.2MB 이하, 화면에서 자동 축소)만 받고 동영상은 받지 않는다.
 // 보안: authorize() 한 곳에서 접근을 통제한다. 지금은 로그인이 없다(나중에 Cloudflare Access JWT 검증을 이 함수에 넣는다).
 //       네이버·구글 계정 비밀번호처럼 제3자 비밀번호는 받지도 저장하지도 않는다.
 import SITES from './sites-meta.json';
@@ -11,6 +12,7 @@ const MAX_LICENSE = 10 * 1024 * 1024;
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
 const LICENSE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+const D1_MAX = 1_200_000; // D1 한 행 한도(2MB)에 base64를 넣기 위한 원본 상한
 const PAGE_SIZE = 24;
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
@@ -26,10 +28,33 @@ async function ensureSchema(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS profile (slug TEXT PRIMARY KEY, phone TEXT, blog TEXT, youtube TEXT, reference TEXT, updated_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS license (slug TEXT PRIMARY KEY, file_key TEXT, name TEXT, type TEXT, size INTEGER, ocr_text TEXT, updated_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, slug TEXT, category TEXT, name TEXT, type TEXT, size INTEGER, file_key TEXT, grp TEXT, created_at INTEGER)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS blobs (key TEXT PRIMARY KEY, type TEXT, data TEXT)'),
     db.prepare('CREATE INDEX IF NOT EXISTS files_slug_cat ON files (slug, category, created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS memos (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, category TEXT, content TEXT, created_at INTEGER)'),
   ]);
   schemaReady = true;
+}
+
+// ── 파일 본문 저장: R2가 있으면 R2, 없으면 D1(blobs)
+const b64enc = (buf) => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s); };
+const b64dec = (str) => { const s = atob(str); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+const maxBytes = (env, kind) => (env.FILES ? { image: MAX_IMAGE, video: MAX_VIDEO, license: MAX_LICENSE }[kind] : D1_MAX);
+async function putObj(env, db, key, request, type) {
+  if (env.FILES) { await env.FILES.put(key, request.body, { httpMetadata: { contentType: type } }); return true; }
+  const buf = await request.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > D1_MAX) return false;
+  await db.prepare('INSERT OR REPLACE INTO blobs (key, type, data) VALUES (?,?,?)').bind(key, type, b64enc(buf)).run();
+  return true;
+}
+async function getObj(env, db, key, range) {
+  if (env.FILES) return env.FILES.get(key, range ? { range } : undefined);
+  const row = await db.prepare('SELECT data FROM blobs WHERE key=?').bind(key).first();
+  if (!row) return null;
+  const u = b64dec(row.data);
+  return { body: u, size: u.byteLength };
+}
+async function delObj(env, db, key) {
+  if (env.FILES) await env.FILES.delete(key); else await db.prepare('DELETE FROM blobs WHERE key=?').bind(key).run();
 }
 
 const categoriesOf = (slug) => (SITES[slug]?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
@@ -85,7 +110,7 @@ async function route(request, env, url, slug, rest) {
     const profile = (await db.prepare('SELECT phone, blog, youtube, reference FROM profile WHERE slug=?').bind(slug).first()) || {};
     const lic = await db.prepare('SELECT name, type, size, ocr_text, updated_at FROM license WHERE slug=?').bind(slug).first();
     const counts = (await db.prepare('SELECT category, COUNT(*) n FROM files WHERE slug=? GROUP BY category').bind(slug).all()).results;
-    return json({ ok: true, storage: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, license: lic || null, counts });
+    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, license: lic || null, counts });
   }
 
   // ── 사이트 정보 저장
@@ -96,15 +121,12 @@ async function route(request, env, url, slug, rest) {
     return json({ ok: true });
   }
 
-  // ── 파일 저장소(R2)가 없으면 파일 관련 경로는 막는다
-  if (!env.FILES && (rest === 'license' || rest === 'files' || /^file\//.test(rest) || rest === 'files/move')) return err(503, '파일 저장소가 아직 연결되지 않았습니다');
-
   // ── 사업자등록증
   if (rest === 'license') {
     if (method === 'GET') {
       const lic = await db.prepare('SELECT file_key, name, type FROM license WHERE slug=?').bind(slug).first();
       if (!lic) return err(404, 'no license');
-      const obj = await env.FILES.get(lic.file_key);
+      const obj = await getObj(env, db, lic.file_key);
       if (!obj) return err(404, 'missing');
       return new Response(obj.body, { headers: { 'content-type': lic.type, 'cache-control': 'private, no-store', 'x-robots-tag': 'noindex', 'content-disposition': `inline; filename*=UTF-8''${encodeURIComponent(lic.name)}` } });
     }
@@ -112,19 +134,19 @@ async function route(request, env, url, slug, rest) {
       const type = (request.headers.get('content-type') || '').split(';')[0];
       const size = Number(request.headers.get('content-length') || 0);
       if (!LICENSE_TYPES.includes(type)) return err(415, 'JPG, PNG, PDF만 가능합니다');
-      if (!size || size > MAX_LICENSE) return err(413, '최대 10MB입니다');
+      if (!size || size > maxBytes(env, 'license')) return err(413, env.FILES ? '최대 10MB입니다' : '최대 1.2MB입니다(사진은 자동으로 줄어듭니다. PDF는 용량을 줄여 올려주세요)');
       const name = clean(decodeURIComponent(url.searchParams.get('name') || 'license'), 120);
       const old = await db.prepare('SELECT file_key FROM license WHERE slug=?').bind(slug).first();
       const key = `${slug}/license/${uid()}`;
-      await env.FILES.put(key, request.body, { httpMetadata: { contentType: type } });
+      if (!(await putObj(env, db, key, request, type))) return err(413, '파일이 너무 큽니다');
       await db.prepare('INSERT INTO license (slug, file_key, name, type, size, ocr_text, updated_at) VALUES (?,?,?,?,?,NULL,?) ON CONFLICT(slug) DO UPDATE SET file_key=excluded.file_key, name=excluded.name, type=excluded.type, size=excluded.size, ocr_text=NULL, updated_at=excluded.updated_at')
         .bind(slug, key, name, type, size, Date.now()).run();
-      if (old?.file_key) await env.FILES.delete(old.file_key);
+      if (old?.file_key) await delObj(env, db, old.file_key);
       return json({ ok: true });
     }
     if (method === 'DELETE') {
       const old = await db.prepare('SELECT file_key FROM license WHERE slug=?').bind(slug).first();
-      if (old?.file_key) await env.FILES.delete(old.file_key);
+      if (old?.file_key) await delObj(env, db, old.file_key);
       await db.prepare('DELETE FROM license WHERE slug=?').bind(slug).run();
       return json({ ok: true });
     }
@@ -142,13 +164,13 @@ async function route(request, env, url, slug, rest) {
     const category = clean(url.searchParams.get('category'), 10);
     if (!categoriesOf(slug).some((c) => c.id === category)) return err(400, '카테고리를 선택하세요');
     const isImg = IMAGE_TYPES.includes(type), isVid = VIDEO_TYPES.includes(type);
-    if (!isImg && !isVid) return err(415, '사진(JPG·PNG·GIF·WebP) 또는 동영상(MP4·WebM·MOV·AVI)만 가능합니다');
-    if (!size || size > (isImg ? MAX_IMAGE : MAX_VIDEO)) return err(413, isImg ? '사진은 최대 50MB입니다' : '동영상은 최대 100MB입니다');
+    if (!isImg && !(isVid && env.FILES)) return err(415, env.FILES ? '사진(JPG·PNG·GIF·WebP) 또는 동영상(MP4·WebM·MOV·AVI)만 가능합니다' : '지금은 사진(JPG·PNG·GIF·WebP)만 올릴 수 있습니다. 동영상은 파일 저장소를 연결하면 열립니다');
+    if (!size || size > (env.FILES ? (isImg ? MAX_IMAGE : MAX_VIDEO) : D1_MAX)) return err(413, env.FILES ? (isImg ? '사진은 최대 50MB입니다' : '동영상은 최대 100MB입니다') : '사진은 최대 1.2MB입니다(화면에서 자동으로 줄어듭니다)');
     const id = uid();
     const key = `${slug}/f/${id}`;
     const name = clean(decodeURIComponent(url.searchParams.get('name') || 'file'), 160);
     const grp = clean(decodeURIComponent(url.searchParams.get('group') || ''), 80);
-    await env.FILES.put(key, request.body, { httpMetadata: { contentType: type } });
+    if (!(await putObj(env, db, key, request, type))) return err(413, '파일이 너무 큽니다');
     await db.prepare('INSERT INTO files (id, slug, category, name, type, size, file_key, grp, created_at) VALUES (?,?,?,?,?,?,?,?,?)').bind(id, slug, category, name, type, size, key, grp, Date.now()).run();
     return json({ ok: true, id });
   }
@@ -166,14 +188,14 @@ async function route(request, env, url, slug, rest) {
     const row = await db.prepare('SELECT file_key, type, name FROM files WHERE id=? AND slug=?').bind(f[1], slug).first();
     if (!row) return err(404, 'not found');
     if (method === 'GET') {
-      const obj = await env.FILES.get(row.file_key, { range: request.headers });
+      const obj = await getObj(env, db, row.file_key, request.headers);
       if (!obj) return err(404, 'missing');
       const headers = new Headers({ 'content-type': row.type, 'cache-control': 'private, max-age=3600', 'x-robots-tag': 'noindex', 'accept-ranges': 'bytes' });
       if (obj.range) { const { offset = 0, length = obj.size } = obj.range; headers.set('content-range', `bytes ${offset}-${offset + length - 1}/${obj.size}`); return new Response(obj.body, { status: 206, headers }); }
       return new Response(obj.body, { headers });
     }
     if (method === 'DELETE') {
-      await env.FILES.delete(row.file_key);
+      await delObj(env, db, row.file_key);
       await db.prepare('DELETE FROM files WHERE id=?').bind(f[1]).run();
       return json({ ok: true });
     }

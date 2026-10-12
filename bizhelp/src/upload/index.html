@@ -51,9 +51,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 <div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small></div>
 <div class="container">
 
-  <div class="card" id="storage-note" style="display:none"><h3>파일 저장소 준비 중</h3><p class="hint">지금은 사이트 정보(전화·블로그·유튜브·참고 사이트)와 메모를 입력할 수 있습니다. 사진·동영상·사업자등록증 업로드는 저장소를 연결하면 열립니다.</p></div>
+  <div class="card" id="storage-note" style="display:none"><h3>업로드 안내</h3><p class="hint">사진과 사업자등록증은 1.2MB 이하로 자동 축소되어 올라갑니다(PDF는 1.2MB 이하만 가능). 동영상은 대용량 파일 저장소를 연결하면 열립니다.</p></div>
 
-  <div class="card" data-storage>
+  <div class="card">
     <h3 class="sec" id="lic-head">사업자등록증 <span id="lic-icon">▼</span></h3>
     <div id="lic-body" style="display:none">
       <div id="lic-preview" class="hint" style="margin-bottom:8px">사업자등록증을 업로드해주세요 (JPG, PNG, PDF · 최대 10MB)</div>
@@ -87,7 +87,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 
   <div class="card"><h3>1. 카테고리를 선택하세요</h3><div class="cats" id="cats"></div></div>
 
-  <div class="card" data-storage>
+  <div class="card">
     <h3>2. 파일 업로드 <span class="hint" id="sel-label"></span></h3>
     <div class="zone" id="zone"><div style="font-size:28px">📂</div>
       <p id="zone-msg"><strong>위에서 카테고리를 먼저 선택</strong>해주세요</p>
@@ -109,7 +109,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <div id="memo-list"></div>
   </div>
 
-  <div class="card" data-storage>
+  <div class="card">
     <h3>업로드된 파일 <span><button class="btn out sm" id="btn-move">선택 항목 이동</button> <button class="btn out sm" id="btn-move-group">폴더(묶음) 이동</button></span></h3>
     <div class="tabs" id="tabs"></div>
     <div class="grid" id="gallery"></div>
@@ -147,9 +147,10 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     $('tabs').innerHTML = [['', '전체'], ...S.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button class="tab${id === S.tab ? ' on' : ''}" data-t="${id}">${esc(n)}</button>`).join('');
-    document.querySelectorAll('[data-storage]').forEach((e) => { e.style.display = o.storage ? '' : 'none'; });
-    $('storage-note').style.display = o.storage ? 'none' : '';
-    renderLicense(); if (o.storage) loadFiles(); loadMemos();
+    S.mode = o.storage; S.max = o.maxFile; S.video = o.video;
+    $('storage-note').style.display = o.video ? 'none' : '';
+    $('file-input').accept = o.video ? 'image/*,video/*' : 'image/*';
+    renderLicense(); loadFiles(); loadMemos();
   }
 
   // ── 사업자등록증
@@ -166,7 +167,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('lic-pick').onclick = () => $('lic-input').click();
   $('lic-input').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
-    try { await put(`license?name=${encodeURIComponent(f.name)}`, f); await load(); } catch (x) { alert(x.message); }
+    try { await put(`license?name=${encodeURIComponent(f.name)}`, await shrink(f)); await load(); } catch (x) { alert(x.message); }
     e.target.value = '';
   };
   $('lic-del').onclick = async () => { if (!confirm('사업자등록증을 삭제할까요?')) return; await api('license', { method: 'DELETE' }); S.license = null; S.ocr = ''; await load(); };
@@ -204,6 +205,23 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 
   // ── 카테고리 + 업로드
   $('cats').onclick = (e) => { const c = e.target.closest('.cat'); if (!c) return; S.cat = c.dataset.c; document.querySelectorAll('.cat').forEach((x) => x.classList.toggle('on', x === c)); $('sel-label').textContent = `· ${catName(S.cat)}`; $('zone-msg').innerHTML = '파일을 끌어다 놓거나 <strong>클릭해서 선택</strong>하세요'; };
+  // D1 저장 방식에서는 사진을 1.2MB 이하 JPEG로 줄여서 올린다(R2가 연결되면 원본 그대로).
+  async function shrink(file) {
+    if (S.mode !== 'd1' || !/^image\//.test(file.type) || file.size <= S.max) return file;
+    try {
+      const bmp = await createImageBitmap(file);
+      for (let dim = 2000; dim >= 700; dim = Math.round(dim * 0.75)) {
+        const k = Math.min(1, dim / Math.max(bmp.width, bmp.height));
+        const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+        c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+        for (const q of [0.85, 0.7, 0.55]) {
+          const b = await new Promise((r) => c.toBlob(r, 'image/jpeg', q));
+          if (b && b.size <= S.max) return new File([b], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+        }
+      }
+    } catch (_) {}
+    return file;
+  }
   function put(path, file, onProgress) {
     return new Promise((ok, no) => {
       const x = new XMLHttpRequest(); x.open('PUT', API + path); x.setRequestHeader('content-type', file.type || 'application/octet-stream');
@@ -214,12 +232,12 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   }
   async function uploadFiles(list, group = '') {
     if (!S.cat) { alert('위에서 카테고리를 먼저 선택해주세요'); return; }
-    const files = [...list].filter((f) => /^(image|video)\//.test(f.type)); if (!files.length) { alert('사진 또는 동영상만 업로드할 수 있습니다'); return; }
+    const files = [...list].filter((f) => (S.video ? /^(image|video)\//.test(f.type) : /^image\//.test(f.type))); if (!files.length) { alert(S.video ? '사진 또는 동영상만 업로드할 수 있습니다' : '지금은 사진만 올릴 수 있습니다(동영상은 파일 저장소 연결 후)'); return; }
     $('bar').style.display = 'block'; let done = 0, fail = 0;
     for (const f of files) {
       $('bar-t').textContent = `${done + 1}/${files.length} 업로드 중: ${f.name}`;
       const name = group ? `${group}_${f.name}` : (f.name || `paste_${Date.now()}.png`);
-      try { await put(`files?category=${S.cat}&name=${encodeURIComponent(name)}&group=${encodeURIComponent(group)}`, f, (p) => { $('bar-i').style.width = ((done + p) / files.length * 100) + '%'; }); S.sess++; } catch (x) { fail++; alert(`${f.name}: ${x.message}`); }
+      try { await put(`files?category=${S.cat}&name=${encodeURIComponent(name)}&group=${encodeURIComponent(group)}`, await shrink(f), (p) => { $('bar-i').style.width = ((done + p) / files.length * 100) + '%'; }); S.sess++; } catch (x) { fail++; alert(`${f.name}: ${x.message}`); }
       done++; $('bar-i').style.width = (done / files.length * 100) + '%';
     }
     $('bar-t').textContent = `완료 ${files.length - fail}개${fail ? ` · 실패 ${fail}개` : ''}`; $('sess').textContent = S.sess;
