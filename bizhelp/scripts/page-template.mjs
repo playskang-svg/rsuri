@@ -184,7 +184,7 @@ const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class=
   <p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(p.region)} ${esc(c.kw)} 안내. ${esc(c.subs[0])} 등 상담.</p></div></a>`;
 
 function ctx(site, meta, data, extra = {}) {
-  return { profile: extra.profile || {}, site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.sample, host: site, ...extra };
+  return { profile: extra.profile || {}, site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.noindex, host: site, ...extra };
 }
 const businessLd = (c) => {
   const p = c.profile || {};

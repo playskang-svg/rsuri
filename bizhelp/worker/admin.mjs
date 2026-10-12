@@ -6,6 +6,7 @@
 //       네이버·구글 계정 비밀번호처럼 제3자 비밀번호는 받지도 저장하지도 않는다.
 import SITES from './sites-meta.json';
 import { DEFAULT_PROFILE } from '../scripts/site-defaults.mjs';
+import REGISTRY from '../registry/sites.json';
 
 const MAX_IMAGE = 50 * 1024 * 1024;
 const MAX_VIDEO = 100 * 1024 * 1024;
@@ -30,6 +31,9 @@ async function ensureSchema(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS license (slug TEXT PRIMARY KEY, file_key TEXT, name TEXT, type TEXT, size INTEGER, ocr_text TEXT, updated_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, slug TEXT, category TEXT, name TEXT, type TEXT, size INTEGER, file_key TEXT, grp TEXT, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS blobs (key TEXT PRIMARY KEY, type TEXT, data TEXT)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS shares (id TEXT PRIMARY KEY, created_at INTEGER)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS page_seen (page_key TEXT PRIMARY KEY, first_seen TEXT)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS rank_log (page_key TEXT, check_date TEXT, rank_position INTEGER, PRIMARY KEY (page_key, check_date))'),
     db.prepare('CREATE INDEX IF NOT EXISTS files_slug_cat ON files (slug, category, created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS memos (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, category TEXT, content TEXT, created_at INTEGER)'),
   ]);
@@ -66,11 +70,78 @@ const parseServices = (v) => { try { const a = JSON.parse(v || '[]'); return Arr
 const cleanServices = (a) => (Array.isArray(a) ? a : []).map((x) => ({ name: clean(x?.name, 30), url: clean(x?.url, 300) })).filter((x) => x.name && isUrl(x.url)).slice(0, 8);
 const shapeProfile = (row) => { const r = row || {}; return { ...r, services: parseServices(r.services) }; };
 
+// ── 리포트: 사이트·페이지 목록은 registry(실제 배포 대상), 처음 만든 날은 D1(page_seen), 순위는 D1(rank_log)
+const kstDate = (t = Date.now()) => new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
+const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+const PAGES = [...REGISTRY.pages].sort((a, b) => (a.site + a.page_path).localeCompare(b.site + b.page_path));
+const pageKey = (p) => `${p.site}${p.page_path}`;
+
+async function buildReport(env) {
+  const db = env.DB, today = kstDate();
+  const dates = Array.from({ length: 16 }, (_, i) => addDays(today, -i)); // 최신순
+  // 새로 생긴 페이지는 처음 본 날을 기록한다(이미 있으면 그대로 둔다)
+  for (let i = 0; i < PAGES.length; i += 80) await db.batch(PAGES.slice(i, i + 80).map((p) => db.prepare('INSERT OR IGNORE INTO page_seen (page_key, first_seen) VALUES (?,?)').bind(pageKey(p), today)));
+  const seen = new Map((await db.prepare('SELECT page_key, first_seen FROM page_seen').all()).results.map((r) => [r.page_key, r.first_seen]));
+  const logs = (await db.prepare('SELECT page_key, check_date, rank_position FROM rank_log WHERE check_date >= ?').bind(dates[dates.length - 1]).all()).results;
+  const id = new Map(PAGES.map((p, i) => [pageKey(p), i + 1]));
+  const checkedToday = new Set(logs.filter((r) => r.check_date === today).map((r) => r.page_key)).size;
+  const lastCheck = (await db.prepare('SELECT MAX(check_date) d FROM rank_log').first())?.d || null;
+  return {
+    success: true, business_name: REGISTRY.business_name, generated_at: today, dates, site_meta: REGISTRY.site_meta,
+    keywords: PAGES.map((p) => ({ id: id.get(pageKey(p)), keyword: p.h1_title, site: p.site, page_path: p.page_path, created_at: seen.get(pageKey(p)) || today })),
+    ranks: logs.filter((r) => r.rank_position && id.has(r.page_key)).map((r) => ({ tracking_id: id.get(r.page_key), check_date: r.check_date, rank_position: r.rank_position })),
+    pages: PAGES.map((p) => ({ ...p, first_seen: seen.get(pageKey(p)) || today })),
+    rank_status: { configured: !!(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET), noindex: !!REGISTRY.noindex, last_check: lastCheck, checked_today: checkedToday, total: PAGES.length },
+  };
+}
+
+// 네이버 검색 Open API(웹문서) 상위 100건에서 우리 페이지 주소를 찾아 순위를 기록한다. 한 번에 30건만(서브요청 한도) — 30분마다 돌며 오늘 안 잰 페이지부터 처리한다.
+async function collectRanks(env) {
+  if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) return { skipped: 'no-keys' };
+  const db = env.DB, today = kstDate();
+  await ensureSchema(db);
+  const done = new Set((await db.prepare('SELECT page_key FROM rank_log WHERE check_date=?').bind(today).all()).results.map((r) => r.page_key));
+  const todo = PAGES.filter((p) => !done.has(pageKey(p))).slice(0, 30);
+  const writes = []; let stopped = '';
+  for (const p of todo) {
+    const res = await fetch(`https://openapi.naver.com/v1/search/webkr.json?query=${encodeURIComponent(p.h1_title)}&display=100&start=1`, { headers: { 'X-Naver-Client-Id': env.NAVER_CLIENT_ID, 'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET } });
+    if (!res.ok) { stopped = `naver ${res.status}`; break; } // 한도·키 오류면 이번 회차는 멈추고 다음에 이어서
+    const items = (await res.json()).items || [];
+    const host = new URL(p.page_url).hostname, path = p.page_path.replace(/\/+$/, '');
+    const idx = items.findIndex((it) => { try { const u = new URL(it.link); return u.hostname === host && u.pathname.replace(/\/+$/, '') === path; } catch (_) { return false; } });
+    writes.push(db.prepare('INSERT OR REPLACE INTO rank_log (page_key, check_date, rank_position) VALUES (?,?,?)').bind(pageKey(p), today, idx >= 0 ? idx + 1 : null));
+  }
+  if (writes.length) await db.batch(writes);
+  return { checked: writes.length, remaining: todo.length - writes.length, stopped };
+}
+
+// ── 리포트 이미지 공유: 브라우저가 캡처한 JPEG(1.2MB 이하)를 D1에 저장하고 주소를 돌려준다. 최근 30개만 보관한다.
+async function saveShare(env, request) {
+  const type = (request.headers.get('content-type') || '').split(';')[0];
+  if (type !== 'image/jpeg') return err(415, 'JPEG 이미지만 가능합니다');
+  const buf = await request.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > D1_MAX) return err(413, '이미지가 너무 큽니다');
+  const id = uid(), db = env.DB;
+  await db.batch([
+    db.prepare('INSERT INTO blobs (key, type, data) VALUES (?,?,?)').bind(`share/${id}`, type, b64enc(buf)),
+    db.prepare('INSERT INTO shares (id, created_at) VALUES (?,?)').bind(id, Date.now()),
+  ]);
+  const old = (await db.prepare('SELECT id FROM shares ORDER BY created_at DESC LIMIT -1 OFFSET 30').all()).results;
+  if (old.length) await db.batch(old.flatMap((r) => [db.prepare('DELETE FROM blobs WHERE key=?').bind(`share/${r.id}`), db.prepare('DELETE FROM shares WHERE id=?').bind(r.id)]));
+  return json({ ok: true, id, url: `https://admin.suriwiki.com/share/${id}.jpg` });
+}
+async function readShare(env, id) {
+  const row = await env.DB.prepare('SELECT data FROM blobs WHERE key=?').bind(`share/${id}`).first();
+  if (!row) return new Response('Not found', { status: 404 });
+  return new Response(b64dec(row.data), { headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=31536000, immutable', 'x-robots-tag': 'noindex' } });
+}
+
 const categoriesOf = (slug) => (SITES[slug]?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
 const clean = (v, max = 300) => String(v ?? '').trim().slice(0, max);
 const uid = () => crypto.randomUUID().replace(/-/g, '');
 
 export default {
+  async scheduled(_event, env, ctx) { ctx.waitUntil(collectRanks(env)); },
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
@@ -88,9 +159,18 @@ export default {
     }
     if (path === '/upload' || path === '/upload/') return Response.redirect(`${url.origin}/`, 302);
 
+    // 공유된 리포트 이미지(공개 주소)
+    const sh = path.match(/^\/share\/([a-f0-9]{32})\.jpg$/);
+    if (sh && request.method === 'GET') { await ensureSchema(env.DB); return readShare(env, sh[1]); }
+
     if (!path.startsWith('/api/')) return env.ASSETS.fetch(request);
     if (!(await authorize(request, env))) return err(403, 'forbidden');
     await ensureSchema(env.DB);
+
+    if (path === '/api/share' && request.method === 'PUT') return saveShare(env, request);
+
+    // 리포트 화면이 읽는 실제 집계(사이트·페이지·순위)
+    if (path === '/api/report' && request.method === 'GET') return json(await buildReport(env));
 
     // 키워드 사이트 빌드가 읽어가는 공개 정보(전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스). 사업자등록증·메모·파일은 포함하지 않는다.
     if (path === '/api/export/profiles' && request.method === 'GET') {
