@@ -75,6 +75,18 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 .hm-tip{margin-top:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6}
 .hm-ft{padding:12px 18px;border-top:1px solid var(--g200);text-align:right}
 
+
+/* 지역 페이지 만들기 */
+.rg-add{display:flex;gap:8px}.rg-add input{flex:1;min-width:0}.rg-add .btn{white-space:nowrap}
+.rg-head{margin:14px 0 8px;font-size:13px}
+.rg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.rg-chip{display:inline-flex;align-items:stretch;border:1.5px solid var(--g200);border-radius:999px;background:#fff;overflow:hidden;font-size:13px;font-weight:700}
+.rg-chip a{color:var(--g800);text-decoration:none;padding:8px 6px 8px 13px;display:inline-flex;align-items:center;gap:4px}
+.rg-chip a:hover{background:#eef2ff;color:var(--p)}
+.rg-chip button{border:0;background:none;color:var(--g400);padding:0 11px 0 6px;cursor:pointer;font-size:13px}
+.rg-chip button:hover{color:var(--bad)}
+.rg-chip.new{border-color:var(--p);background:#eef2ff;animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:.4}to{transform:none;opacity:1}}
 /* ── 모바일 최적화 ── */
 .card h3{flex-wrap:wrap}
 .card h3 .hint{font-weight:500;flex-basis:100%;line-height:1.5}
@@ -92,6 +104,8 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   .btn{min-height:44px;padding:11px 16px;font-size:14px;border-radius:10px}
   .btn.sm{min-height:40px;padding:9px 13px;font-size:13px}
   #save-profile{width:100%}
+  .rg-add .btn{min-width:92px}
+  .rg-chip{font-size:14px}.rg-chip a{padding:11px 8px 11px 15px}.rg-chip button{padding:0 14px 0 8px;font-size:15px}
   .tab{padding:8px 13px;font-size:13px}
   .cats{grid-template-columns:1fr 1fr}
   .cat{padding:14px 8px;font-size:14px}
@@ -200,6 +214,16 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 
   <div style="margin-bottom:14px"><button class="btn out" id="copy-all" style="width:100%">사이트 정보 + 사업자등록증 전체 복사</button></div>
 
+  <div class="card" id="rg-card">
+    <h3>지역 페이지 만들기 <span class="hint">· 지역명을 넣고 만들면 '지역명 + 키워드' 페이지가 사이트에 바로 생깁니다</span></h3>
+    <div class="rg-add"><input type="text" id="rg-name" maxlength="10" placeholder="지역명 (예: 광주)" enterkeyhint="done" autocomplete="off"><button class="btn" id="rg-go" type="button">만들기</button></div>
+    <p class="hint" id="rg-tip" style="margin-top:6px">만들 페이지 이름: <b id="rg-title">지역명 키워드</b></p>
+    <div class="status" id="rg-status" style="margin:6px 0 0"></div>
+    <div class="rg-head"><b>우리 사이트 지역 페이지</b> <span class="hint" id="rg-count"></span></div>
+    <div class="rg-chips" id="rg-chips"></div>
+    <p class="hint">지역 버튼을 누르면 그 지역 페이지가 새 창으로 열립니다 · ✕로 빼면 그 지역 페이지가 사라집니다(최소 1개는 남아야 합니다) · 새로 만든 지역은 1분 안에 사이트에 나타나고, 사진·소개 문구는 아래 '공사 전/후 사진'에서 그 지역을 골라 올립니다</p>
+  </div>
+
   <div class="card" id="ba-card">
     <h3>공사 전/후 사진 <span class="hint" id="ba-range">· 작업 사례 1~4 · 전·후를 한 장씩 올리면 사이트의 BEFORE/AFTER 칸에 들어갑니다</span></h3>
     <div class="row"><label>적용 범위</label><select id="ba-scope"><option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option></select></div>
@@ -243,25 +267,27 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 </div>
 
 <div class="hb" id="help-back"><div class="hm" role="dialog" aria-modal="true" aria-labelledby="hm-title">
-  <div class="hm-hd"><h3 id="hm-title">업로드 페이지 사용법</h3><button type="button" class="hm-x" id="help-x" aria-label="닫기">✕</button></div>
+  <div class="hm-hd"><h3 id="hm-title">사이트 관리 페이지 사용법</h3><button type="button" class="hm-x" id="help-x" aria-label="닫기">✕</button></div>
   <div class="hm-body">
     <div class="flow">
       <div class="fs"><span class="n">1</span><b>정보 입력</b>상호·연락처·채널</div><div class="fa">→</div>
-      <div class="fs"><span class="n">2</span><b>사진 올리기</b>공사 전/후 · 설명</div><div class="fa">→</div>
-      <div class="fs"><span class="n">3</span><b>저장</b>입력칸을 벗어나면 자동 저장(정보는 저장 버튼)</div><div class="fa">→</div>
-      <div class="fs"><span class="n">4</span><b>반영</b>다음 배포 때<br>(매일 05:00)</div>
+      <div class="fs"><span class="n">2</span><b>지역 만들기</b>지역명 입력 → 만들기 → 페이지 생성</div><div class="fa">→</div>
+      <div class="fs"><span class="n">3</span><b>사진 올리기</b>공사 전/후 · 설명(지역별도 가능)</div><div class="fa">→</div>
+      <div class="fs"><span class="n">4</span><b>반영</b>지역 페이지는 1분 안에, 사진·정보는 매일 05:00
     </div>
     <h4>입력한 내용이 키워드 사이트 어디에 나오나요?</h4>
     <table class="map">
       <tr><td>상호·대표자·사업자번호·주소·영업시간</td><td>→</td><td>모든 페이지 맨 아래(푸터)</td></tr>
       <tr><td>연락처(전화번호)</td><td>→</td><td>상단 전화 버튼 · 하단 고정 바 · 문자 문의 번호</td></tr>
       <tr><td>카카오톡·인스타그램·블로그·유튜브·스레드·웹사이트</td><td>→</td><td>푸터 아이콘 (입력한 것만)</td></tr>
+      <tr><td>지역 페이지 만들기 (지역명 입력 → 만들기)</td><td>→</td><td>메인 사이트의 지역 버튼이 늘고, 그 버튼을 누르면 '지역명 키워드' 페이지가 열립니다 (1분 안에 반영 · 빼면 사라짐)</td></tr>
       <tr><td>디자인 템플릿 선택</td><td>→</td><td>사이트의 구성·디자인 전체 (사진 칸 수도 템플릿에 맞춰짐)</td></tr>
       <tr><td>공사 전/후 사진 (작업 사례)</td><td>→</td><td>대표 이미지 · 전후 비교 슬라이더 (전·후 둘 다 올린 사례만, 사례 3은 대표 이미지)</td></tr>
       <tr><td>사진 설명</td><td>→</td><td>사진 아래 글귀</td></tr>
       <tr><td>지역 선택 + 사진·설명·지역 소개</td><td>→</td><td>그 지역 페이지에만 (없으면 공통 사진 사용)</td></tr>
       <tr class="no"><td>카테고리별 사진 · 메모 · 사업자등록증 · 참고 사이트</td><td>✕</td><td>사이트에 표시되지 않음 (보관용)</td></tr>
     </table>
+    <div class="hm-tip" style="background:#eef2ff;border-color:#c7d2fe;color:#3730a3;margin-bottom:10px">📍 <b>지역 페이지 만드는 법</b> — ① '지역 페이지 만들기' 칸에 지역명(예: 광주)을 입력 ② <b>만들기</b> 버튼 ③ 아래 지역 버튼이 생기고, 누르면 '광주 키워드' 페이지가 열립니다. 이 지역에만 쓸 사진·소개 문구는 '공사 전/후 사진'에서 그 지역을 골라 올리세요.</div>
     <div class="hm-tip">💡 사진은 1.2MB 이하로 자동 축소됩니다 · 비워 둔 칸은 기본값(상호 수리위키, 기본 연락처)이나 기본 사진이 쓰입니다 · 아직 로그인이 없으니 실제 사업자등록증은 올리지 마세요.</div>
   </div>
   <div class="hm-ft"><label style="font-size:12px;color:var(--g600);margin-right:12px"><input type="checkbox" id="help-never"> 다시 열지 않기</label><button type="button" class="btn" id="help-ok">닫기</button></div>
@@ -302,6 +328,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     S.templates = o.templates || []; S.tplId = o.template; S.tpl = S.templates.find((t) => t.id === o.template) || { photoSlots: 4 };
     renderTemplates();
     { const cur = $('ba-scope').value; $('ba-scope').innerHTML = '<option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option>' + (o.regions || []).map((r) => `<option value="${r.slug}">${esc(r.name)} 페이지만</option>`).join(''); $('ba-scope').value = cur; }
+    S.regions = o.regions || []; renderRegions();
     renderBa();
     $('storage-note').style.display = o.video ? 'none' : '';
     if (o.video) $('zone-limit').textContent = '사진: JPG, PNG, GIF, WebP (최대 50MB) | 동영상: MP4, WebM, MOV, AVI (최대 100MB)';
@@ -370,6 +397,39 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('pv-d').onclick = () => $('pv-body').classList.remove('m'); $('pv-m').onclick = () => $('pv-body').classList.add('m');
   $('pv-back').addEventListener('click', (e) => { if (e.target === $('pv-back')) closePv(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('pv-back').classList.contains('on')) closePv(); });
+
+
+  // ── 지역 페이지 만들기: 지역명 → 생성 → 지역 버튼이 생기고 그 주소의 페이지가 열린다(만들기·삭제 모두 이 사이트의 지역 목록을 바꾼다)
+  const kw = () => $('title').textContent.replace(/ 관리$/, '');
+  function renderRegions(newSlug) {
+    const regs = S.regions || [];
+    $('rg-count').textContent = `${regs.length}개`;
+    $('rg-chips').innerHTML = regs.map((r) => `<span class="rg-chip${r.slug === newSlug ? ' new' : ''}"><a href="https://${slug}.suriwiki.com/${r.slug}/" target="_blank" rel="noopener" title="${esc(r.name)} ${esc(kw())} 페이지 열기">${esc(r.name)} <span aria-hidden="true">↗</span></a><button type="button" data-rm="${r.slug}" aria-label="${esc(r.name)} 지역 빼기" title="이 지역 페이지 빼기">✕</button></span>`).join('');
+    const cur = $('ba-scope').value;
+    $('ba-scope').innerHTML = '<option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option>' + regs.map((r) => `<option value="${r.slug}">${esc(r.name)} 페이지만</option>`).join('');
+    $('ba-scope').value = regs.some((r) => r.slug === cur) ? cur : '';
+  }
+  $('rg-name').addEventListener('input', () => { const v = $('rg-name').value.trim(); $('rg-title').textContent = `${v || '지역명'} ${kw()}`; });
+  async function addRegion() {
+    const name = $('rg-name').value.trim(); if (!name) { flash($('rg-status'), '지역명을 입력하세요', true); $('rg-name').focus(); return; }
+    const btn = $('rg-go'); btn.disabled = true; const orig = btn.textContent; btn.textContent = '만드는 중…';
+    try {
+      const j = await api('regions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) });
+      S.regions = j.regions; renderRegions(j.region.slug); renderBa();
+      $('rg-name').value = ''; $('rg-title').textContent = '지역명 ' + kw();
+      $('rg-status').className = 'status'; $('rg-status').innerHTML = j.existed ? `이미 있는 지역입니다 — <a href="${j.url}" target="_blank" rel="noopener">${esc(j.title)} 열기 ↗</a>` : `✅ '${esc(j.title)}' 페이지가 만들어졌습니다 — <a href="${j.url}" target="_blank" rel="noopener">지금 열어보기 ↗</a> (사이트에는 1분 안에 나타납니다)`;
+      if (!j.existed) window.open(j.url, '_blank', 'noopener');
+    } catch (e) { flash($('rg-status'), e.message, true); }
+    btn.disabled = false; btn.textContent = orig;
+  }
+  $('rg-go').onclick = addRegion;
+  $('rg-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addRegion(); } });
+  $('rg-chips').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-rm]'); if (!b) return;
+    const r = (S.regions || []).find((x) => x.slug === b.dataset.rm); if (!r) return;
+    if (!confirm(`'${r.name} ${kw()}' 페이지를 사이트에서 뺄까요?\n(올려둔 이 지역 사진·소개 문구는 보관되고, 같은 지역을 다시 만들면 되살아납니다)`)) return;
+    try { const j = await api('regions/' + r.slug, { method: 'DELETE' }); S.regions = j.regions; renderRegions(); renderBa(); flash($('rg-status'), `${r.name} 지역을 뺐습니다`); } catch (x) { flash($('rg-status'), x.message, true); }
+  });
 
   // ── 공사 전/후 사진 (작업 사례 × 전/후, 범위 = 공통 또는 지역)
   const baPath = (n, ph) => `ba/${$('ba-scope').value ? $('ba-scope').value + '/' : ''}${n}/${ph}`;

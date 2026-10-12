@@ -107,6 +107,7 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   put('/', homePage({ site, meta: m, pages, data, profile, media: mediaFor('') }));
   put('/sangdam', sangdamPage({ site, meta: m, data, profile, pages, media: mediaFor('') }));
   for (const page of pages) { apply(page.region_slug); put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile, media: mediaFor(page.region_slug) })); }
+  writeFileSync(`dist-sites/s/${sub}/regions.json`, JSON.stringify(pages.map((p) => p.region_slug).sort())); // 마지막 배포에 들어간 지역 목록(사이트 워커가 지금 목록과 비교)
   const urls = ['/', ...pages.map((p) => p.page_path)];
   writeFileSync(`dist-sites/s/${sub}/robots.txt`, sample ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: https://${site}/sitemap.xml\n`);
   writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${site}${u}</loc></url>`).join('\n')}\n</urlset>\n`);
@@ -150,6 +151,7 @@ writeFileSync('wrangler.sites.generated.jsonc', JSON.stringify({
   main: 'worker/sites.mjs',
   compatibility_date: '2026-10-01',
   assets: { directory: './dist-sites', binding: 'ASSETS', run_worker_first: true, html_handling: 'auto-trailing-slash', not_found_handling: '404-page' },
+  services: [{ binding: 'ADMIN', service: 'bizhelp-admin' }], // 지역 페이지 만들기: 지금 지역 목록과 실시간 렌더를 관리자 워커에서 받는다
   routes: hosts.map((h) => ({ pattern: h, custom_domain: true })),
 }, null, 2) + '\n');
 writeFileSync('sites-hosts.txt', hosts.join('\n') + '\n');
