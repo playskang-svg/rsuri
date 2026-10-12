@@ -4,6 +4,7 @@
 //  wrangler.sites.generated.jsonc  키워드마다 개별 커스텀 도메인(와일드카드 라우트·DNS는 쓰지 않는다)
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolveProfile } from './site-defaults.mjs';
+import { groupsToRegistry } from './group-model.mjs';
 import { homePage, regionPage, sangdamPage, setImages } from './page-template.mjs';
 import { readdirSync } from 'node:fs';
 
@@ -11,11 +12,16 @@ for (const d of ['dist', 'dist-sites']) { rmSync(d, { recursive: true, force: tr
 cpSync('src', 'dist', { recursive: true });
 if (existsSync('public')) cpSync('public', 'dist', { recursive: true });
 
-const data = JSON.parse(readFileSync('registry/sites.json', 'utf8'));
-// 관리자 워커가 슬러그를 검증하고 카테고리(=서브키워드)를 알 수 있게 메타를 넘긴다.
-const meta = {};
-for (const [site, m] of Object.entries(data.site_meta || {})) meta[site.split('.')[0]] = { keyword: m.main_keyword, subs: m.sub_keywords };
-writeFileSync('worker/sites-meta.json', JSON.stringify(meta));
+// 사이트·페이지 정의: 대시보드에서 만든 그룹(D1)이 원본이다. 불러오지 못하면 저장소의 registry/sites.json(시드)로 만든다.
+let data = JSON.parse(readFileSync('registry/sites.json', 'utf8'));
+if (process.env.BIZHELP_GROUPS_URL) {
+  try {
+    const r = await fetch(process.env.BIZHELP_GROUPS_URL, { signal: AbortSignal.timeout(15000) });
+    const j = r.ok ? await r.json() : null;
+    if (j && Array.isArray(j.groups) && j.groups.length) { data = groupsToRegistry(j.groups, data); console.log(`그룹: ${j.groups.length}개 (대시보드)`); }
+    else console.log('그룹 조회 결과가 비어 있어 registry/sites.json 을 씁니다');
+  } catch (e) { console.log('그룹 조회 실패, registry/sites.json 사용:', e.message); }
+}
 
 // 업로드 페이지에서 올린 공사 전/후 사진(작업 사례 1~4). 전·후가 둘 다 있는 사례만 쓴다(없으면 건너뜀).
 const baBySub = {}, capBySub = {}, introBySub = {};

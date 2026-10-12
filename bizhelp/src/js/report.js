@@ -173,10 +173,11 @@ const core = (s) => { const k = String(s ?? '').trim(); const m = k.split(/\s+[�
 const label = (p) => p.pending ? String(p.h1_title) : core(p.h1_title);
 
 function renderSites(c) {
-  if (!c.siteNames.length) return '<div class="empty">아직 등록된 사이트가 없습니다.<br><span style="font-size:12px;color:#cbd5e1">제작이 완료되면 이 리포트에 자동으로 반영됩니다.</span></div>';
+  if (!c.siteNames.length) return '<div class="empty">아직 등록된 사이트가 없습니다.<br><button type="button" class="btn indigo" style="margin-top:14px" data-grp="new">＋ 새 메인키워드 그룹</button></div>';
   let h = `<div class="section-title">사이트별 페이지 목록 <span class="section-sub">${c.mainCount}개 사이트 / ${c.subCount}개 페이지</span>
     <span class="top-new-badge${c.newPages ? '' : ' zero'}" title="이번 주(${c.weekStart} 월요일 이후) 새로 생긴 페이지 합계">🆕 이번주 신규 <b>${c.newPages}</b>개</span>
     <span class="badge-legend"><span><i style="background:#22c55e"></i>타이틀·H1 정상</span><span><i style="background:#3b82f6"></i>1개 불일치</span><span><i style="background:#ef4444"></i>둘다 불일치</span></span></div>
+    <div class="grp-bar"><button type="button" class="btn indigo" data-grp="new">＋ 새 메인키워드 그룹</button><button type="button" class="btn sky" data-grp="deploy">🚀 지금 반영</button></div>
     <div class="site-grid">`;
   c.siteNames.forEach((site, si) => {
     const list = c.sitesMap.get(site).slice().sort((a, b) => (a.page_path || '').localeCompare(b.page_path || ''));
@@ -198,7 +199,7 @@ function renderSites(c) {
     const nw = fresh.length;
     h += `<div class="site-card c${si % 8}"><div class="site-head"><div class="site-head-left"><div class="site-icon">${si + 1}</div>
       <div class="site-info"><div class="site-domain">${esc(site)}</div><div class="site-title">메인사이트 ${si + 1}/${c.mainCount}${c.createdBySite.get(site) ? ` · 📅 생성 ${c.createdBySite.get(site)}` : ''}</div></div></div>
-      <div class="site-meta"><a class="site-link-btn" style="background:#475569" href="/upload/${esc(site.split('.')[0])}" target="_blank" rel="noopener" title="사진·정보 업로드">업로드</a><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
+      <div class="site-meta"><button type="button" class="site-link-btn" style="background:#0f766e;border:0;cursor:pointer" data-grp="edit" data-slug="${esc(site.split('.')[0])}" title="키워드·지역·내용 수정">수정</button><a class="site-link-btn" style="background:#475569" href="/upload/${esc(site.split('.')[0])}" target="_blank" rel="noopener" title="사진·정보 업로드">업로드</a><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
       <div class="site-badges"><span class="site-cnt-badge" title="총 페이지 수">📄 <b>${list.length}</b>개</span>
       <span class="site-wow-badge ${nw ? 'up' : 'zero'}" title="이번 주 신규 ${nw}개 (${c.weekStart} 월요일 이후)">📈 <b>${nw ? '+' + nw : '±0'}</b></span></div>
       <div class="page-list">`;
@@ -299,4 +300,6 @@ async function start() {
   wire();
   window.__report = c; // 점검용
 }
+import { initGroups } from './groups.js';
+initGroups();
 start();

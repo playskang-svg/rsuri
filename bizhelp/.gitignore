@@ -5,5 +5,4 @@ dist-sites
 dist-sites
 wrangler.sites.generated.jsonc
 sites-hosts.txt
-worker/sites-meta.json
 .wrangler

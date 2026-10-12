@@ -195,14 +195,10 @@ const itemsBlock = (c, title, sub) => `<section><h2>${esc(title)}</h2><p class="
 const symptomsBlock = (c) => ((c.content.symptoms || []).length ? `<section><h2>이런 증상도 접수합니다</h2><p class="sec-sub">해당하는 증상을 눌러 문의에 담아 보세요.</p><div class="chips-links">${c.content.symptoms.map((s) => `<a href="#picker" data-pick="증상:${esc(s)}">${esc(s)}</a>`).join("")}</div></section>` : "");
 
 const compareBlock = (c, title) => {
-  const cells = [1, 2, 3, 4].map((n) => {
-    const both = hasImg(`ba-${n}-before`) && hasImg(`ba-${n}-after`);
-    const inner = both
-      ? `${imgTag(`ba-${n}-after`, `${captionOf(c, n)} 작업 후`, 'class="ba-after"')}${imgTag(`ba-${n}-before`, `${captionOf(c, n)} 작업 전`, 'class="ba-before"')}<div class="ba-handle"></div><span class="ba-tag ba-tag-b">작업 전</span><span class="ba-tag ba-tag-a">작업 후</span>`
-      : `<div class="ba-empty">사진 준비 중</div>`;
-    return `<div class="ba"><div class="ba-slider"${both ? " data-slider" : ""}>${inner}</div><div class="ba-cap">${esc(captionOf(c, n))}</div></div>`;
-  }).join("");
-  return `<section><h2>${esc(title)} <span class="sec-badge">작업 사진</span></h2><p class="sec-sub">손잡이를 좌우로 움직이면 같은 자리의 작업 전과 후가 바뀝니다.</p><div class="grid">${cells}</div></section>`;
+  // 전·후 사진이 둘 다 있는 사례만 보여 준다(없는 칸은 만들지 않는다). 하나도 없으면 섹션 전체를 생략한다.
+  const cells = [1, 2, 3, 4].filter((n) => hasImg(`ba-${n}-before`) && hasImg(`ba-${n}-after`)).map((n) =>
+    `<div class="ba"><div class="ba-slider" data-slider>${imgTag(`ba-${n}-after`, `${captionOf(c, n)} 작업 후`, 'class="ba-after"')}${imgTag(`ba-${n}-before`, `${captionOf(c, n)} 작업 전`, 'class="ba-before"')}<div class="ba-handle"></div><span class="ba-tag ba-tag-b">작업 전</span><span class="ba-tag ba-tag-a">작업 후</span></div><div class="ba-cap">${esc(captionOf(c, n))}</div></div>`).join("");
+  return cells ? `<section><h2>${esc(title)} <span class="sec-badge">작업 사진</span></h2><p class="sec-sub">손잡이를 좌우로 움직이면 같은 자리의 작업 전과 후가 바뀝니다.</p><div class="grid">${cells}</div></section>` : "";
 };
 
 const stepsBlock = () => `<section><h2>진행 절차</h2><div class="steps">

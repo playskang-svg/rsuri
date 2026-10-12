@@ -45,10 +45,26 @@ textarea{resize:vertical}
 pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:10px;max-height:200px;overflow:auto;margin-top:8px}
 .parsed{font-size:13px;margin-top:8px}.parsed div{padding:3px 0;border-bottom:1px solid var(--g100)}.parsed b{display:inline-block;min-width:90px;color:var(--g600)}
 .sec{cursor:pointer}
+/* 사용법 팝업 */
+.help-btn{margin-top:10px;border:1.5px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);color:#fff;border-radius:99px;padding:6px 16px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.hb{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;z-index:80;padding:12px}.hb.on{display:flex}
+.hm{background:#fff;border-radius:16px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.hm-hd{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--g200);position:sticky;top:0;background:#fff}.hm-hd h3{font-size:16px}
+.hm-x{border:0;background:var(--g100);border-radius:8px;width:32px;height:32px;cursor:pointer}
+.hm-body{padding:16px 18px}
+.flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+.fs{flex:1 1 90px;min-width:88px;border:1.5px solid var(--g200);border-radius:12px;padding:10px 8px;text-align:center;font-size:12px;line-height:1.45;background:#f8fafc}
+.fs b{display:block;font-size:13px;margin:3px 0 2px}.fs .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#4f46e5;color:#fff;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.fa{align-self:center;color:#94a3b8;font-weight:800}
+.hm h4{font-size:13px;margin:18px 0 8px}
+.map{width:100%;border-collapse:collapse;font-size:12.5px}.map td{padding:7px 8px;border-bottom:1px solid var(--g100);vertical-align:top}.map td:first-child{font-weight:700;white-space:nowrap;width:42%}.map td:nth-child(2){color:#4f46e5;text-align:center;width:24px}
+.map .no td{color:#94a3b8}
+.hm-tip{margin-top:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6}
+.hm-ft{padding:12px 18px;border-top:1px solid var(--g200);text-align:right}
 </style>
 </head>
 <body>
-<div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small></div>
+<div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small><button type="button" class="help-btn" id="help-btn">📖 사용법 보기</button></div>
 <div class="container">
 
   <div class="card" id="storage-note" style="display:none"><h3>업로드 안내</h3><p class="hint">사진과 사업자등록증은 1.2MB 이하로 자동 축소되어 올라갑니다(PDF는 1.2MB 이하만 가능). 동영상은 대용량 파일 저장소를 연결하면 열립니다.</p></div>
@@ -137,6 +153,29 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   </div>
 </div>
 
+<div class="hb" id="help-back"><div class="hm" role="dialog" aria-modal="true" aria-labelledby="hm-title">
+  <div class="hm-hd"><h3 id="hm-title">업로드 페이지 사용법</h3><button type="button" class="hm-x" id="help-x" aria-label="닫기">✕</button></div>
+  <div class="hm-body">
+    <div class="flow">
+      <div class="fs"><span class="n">1</span><b>정보 입력</b>상호·연락처·채널</div><div class="fa">→</div>
+      <div class="fs"><span class="n">2</span><b>사진 올리기</b>공사 전/후 · 설명</div><div class="fa">→</div>
+      <div class="fs"><span class="n">3</span><b>저장</b>입력칸을 벗어나면 자동 저장(정보는 저장 버튼)</div><div class="fa">→</div>
+      <div class="fs"><span class="n">4</span><b>반영</b>다음 배포 때<br>(매일 05:00)</div>
+    </div>
+    <h4>입력한 내용이 키워드 사이트 어디에 나오나요?</h4>
+    <table class="map">
+      <tr><td>상호·대표자·사업자번호·주소·영업시간</td><td>→</td><td>모든 페이지 맨 아래(푸터)</td></tr>
+      <tr><td>연락처(전화번호)</td><td>→</td><td>상단 전화 버튼 · 하단 고정 바 · 문자 문의 번호</td></tr>
+      <tr><td>카카오톡·인스타그램·블로그·유튜브·스레드·웹사이트</td><td>→</td><td>푸터 아이콘 (입력한 것만)</td></tr>
+      <tr><td>공사 전/후 사진 (작업 사례 1~4)</td><td>→</td><td>대표 이미지 · 전후 비교 슬라이더 (전·후 둘 다 올린 사례만, 사례 3은 대표 이미지)</td></tr>
+      <tr><td>사진 설명</td><td>→</td><td>사진 아래 글귀</td></tr>
+      <tr><td>지역 선택 + 사진·설명·지역 소개</td><td>→</td><td>그 지역 페이지에만 (없으면 공통 사진 사용)</td></tr>
+      <tr class="no"><td>카테고리별 사진 · 메모 · 사업자등록증 · 참고 사이트</td><td>✕</td><td>사이트에 표시되지 않음 (보관용)</td></tr>
+    </table>
+    <div class="hm-tip">💡 사진은 1.2MB 이하로 자동 축소됩니다 · 비워 둔 칸은 기본값(상호 수리위키, 기본 연락처)이나 기본 사진이 쓰입니다 · 아직 로그인이 없으니 실제 사업자등록증은 올리지 마세요.</div>
+  </div>
+  <div class="hm-ft"><label style="font-size:12px;color:var(--g600);margin-right:12px"><input type="checkbox" id="help-never"> 다시 열지 않기</label><button type="button" class="btn" id="help-ok">닫기</button></div>
+</div></div>
 <div class="lb" id="lb"></div>
 <div class="modal" id="mv"><div>
   <h3 style="margin-bottom:6px" id="mv-title">카테고리 이동</h3>
@@ -363,6 +402,18 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('mv-go').onclick = async () => { const body = { category: $('mv-cat').value }; if (mvMode === 'group') body.group = $('mv-group').value; else body.ids = [...S.sel]; await api('files/move', { method: 'POST', body: JSON.stringify(body) }); $('mv').classList.remove('on'); await load(); };
 
   load().catch((x) => { document.body.innerHTML = `<div class="container"><div class="card">불러오지 못했습니다: ${esc(x.message)}</div></div>`; });
+})();
+</script>
+<script>
+(() => {
+  const back = document.getElementById('help-back'), KEY = 'upload-help-hidden';
+  const open = () => back.classList.add('on');
+  const close = () => { back.classList.remove('on'); try { if (document.getElementById('help-never').checked) localStorage.setItem(KEY, '1'); } catch (_) {} };
+  document.getElementById('help-btn').onclick = open;
+  document.getElementById('help-x').onclick = close; document.getElementById('help-ok').onclick = close;
+  back.addEventListener('click', (e) => { if (e.target === back) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && back.classList.contains('on')) close(); });
+  try { if (!localStorage.getItem(KEY)) open(); } catch (_) { open(); }
 })();
 </script>
 </body>
