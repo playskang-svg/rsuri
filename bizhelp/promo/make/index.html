@@ -196,9 +196,9 @@ footer .copy{margin-top:30px;font-size:12.5px}
 </div></div>
 <div class="f"><label for="dt">희망 일정 <small style="font-weight:400">(아래 달력에서 고르면 채워집니다)</small></label><input id="dt" placeholder="미정"></div>
 <div class="f"><label for="ms">문의 내용</label><textarea id="ms" placeholder="자동화하고 싶은 일, 현재 쓰는 채널, 궁금한 점"></textarea></div>
-<div class="btns"><button class="btn" type="button" id="kakao">💬 복사하고 카카오톡으로</button><button class="btn ghost" type="button" id="mail">✉️ 이메일로 보내기</button></div>
+<div class="btns"><button class="btn" type="button" id="sms">📱 문자로 보내기</button><button class="btn ghost" type="button" id="kakao">💬 복사하고 카카오톡으로</button><button class="btn ghost" type="button" id="mail">✉️ 이메일로</button></div>
 <div class="msgbox" id="msg"></div>
-<div class="fine">카카오톡: 메시지가 복사됩니다. 카카오톡에서 ID <b id="kid" style="color:var(--ink);cursor:pointer" title="ID 복사">newtr</b> 를 친구 추가하고 붙여넣어 주세요. 이메일 <a href="mailto:cosmos0302@naver.com">cosmos0302@naver.com</a></div>
+<div class="fine">전화 <a href="tel:010-5516-0301">010-5516-0301</a> · 카카오톡: 메시지가 복사됩니다. 카카오톡에서 ID <b id="kid" style="color:var(--ink);cursor:pointer" title="ID 복사">newtr</b> 를 친구 추가하고 붙여넣어 주세요. 이메일 <a href="mailto:cosmos0302@naver.com">cosmos0302@naver.com</a></div>
 </form>
 </div>
 </div></section>
@@ -243,12 +243,12 @@ footer .copy{margin-top:30px;font-size:12.5px}
 <span class="label rv">Consulting</span>
 <h2 class="rv">우리 회사에 맞는 자동화,<br>지금 상담하세요</h2>
 <p class="rv">목적과 규모에 맞춰 합리적인 구성을 제안합니다.</p>
-<div class="btns rv"><a class="btn" href="#apply">상담 신청하기 →</a><a class="btn ghost" href="mailto:cosmos0302@naver.com">이메일 문의</a></div>
+<div class="btns rv"><a class="btn" href="#apply">상담 신청하기 →</a><a class="btn ghost" href="tel:010-5516-0301">📞 010-5516-0301</a></div>
 </div></section>
 
 <footer><div class="wrap">
 <div class="cols">
-<div><b>애드블스 (adbles) · MAKE</b>AI 자동화 시스템 구축 및 교육.<br>반복은 시스템에 맡기고, 사람은 더 중요한 일에 집중합니다.<div style="margin-top:12px;line-height:1.9">대표: 박서희 · 사업자등록번호: 479-93-02093<br><a href="#apply" style="display:inline;padding:0">💬 카카오톡 ID: newtr</a><br><a href="mailto:cosmos0302@naver.com" style="display:inline;padding:0">✉️ cosmos0302@naver.com</a></div></div>
+<div><b>애드블스 (adbles) · MAKE</b>AI 자동화 시스템 구축 및 교육.<br>반복은 시스템에 맡기고, 사람은 더 중요한 일에 집중합니다.<div style="margin-top:12px;line-height:1.9">대표: 박서희 · 사업자등록번호: 479-93-02093<br><a href="tel:010-5516-0301" style="display:inline;padding:0">📞 010-5516-0301</a><br><a href="#apply" style="display:inline;padding:0">💬 카카오톡 ID: newtr</a><br><a href="mailto:cosmos0302@naver.com" style="display:inline;padding:0">✉️ cosmos0302@naver.com</a></div></div>
 <div><b>서비스</b><a href="#services">자동화 시스템 구축</a><a href="#tracks">직접 만들기 교육</a><a href="#schedule">교육·구축 일정</a><a href="#apply">상담 신청</a></div>
 <div><b>바로가기</b><a href="https://builder.suriwiki.com/" target="_blank" rel="noopener">업체 등록 · 키워드 홈페이지 분양</a><a href="https://admin.suriwiki.com/demo/" target="_blank" rel="noopener">관리 대시보드 둘러보기</a></div>
 </div>
@@ -295,6 +295,7 @@ footer .copy{margin-top:30px;font-size:12.5px}
     return lines.join('\n');
   }
   function show(t){ var b = $('msg'); b.textContent = t; b.classList.add('on'); }
+  $('sms').onclick = function(){ var t = msg(); show(t); location.href = 'sms:01055160301?&body=' + encodeURIComponent(t); };
   $('mail').onclick = function(){ var t = msg(); show(t); location.href = 'mailto:cosmos0302@naver.com?subject=' + encodeURIComponent('[애드블스 메이크] 상담 신청') + '&body=' + encodeURIComponent(t); };
   $('kakao').onclick = function(){ var t = msg(); show(t + '\n\n→ 카카오톡 ID newtr 친구 추가 후 붙여넣기');
     var done = function(){ alert('메시지를 복사했습니다. 카카오톡에서 ID newtr 를 친구 추가하고 붙여넣어 주세요.'); };
