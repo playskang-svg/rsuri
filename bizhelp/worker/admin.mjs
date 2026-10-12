@@ -6,7 +6,7 @@
 //       네이버·구글 계정 비밀번호처럼 제3자 비밀번호는 받지도 저장하지도 않는다.
 import { DEFAULT_PROFILE, resolveProfile } from '../scripts/site-defaults.mjs';
 import SITE_IMAGES from './site-images-index.json';
-import { TEMPLATES, DEFAULT_TEMPLATE, templateOf, templateList, setImages, homePage, regionPage } from '../scripts/templates.mjs';
+import { TEMPLATES, DEFAULT_TEMPLATE, templateOf, templateList, setImages, homePage, regionPage, sangdamPage } from '../scripts/templates.mjs';
 import REGISTRY from '../registry/sites.json';
 import { allRegions, regionOf, setExtraRegions, extraRegions, romanize, RESERVED_REGION_SLUGS, normalizeGroup, groupPages, groupsToRegistry, registryToGroups, groupHost } from '../scripts/group-model.mjs';
 
@@ -96,7 +96,9 @@ const regionsOf = (g) => g.regions.filter((r) => regionOf(r)).map((r) => ({ slug
 const categoriesOf = (g) => (g?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
 
 // 미리보기 렌더: 빌드와 같은 템플릿 코드를 워커에서 실행한다. 사진은 업로드한 것(없으면 기본 사진, 그것도 없으면 빈 칸).
-async function renderPreview(env, g, tplId, regionSlug) {
+// opt.live: 키워드 사이트 호스트에서 쓰는 실시간 렌더(사진 주소를 관리자 주소로 절대화, 링크 막기 없음). opt.kind: 'sangdam' 이면 상담 페이지
+const LIVE_ORIGIN = 'https://admin.suriwiki.com';
+async function renderPreview(env, g, tplId, regionSlug, opt = {}) {
   const db = env.DB, slug = g.slug, host = groupHost(slug);
   const profile = resolveProfile(shapeProfile(await db.prepare(`SELECT ${PROFILE_COLS} FROM profile WHERE slug=?`).bind(slug).first()));
   const ba = (await db.prepare('SELECT region, slot, phase, updated_at FROM ba_photos WHERE slug=?').bind(slug).all()).results;
@@ -106,17 +108,19 @@ async function renderPreview(env, g, tplId, regionSlug) {
   const defaults = SITE_IMAGES[slug] || [];
   const reg = groupsToRegistry([g], REGISTRY), meta = { ...reg.site_meta[host], template: tplId }, pages = reg.pages;
   const names = new Set(defaults), src = {};
-  for (const n of defaults) src[n] = `/site-images/${slug}/${n}.webp`;
+  const O = opt.live ? LIVE_ORIGIN : '';
+  for (const n of defaults) src[n] = `${O}/site-images/${slug}/${n}.webp`;
   for (let n = 1; n <= 8; n++) {
     const r = regionSlug && has(regionSlug, n, 'before') && has(regionSlug, n, 'after') ? regionSlug : (has('', n, 'before') && has('', n, 'after') ? '' : null);
     if (r === null) continue;
-    for (const ph of ['before', 'after']) { names.add(`ba-${n}-${ph}`); src[`ba-${n}-${ph}`] = `/api/s/${slug}/ba/${r ? r + '/' : ''}${n}/${ph}?v=${has(r, n, ph).updated_at}`; }
+    for (const ph of ['before', 'after']) { names.add(`ba-${n}-${ph}`); src[`ba-${n}-${ph}`] = `${O}/api/s/${slug}/ba/${r ? r + '/' : ''}${n}/${ph}?v=${has(r, n, ph).updated_at}`; }
   }
   setImages([...names], src);
   const captions = {}; for (const c of caps) if (!c.region) captions[c.slot] = c.caption; if (regionSlug) for (const c of caps) if (c.region === regionSlug) captions[c.slot] = c.caption;
   const media = { captions, intro: (intros.find((x) => x.region === regionSlug) || {}).intro || '' };
   const page = regionSlug ? pages.find((p) => p.region_slug === regionSlug) : null;
-  let html = page ? regionPage({ site: host, meta, page, pages, data: reg, profile, media }) : homePage({ site: host, meta, pages, data: reg, profile, media });
+  let html = opt.kind === 'sangdam' ? sangdamPage({ site: host, meta, data: reg, profile, pages, media }) : page ? regionPage({ site: host, meta, page, pages, data: reg, profile, media }) : homePage({ site: host, meta, pages, data: reg, profile, media });
+  if (opt.live) return html;
   html = html.replace('</body>', `<script>document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='/'&&h.indexOf('//')!==0){e.preventDefault();}},true);</script></body>`);
   return html;
 }
@@ -249,6 +253,19 @@ export default {
       const res = await env.ASSETS.fetch(new Request(new URL('/', url), request));
       const html = (await res.text()).replace('</head>', '<script>window.SW_DEMO=1</script></head>');
       return new Response(html, { status: res.status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
+    }
+
+    // 키워드 사이트 실시간 렌더(로그인 불필요): 사이트 워커가, 지금 D1에 있는 지역 목록이 마지막 배포와 다를 때 이 주소로 홈·지역·상담 페이지를 받아 간다.
+    //  /render/<주소>/_state → 지금 지역 목록,  /render/<주소>/ → 홈,  /render/<주소>/sangdam → 상담,  /render/<주소>/<지역>/ → 지역 페이지
+    const rm = path.match(/^\/render\/([a-z0-9-]+)(?:\/([a-z0-9_-]+))?\/?$/);
+    if (rm && request.method === 'GET') {
+      await ensureSchema(env.DB);
+      const lg = await getGroup(env.DB, rm[1]); if (!lg) return new Response('Not found', { status: 404 });
+      const hdr = { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=60', ...(REGISTRY.noindex !== false ? { 'x-robots-tag': 'noindex, nofollow' } : {}) };
+      if (rm[2] === '_state') return new Response(JSON.stringify({ ok: true, slug: lg.slug, regions: regionsOf(lg).map((r) => r.slug).sort() }), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=30' } });
+      if (rm[2] === 'sangdam') return new Response(await renderPreview(env, lg, lg.template, '', { live: true, kind: 'sangdam' }), { headers: hdr });
+      if (rm[2] && !regionsOf(lg).some((r) => r.slug === rm[2])) return new Response('Not found', { status: 404 });
+      return new Response(await renderPreview(env, lg, lg.template, rm[2] || '', { live: true }), { headers: hdr });
     }
 
     // 업로드 페이지: /upload/<slug>[/]
@@ -415,6 +432,44 @@ async function route(request, env, url, slug, rest, g) {
     return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: g.main_keyword, categories: categoriesOf(g), regions: regionsOf(g), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts, ba, captions, intros, template: templateOf(g.template).id, templates: templateList() });
   }
 
+
+  // ── 지역 페이지 만들기: 지역명을 넣고 만들면 이 사이트의 지역 목록에 더해지고 '<지역> <키워드>' 페이지가 생긴다.
+  //    주소 이름(영문)은 한글에서 자동으로 만든다. 사이트 워커가 지금 지역 목록과 마지막 배포를 비교해 새 페이지를 바로 보여 주고, 다음 배포 때 정식 페이지로 굳는다.
+  if (rest === 'regions' && method === 'POST') {
+    const b = await request.json().catch(() => ({}));
+    const name = String(b.name || '').trim().replace(/\s+/g, ' ');
+    if (!/^[가-힣A-Za-z0-9 ]{1,10}$/.test(name) || /^[0-9 ]+$/.test(name)) return err(400, '지역 이름은 한글·영문 1~10자로 입력하세요 (예: 광주)');
+    const day = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), rk = `region_add:${slug}:${day}`;
+    const used = Number((await db.prepare('SELECT v FROM kv WHERE k=?').bind(rk).first())?.v || 0);
+    if (used >= 30) return err(429, '오늘은 지역을 더 만들 수 없습니다(하루 30개). 내일 다시 시도하세요');
+    await loadGroups(db);
+    let region = allRegions().find((x) => x.name === name), created = false;
+    if (!region) {
+      const base = romanize(name).replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '');
+      if (!base) return err(400, `'${name}'의 주소를 만들 수 없습니다. 한글이나 영문으로 입력하세요`);
+      let sl = base, n = 2; while (regionOf(sl) || RESERVED_REGION_SLUGS.includes(sl)) sl = `${base}-${n++}`;
+      await db.prepare('INSERT INTO regions_extra (slug, name) VALUES (?,?)').bind(sl, name).run();
+      setExtraRegions([...extraRegions(), { slug: sl, name }]); region = { slug: sl, name }; created = true;
+    }
+    const existed = g.regions.includes(region.slug);
+    if (!existed) {
+      if (g.regions.length >= 80) return err(400, '지역은 사이트당 80개까지 만들 수 있습니다');
+      const next = [...g.regions, region.slug];
+      await db.prepare('UPDATE groups SET regions=?, updated_at=? WHERE slug=?').bind(JSON.stringify(next), Date.now(), slug).run();
+      g.regions = next;
+      await db.prepare('INSERT OR REPLACE INTO kv (k, v) VALUES (?,?)').bind(rk, String(used + 1)).run();
+    }
+    return json({ ok: true, existed, created, region, url: `https://${groupHost(slug)}/${region.slug}/`, title: `${region.name} ${g.main_keyword}`, regions: regionsOf(g) });
+  }
+  const rdel = rest.match(/^regions\/([a-z0-9-]+)$/);
+  if (rdel && method === 'DELETE') {
+    if (!g.regions.includes(rdel[1])) return err(404, '없는 지역입니다');
+    if (g.regions.length <= 1) return err(400, '지역은 최소 1개가 있어야 합니다');
+    const next = g.regions.filter((x) => x !== rdel[1]);
+    await db.prepare('UPDATE groups SET regions=?, updated_at=? WHERE slug=?').bind(JSON.stringify(next), Date.now(), slug).run();
+    g.regions = next;
+    return json({ ok: true, regions: regionsOf(g) });
+  }
 
   // ── 템플릿 선택: 사이트의 디자인·구성을 바꾼다. 입력해 둔 내용·사진은 그대로 유지되고, 업로드 화면의 사진 칸 수만 템플릿에 맞춰진다.
   if (rest === 'template' && method === 'PUT') {

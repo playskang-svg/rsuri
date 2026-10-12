@@ -108,3 +108,9 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 
 - `https://admin.suriwiki.com/demo/` — 로그인 없이 보는 읽기 전용 대시보드. 같은 `index.html`에 `window.SW_DEMO=1`을 넣어 서빙하고, 데이터는 `/api/demo/report`(읽기 전용, 관리 API 아님)에서 읽는다. 그룹 생성·수정·일괄 등록·지금 반영·이미지 공유·로그아웃 버튼은 만들지 않는다.
 - `https://builder.suriwiki.com/` — 사이트빌더 홍보 페이지. 원본은 `promo/index.html`, 빌드가 `{{SITES}}`·`{{PAGES}}`·`{{REGIONS}}`·`{{TEMPLATES}}`·`{{CASES}}`·`{{MARQUEE}}`·`{{TEMPLATE_ROWS}}`를 배포 시점의 실제 값으로 채워 `dist-sites/s/builder/`에 쓴다(추측 수치 없음). 후기 섹션(`{{REVIEWS}}`)은 `promo/reviews.json`에 실제 후기(`{name, rating 1~5, text, keyword?, date?}`)가 있을 때만 생성된다. `builder`는 그룹 주소 이름으로 예약.
+
+## 지역 페이지 만들기 (업체가 직접)
+
+- 업로드 페이지(`/upload/<주소>/`, 제목 `<키워드> 관리`)의 '지역 페이지 만들기' 카드: 지역명(한글·영문 1~10자)을 넣고 만들기 → `POST /api/s/<주소>/regions`. 새 지역이면 `regions_extra`(공용 카탈로그)에 영문 주소(한글 로마자, 겹치면 -2)로 더하고, 이 그룹의 `regions`에 추가한다. 하루 30개·사이트당 80개 제한. 빼기는 `DELETE /api/s/<주소>/regions/<지역>`(최소 1개 유지).
+- 반영: 빌드가 `dist-sites/s/<주소>/regions.json`(그 배포에 들어간 지역 목록)을 쓴다. 키워드 사이트 워커(`worker/sites.mjs`)는 HTML 요청마다 이 목록과 관리자 워커의 `/render/<주소>/_state`(지금 D1 지역 목록, 서비스 바인딩 `ADMIN`)를 비교해 **다를 때만** `/render/<주소>/[지역|sangdam]` 실시간 렌더로 홈·지역·상담 페이지를 대신 보여 준다(1분 캐시). 다음 배포에 정식 정적 페이지로 굳고, 관리자 쪽이 응답하지 않으면 정적 페이지로 돌아간다. 뺀 지역은 정적 페이지가 남아 있어도 404.
+- 실시간 렌더는 같은 템플릿 코드(`renderPreview`)를 쓰며 사진 주소는 관리자 주소로 절대화한다. 검색 노출 차단 상태(registry `noindex`)는 그대로 따른다.
