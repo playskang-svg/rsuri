@@ -16,7 +16,7 @@ const keywords = [], ranks = [], pages = [], site_meta = {};
 let kid = 1;
 KEYWORDS.forEach((k, si) => {
   const site = k.site;
-  site_meta[site] = { main_keyword: k.main, slug: k.slug, sub_keywords: k.subs, url: `https://${site}/` };
+  site_meta[site] = { main_keyword: k.main, slug: k.slug, en: k.en, sub_keywords: k.subs, url: `https://${site}/` };
   const n = 8 + Math.floor(rnd() * 27);
   const regions = REGIONS.slice().sort(() => rnd() - 0.5).slice(0, n);
   regions.forEach((rg) => {
@@ -38,7 +38,7 @@ KEYWORDS.forEach((k, si) => {
     });
   });
 });
-const data = { success: true, sample: true, business_name: "샘플 업체 (데이터 연결 전)", generated_at: BASE, dates, site_meta, keywords, ranks, pages };
+const data = { success: true, sample: true, brand: "샘플업체", business_name: "수리위키", generated_at: BASE, dates, site_meta, keywords, ranks, pages };
 const out = path.join(import.meta.dirname, "../src/data/report.json");
 fs.writeFileSync(out, JSON.stringify(data));
 console.log(`sample: ${KEYWORDS.length} sites, ${pages.length} pages, ${keywords.length} keywords, ${ranks.length} ranks`);
