@@ -262,8 +262,7 @@ async function start() {
   document.getElementById('hero-biz').textContent = data.business_name || '';
   document.title = `${data.business_name || ''} · 사이트 제작 현황 리포트`;
   const c = compute(data);
-  $app.innerHTML = (data.sample ? '<div class="sample-note">샘플 데이터입니다 — 실제 업체 데이터 연결 전 화면 확인용</div>' : '')
-    + renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
+  $app.innerHTML = renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
   wire();
   window.__report = c; // 점검용
 }
