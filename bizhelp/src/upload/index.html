@@ -83,9 +83,9 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <div class="row"><label>카카오톡 채널 주소</label><input type="text" id="f-kakao" placeholder="https://pf.kakao.com/..."></div>
     <div class="row"><label>블로그 이름 또는 주소</label><input type="text" id="f-blog" placeholder="예: https://blog.naver.com/..."></div>
     <div class="row"><label>유튜브 이름 또는 주소</label><input type="text" id="f-youtube" placeholder="예: https://youtube.com/@..."></div>
-    <div class="row"><label>관련 서비스 링크 <span class="hint">(푸터 &#39;관련 서비스&#39;, 최대 8개)</span></label><div id="f-services"></div><button class="btn out sm" id="svc-add" type="button" style="margin-top:6px">+ 서비스 추가</button></div>
+    <div class="row"><label>인스타·유튜브·웹사이트 등 관련 페이지 <span class="hint">(제목 + 링크, 최대 8개 · 푸터에 아이콘으로 표시됩니다. 인스타그램·유튜브·네이버·페이스북·스레드·틱톡·X·카카오는 주소로 아이콘이 자동 선택됩니다)</span></label><div id="f-services"></div><button class="btn out sm" id="svc-add" type="button" style="margin-top:6px">+ 링크 추가</button></div>
     <div class="row"><label>참고 사이트 <span class="hint">(사이트에는 표시되지 않는 내부 메모용)</span></label><input type="text" id="f-reference" placeholder="참고할 사이트 주소를 입력하세요"></div>
-    <p class="hint" style="margin-bottom:8px">비워 두면 기본값(상호·연락처·카카오톡 채널)이 표시되고, 대표자·사업자등록번호·주소·블로그·유튜브·관련 서비스는 입력한 경우에만 표시됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
+    <p class="hint" style="margin-bottom:8px">비워 두면 기본값(상호·연락처·카카오톡 채널)이 표시되고, 대표자·사업자등록번호·주소·블로그·유튜브·관련 페이지는 입력한 경우에만 표시됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
     <button class="btn" id="save-profile">저장</button><span class="status" id="profile-status"></span>
   </div>
 
@@ -204,7 +204,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 
   // ── 사이트 정보
   // ── 관련 서비스 링크(이름 + 주소 한 줄씩)
-  function svcRow(x = {}) { const d = document.createElement('div'); d.className = 'svc'; d.style.cssText = 'display:flex;gap:6px;margin-bottom:6px'; d.innerHTML = '<input type="text" class="svc-n" maxlength="30" placeholder="서비스 이름" style="flex:1"><input type="text" class="svc-u" placeholder="https://..." style="flex:2"><button class="btn out sm svc-x" type="button">삭제</button>'; d.querySelector('.svc-n').value = x.name || ''; d.querySelector('.svc-u').value = x.url || ''; return d; }
+  function svcRow(x = {}) { const d = document.createElement('div'); d.className = 'svc'; d.style.cssText = 'display:flex;gap:6px;margin-bottom:6px'; d.innerHTML = '<input type="text" class="svc-n" maxlength="30" placeholder="제목 (예: 인스타그램)" style="flex:1"><input type="text" class="svc-u" placeholder="https://..." style="flex:2"><button class="btn out sm svc-x" type="button">삭제</button>'; d.querySelector('.svc-n').value = x.name || ''; d.querySelector('.svc-u').value = x.url || ''; return d; }
   function renderServices(list) { const box = $('f-services'); box.innerHTML = ''; (list.length ? list : []).forEach((x) => box.appendChild(svcRow(x))); }
   $('svc-add').onclick = () => { if ($('f-services').children.length >= 8) return alert('최대 8개까지 추가할 수 있습니다'); $('f-services').appendChild(svcRow()); };
   $('f-services').onclick = (e) => { if (e.target.classList.contains('svc-x')) e.target.closest('.svc').remove(); };

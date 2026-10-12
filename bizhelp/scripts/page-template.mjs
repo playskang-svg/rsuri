@@ -100,13 +100,10 @@ const header = (c) => `<header class="fixed top-0 inset-x-0 z-50 backdrop-blur b
 // 업로드 페이지에서 입력된 사이트 정보(전화·블로그·유튜브). 값이 없으면 아무것도 그리지 않는다.
 const telHref = (p) => `tel:${String(p).replace(/[^0-9+]/g, "")}`;
 const extUrl = (v) => { const s = String(v || "").trim(); return /^https?:\/\//i.test(s) ? s : ""; };
+// 푸터 연락처 목록(전화). 카카오톡·블로그·유튜브·관련 링크는 아래 아이콘 줄로 그린다.
 const contactItems = (c) => {
   const p = c.profile || {};
-  const link = (href, label) => `<li><a href="${esc(href)}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">${esc(label)}</a></li>`;
-  return (p.phone ? `<li class="opacity-80 leading-relaxed pt-2"><span class="block text-[11px] uppercase tracking-widest opacity-60">CONTACT</span><a class="inline-block mt-1 font-semibold text-white" href="${esc(telHref(p.phone))}">${esc(p.phone)}</a></li>` : "")
-    + (extUrl(p.kakao) ? link(extUrl(p.kakao), "카카오톡 상담") : "")
-    + (extUrl(p.blog) ? link(extUrl(p.blog), "블로그") : "")
-    + (extUrl(p.youtube) ? link(extUrl(p.youtube), "유튜브") : "");
+  return p.phone ? `<li class="opacity-80 leading-relaxed pt-2"><span class="block text-[11px] uppercase tracking-widest opacity-60">CONTACT</span><a class="inline-block mt-1 font-semibold text-white" href="${esc(telHref(p.phone))}">${esc(p.phone)}</a></li>` : "";
 };
 // 사업자 정보: 값이 있는 항목만 한 줄로 이어 쓴다(상호는 기본값이 있어 항상 나온다).
 const regnoFmt = (v) => { const d = String(v || "").replace(/[^0-9]/g, ""); return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}` : String(v || "").trim(); };
@@ -115,11 +112,48 @@ const businessLine = (c) => {
   const parts = [p.company && `상호 ${p.company}`, p.ceo && `대표 ${p.ceo}`, p.regno && `사업자등록번호 ${regnoFmt(p.regno)}`, p.address && `주소 ${p.address}`].filter(Boolean);
   return parts.length ? `<p class="mt-5 text-[12px] leading-relaxed opacity-60 max-w-xl">${parts.map(esc).join(" · ")}</p>` : "";
 };
-const serviceItems = (c) => (Array.isArray(c.profile?.services) ? c.profile.services : []).filter((x) => x && x.name && extUrl(x.url))
-  .map((x) => `<li><a href="${esc(extUrl(x.url))}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">${esc(x.name)}</a></li>`).join("");
-const servicesBlock = (c) => { const items = serviceItems(c); return items ? `<div><p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">관련 서비스</p><ul class="space-y-2.5 text-sm">${items}</ul></div>` : ""; };
+// 관련 페이지(제목 + 링크) → 주소로 플랫폼을 알아내 아이콘 버튼으로 그린다.
+const ICONS = {
+  instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>',
+  youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/>',
+  naver: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8.5 16.5v-9l7 9v-9"/>',
+  facebook: '<path d="M14 8h2.2V5H13.5C11.5 5 10 6.5 10 8.5V11H8v3h2v6h3v-6h2.2l.5-3H13V8.8c0-.5.3-.8 1-.8z"/>',
+  threads: '<circle cx="12" cy="12" r="9"/><text x="12" y="16.5" text-anchor="middle" font-size="12" font-weight="700" stroke="none" fill="currentColor">@</text>',
+  tiktok: '<path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.5 2.5 2 4 4.5 4.2"/>',
+  x: '<path d="M5 5l14 14M19 5L5 19"/>',
+  kakao: '<path d="M12 4C7 4 3.5 7 3.5 10.8c0 2.4 1.6 4.5 4 5.7L6.7 20l4-2.5c.4.1.8.1 1.3.1 5 0 8.5-3 8.5-6.8S17 4 12 4z"/>',
+  web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+};
+const platformOf = (url) => {
+  let h = ""; try { h = new URL(url).hostname.toLowerCase(); } catch (_) { return "web"; }
+  const is = (...d) => d.some((x) => h === x || h.endsWith("." + x));
+  if (is("instagram.com")) return "instagram";
+  if (is("youtube.com", "youtu.be")) return "youtube";
+  if (is("naver.com")) return "naver";
+  if (is("facebook.com", "fb.com", "fb.me")) return "facebook";
+  if (is("threads.net", "threads.com")) return "threads";
+  if (is("tiktok.com")) return "tiktok";
+  if (is("x.com", "twitter.com")) return "x";
+  if (is("kakao.com")) return "kakao";
+  return "web";
+};
+// 카카오톡·블로그·유튜브 + 업로드 페이지에서 넣은 관련 링크를 한 목록으로 합친다(같은 주소는 한 번만).
+const linkList = (c) => {
+  const p = c.profile || {};
+  const all = [{ name: "카카오톡", url: p.kakao }, { name: "블로그", url: p.blog }, { name: "유튜브", url: p.youtube }, ...(Array.isArray(p.services) ? p.services : [])];
+  const seen = new Set();
+  return all.filter((x) => x && extUrl(x.url) && (x.name || "").trim()).filter((x) => { const k = extUrl(x.url).replace(/\/+$/, "").toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+};
+const iconRow = (c) => {
+  const items = linkList(c);
+  if (!items.length) return "";
+  return `<div class="max-w-7xl mx-auto px-5 sm:px-8 pb-10"><p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">관련 페이지</p>
+    <ul class="flex flex-wrap gap-x-4 gap-y-5">${items.map((x) => `<li><a href="${esc(extUrl(x.url))}" target="_blank" rel="noopener" title="${esc(x.name)}" aria-label="${esc(x.name)}" class="group inline-flex flex-col items-center gap-1.5 w-16 text-center">
+      <span class="w-11 h-11 rounded-full border border-white/25 flex items-center justify-center text-white/85 group-hover:bg-white/10 group-hover:text-white transition"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[platformOf(extUrl(x.url))]}</svg></span>
+      <span class="text-[11px] leading-tight opacity-70 group-hover:opacity-100 break-keep">${esc(x.name)}</span></a></li>`).join("")}</ul></div>`;
+};
 const footer = (c) => `<footer class="bg-brand-ink text-white/90">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-4">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-3">
     <div class="sm:col-span-2 md:col-span-2">
       <a href="/" class="inline-flex items-center gap-2.5"><span class="shrink-0">${LOGO}</span>
         <span class="flex flex-col leading-tight"><span class="text-base font-semibold text-white">${esc(c.kw)}</span><span class="text-[10px] tracking-widest uppercase opacity-60">${esc(c.en)}</span></span></a>
@@ -132,8 +166,8 @@ const footer = (c) => `<footer class="bg-brand-ink text-white/90">
         <li><a href="/sangdam" class="opacity-80 hover:opacity-100 transition">상담 안내</a></li>${contactItems(c)}
       </ul>
     </div>
-    ${servicesBlock(c)}
   </div>
+  ${iconRow(c)}
   <div class="border-t border-white/10"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 text-[12px] opacity-60 flex flex-wrap items-center justify-between gap-3">
     <span>© 2026 ${esc((c.profile && c.profile.company) || c.kw)}.</span></div></div>
 </footer>`;
@@ -188,7 +222,7 @@ function ctx(site, meta, data, extra = {}) {
 }
 const businessLd = (c) => {
   const p = c.profile || {};
-  const same = [extUrl(p.blog), extUrl(p.youtube), extUrl(p.kakao)].filter(Boolean);
+  const same = linkList(c).map((x) => extUrl(x.url));
   return json({ "@context": "https://schema.org", "@type": "HomeAndConstructionBusiness", name: c.kw, url: `https://${c.host}/`, ...(p.phone ? { telephone: p.phone } : {}), ...(same.length ? { sameAs: same } : {}) });
 };
 const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.kw} 페이지 목록`,
