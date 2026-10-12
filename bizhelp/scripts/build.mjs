@@ -3,6 +3,7 @@
 //  dist-sites/  키워드 사이트(<키워드slug>.suriwiki.com/<지역slug>) — worker/sites.mjs 가 호스트명으로 /s/<키워드slug>/ 에 매핑
 //  wrangler.sites.generated.jsonc  키워드마다 개별 커스텀 도메인(와일드카드 라우트·DNS는 쓰지 않는다)
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolveProfile } from './site-defaults.mjs';
 import { homePage, regionPage, sangdamPage, setImages } from './page-template.mjs';
 import { readdirSync } from 'node:fs';
 
@@ -37,7 +38,7 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   const imgDir = `site-images/${sub}`;
   const imgNames = existsSync(imgDir) ? readdirSync(imgDir).filter((f) => f.endsWith('.webp')).map((f) => f.replace('.webp', '')) : [];
   setImages(imgNames);
-  const profile = profiles[sub] || {};
+  const profile = resolveProfile(profiles[sub] || {});
   if (imgNames.length) cpSync(imgDir, `dist-sites/s/${sub}/img`, { recursive: true });
   const pages = data.pages.filter((p) => p.site === site && !p.pending && p.region).sort((a, b) => a.page_path.localeCompare(b.page_path));
   const put = (rel, html) => { const dir = `dist-sites/s/${sub}${rel}`.replace(/\/$/, ''); mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/index.html`, html); n++; };

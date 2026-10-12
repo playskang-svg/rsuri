@@ -5,6 +5,7 @@
 // 보안: authorize() 한 곳에서 접근을 통제한다. 지금은 로그인이 없다(나중에 Cloudflare Access JWT 검증을 이 함수에 넣는다).
 //       네이버·구글 계정 비밀번호처럼 제3자 비밀번호는 받지도 저장하지도 않는다.
 import SITES from './sites-meta.json';
+import { DEFAULT_PROFILE } from '../scripts/site-defaults.mjs';
 
 const MAX_IMAGE = 50 * 1024 * 1024;
 const MAX_VIDEO = 100 * 1024 * 1024;
@@ -32,6 +33,7 @@ async function ensureSchema(db) {
     db.prepare('CREATE INDEX IF NOT EXISTS files_slug_cat ON files (slug, category, created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS memos (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, category TEXT, content TEXT, created_at INTEGER)'),
   ]);
+  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
   schemaReady = true;
 }
 
@@ -56,6 +58,13 @@ async function getObj(env, db, key, range) {
 async function delObj(env, db, key) {
   if (env.FILES) await env.FILES.delete(key); else await db.prepare('DELETE FROM blobs WHERE key=?').bind(key).run();
 }
+
+// 사이트 정보(푸터에 노출): 전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스 링크
+const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, kakao, services';
+const isUrl = (v) => /^https?:\/\//i.test(String(v || '').trim());
+const parseServices = (v) => { try { const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a : []; } catch (_) { return []; } };
+const cleanServices = (a) => (Array.isArray(a) ? a : []).map((x) => ({ name: clean(x?.name, 30), url: clean(x?.url, 300) })).filter((x) => x.name && isUrl(x.url)).slice(0, 8);
+const shapeProfile = (row) => { const r = row || {}; return { ...r, services: parseServices(r.services) }; };
 
 const categoriesOf = (slug) => (SITES[slug]?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
 const clean = (v, max = 300) => String(v ?? '').trim().slice(0, max);
@@ -83,10 +92,10 @@ export default {
     if (!(await authorize(request, env))) return err(403, 'forbidden');
     await ensureSchema(env.DB);
 
-    // 키워드 사이트 빌드가 읽어가는 공개 정보(전화번호·블로그·유튜브). 사업자등록증·메모·파일은 포함하지 않는다.
+    // 키워드 사이트 빌드가 읽어가는 공개 정보(전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스). 사업자등록증·메모·파일은 포함하지 않는다.
     if (path === '/api/export/profiles' && request.method === 'GET') {
-      const { results } = await env.DB.prepare('SELECT slug, phone, blog, youtube, reference, updated_at FROM profile').all();
-      return json({ ok: true, profiles: results });
+      const { results } = await env.DB.prepare(`SELECT slug, ${PROFILE_COLS}, updated_at FROM profile`).all();
+      return json({ ok: true, profiles: results.map(shapeProfile) });
     }
 
     const m = path.match(/^\/api\/s\/([a-z0-9-]+)\/(.*)$/);
@@ -107,17 +116,18 @@ async function route(request, env, url, slug, rest) {
 
   // ── 개요(카테고리, 정보, 사업자등록증 상태)
   if (rest === 'overview' && method === 'GET') {
-    const profile = (await db.prepare('SELECT phone, blog, youtube, reference FROM profile WHERE slug=?').bind(slug).first()) || {};
+    const profile = shapeProfile(await db.prepare(`SELECT ${PROFILE_COLS} FROM profile WHERE slug=?`).bind(slug).first());
     const lic = await db.prepare('SELECT name, type, size, ocr_text, updated_at FROM license WHERE slug=?').bind(slug).first();
     const counts = (await db.prepare('SELECT category, COUNT(*) n FROM files WHERE slug=? GROUP BY category').bind(slug).all()).results;
-    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, license: lic || null, counts });
+    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts });
   }
 
   // ── 사이트 정보 저장
   if (rest === 'profile' && method === 'PUT') {
     const b = await request.json();
-    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, updated_at) VALUES (?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, updated_at=excluded.updated_at')
-      .bind(slug, clean(b.phone, 30), clean(b.blog), clean(b.youtube), clean(b.reference), Date.now()).run();
+    const kakao = clean(b.kakao); const services = JSON.stringify(cleanServices(b.services));
+    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, kakao, services, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, kakao=excluded.kakao, services=excluded.services, updated_at=excluded.updated_at')
+      .bind(slug, clean(b.phone, 30), clean(b.blog), clean(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), isUrl(kakao) ? kakao : '', services, Date.now()).run();
     return json({ ok: true });
   }
 

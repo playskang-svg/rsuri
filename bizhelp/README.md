@@ -46,3 +46,9 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - API: `worker/admin.mjs` (`/api/s/<slug>/…`, 공개 내보내기 `/api/export/profiles`는 전화·블로그·유튜브·참고 사이트만)
 - **연동**: 키워드 사이트 빌드(`sites` job, 매일 05:00 KST + 배포 시)가 `/api/export/profiles`를 읽어 푸터 연락처(tel 링크)·상담 페이지 전화 버튼·블로그/유튜브 링크·JSON-LD(telephone, sameAs)에 반영한다. 값이 없는 사이트는 아무것도 그리지 않는다.
 - **보안은 아직 없다**: 누구나 URL을 알면 접근할 수 있다. `authorize()`(worker/admin.mjs) 한 곳에 Cloudflare Access JWT 검증을 넣으면 된다. 그 전에는 실제 사업자등록증 등 민감 파일을 올리지 않는다.
+
+## 푸터 사업자 정보·연락처
+- 기본값은 `scripts/site-defaults.mjs` 한 곳: 상호 수리위키, 연락처 010-4684-8838, 카카오톡 채널 https://pf.kakao.com/_bcVPX
+- 업로드 페이지의 '사이트 정보'(상호·대표자·사업자등록번호·주소·연락처·카카오톡·블로그·유튜브·관련 서비스 링크)를 입력하면 입력값이 우선하고, 비운 항목만 기본값으로 채운다. 대표자·사업자등록번호·주소·블로그·유튜브·관련 서비스는 입력했을 때만 표시한다
+- 푸터(모든 페이지)·상담 페이지·홈 JSON-LD에 반영. 다음 배포(매일 05:00 KST 또는 수동 실행) 때 적용
+- 사업자등록증 OCR 텍스트는 사이트로 내보내지 않는다(오인식 방지). 사람이 입력한 값만 노출한다

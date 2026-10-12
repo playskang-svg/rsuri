@@ -102,16 +102,29 @@ const telHref = (p) => `tel:${String(p).replace(/[^0-9+]/g, "")}`;
 const extUrl = (v) => { const s = String(v || "").trim(); return /^https?:\/\//i.test(s) ? s : ""; };
 const contactItems = (c) => {
   const p = c.profile || {};
+  const link = (href, label) => `<li><a href="${esc(href)}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">${esc(label)}</a></li>`;
   return (p.phone ? `<li class="opacity-80 leading-relaxed pt-2"><span class="block text-[11px] uppercase tracking-widest opacity-60">CONTACT</span><a class="inline-block mt-1 font-semibold text-white" href="${esc(telHref(p.phone))}">${esc(p.phone)}</a></li>` : "")
-    + (extUrl(p.blog) ? `<li><a href="${esc(extUrl(p.blog))}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">블로그</a></li>` : "")
-    + (extUrl(p.youtube) ? `<li><a href="${esc(extUrl(p.youtube))}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">유튜브</a></li>` : "");
+    + (extUrl(p.kakao) ? link(extUrl(p.kakao), "카카오톡 상담") : "")
+    + (extUrl(p.blog) ? link(extUrl(p.blog), "블로그") : "")
+    + (extUrl(p.youtube) ? link(extUrl(p.youtube), "유튜브") : "");
 };
+// 사업자 정보: 값이 있는 항목만 한 줄로 이어 쓴다(상호는 기본값이 있어 항상 나온다).
+const regnoFmt = (v) => { const d = String(v || "").replace(/[^0-9]/g, ""); return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}` : String(v || "").trim(); };
+const businessLine = (c) => {
+  const p = c.profile || {};
+  const parts = [p.company && `상호 ${p.company}`, p.ceo && `대표 ${p.ceo}`, p.regno && `사업자등록번호 ${regnoFmt(p.regno)}`, p.address && `주소 ${p.address}`].filter(Boolean);
+  return parts.length ? `<p class="mt-5 text-[12px] leading-relaxed opacity-60 max-w-xl">${parts.map(esc).join(" · ")}</p>` : "";
+};
+const serviceItems = (c) => (Array.isArray(c.profile?.services) ? c.profile.services : []).filter((x) => x && x.name && extUrl(x.url))
+  .map((x) => `<li><a href="${esc(extUrl(x.url))}" target="_blank" rel="noopener" class="opacity-80 hover:opacity-100 transition">${esc(x.name)}</a></li>`).join("");
+const servicesBlock = (c) => { const items = serviceItems(c); return items ? `<div><p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">관련 서비스</p><ul class="space-y-2.5 text-sm">${items}</ul></div>` : ""; };
 const footer = (c) => `<footer class="bg-brand-ink text-white/90">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-3">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-4">
     <div class="sm:col-span-2 md:col-span-2">
       <a href="/" class="inline-flex items-center gap-2.5"><span class="shrink-0">${LOGO}</span>
         <span class="flex flex-col leading-tight"><span class="text-base font-semibold text-white">${esc(c.kw)}</span><span class="text-[10px] tracking-widest uppercase opacity-60">${esc(c.en)}</span></span></a>
       <p class="mt-5 text-sm leading-relaxed opacity-75 max-w-md">${esc(c.subs.slice(0, 3).join("·"))} 등 ${esc(c.kw)}를 안내합니다. 지역별 페이지에서 가까운 지역을 확인하세요.</p>
+      ${businessLine(c)}
     </div>
     <div>
       <p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">바로가기</p>
@@ -119,9 +132,10 @@ const footer = (c) => `<footer class="bg-brand-ink text-white/90">
         <li><a href="/sangdam" class="opacity-80 hover:opacity-100 transition">상담 안내</a></li>${contactItems(c)}
       </ul>
     </div>
+    ${servicesBlock(c)}
   </div>
   <div class="border-t border-white/10"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 text-[12px] opacity-60 flex flex-wrap items-center justify-between gap-3">
-    <span>© 2026 ${esc(c.kw)}.</span></div></div>
+    <span>© 2026 ${esc((c.profile && c.profile.company) || c.kw)}.</span></div></div>
 </footer>`;
 
 const tail = (itemList) => `${itemList}
@@ -174,7 +188,7 @@ function ctx(site, meta, data, extra = {}) {
 }
 const businessLd = (c) => {
   const p = c.profile || {};
-  const same = [extUrl(p.blog), extUrl(p.youtube)].filter(Boolean);
+  const same = [extUrl(p.blog), extUrl(p.youtube), extUrl(p.kakao)].filter(Boolean);
   return json({ "@context": "https://schema.org", "@type": "HomeAndConstructionBusiness", name: c.kw, url: `https://${c.host}/`, ...(p.phone ? { telephone: p.phone } : {}), ...(same.length ? { sameAs: same } : {}) });
 };
 const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.kw} 페이지 목록`,
@@ -306,7 +320,7 @@ export function sangdamPage({ site, meta, data, profile }) {
 <section class="py-20 sm:py-28"><div class="max-w-3xl mx-auto px-5 sm:px-8"><span class="eyebrow">상담 안내</span>
   <h1 class="mt-3 text-3xl sm:text-5xl font-normal tracking-tight">${esc(c.kw)} 상담</h1>
   <p class="mt-5 text-brand-ink/80 leading-relaxed">현장 사진과 지역을 보내 주시면 확인 후 회신합니다. 현장 사진과 지역을 남겨 주세요.</p>
-  <div class="mt-9 flex flex-wrap gap-3">${c.profile.phone ? `<a href="${esc(telHref(c.profile.phone))}" class="btn btn-primary">전화 ${esc(c.profile.phone)}</a>` : ""}<a href="/" class="btn ${c.profile.phone ? "btn-ghost" : "btn-primary"}">메인페이지</a></div></div></section>
+  <div class="mt-9 flex flex-wrap gap-3">${c.profile.phone ? `<a href="${esc(telHref(c.profile.phone))}" class="btn btn-primary">전화 ${esc(c.profile.phone)}</a>` : ""}${extUrl(c.profile.kakao) ? `<a href="${esc(extUrl(c.profile.kakao))}" target="_blank" rel="noopener" class="btn btn-ghost">카카오톡 상담</a>` : ""}<a href="/" class="btn btn-ghost">메인페이지</a></div></div></section>
 ${footer(c)}
 ${tail("")}`;
 }
