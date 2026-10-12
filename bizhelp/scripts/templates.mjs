@@ -8,7 +8,7 @@ export const DEFAULT_TEMPLATE = 'consult';
 
 export const TEMPLATES = {
   consult: {
-    name: '기본 상담형', swatch: ['#12294d', '#d9560f'],
+    name: '기본 상담형', swatch: ['#12294d', '#c2410c'],
     desc: '대표 사진 + 작업 항목 + 전후 비교 4개 + 문자 상담. 가장 균형 잡힌 기본형입니다.',
     hero: 'image', heroSlot: 3, photoSlots: 4, compareCols: 2, photoNote: '사례 3번이 맨 위 대표 사진이 됩니다.',
     home: ['badges', 'items', 'symptoms', 'compare', 'steps', 'area', 'faq', 'picker', 'cta'],

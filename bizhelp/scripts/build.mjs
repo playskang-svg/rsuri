@@ -57,7 +57,11 @@ if (process.env.BIZHELP_PROFILES_URL) {
 }
 const sample = !!data.noindex; // 실제 공개 전에는 검색 노출을 막는다
 cpSync('public/favicon.svg', 'dist-sites/favicon.svg');
-if (sample) writeFileSync('dist-sites/_headers', '/*\n  X-Robots-Tag: noindex, nofollow\n'); // 샘플 단계 — 실제 공개 시 data.sample=false
+// 응답 헤더: 사진은 하루 캐시(+재검증, 파일명이 같아도 새 사진으로 바뀌므로 immutable 은 쓰지 않는다), 기본 보안 헤더. 검색 노출 차단은 공개 전까지 유지
+const headers = ['/*', '  X-Content-Type-Options: nosniff', '  Referrer-Policy: strict-origin-when-cross-origin'];
+if (sample) headers.push('  X-Robots-Tag: noindex, nofollow');
+headers.push('/s/*/img/*', '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800', '/favicon.svg', '  Cache-Control: public, max-age=604800');
+writeFileSync('dist-sites/_headers', headers.join('\n') + '\n');
 
 let n = 0;
 const hosts = [];
@@ -120,7 +124,7 @@ if (existsSync('promo/index.html')) {
     const sub = site.split('.')[0], cnt = (data.pages || []).filter((p) => p.site === site).length;
     const hasImg = existsSync(`site-images/${sub}/ba-3-after.webp`);
     const tpl = tplList.find((t) => t.id === (m.template || 'consult'));
-    return `<a class="case rv" href="https://${site}/" target="_blank" rel="noopener"><div class="img"${hasImg ? ` style="background-image:url('https://${site}/img/ba-3-after.webp')"` : ''}><i>${escH(tpl ? tpl.name : '')}</i><b>${escH(m.main_keyword)}</b></div><div class="meta"><span>지역 페이지 <b>${cnt}</b>개 · ${escH((m.sub_keywords || []).slice(0, 2).join('·'))}</span><span class="go">보기 →</span></div></a>`;
+    return `<a class="case rv" href="https://${site}/" target="_blank" rel="noopener"><div class="img">${hasImg ? `<img src="https://${site}/img/ba-3-after.webp" alt="${escH(m.main_keyword)} 시공 사례" loading="lazy" decoding="async" width="640" height="400">` : ''}<i>${escH(tpl ? tpl.name : '')}</i><b>${escH(m.main_keyword)}</b></div><div class="meta"><span>지역 페이지 <b>${cnt}</b>개 · ${escH((m.sub_keywords || []).slice(0, 2).join('·'))}</span><span class="go">보기 →</span></div></a>`;
   }).join('');
   let reviews = [];
   try { reviews = JSON.parse(readFileSync('promo/reviews.json', 'utf8')); } catch {}
