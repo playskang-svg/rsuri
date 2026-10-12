@@ -6,3 +6,4 @@ dist-sites
 wrangler.sites.generated.jsonc
 sites-hosts.txt
 .wrangler
+worker/site-images-index.json

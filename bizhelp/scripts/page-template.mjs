@@ -54,6 +54,7 @@ function ctx(site, meta, data, extra = {}) {
   return {
     site, host: site, kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords || [], content, profile: p, noindex: !!data.noindex,
     phone: digits(p.phone), phoneShow: p.phone || "", updated: data.updated || "", pages: extra.pages || [], media: extra.media || {},
+    tpl: extra.tpl || { id: "consult", hero: "image", heroSlot: 3, photoSlots: 4, compareCols: 2, themeCss: "", home: [], region: [] },
   };
 }
 const guideOf = (c, sub) => (c.content.guide || {})[sub] || null;
@@ -106,6 +107,9 @@ h2{font-weight:800;font-size:29px;letter-spacing:-.025em;line-height:1.35;color:
 .chips-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .chips-links a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:99px;padding:9px 17px;font-size:14.5px;color:var(--ink)}
 .chips-links a:hover{border-color:var(--hot);color:var(--hot)}
+.grid.cols-1{grid-template-columns:1fr}.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.tbl-wrap{overflow-x:auto;margin-top:16px}.tbl{width:100%;border-collapse:collapse;font-size:15px}.tbl th,.tbl td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}.tbl th{font-size:13px;color:var(--sub);font-weight:700;border-bottom:2px solid var(--navy)}.tbl td:first-child{white-space:nowrap}
+.hero-card{display:none}
 .ba{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .ba-slider{position:relative;aspect-ratio:4/3;overflow:hidden;background:#e9edf3;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize}
 .ba-slider img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -150,6 +154,7 @@ footer strong{color:#fff}
 .fixbar a{text-align:center;padding:17px 10px;font-weight:800;font-size:16px}
 .fixbar .f-sms{flex:1;background:var(--hot);color:#fff;font-size:18px}.fixbar .f-call{flex:0 0 124px;background:var(--navy);color:#fff;font-weight:700}
 @media(max-width:640px){
+ .grid.cols-3{grid-template-columns:1fr 1fr}
  body{font-size:17.5px;line-height:1.7}h1{font-size:30px}.hl{font-size:21px}h2{font-size:24px}
  .grid{grid-template-columns:1fr}.badges{grid-template-columns:1fr}.badges>div{padding:16px 14px}
  .hero{min-height:330px}.hero-in{padding:34px 20px}.cta-band{padding:34px 22px}
@@ -161,7 +166,7 @@ const head = (c, { title, desc, keywords, canonical, ogImage }) => `<!DOCTYPE ht
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="keywords" content="${esc(keywords)}">
 <meta name="robots" content="${c.noindex ? "noindex, nofollow" : "index, follow"}"><link rel="canonical" href="${esc(canonical)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="${esc(c.kw)}"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">` : ""}
-<link rel="icon" href="/favicon.svg"><link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"><style>${CSS}</style>`;
+<link rel="icon" href="/favicon.svg"><link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"><style>${CSS}${c.tpl.themeCss || ""}</style>`;
 
 const header = (c) => `<header><div class="wrap hd"><a class="logo" href="/">${esc(c.kw)}</a>${c.phone ? `<a class="hd-call" href="${esc(telHref(c.phone))}">${esc(c.phoneShow)}</a>` : ""}</div></header>`;
 
@@ -177,14 +182,18 @@ ${links.length ? `<div class="f-links">${links.map((x) => `<a href="${esc(extUrl
 };
 
 // ── 섹션 조각
+const heroSlotName = (c, suffix) => (c.tpl.heroSlot ? `ba-${c.tpl.heroSlot}-${suffix}` : "");
 const heroBlock = (c, { h1, headline, lead, crumb }) => {
-  const bgName = hasImg("ba-3-after") ? "ba-3-after" : hasImg("hero-1") ? "hero-1" : "";
-  const ev = hasImg("ba-3-before") && hasImg("ba-3-after")
-    ? `<div class="hero-ev"><div class="hero-ev-box">${imgTag("ba-3-before", `${c.kw} 작업 전`)}<span>작업 전</span></div><div class="hero-ev-box">${imgTag("ba-3-after", `${c.kw} 작업 후`)}<span>작업 후</span></div><div class="hero-ev-cap">${esc(captionOf(c, 3))}</div></div>` : "";
-  return `<div class="hero">${bgName ? `<div class="hero-bg">${imgTag(bgName, "")}</div>` : ""}<div class="hero-in">${crumb ? `<div class="crumb">${crumb}</div>` : ""}<h1>${esc(h1)}</h1>
-<p class="hl">${esc(headline)}</p><p class="lead">${esc(lead)}</p>
-<div class="cta-row"><a class="btn btn-sms" href="#picker">📷 사진 보내고 문자 문의 ↓</a>${c.phone ? `<a class="btn btn-tel" href="${esc(telHref(c.phone))}">📞 전화</a>` : ""}</div>
-<p class="cta-note">📷 사진 한 장이면 가능 여부를 먼저 안내합니다.</p>${ev}</div></div>`;
+  const hs = c.tpl.heroSlot;
+  const afterName = hs ? heroSlotName(c, "after") : "", beforeName = hs ? heroSlotName(c, "before") : "";
+  const bgName = c.tpl.hero === "image" ? (hs && hasImg(afterName) ? afterName : hasImg("hero-1") ? "hero-1" : "") : "";
+  const ev = hs && hasImg(beforeName) && hasImg(afterName) && c.tpl.hero !== "plain"
+    ? `<div class="hero-ev"><div class="hero-ev-box">${imgTag(beforeName, `${c.kw} 작업 전`)}<span>작업 전</span></div><div class="hero-ev-box">${imgTag(afterName, `${c.kw} 작업 후`)}<span>작업 후</span></div><div class="hero-ev-cap">${esc(captionOf(c, hs))}</div></div>` : "";
+  const actions = `<div class="cta-row"><a class="btn btn-sms" href="#picker">📷 사진 보내고 문자 문의 ↓</a>${c.phone ? `<a class="btn btn-tel" href="${esc(telHref(c.phone))}">📞 전화</a>` : ""}</div>`;
+  const card = c.tpl.hero === "split" ? `<div class="hero-card"><b>${c.phoneShow ? esc(c.phoneShow) : "사진으로 문의"}</b><span>사진 한 장이면 가능 여부를 먼저 안내합니다</span>${c.phone ? `<a class="btn btn-sms" href="${esc(telHref(c.phone))}">📞 바로 전화</a>` : ""}<a class="btn btn-tel" href="#picker">📷 문자로 사진 보내기</a></div>` : "";
+  return `<div class="hero hero-${c.tpl.hero}">${bgName ? `<div class="hero-bg">${imgTag(bgName, "")}</div>` : ""}<div class="hero-in"><div class="hero-main">${crumb ? `<div class="crumb">${crumb}</div>` : ""}<h1>${esc(h1)}</h1>
+<p class="hl">${esc(headline)}</p><p class="lead">${esc(lead)}</p>${c.tpl.hero === "split" ? "" : actions}
+${c.tpl.hero === "split" ? "" : `<p class="cta-note">📷 사진 한 장이면 가능 여부를 먼저 안내합니다.</p>`}${ev}</div>${card}</div></div>`;
 };
 const captionOf = (c, slot) => (c.media.captions && c.media.captions[slot]) || (c.subs[slot - 1] ? `${c.subs[slot - 1]} 사례` : `${c.kw} 사례`);
 
@@ -196,9 +205,17 @@ const symptomsBlock = (c) => ((c.content.symptoms || []).length ? `<section><h2>
 
 const compareBlock = (c, title) => {
   // 전·후 사진이 둘 다 있는 사례만 보여 준다(없는 칸은 만들지 않는다). 하나도 없으면 섹션 전체를 생략한다.
-  const cells = [1, 2, 3, 4].filter((n) => hasImg(`ba-${n}-before`) && hasImg(`ba-${n}-after`)).map((n) =>
+  const slots = Array.from({ length: c.tpl.photoSlots || 4 }, (_, i) => i + 1).filter((n) => hasImg(`ba-${n}-before`) && hasImg(`ba-${n}-after`));
+  const cells = slots.map((n) =>
     `<div class="ba"><div class="ba-slider" data-slider>${imgTag(`ba-${n}-after`, `${captionOf(c, n)} 작업 후`, 'class="ba-after"')}${imgTag(`ba-${n}-before`, `${captionOf(c, n)} 작업 전`, 'class="ba-before"')}<div class="ba-handle"></div><span class="ba-tag ba-tag-b">작업 전</span><span class="ba-tag ba-tag-a">작업 후</span></div><div class="ba-cap">${esc(captionOf(c, n))}</div></div>`).join("");
-  return cells ? `<section><h2>${esc(title)} <span class="sec-badge">작업 사진</span></h2><p class="sec-sub">손잡이를 좌우로 움직이면 같은 자리의 작업 전과 후가 바뀝니다.</p><div class="grid">${cells}</div></section>` : "";
+  return cells ? `<section id="cases"><h2>${esc(title)} <span class="sec-badge">작업 사진</span></h2><p class="sec-sub">손잡이를 좌우로 움직이면 같은 자리의 작업 전과 후가 바뀝니다.</p><div class="grid cols-${c.tpl.compareCols || 2}">${cells}</div></section>` : "";
+};
+
+// 유형별 안내 표(대상·소요 시간·특징): 그룹 content.guide 가 있는 서브 키워드만
+const guideTableBlock = (c, title) => {
+  const rows = c.subs.map((x) => [x, guideOf(c, x)]).filter(([, g]) => g && (g.target || g.time || g.point));
+  if (!rows.length) return "";
+  return `<section id="guide"><h2>${esc(title)}</h2><p class="sec-sub">작업 유형별로 어떤 경우에 해당하는지, 얼마나 걸리는지 정리했습니다.</p><div class="tbl-wrap"><table class="tbl"><thead><tr><th>항목</th><th>대상</th><th>소요 시간</th><th>특징</th></tr></thead><tbody>${rows.map(([x, g]) => `<tr><td><b>${esc(x)}</b></td><td>${esc(g.target)}</td><td>${esc(g.time)}</td><td>${esc(g.point)}</td></tr>`).join("")}</tbody></table></div><p class="sec-sub" style="margin-top:12px;font-size:13px">소요 시간은 일반적인 작업 기준이며 면적과 현장 상태에 따라 달라집니다. 비용은 현장 확인 후 안내합니다.</p></section>`;
 };
 
 const stepsBlock = () => `<section><h2>진행 절차</h2><div class="steps">
@@ -259,41 +276,58 @@ const businessLd = (c, extra = {}) => jsonLd({
   areaServed: areaNames(c).map((n) => ({ "@type": "City", name: n })), ...(linkList(c.profile).length ? { sameAs: linkList(c.profile).map((x) => extUrl(x.url)) } : {}), ...extra,
 });
 
-const ogImageOf = (c) => { const n = hasImg("ba-3-after") ? "ba-3-after" : hasImg("hero-1") ? "hero-1" : ""; return n ? `https://${c.host}${imgSrc(n)}` : ""; };
+const ogImageOf = (c) => { const a = heroSlotName(c, "after"); const n = a && hasImg(a) ? a : hasImg("hero-1") ? "hero-1" : ""; return n ? `https://${c.host}${imgSrc(n)}` : ""; };
 
-// ── 페이지
-export function homePage({ site, meta, pages, data, profile, media }) {
-  const c = ctx(site, meta, data, { profile, pages, media });
-  const ct = c.content;
-  const faq = faqItems(c);
+// ── 페이지: 템플릿(tpl)이 섹션 순서와 변형을 정한다. 섹션 이름은 아래 SEC 에 있다.
+const SEC = {
+  badges: (c) => badgesBlock(c),
+  items: (c, o) => itemsBlock(c, o.region ? `${o.region} ${c.kw} 작업 항목` : `${c.kw} 작업 항목`, o.region ? `${o.region}에서 많이 문의하시는 작업입니다.` : "비슷한 상황을 골라 문의에 담을 수 있습니다."),
+  guide: (c, o) => guideTableBlock(c, o.region ? `${o.region} ${c.kw} 유형별 안내` : `${c.kw} 유형별 안내`),
+  symptoms: (c) => symptomsBlock(c),
+  compare: (c, o) => compareBlock(c, o.region ? `${o.region} 작업 전후` : "작업 전후 비교"),
+  steps: () => stepsBlock(),
+  area: (c, o) => areaBlock(c, o.region || ""),
+  faq: (c, o) => faqBlock(faqItems(c, o.region || "")),
+  picker: (c, o) => pickerBlock(c, { pageName: o.region ? `${o.region} ${c.kw}` : c.kw, region: o.region || "" }),
+  cta: (c, o) => ctaBand(c, o.region ? `${o.region} 상담` : "사진 한 장이면 충분합니다"),
+  intro: (c, o) => (o.region ? regionIntro(c, o.region) : ""),
+};
+function regionIntro(c, region) {
+  const intro = (c.media && c.media.intro) || "";
+  const items = c.subs.slice(0, 3).map((s) => `${s}${eunNeun(s)} ${guideOf(c, s) && guideOf(c, s).time ? guideOf(c, s).time : "현장에 따라 다릅니다"}`).join(", ");
+  return `<section><h2>${esc(region)} ${esc(c.kw)} 안내</h2><div class="prose">${intro ? intro.split(/\n+/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("") : ""}<p>${esc(region)} 지역 ${esc(c.kw)} 상담을 받고 있습니다. 대표 작업 기준으로 ${esc(items)}입니다. 면적과 현장 상태에 따라 달라지므로 ${esc(region)} 현장 사진을 보내 주시면 가능 여부와 일정을 먼저 안내합니다. 비용은 현장 확인 후 안내합니다.</p></div></section>`;
+}
+const renderSections = (c, names, o) => {
+  const pre = names.includes("badges") ? SEC.badges(c) : "";
+  return `${pre}<div class="wrap">${names.filter((n) => n !== "badges").map((n) => SEC[n](c, o)).join("")}</div>`;
+};
+
+export function homePage({ site, meta, pages, data, profile, media, tpl }) {
+  const c = ctx(site, meta, data, { profile, pages, media, tpl });
+  const ct = c.content, faq = faqItems(c);
   const desc = `${c.kw} 상담. ${c.subs.slice(0, 4).join("·")} 등 ${c.pages.length}개 지역에서 사진을 보내 주시면 가능 여부부터 안내합니다.`;
   return `${head(c, { title: `${c.kw} | ${c.subs.slice(0, 4).join("·")}`, desc, keywords: [c.kw, ...c.subs].join(", "), canonical: `https://${c.host}/`, ogImage: ogImageOf(c) })}
-${businessLd(c)}${faqLd(faq)}</head><body>${header(c)}
+${businessLd(c)}${c.tpl.home.includes("faq") ? faqLd(faq) : ""}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
 ${heroBlock(c, { h1: c.kw, headline: ct.headline || `${c.kw}, 어떻게 해야 할지 고민이신가요?`, lead: ct.lead || desc })}
-${badgesBlock(c)}<div class="wrap">
-${itemsBlock(c, `${c.kw} 작업 항목`, "비슷한 상황을 골라 문의에 담을 수 있습니다.")}${symptomsBlock(c)}${compareBlock(c, "작업 전후 비교")}${stepsBlock()}${areaBlock(c, "")}${faqBlock(faq)}${pickerBlock(c, { pageName: c.kw, region: "" })}${ctaBand(c, "사진 한 장이면 충분합니다")}</div>
+${renderSections(c, c.tpl.home, {})}
 ${footer(c)}${SCRIPT(c, c.kw, "")}</body></html>`;
 }
 
-export function regionPage({ site, meta, page, pages, data, profile, media }) {
+export function regionPage({ site, meta, page, pages, data, profile, media, tpl }) {
   const region = page.region;
-  const c = ctx(site, meta, data, { profile, pages, media });
-  const ct = c.content, intro = (media && media.intro) || "";
-  const faq = faqItems(c, region);
+  const c = ctx(site, meta, data, { profile, pages, media, tpl });
+  const ct = c.content, faq = faqItems(c, region);
   const desc = `${region} ${c.kw} 상담. ${c.subs.slice(0, 3).join("·")} 등을 사진으로 먼저 확인하고 안내합니다.`;
-  const items = c.subs.slice(0, 3).map((s) => `${s}${eunNeun(s)} ${guideOf(c, s) ? guideOf(c, s).time : "현장에 따라 다릅니다"}`).join(", ");
   return `${head(c, { title: `${region} ${c.kw} | ${c.kw}`, desc, keywords: [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`)].join(", "), canonical: `https://${c.host}${page.page_path}`, ogImage: ogImageOf(c) })}
-${businessLd(c, { areaServed: [{ "@type": "City", name: region }] })}${faqLd(faq)}</head><body>${header(c)}
+${businessLd(c, { areaServed: [{ "@type": "City", name: region }] })}${c.tpl.region.includes("faq") ? faqLd(faq) : ""}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
 ${heroBlock(c, { h1: page.h1_title, headline: `${region}에서 ${ct.headline || `${c.kw}, 어떻게 해야 할지 고민이신가요?`}`, lead: ct.lead || desc, crumb: `<a href="/">${esc(c.kw)}</a> › ${esc(region)}` })}
-${badgesBlock(c)}<div class="wrap">
-<section><h2>${esc(region)} ${esc(c.kw)} 안내</h2><div class="prose">${intro ? intro.split(/\n+/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("") : ""}<p>${esc(region)} 지역 ${esc(c.kw)} 상담을 받고 있습니다. 대표 작업 기준으로 ${esc(items)}입니다. 면적과 현장 상태에 따라 달라지므로 ${esc(region)} 현장 사진을 보내 주시면 가능 여부와 일정을 먼저 안내합니다. 비용은 현장 확인 후 안내합니다.</p></div></section>
-${itemsBlock(c, `${region} ${c.kw} 작업 항목`, `${region}에서 많이 문의하시는 작업입니다.`)}${symptomsBlock(c)}${compareBlock(c, `${region} 작업 전후`)}${areaBlock(c, region)}${faqBlock(faq)}${pickerBlock(c, { pageName: `${region} ${c.kw}`, region })}${ctaBand(c, `${region} 상담`)}</div>
+${renderSections(c, c.tpl.region, { region })}
 ${footer(c)}${SCRIPT(c, `${region} ${c.kw}`, region)}</body></html>`;
 }
 
-export function sangdamPage({ site, meta, data, profile, pages, media }) {
-  const c = ctx(site, meta, data, { profile, pages, media });
-  return `${head(c, { title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내. 체크하고 사진을 첨부해 문자로 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, ogImage: "" })}</head><body>${header(c)}
+export function sangdamPage({ site, meta, data, profile, pages, media, tpl }) {
+  const c = ctx(site, meta, data, { profile, pages, media, tpl });
+  return `${head(c, { title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내. 체크하고 사진을 첨부해 문자로 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, ogImage: "" })}</head><body data-tpl="${esc(c.tpl.id || "")}">${header(c)}
 <div class="wrap" style="padding-top:36px"><h1 style="color:var(--navy);font-size:32px">${esc(c.kw)} 상담</h1><p class="sec-sub">현장 사진과 지역을 보내 주시면 확인 후 안내합니다.</p></div>
 <div class="wrap">${pickerBlock(c, { pageName: `${c.kw} 상담`, region: "" })}</div>${footer(c)}${SCRIPT(c, `${c.kw} 상담`, "")}</body></html>`;
 }

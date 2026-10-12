@@ -5,11 +5,18 @@
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolveProfile } from './site-defaults.mjs';
 import { groupsToRegistry } from './group-model.mjs';
-import { homePage, regionPage, sangdamPage, setImages } from './page-template.mjs';
+import { homePage, regionPage, sangdamPage, setImages } from './templates.mjs';
 import { readdirSync } from 'node:fs';
 
 for (const d of ['dist', 'dist-sites']) { rmSync(d, { recursive: true, force: true }); mkdirSync(d, { recursive: true }); }
 cpSync('src', 'dist', { recursive: true });
+// 업로드 페이지 템플릿 미리보기가 쓰는 기본 사진: 관리자 사이트에도 복사하고, 어떤 사진이 있는지 색인을 워커에 넘긴다
+if (existsSync('site-images')) {
+  cpSync('site-images', 'dist/site-images', { recursive: true });
+  const idx = {};
+  for (const d of readdirSync('site-images')) idx[d] = readdirSync(`site-images/${d}`).filter((f) => f.endsWith('.webp')).map((f) => f.replace('.webp', ''));
+  writeFileSync('worker/site-images-index.json', JSON.stringify(idx));
+} else writeFileSync('worker/site-images-index.json', '{}');
 if (existsSync('public')) cpSync('public', 'dist', { recursive: true });
 
 // 사이트·페이지 정의: 대시보드에서 만든 그룹(D1)이 원본이다. 불러오지 못하면 저장소의 registry/sites.json(시드)로 만든다.
@@ -82,7 +89,7 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   // 페이지(공통/지역)별 사진 경로 지도: 지역 쌍 > 공통 쌍 > 기본 사진
   const apply = (region) => {
     const names = new Set(imgNames), src = {};
-    for (const slot of [1, 2, 3, 4]) {
+    for (const slot of [1, 2, 3, 4, 5, 6, 7, 8]) {
       const pair = (region && fetched[`${region}/${slot}`]) || fetched[`/${slot}`];
       if (pair) { src[`ba-${slot}-before`] = pair.before; src[`ba-${slot}-after`] = pair.after; names.add(`ba-${slot}-before`); names.add(`ba-${slot}-after`); }
     }

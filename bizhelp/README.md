@@ -84,3 +84,11 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - '지금 반영' 버튼: GitHub 시크릿 `GH_DISPATCH_TOKEN`(저장소 Actions 쓰기 권한 토큰)을 등록하면 켜진다. 60초에 한 번만 받는다. 미등록이면 버튼이 안내 문구를 보여 준다
 - 빌드는 `/api/export/groups`를 읽고, 실패하면 `registry/sites.json`으로 대체한다
 - 주의: 아직 로그인이 없다(authorize 자리). 그룹 생성·수정·배포 요청은 로그인 보호를 붙이기 전까지 누구나 가능하다
+
+## 사이트 템플릿 4종 (사이트 빌더)
+- `scripts/templates.mjs`: 기본 상담형(consult) · 사진 중심형(gallery) · 정보 안내형(guide) · 간편 원페이지형(simple). 템플릿 = 섹션 순서(홈/지역) + 히어로 변형(image·plain·split) + 사진 칸 수 + 테마 CSS. 새 템플릿은 항목 하나를 추가하면 된다. 엔진은 `scripts/page-template.mjs`
+- 선택은 업로드 페이지 맨 위 '디자인 템플릿' 카드에서: 미리보기(입력한 내용·사진으로 PC/모바일) → 선택. 저장 값은 D1 `groups.template`(기본 consult)이고, 대시보드 카드에 🎨 템플릿 이름이 표시된다
+- 템플릿을 바꿔도 입력한 내용·사진은 유지된다. 업로드 화면의 '공사 전/후' 칸 수만 템플릿(2·4·8개)에 맞춰진다. 칸 수를 넘는 사진은 보관만 되고 사이트에는 나오지 않는다
+- 미리보기는 워커가 빌드와 같은 템플릿 코드를 실행한다(`/api/s/<주소>/preview?template=&region=`, 저장하지 않음). 기본 사진은 `dist/site-images`로 함께 배포된다
+- 그룹 수정(대시보드)은 템플릿 선택을 바꾸지 않는다. 템플릿 변경은 `/api/s/<주소>/template`
+- 사이트별 일부 변경은 코드가 아니라 그룹 내용(문구·증상·안내·사진 설명·지역 소개)으로 한다

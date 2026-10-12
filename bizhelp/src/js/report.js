@@ -111,7 +111,8 @@ function compute(data) {
     newLabel = '지난 주';
   }
   const siteUrl = (s) => (data.site_meta && data.site_meta[s] && data.site_meta[s].url) || `https://${s}`;
-  return { siteUrl, dates, today, rows, validNow, validGain, vPrevPrev, weekStart, prevCut, mainCount, subCount, newSites, newPages, pwSites, pwPages,
+  const tplName = (s) => { const id = data.site_meta && data.site_meta[s] && data.site_meta[s].template; const t = (data.templates || []).find((x) => x.id === id); return t ? t.name : ''; };
+  return { siteUrl, tplName, dates, today, rows, validNow, validGain, vPrevPrev, weekStart, prevCut, mainCount, subCount, newSites, newPages, pwSites, pwPages,
     top, newKw, newLabel, sitesMap, siteNames, createdBySite, kwOf, kwsOfSite, kwListOf, isNewPg, pagesCount: pages.length };
 }
 
@@ -198,7 +199,7 @@ function renderSites(c) {
     };
     const nw = fresh.length;
     h += `<div class="site-card c${si % 8}"><div class="site-head"><div class="site-head-left"><div class="site-icon">${si + 1}</div>
-      <div class="site-info"><div class="site-domain">${esc(site)}</div><div class="site-title">메인사이트 ${si + 1}/${c.mainCount}${c.createdBySite.get(site) ? ` · 📅 생성 ${c.createdBySite.get(site)}` : ''}</div></div></div>
+      <div class="site-info"><div class="site-domain">${esc(site)}</div><div class="site-title">메인사이트 ${si + 1}/${c.mainCount}${c.createdBySite.get(site) ? ` · 📅 생성 ${c.createdBySite.get(site)}` : ''}${c.tplName(site) ? ` · 🎨 ${esc(c.tplName(site))}` : ''}</div></div></div>
       <div class="site-meta"><button type="button" class="site-link-btn" style="background:#0f766e;border:0;cursor:pointer" data-grp="edit" data-slug="${esc(site.split('.')[0])}" title="키워드·지역·내용 수정">수정</button><a class="site-link-btn" style="background:#475569" href="/upload/${esc(site.split('.')[0])}" target="_blank" rel="noopener" title="사진·정보 업로드">업로드</a><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
       <div class="site-badges"><span class="site-cnt-badge" title="총 페이지 수">📄 <b>${list.length}</b>개</span>
       <span class="site-wow-badge ${nw ? 'up' : 'zero'}" title="이번 주 신규 ${nw}개 (${c.weekStart} 월요일 이후)">📈 <b>${nw ? '+' + nw : '±0'}</b></span></div>

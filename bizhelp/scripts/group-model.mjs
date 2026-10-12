@@ -65,7 +65,7 @@ export function groupMeta(g) {
     lead: c.lead || `${g.subs.slice(0, 4).join('·')} 등 ${g.main_keyword} — 사진으로 먼저 확인하고 가능한 방법을 안내합니다.`,
     symptoms: c.symptoms || [], guide: c.guide || {},
   };
-  return { main_keyword: g.main_keyword, slug: g.slug, en: g.en || '', sub_keywords: g.subs, url: `https://${groupHost(g.slug)}/`, content };
+  return { main_keyword: g.main_keyword, slug: g.slug, en: g.en || '', sub_keywords: g.subs, url: `https://${groupHost(g.slug)}/`, content, template: g.template || 'consult' };
 }
 
 // 그룹 목록 → 빌드가 쓰는 registry 모양
@@ -80,6 +80,6 @@ export function groupsToRegistry(groups, base = {}) {
 export function registryToGroups(reg) {
   return Object.entries(reg.site_meta || {}).map(([site, m]) => {
     const regions = (reg.pages || []).filter((p) => p.site === site).map((p) => p.region_slug);
-    return { slug: m.slug, main_keyword: m.main_keyword, en: m.en || '', subs: m.sub_keywords || [], regions, content: m.content || {} };
+    return { slug: m.slug, main_keyword: m.main_keyword, en: m.en || '', subs: m.sub_keywords || [], regions, content: m.content || {}, template: m.template || 'consult' };
   });
 }
