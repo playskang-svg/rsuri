@@ -1,4 +1,4 @@
-# bizhelp/ 하위(관리자 리포트 admin.bizhelp.kr + 키워드 서브도메인 워커 *.suriwiki.com)만 배포한다.
+# bizhelp/ 하위(관리자 리포트 admin.suriwiki.com + 키워드 서브도메인 워커 *.suriwiki.com)만 배포한다.
 # 본 사이트 deploy.yml(suriwiki 워커)과 Worker 이름이 달라 서로 덮어쓰지 않는다.
 # 배포 규칙은 CLAUDE.md와 같다: main 머지로만 배포, PR에서는 빌드 검증만.
 name: bizhelp-deploy
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: node scripts/build.mjs
-      - name: Deploy admin (admin.bizhelp.kr)
+      - name: Deploy admin (admin.suriwiki.com)
         if: github.event_name != 'pull_request'
         run: |
           export CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"

@@ -1,4 +1,4 @@
-# admin.bizhelp.kr — 사이트 제작 현황 리포트
+# admin.suriwiki.com — 사이트 제작 현황 리포트
 
 정적 사이트(Cloudflare Workers assets). `src/index.html` 한 페이지가 `src/data/report.json`을 읽어 렌더링한다.
 
@@ -18,10 +18,10 @@
 - `이미지업로드URL`은 아직 미연결.
 
 ## 배포
-main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (bizhelp.kr 존이 있는 계정).
+main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (suriwiki.com 존이 있는 계정).
 
 ## 키워드 구조 (사이트 → 키워드 페이지 → 서브키워드)
-- 관리자: `admin.bizhelp.kr` (이 저장소의 `dist/`, `wrangler.jsonc`).
+- 관리자: `admin.suriwiki.com` (이 저장소의 `dist/`, `wrangler.jsonc`).
 - 열릴 페이지: `https://<키워드slug>.suriwiki.com/<지역slug>` (예: `munjjak-film.suriwiki.com/ansan`). 사이트 메인 = `https://<키워드slug>.suriwiki.com/`.
   `dist-sites/` + `worker/sites.mjs` + `wrangler.sites.jsonc`(워커 `suriwiki-sites`, 라우트 `*.suriwiki.com/*`). 워커가 호스트명의 서브도메인을 `/s/<키워드slug>/` 에셋 경로로 매핑한다.
 - 사이트 1개 = 메인 키워드 1개 = 서브도메인 1개. 페이지 1개 = `{지역} {메인키워드}` = `/<지역slug>`. 서브 키워드는 별도 페이지 없이 키워드 페이지가 품는다(대표 서비스 카드 6개).
