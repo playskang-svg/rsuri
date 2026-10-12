@@ -146,6 +146,9 @@ if (existsSync('promo/index.html')) {
     .replace(/\{\{REGIONS\}\}/g, String(allRegions().length)).replace(/\{\{TEMPLATES\}\}/g, String(tplList.length))
     .replace('{{CASES}}', cases).replace('{{REVIEWS}}', reviewsHtml).replace(/\{\{MARQUEE\}\}/g, marquee).replace('{{TEMPLATE_ROWS}}', tplRows);
   writeFileSync('dist-sites/s/builder/index.html', promo);
+  // 히어로 배경·OG 이미지 (promo/img → /img/…, 이미지 캐시 규칙 적용)
+  mkdirSync('dist-sites/s/builder/img', { recursive: true });
+  if (existsSync('promo/img')) for (const f of readdirSync('promo/img')) cpSync(`promo/img/${f}`, `dist-sites/s/builder/img/${f}`);
   writeFileSync('dist-sites/s/builder/robots.txt', sample ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
   hosts.push('builder.suriwiki.com');
 }
