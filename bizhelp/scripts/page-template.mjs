@@ -47,11 +47,17 @@ const CHEV = `<svg class="chev shrink-0" width="18" height="18" viewBox="0 0 24 
 const PHONE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>`;
 const UP = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 15l6-6 6 6"/></svg>`;
 const GRAD = ["#3b5b8c,#1a3159", "#5a7bb0,#2c4a7a", "#7d92b5,#3f5a86", "#4a6a9c,#1f3a66", "#6f87ad,#34507d", "#2f4d7c,#16294a"];
+// 이미지 슬롯: site-images/<slug>/<name>.webp 가 있으면 사진, 없으면 자리표시자
+let IMGS = new Set();
+export const setImages = (names) => { IMGS = new Set(names); };
+const img = (name, alt, i = 0, extra = "") => IMGS.has(name)
+  ? `<img src="/img/${name}.webp" alt="${esc(alt)}" class="w-full h-full object-cover ${extra}" loading="lazy" decoding="async">`
+  : ph(i, "");
 const ph = (i, label = "") => `<div class="ph" style="background:linear-gradient(135deg,${GRAD[i % GRAD.length]})">${esc(label)}</div>`;
 
 const TW = `<script>tailwind.config={theme:{extend:{colors:{brand:{bg:'#FFFFFF',sub:'#F2F4F7',ink:'#1B1F24',mute:'#6B7280',primary:'#1A3159',accent:'#4472B8',line:'#E5E7EB'}},fontFamily:{sans:['Pretendard','Noto Sans KR','system-ui','sans-serif']}}}};</script>`;
 
-function head({ title, desc, keywords, canonical, brandName, sample, ogLabel }) {
+function head({ title, desc, keywords, canonical, brandName, sample, ogLabel, ogImage }) {
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -67,7 +73,9 @@ function head({ title, desc, keywords, canonical, brandName, sample, ogLabel }) 
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(canonical)}">
-<meta property="og:site_name" content="${esc(ogLabel)}">
+<meta property="og:site_name" content="${esc(ogLabel)}">${ogImage ? `
+<meta property="og:image" content="${esc(ogImage)}">
+<meta name="twitter:image" content="${esc(ogImage)}">` : ""}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
@@ -100,13 +108,11 @@ const footer = (c) => `<footer class="bg-brand-ink text-white/90">
       <p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">바로가기</p>
       <ul class="space-y-2.5 text-sm">
         <li><a href="/sangdam" class="opacity-80 hover:opacity-100 transition">상담 안내</a></li>
-        <li class="opacity-80 leading-relaxed pt-2"><span class="block text-[11px] uppercase tracking-widest opacity-60">CONTACT</span><span class="inline-block mt-1 font-semibold text-white">연락처 (연결 전)</span></li>
-        <li class="opacity-60 text-[12px] pt-1 leading-relaxed">${esc(c.brand)}<br>사업자 정보는 실제 데이터 연결 후 표시됩니다</li>
       </ul>
     </div>
   </div>
   <div class="border-t border-white/10"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 text-[12px] opacity-60 flex flex-wrap items-center justify-between gap-3">
-    <span>© 2026 ${esc(c.brand)} ${esc(c.kw)}.</span>${c.sample ? "<span>샘플 페이지 — 내용은 예시입니다</span>" : ""}</div></div>
+    <span>© 2026 ${esc(c.brand)} ${esc(c.kw)}.</span></div></div>
 </footer>`;
 
 const tail = (itemList) => `${itemList}
@@ -125,11 +131,11 @@ topBtn&&topBtn.addEventListener('click',function(){window.scrollTo({top:0,behavi
 const works = (c, n, id = "works") => `<section class="py-16 sm:py-20 scroll-mt" id="${id}"><div class="max-w-7xl mx-auto px-5 sm:px-8">
   <div class="flex flex-wrap items-end justify-between gap-4 mb-9 fade-up"><div><span class="eyebrow">시공 사례</span>
     <h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(c.title)} 작업 사진</h2>
-    <p class="mt-3 text-sm muted max-w-xl">작업 전후 사진이 들어가는 영역입니다 (샘플).</p></div>
+    <p class="mt-3 text-sm muted max-w-xl">작업 전후 사진입니다.</p></div>
     <a href="/sangdam" class="btn btn-ghost text-sm">사진 보내고 상담하기</a></div>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">${Array.from({ length: n }, (_, i) => `<article class="fade-up"><div class="grid grid-cols-2 gap-2 sm:gap-3">
-    <figure class="photo-fig aspect-[4/5]"><span class="ba-tag">BEFORE</span>${ph(i * 2)}</figure>
-    <figure class="photo-fig aspect-[4/5]"><span class="ba-tag after">AFTER</span>${ph(i * 2 + 1)}</figure></div></article>`).join("")}</div></div></section>`;
+    <figure class="photo-fig aspect-[4/5]"><span class="ba-tag">BEFORE</span>${img(`ba-${i + 1}-before`, `${c.title} 작업 전`, i * 2)}</figure>
+    <figure class="photo-fig aspect-[4/5]"><span class="ba-tag after">AFTER</span>${img(`ba-${i + 1}-after`, `${c.title} 작업 후`, i * 2 + 1)}</figure></div></article>`).join("")}</div></div></section>`;
 
 const services = (c, eyebrow, h2, lead, id = "service") => `<section class="py-16 sm:py-20" id="${id}"><div class="max-w-7xl mx-auto px-5 sm:px-8">
   <div class="max-w-2xl fade-up"><span class="eyebrow">${esc(eyebrow)}</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(h2)}</h2>${lead ? `<p class="mt-4 text-sm muted leading-relaxed">${esc(lead)}</p>` : ""}</div>
@@ -150,12 +156,12 @@ const cta = (c, title) => `<section class="py-20 sm:py-28 bg-brand-ink text-whit
   <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 max-w-xl mx-auto text-center text-[11px] sm:text-[12px] uppercase tracking-widest text-white/60">
     <div class="border-t border-white/15 pt-4">사진·지역만 전송</div><div class="border-t border-white/15 pt-4">현장 확인 후 안내</div><div class="border-t border-white/15 pt-4">지역별 안내</div></div></div></div></section>`;
 
-const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${ph(i + 2, "PHOTO")}</div></div>
+const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${img(`card-${(i % 4) + 1}`, `${p.h1_title} 시공 사례`, i + 2)}</div></div>
   <div class="p-3.5 sm:p-5"><span class="num-label">${labelText}</span><h3 class="mt-1 text-sm sm:text-base font-semibold text-brand-ink line-clamp-1">${esc(p.h1_title)}</h3>
   <p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(p.region)} ${esc(c.kw)} 안내. ${esc(c.subs[0])} 등 상담.</p></div></a>`;
 
 function ctx(site, meta, data, extra = {}) {
-  return { site, kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, brand: data.brand || "샘플업체", sample: !!data.sample, host: site, ...extra };
+  return { site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.sample, host: site, ...extra };
 }
 const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.brand} ${c.kw} 페이지 목록`,
   itemListElement: [{ "@type": "ListItem", position: 1, url: `https://${c.host}/`, name: c.kw }, ...pages.map((p, i) => ({ "@type": "ListItem", position: i + 2, url: `https://${c.host}${p.page_path}`, name: p.h1_title }))] });
@@ -173,13 +179,13 @@ export function homePage({ site, meta, pages, data }) {
     [`상담은 어떻게 신청하나요?`, `상담 페이지에서 현장 사진과 지역을 남겨 주시면 순서대로 확인 후 연락드립니다.`],
   ];
   const six = pages.slice(0, 6);
-  return `${head({ title: c.kw, desc, keywords: kwMeta, canonical: `https://${c.host}/`, brandName: c.brand, sample: c.sample, ogLabel: `${c.brand} ${c.kw}` })}
+  return `${head({ title: c.kw, desc, keywords: kwMeta, canonical: `https://${c.host}/`, brandName: c.brand, sample: c.sample, ogLabel: `${c.brand} ${c.kw}`, ogImage: IMGS.has("hero-1") ? `https://${c.host}/img/hero-1.webp` : "" })}
 <body class="bg-brand-bg text-brand-ink">
 ${header(c)}
 ${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `https://${c.host}/` }] })}
 <section class="relative" id="top"><div class="grid grid-cols-1 md:grid-cols-2">
   <div class="relative h-[46vh] md:h-[74vh] min-h-[360px] max-h-[800px] overflow-hidden order-1">
-    ${[0, 1, 2].map((i) => `<div class="hero-slide absolute inset-0" data-index="${i}" style="opacity:${i === 0 ? 1 : 0};transition:opacity .8s ease;z-index:${i === 0 ? 1 : 0};">${ph(i, "PHOTO " + (i + 1))}</div>`).join("")}
+    ${[0, 1, 2].map((i) => `<div class="hero-slide absolute inset-0" data-index="${i}" style="opacity:${i === 0 ? 1 : 0};transition:opacity .8s ease;z-index:${i === 0 ? 1 : 0};">${img(`hero-${i + 1}`, `${c.kw} 시공 사례`, i)}</div>`).join("")}
     <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">${[0, 1, 2].map((i) => `<button class="hero-dot" data-target="${i}" aria-label="슬라이드 ${i + 1}" style="width:${i === 0 ? 22 : 7}px;height:7px;border-radius:9999px;border:none;cursor:pointer;background:${i === 0 ? "#fff" : "rgba(255,255,255,.5)"};transition:width .3s,background .3s;padding:0;"></button>`).join("")}</div>
   </div>
   <div class="order-2 flex items-center bg-brand-ink text-white px-6 sm:px-10 md:px-14 py-14 md:py-0 md:h-[74vh]"><div>
@@ -193,7 +199,7 @@ ${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListEl
 ${works(c, 4)}
 <section class="py-16 sm:py-20 bg-brand-sub"><div class="max-w-7xl mx-auto px-5 sm:px-8">
   <div class="max-w-2xl fade-up"><span class="eyebrow">진행 전 확인 사항</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(c.kw)} 유형별 안내</h2>
-  <p class="mt-4 text-sm muted leading-relaxed">현장 상태와 범위에 따라 방식과 일정이 달라집니다. 대표 유형을 정리했습니다 (샘플).</p></div>
+  <p class="mt-4 text-sm muted leading-relaxed">현장 상태와 범위에 따라 방식과 일정이 달라집니다. 대표 유형을 정리했습니다.</p></div>
   <div class="mt-10 overflow-x-auto fade-up"><table class="w-full text-sm border-collapse"><thead><tr class="border-b border-brand-line text-left">
     <th class="py-3 pr-4 font-semibold text-brand-ink">항목</th><th class="py-3 pr-4 font-semibold text-brand-ink">대상</th><th class="py-3 pr-4 font-semibold text-brand-ink">소요 시간</th><th class="py-3 font-semibold text-brand-ink">특징</th></tr></thead>
   <tbody class="divide-y divide-brand-line muted">${c.subs.slice(0, 4).map((s) => `<tr><td class="py-3 pr-4">${esc(s)}</td><td class="py-3 pr-4">현장 확인 후 안내</td><td class="py-3 pr-4">상담 시 안내</td><td class="py-3">사진 확인 후 안내</td></tr>`).join("")}</tbody></table></div></div></section>
@@ -211,7 +217,7 @@ ${services(c, "서비스", `${c.kw} 종류`, `${c.subs.slice(0, 3).join(", ")} �
     <p>${esc(c.subs.slice(0, 3).join(", "))}은 작업 방식과 일정이 서로 다릅니다. 같은 이름의 작업이라도 현장 조건에 따라 달라질 수 있어 확인 후 안내합니다.</p>
     <h3 class="text-xl font-semibold text-brand-ink mt-8">지역별 안내</h3>
     <p>아래 지역별 페이지에서 가까운 지역의 ${esc(c.kw)} 안내를 확인할 수 있습니다. 없는 지역은 문의해 주세요.</p>
-  </div><p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.dates?.[0] || "")} · 샘플 데이터</p></div></section>
+  </div><p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.dates?.[0] || "")}</p></div></section>
 <section class="py-16 sm:py-20 scroll-mt bg-brand-sub" id="area"><div class="max-w-7xl mx-auto px-5 sm:px-8">
   <div class="flex items-end justify-between flex-wrap gap-3 mb-9 fade-up"><div><span class="eyebrow">연관 페이지</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">지역별 ${esc(c.kw)} 보기</h2>
   <p class="mt-3 text-sm muted max-w-xl">가까운 지역 페이지에서 안내를 확인하세요.</p></div></div>
@@ -242,7 +248,7 @@ export function regionPage({ site, meta, page, pages, data }) {
 ${header(c)}
 ${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `https://${c.host}/` }, { "@type": "ListItem", position: 2, name: page.h1_title, item: `https://${c.host}${page.page_path}` }] })}
 <section class="relative"><div class="relative h-[46vh] sm:h-[58vh] min-h-[320px] sm:min-h-[460px] max-h-[680px] overflow-hidden">
-  <div class="absolute inset-0">${ph(0, "PHOTO")}</div><div class="absolute inset-0 hero-overlay-thin"></div>
+  <div class="absolute inset-0">${img("wide", `${page.h1_title} 시공 사례`, 0)}</div><div class="absolute inset-0 hero-overlay-thin"></div>
   <div class="absolute inset-0 flex items-end pb-14 sm:pb-20"><div class="max-w-7xl mx-auto px-5 sm:px-8 w-full text-white">
     <span class="eyebrow !text-white">${esc(page.region_slug.toUpperCase())}</span>
     <h1 class="mt-3 sm:mt-4 text-4xl sm:text-6xl md:text-7xl font-normal tracking-tight hero-shadow">${esc(page.h1_title)}</h1>
@@ -256,7 +262,7 @@ ${works(c, 2)}
     <tr><td class="py-3 pr-4 font-semibold text-brand-ink">대표 서비스</td><td class="py-3 muted">${esc(c.subs.slice(0, 3).join(", "))} 외</td></tr>
     <tr><td class="py-3 pr-4 font-semibold text-brand-ink">소요 시간·비용</td><td class="py-3 muted">현장 확인 후 안내</td></tr>
     <tr><td class="py-3 pr-4 font-semibold text-brand-ink">문의 방법</td><td class="py-3 muted">사진 · 지역 전송</td></tr></tbody></table></div>
-  <p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.dates?.[0] || "")} · 샘플 데이터</p></div></section>
+  <p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.dates?.[0] || "")}</p></div></section>
 ${services(c, "대표 서비스", `${region}에서 자주 받는 의뢰`, "")}
 <section class="py-14 sm:py-16"><div class="max-w-4xl mx-auto px-5 sm:px-8 fade-up"><span class="eyebrow">${esc(region)} 안내</span>
   <h2 class="mt-3 text-2xl sm:text-3xl font-normal tracking-tight">${esc(page.h1_title)}, 어떻게 진행되나요</h2>
@@ -270,7 +276,7 @@ ${services(c, "대표 서비스", `${region}에서 자주 받는 의뢰`, "")}
   <div class="flex items-end justify-between flex-wrap gap-3 mb-9 fade-up"><div><span class="eyebrow">${esc(c.kw)} 안내</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">다른 지역 ${esc(c.kw)} 보기</h2>
   <p class="mt-3 text-sm muted max-w-xl">대표 페이지와 다른 지역 안내에서 더 확인할 수 있습니다.</p></div></div>
   <div class="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6">
-    <a href="/" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${ph(0, "PHOTO")}</div></div>
+    <a href="/" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${img("hero-1", `${c.kw} 시공 사례`, 0)}</div></div>
     <div class="p-3.5 sm:p-5"><span class="num-label">대표 페이지</span><h3 class="mt-1 text-sm sm:text-base font-semibold text-brand-ink line-clamp-1">${esc(c.kw)}</h3><p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(c.subs.slice(0, 3).join("·"))} 지역별 안내 모음.</p></div></a>
     ${hub.map((p, i) => regionCard(c, p, i, "지역 페이지")).join("")}</div></div></section>
 ${faqBlock(faq)}
@@ -285,7 +291,7 @@ export function sangdamPage({ site, meta, data }) {
 <body class="bg-brand-bg text-brand-ink">${header(c)}
 <section class="py-20 sm:py-28"><div class="max-w-3xl mx-auto px-5 sm:px-8"><span class="eyebrow">상담 안내</span>
   <h1 class="mt-3 text-3xl sm:text-5xl font-normal tracking-tight">${esc(c.kw)} 상담</h1>
-  <p class="mt-5 text-brand-ink/80 leading-relaxed">현장 사진과 지역을 보내 주시면 확인 후 회신합니다. 상담 연락 방법은 실제 데이터 연결 후 이곳에 표시됩니다 (샘플).</p>
+  <p class="mt-5 text-brand-ink/80 leading-relaxed">현장 사진과 지역을 보내 주시면 확인 후 회신합니다. 현장 사진과 지역을 남겨 주세요.</p>
   <div class="mt-9 flex gap-3"><a href="/" class="btn btn-primary">메인페이지</a></div></div></section>
 ${footer(c)}
 ${tail("")}`;

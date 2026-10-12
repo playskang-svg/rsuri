@@ -3,7 +3,8 @@
 //  dist-sites/  키워드 사이트(<키워드slug>.suriwiki.com/<지역slug>) — worker/sites.mjs 가 호스트명으로 /s/<키워드slug>/ 에 매핑
 //  wrangler.sites.generated.jsonc  키워드마다 개별 커스텀 도메인(와일드카드 라우트·DNS는 쓰지 않는다)
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { homePage, regionPage, sangdamPage } from './page-template.mjs';
+import { homePage, regionPage, sangdamPage, setImages } from './page-template.mjs';
+import { readdirSync } from 'node:fs';
 
 for (const d of ['dist', 'dist-sites']) { rmSync(d, { recursive: true, force: true }); mkdirSync(d, { recursive: true }); }
 cpSync('src', 'dist', { recursive: true });
@@ -19,6 +20,10 @@ const hosts = [];
 for (const [site, m] of Object.entries(data.site_meta || {})) {
   const sub = site.split('.')[0];
   hosts.push(site);
+  const imgDir = `site-images/${sub}`;
+  const imgNames = existsSync(imgDir) ? readdirSync(imgDir).filter((f) => f.endsWith('.webp')).map((f) => f.replace('.webp', '')) : [];
+  setImages(imgNames);
+  if (imgNames.length) cpSync(imgDir, `dist-sites/s/${sub}/img`, { recursive: true });
   const pages = data.pages.filter((p) => p.site === site && !p.pending && p.region).sort((a, b) => a.page_path.localeCompare(b.page_path));
   const put = (rel, html) => { const dir = `dist-sites/s/${sub}${rel}`.replace(/\/$/, ''); mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/index.html`, html); n++; };
   put('/', homePage({ site, meta: m, pages, data }));
