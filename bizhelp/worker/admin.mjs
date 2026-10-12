@@ -32,13 +32,15 @@ async function ensureSchema(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, slug TEXT, category TEXT, name TEXT, type TEXT, size INTEGER, file_key TEXT, grp TEXT, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS blobs (key TEXT PRIMARY KEY, type TEXT, data TEXT)'),
     db.prepare('CREATE TABLE IF NOT EXISTS ba_photos (slug TEXT, region TEXT, slot INTEGER, phase TEXT, type TEXT, size INTEGER, updated_at INTEGER, PRIMARY KEY (slug, region, slot, phase))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS ba_captions (slug TEXT, region TEXT, slot INTEGER, caption TEXT, PRIMARY KEY (slug, region, slot))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS region_intro (slug TEXT, region TEXT, intro TEXT, PRIMARY KEY (slug, region))'),
     db.prepare('CREATE TABLE IF NOT EXISTS shares (id TEXT PRIMARY KEY, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS page_seen (page_key TEXT PRIMARY KEY, first_seen TEXT)'),
     db.prepare('CREATE TABLE IF NOT EXISTS rank_log (page_key TEXT, check_date TEXT, rank_position INTEGER, PRIMARY KEY (page_key, check_date))'),
     db.prepare('CREATE INDEX IF NOT EXISTS files_slug_cat ON files (slug, category, created_at)'),
     db.prepare('CREATE TABLE IF NOT EXISTS memos (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, category TEXT, content TEXT, created_at INTEGER)'),
   ]);
-  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services', 'instagram', 'threads', 'website']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
+  for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services', 'instagram', 'threads', 'website', 'hours']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
   schemaReady = true;
 }
 
@@ -65,7 +67,7 @@ async function delObj(env, db, key) {
 }
 
 // 사이트 정보(푸터에 노출): 전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스 링크
-const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, kakao, instagram, threads, website, services';
+const PROFILE_COLS = 'phone, blog, youtube, reference, company, ceo, regno, address, hours, kakao, instagram, threads, website, services';
 const isUrl = (v) => /^https?:\/\//i.test(String(v || '').trim());
 // 주소 입력 보정: 'blog.naver.com/abc' 처럼 https:// 없이 적어도 받아 주고, 주소 형태가 아니면 버린다.
 const normUrl = (v) => { const t = clean(v, 300); if (!t) return ''; const u = isUrl(t) ? t : (/^[^\s/]+\.[^\s/]+/.test(t) ? `https://${t}` : ''); try { return u && new URL(u).hostname.includes('.') ? u : ''; } catch (_) { return ''; } };
@@ -177,7 +179,7 @@ export default {
     if (path === '/api/report' && request.method === 'GET') return json(await buildReport(env));
 
     // 키워드 사이트 빌드가 읽어가는 공사 전/후 사진 목록(파일 본문은 /api/s/<slug>/ba/<사례>/<전후>)
-    if (path === '/api/export/ba' && request.method === 'GET') return json({ ok: true, items: (await env.DB.prepare('SELECT slug, region, slot, phase, type, updated_at FROM ba_photos').all()).results });
+    if (path === '/api/export/ba' && request.method === 'GET') return json({ ok: true, items: (await env.DB.prepare('SELECT slug, region, slot, phase, type, updated_at FROM ba_photos').all()).results, captions: (await env.DB.prepare('SELECT slug, region, slot, caption FROM ba_captions').all()).results, intros: (await env.DB.prepare('SELECT slug, region, intro FROM region_intro').all()).results });
 
     // 키워드 사이트 빌드가 읽어가는 공개 정보(전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스). 사업자등록증·메모·파일은 포함하지 않는다.
     if (path === '/api/export/profiles' && request.method === 'GET') {
@@ -207,7 +209,25 @@ async function route(request, env, url, slug, rest) {
     const lic = await db.prepare('SELECT name, type, size, ocr_text, updated_at FROM license WHERE slug=?').bind(slug).first();
     const counts = (await db.prepare('SELECT category, COUNT(*) n FROM files WHERE slug=? GROUP BY category').bind(slug).all()).results;
     const ba = (await db.prepare('SELECT region, slot, phase, type, size, updated_at FROM ba_photos WHERE slug=?').bind(slug).all()).results;
-    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), regions: regionsOf(slug), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts, ba });
+    const captions = (await db.prepare('SELECT region, slot, caption FROM ba_captions WHERE slug=?').bind(slug).all()).results;
+    const intros = (await db.prepare('SELECT region, intro FROM region_intro WHERE slug=?').bind(slug).all()).results;
+    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), regions: regionsOf(slug), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts, ba, captions, intros });
+  }
+
+  // ── 사진 설명(캡션)과 지역 소개 문구: 키워드 사이트 전후 비교·지역 페이지에 표시된다(범위: 공통 '' 또는 지역)
+  if (rest === 'ba-caption' && method === 'PUT') {
+    const b = await request.json(), region = clean(b.region, 40), slot = Number(b.slot);
+    if (![1, 2, 3, 4].includes(slot) || (region && !regionsOf(slug).some((r) => r.slug === region))) return err(400, '잘못된 요청입니다');
+    const cap = clean(b.caption, 60);
+    await (cap ? db.prepare('INSERT OR REPLACE INTO ba_captions (slug, region, slot, caption) VALUES (?,?,?,?)').bind(slug, region, slot, cap) : db.prepare('DELETE FROM ba_captions WHERE slug=? AND region=? AND slot=?').bind(slug, region, slot)).run();
+    return json({ ok: true });
+  }
+  if (rest === 'region-intro' && method === 'PUT') {
+    const b = await request.json(), region = clean(b.region, 40);
+    if (!region || !regionsOf(slug).some((r) => r.slug === region)) return err(400, '지역을 선택하세요');
+    const intro = clean(b.intro, 1200);
+    await (intro ? db.prepare('INSERT OR REPLACE INTO region_intro (slug, region, intro) VALUES (?,?,?)').bind(slug, region, intro) : db.prepare('DELETE FROM region_intro WHERE slug=? AND region=?').bind(slug, region)).run();
+    return json({ ok: true });
   }
 
   // ── 공사 전/후 사진: 작업 사례 1~4 × 전/후 한 장씩. 범위 = 전체 공통(region '') 또는 특정 지역 페이지. 전·후 둘 다 있는 사례만 쓰고, 지역에 없으면 공통 → 기본 사진 순으로 대신한다.
@@ -240,8 +260,8 @@ async function route(request, env, url, slug, rest) {
   // ── 사이트 정보 저장
   if (rest === 'profile' && method === 'PUT') {
     const b = await request.json();
-    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, kakao, instagram, threads, website, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, kakao=excluded.kakao, instagram=excluded.instagram, threads=excluded.threads, website=excluded.website, updated_at=excluded.updated_at')
-      .bind(slug, clean(b.phone, 30), normUrl(b.blog), normUrl(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), normUrl(b.kakao), normUrl(b.instagram), normUrl(b.threads), normUrl(b.website), Date.now()).run();
+    await db.prepare('INSERT INTO profile (slug, phone, blog, youtube, reference, company, ceo, regno, address, hours, kakao, instagram, threads, website, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET phone=excluded.phone, blog=excluded.blog, youtube=excluded.youtube, reference=excluded.reference, company=excluded.company, ceo=excluded.ceo, regno=excluded.regno, address=excluded.address, hours=excluded.hours, kakao=excluded.kakao, instagram=excluded.instagram, threads=excluded.threads, website=excluded.website, updated_at=excluded.updated_at')
+      .bind(slug, clean(b.phone, 30), normUrl(b.blog), normUrl(b.youtube), clean(b.reference), clean(b.company, 60), clean(b.ceo, 40), clean(b.regno, 20), clean(b.address, 200), clean(b.hours, 60), normUrl(b.kakao), normUrl(b.instagram), normUrl(b.threads), normUrl(b.website), Date.now()).run();
     return json({ ok: true });
   }
 

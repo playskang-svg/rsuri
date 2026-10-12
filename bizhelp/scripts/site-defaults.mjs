@@ -7,6 +7,7 @@ export const DEFAULT_PROFILE = {
   ceo: '',
   regno: '',
   address: '',
+  hours: '',
   instagram: '',
   blog: '',
   youtube: '',

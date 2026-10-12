@@ -79,6 +79,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <div class="row"><label>대표자</label><input type="text" id="f-ceo" maxlength="40" placeholder="예: 홍길동"></div>
     <div class="row"><label>사업자등록번호</label><input type="text" id="f-regno" maxlength="20" placeholder="예: 123-45-67890"></div>
     <div class="row"><label>사업장 주소</label><input type="text" id="f-address" maxlength="200" placeholder="사업자등록증의 주소"></div>
+    <div class="row"><label>영업시간</label><input type="text" id="f-hours" maxlength="60" placeholder="예: 평일·토 08:00~19:00"></div>
     <div class="row"><label>연락처(전화번호)</label><input type="tel" id="f-phone" maxlength="20"></div>
     <p class="hint" style="margin:6px 0">채널 링크 — 입력한 것만 푸터에 아이콘으로 표시됩니다(https:// 없이 적어도 됩니다)</p>
     <div class="row"><label>카카오톡</label><input type="text" id="f-kakao" placeholder="https://pf.kakao.com/..."></div>
@@ -98,6 +99,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <h3>공사 전/후 사진 <span class="hint">· 작업 사례 1~4 · 전·후를 한 장씩 올리면 사이트의 BEFORE/AFTER 칸에 들어갑니다</span></h3>
     <div class="row"><label>적용 범위</label><select id="ba-scope"><option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option></select></div>
     <p class="hint" id="ba-hint" style="margin-bottom:10px"></p>
+    <div id="ba-intro-wrap" style="display:none;margin-bottom:12px"><label style="display:block;font-size:13px;font-weight:700;margin-bottom:4px">이 지역 소개 문구 <span class="hint">(선택 · 이 지역 페이지 '안내' 칸에 표시됩니다. 지역마다 다르게 쓰면 검색에 유리합니다)</span></label><textarea id="ba-intro" rows="4" maxlength="1200" placeholder="예: 이 지역 현장 특성, 자주 접수되는 작업, 가까운 동네 등을 적어 주세요"></textarea><span class="status" id="ba-intro-status"></span></div>
     <div id="ba-grid"></div>
     <input type="file" id="ba-input" accept="image/jpeg,image/png,image/webp,image/*" style="display:none">
     <p class="hint">사진은 1.2MB 이하로 자동 축소됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
@@ -161,12 +163,12 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     document.title = `${o.keyword} 파일 업로드`; $('title').textContent = `${o.keyword} 파일 업로드`; $('host').textContent = `${slug}.suriwiki.com`;
     S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
     S.defaults = o.defaults || {};
-    for (const k of ['company', 'ceo', 'regno', 'address', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
+    for (const k of ['company', 'ceo', 'regno', 'address', 'hours', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
     const counts = Object.fromEntries(o.counts.map((c) => [c.category, c.n]));
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     $('tabs').innerHTML = [['', '전체'], ...S.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button class="tab${id === S.tab ? ' on' : ''}" data-t="${id}">${esc(n)}</button>`).join('');
-    S.mode = o.storage; S.max = o.maxFile; S.video = o.video; S.ba = o.ba || [];
+    S.mode = o.storage; S.max = o.maxFile; S.video = o.video; S.ba = o.ba || []; S.captions = o.captions || []; S.intros = o.intros || [];
     { const cur = $('ba-scope').value; $('ba-scope').innerHTML = '<option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option>' + (o.regions || []).map((r) => `<option value="${r.slug}">${esc(r.name)} 페이지만</option>`).join(''); $('ba-scope').value = cur; }
     renderBa();
     $('storage-note').style.display = o.video ? 'none' : '';
@@ -222,17 +224,31 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     const region = $('ba-scope').value, ph2 = { before: '공사 전', after: '공사 후' };
     const find = (n, ph) => (S.ba || []).find((x) => (x.region || '') === region && x.slot === n && x.phase === ph);
     $('ba-hint').textContent = region ? '선택한 지역 페이지에만 적용됩니다. 이 지역에 전·후를 둘 다 올리지 않은 사례는 공통 사진이 표시됩니다.' : '메인과 모든 지역 페이지에 공통으로 적용됩니다. 전·후를 둘 다 올린 사례만 표시되고, 나머지는 기본 사진이 표시됩니다.';
+    $('ba-intro-wrap').style.display = region ? '' : 'none';
+    if (region) $('ba-intro').value = ((S.intros || []).find((x) => x.region === region) || {}).intro || '';
     $('ba-grid').innerHTML = [1, 2, 3, 4].map((n) => {
       const b = find(n, 'before'), a = find(n, 'after');
       const st = b && a ? '<span style="color:#16a34a;font-size:12px">✅ 사이트에 표시됨</span>' : (b || a) ? '<span style="color:#d97706;font-size:12px">전·후 둘 다 올려야 표시됩니다</span>' : '';
       const box = (ph) => { const x = find(n, ph); return x
         ? `<div class="ba-box" data-n="${n}" data-ph="${ph}" style="position:relative;cursor:pointer"><img src="${API}${baPath(n, ph)}?v=${x.updated_at}" alt="${ph2[ph]}" style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;display:block"><span style="position:absolute;left:6px;top:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 7px;border-radius:4px">${ph2[ph]}</span><button type="button" class="btn bad sm ba-del" data-n="${n}" data-ph="${ph}" style="position:absolute;right:6px;top:6px">삭제</button></div>`
         : `<div class="ba-box" data-n="${n}" data-ph="${ph}" style="cursor:pointer;aspect-ratio:4/5;border:2px dashed var(--g200);border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--g600);font-size:13px">+ ${ph2[ph]}<br>사진 선택</div>`; };
-      return `<div style="margin-bottom:14px"><b style="font-size:13px">작업 사례 ${n}</b> ${st}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${box('before')}${box('after')}</div></div>`;
+      const cap = ((S.captions || []).find((x) => (x.region || '') === region && x.slot === n) || {}).caption || '';
+      return `<div style="margin-bottom:14px"><b style="font-size:13px">작업 사례 ${n}</b> ${st}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">${box('before')}${box('after')}</div><input type="text" class="ba-cap" data-n="${n}" maxlength="60" value="${esc(cap)}" placeholder="사진 설명 (예: 배수관 막힘 사례${region ? ' · 이 지역' : ''})" style="margin-top:6px"></div>`;
     }).join('');
   }
   let baTarget = null;
   $('ba-scope').onchange = renderBa;
+  // 사진 설명·지역 소개: 입력칸을 벗어나면 저장
+  $('ba-grid').addEventListener('change', async (e) => {
+    const i = e.target.closest('.ba-cap'); if (!i) return;
+    const region = $('ba-scope').value, n = Number(i.dataset.n);
+    try { await api('ba-caption', { method: 'PUT', body: JSON.stringify({ region, slot: n, caption: i.value }) }); S.captions = (S.captions || []).filter((x) => !((x.region || '') === region && x.slot === n)); if (i.value.trim()) S.captions.push({ region, slot: n, caption: i.value.trim() }); } catch (x) { alert(x.message); }
+  });
+  $('ba-intro').onchange = async () => {
+    const region = $('ba-scope').value; if (!region) return;
+    try { await api('region-intro', { method: 'PUT', body: JSON.stringify({ region, intro: $('ba-intro').value }) }); S.intros = (S.intros || []).filter((x) => x.region !== region); if ($('ba-intro').value.trim()) S.intros.push({ region, intro: $('ba-intro').value.trim() }); flash($('ba-intro-status'), '저장했습니다'); } catch (x) { flash($('ba-intro-status'), x.message, true); }
+  };
+
   $('ba-grid').onclick = async (e) => {
     const del = e.target.closest('.ba-del');
     if (del) { e.stopPropagation(); if (!confirm('이 사진을 삭제할까요?')) return; try { await api(baPath(Number(del.dataset.n), del.dataset.ph), { method: 'DELETE' }); await load(); } catch (x) { alert(x.message); } return; }
@@ -244,11 +260,11 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     try { await put(baPath(baTarget.n, baTarget.ph), await shrink(f, true)); await load(); } catch (x) { alert(x.message); }
   };
   $('save-profile').onclick = async () => {
-    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, phone: $('f-phone').value, kakao: $('f-kakao').value, instagram: $('f-instagram').value, blog: $('f-blog').value, youtube: $('f-youtube').value, threads: $('f-threads').value, website: $('f-website').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
+    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, hours: $('f-hours').value, phone: $('f-phone').value, kakao: $('f-kakao').value, instagram: $('f-instagram').value, blog: $('f-blog').value, youtube: $('f-youtube').value, threads: $('f-threads').value, website: $('f-website').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
     catch (x) { flash($('profile-status'), x.message, true); }
   };
   $('copy-all').onclick = () => {
-    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
+    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `영업시간: ${$('f-hours').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
     navigator.clipboard.writeText(t).then(() => alert('복사했습니다'));
   };
 

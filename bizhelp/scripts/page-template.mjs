@@ -1,126 +1,28 @@
-// 키워드 사이트 템플릿 — 기준 사이트(wrapping.koreajipsurimaster.com)의 홈/지역 페이지 구조를 그대로 따른다.
-//  홈(/)      : 헤더 → 히어로(슬라이더+문구) + 정보바 → 작업 사진 → 안내 표 → 서비스 6종 → 진행 과정 → 본문 SEO → 지역 카드 6개 → FAQ 6 → 상담 CTA → 푸터
-//  지역(/<지역>): 헤더 → 히어로 → 작업 사진 → 한눈에 보기 → 서비스(서브키워드) 6종 → 지역 안내 → 허브(대표+지역 5) → FAQ 5 → 상담 CTA → 푸터
-//  /sangdam   : 상담 안내
-// 본문은 샘플 문구다. 가격·소요시간·연락처·사업자정보 등 확인되지 않은 사실은 넣지 않는다. 사진은 자리표시자.
-import { readFileSync } from "node:fs";
-// 유형별 안내(대상·소요 시간·특징): registry/type-guide.json. 일반적인 작업 기준이며 금액은 적지 않는다.
-const GUIDE = JSON.parse(readFileSync(new URL("../registry/type-guide.json", import.meta.url), "utf8")).guide;
-const guideOf = (sub) => GUIDE[sub] || null;
-// 받침 유무에 따라 은/는
-const eunNeun = (w) => { const ch = String(w).trim().slice(-1).charCodeAt(0); return ch >= 0xac00 && ch <= 0xd7a3 && (ch - 0xac00) % 28 !== 0 ? "은" : "는"; };
-const timeLine = (c, n = 3) => c.subs.map((x) => [x, guideOf(x)]).filter(([, g]) => g).slice(0, n).map(([x, g]) => `${x}${eunNeun(x)} ${g.time}`).join(", ");
+// 키워드 사이트 템플릿 — 네이버 1페이지 노출 구조(참고: doorcare-kr.com)의 섹션 구성을 따른다. 문구·색·이미지는 우리 것이다.
+//  홈(/)         : 헤더 → 히어로(+전/후 썸네일) → 신뢰 배지 → 작업 항목 → 증상 → 전후 비교 슬라이더 → 진행 절차 → 서비스 지역 → FAQ → 체크하고 문자 보내기 → CTA → 푸터 → 하단 고정 바
+//  지역(/<지역>)  : 같은 틀 + 지역 소개 · 가까운 지역 · 지역 전용 사진/문구(업로드 시)
+//  /sangdam      : 체크하고 문자 보내기만 있는 상담 페이지
+// 데이터: meta.content = { headline, lead, symptoms[], guide{서브키워드→{target,time,point}} }  (그룹 정의에 들어 있다)
+// 확인되지 않은 사실(가격·A/S·결제 조건·영업 방식)은 쓰지 않는다. 문의 번호·사업자 정보는 업로드 페이지 입력값(없으면 기본값).
+
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const json = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`;
+const jsonLd = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`;
+const eunNeun = (w) => { const ch = String(w).trim().slice(-1).charCodeAt(0); return ch >= 0xac00 && ch <= 0xd7a3 && (ch - 0xac00) % 28 !== 0 ? "은" : "는"; };
+const digits = (v) => String(v || "").replace(/[^0-9]/g, "");
+const telHref = (p) => `tel:${digits(p)}`;
+const extUrl = (v) => { const s = String(v || "").trim(); return /^https?:\/\//i.test(s) ? s : ""; };
+const regnoFmt = (v) => { const d = digits(v); return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}` : String(v || "").trim(); };
+const intlTel = (v) => { const d = digits(v); return d.length === 11 ? `+82-${d.slice(1, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : d ? `+82${d.replace(/^0/, "")}` : ""; };
 
-const CSS = `:root{--bg:#FFFFFF;--sub:#F2F4F7;--ink:#1B1F24;--mute:#6B7280;--primary:#1A3159;--accent:#4472B8;--line:#E5E7EB;}
-html,body{background:var(--bg);color:var(--ink);}
-body{font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif;font-weight:400;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased;}
-h1,h2,h3{font-weight:400;letter-spacing:-0.01em;}
-img{max-width:100%;height:auto;}
-.max-w-prose-fix{max-width:68ch;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;padding:.85rem 1.7rem;border-radius:.2rem;font-weight:600;font-size:.9rem;letter-spacing:.02em;transition:all .2s;}
-.btn-primary{background:var(--primary);color:#fff;}
-.btn-primary:hover{background:var(--accent);}
-.btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);}
-.btn-outline:hover{background:rgba(255,255,255,.1);}
-.btn-ghost{background:transparent;color:var(--ink);border-bottom:1px solid var(--ink);border-radius:0;padding-left:0;padding-right:0;}
-.card{background:#fff;border:1px solid var(--line);border-radius:.2rem;overflow:hidden;transition:transform .3s ease;}
-.card:hover{transform:translateY(-2px);}
-.fade-up{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
-.fade-up.is-visible{opacity:1;transform:translateY(0);}
-.hero-shadow{text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.4);}
-.hero-overlay-thin{background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.38) 100%);}
-.float-btn{position:fixed;right:18px;bottom:18px;z-index:60;}
-.pulse-ring{position:absolute;inset:0;border-radius:9999px;border:1.5px solid var(--primary);opacity:.6;animation:pulseRing 3s ease-out infinite;}
-@keyframes pulseRing{0%{transform:scale(.95);opacity:.6}70%{transform:scale(1.4);opacity:0}100%{transform:scale(1.55);opacity:0}}
-.faq summary{cursor:pointer;list-style:none;}
-.faq summary::-webkit-details-marker{display:none;}
-.faq[open] summary .chev{transform:rotate(180deg);}
-.chev{transition:transform .3s ease;}
-.scroll-mt{scroll-margin-top:5rem;}
-.eyebrow{display:inline-flex;align-items:center;gap:.7rem;font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--primary);}
-.num-label{font-size:.75rem;font-weight:600;letter-spacing:.1em;color:var(--accent);}
-.muted{color:var(--mute);}
-.photo-fig{position:relative;border-radius:.2rem;overflow:hidden;background:var(--sub);}
-.ba-tag{position:absolute;top:.6rem;left:.6rem;z-index:1;background:rgba(255,255,255,.95);color:var(--ink);font-size:.65rem;font-weight:700;letter-spacing:.05em;padding:.2rem .6rem;border-radius:.15rem;}
-.ba-tag.after{background:var(--primary);color:#fff;}
-.ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.75);font-size:.7rem;font-weight:600;letter-spacing:.12em;}
-@media (max-width: 768px){ h1{font-size:1.95rem!important;line-height:1.22!important;} h2{font-size:1.4rem!important;line-height:1.32!important;} }
-@media (max-width: 480px){ h1{font-size:1.7rem!important;line-height:1.24!important;} h2{font-size:1.22rem!important;} }`;
-
-const LOGO = `<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect x="4" y="4" width="28" height="28" rx="2" fill="#1A3159"/><rect x="9" y="9" width="14" height="18" fill="white" fill-opacity="0.92"/><path d="M23 9 L28 9 L28 14 Z" fill="#4472B8"/><path d="M23 9 L28 14 L23 14 Z" fill="white" fill-opacity="0.55"/></svg>`;
-const CHEV = `<svg class="chev shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg>`;
-const PHONE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>`;
-const UP = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 15l6-6 6 6"/></svg>`;
-const GRAD = ["#3b5b8c,#1a3159", "#5a7bb0,#2c4a7a", "#7d92b5,#3f5a86", "#4a6a9c,#1f3a66", "#6f87ad,#34507d", "#2f4d7c,#16294a"];
-// 이미지 슬롯: site-images/<slug>/<name>.webp 가 있으면 사진, 없으면 자리표시자
+// ── 이미지 슬롯: 사진이 있으면 <img>, 없으면 빈 자리(회색 박스). src 는 build 가 정한 경로 지도(SRC)를 따른다.
 let IMGS = new Set();
 let SRC = {};
 export const setImages = (names, src = {}) => { IMGS = new Set(names); SRC = src; };
-const img = (name, alt, i = 0, extra = "") => IMGS.has(name)
-  ? `<img src="${SRC[name] || `/img/${name}.webp`}" alt="${esc(alt)}" class="w-full h-full object-cover ${extra}" loading="lazy" decoding="async">`
-  : ph(i, "");
-const ph = (i, label = "") => `<div class="ph" style="background:linear-gradient(135deg,${GRAD[i % GRAD.length]})">${esc(label)}</div>`;
+const hasImg = (name) => IMGS.has(name);
+const imgSrc = (name) => SRC[name] || `/img/${name}.webp`;
+const imgTag = (name, alt, extra = "") => (hasImg(name) ? `<img ${extra} src="${esc(imgSrc(name))}" alt="${esc(alt)}" loading="lazy" decoding="async">` : "");
 
-const TW = `<script>tailwind.config={theme:{extend:{colors:{brand:{bg:'#FFFFFF',sub:'#F2F4F7',ink:'#1B1F24',mute:'#6B7280',primary:'#1A3159',accent:'#4472B8',line:'#E5E7EB'}},fontFamily:{sans:['Pretendard','Noto Sans KR','system-ui','sans-serif']}}}};</script>`;
-
-function head({ title, desc, keywords, canonical, brandName, sample, ogLabel, ogImage }) {
-  return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>${esc(title)}</title>
-<meta name="description" content="${esc(desc)}">
-<meta name="keywords" content="${esc(keywords)}">
-<meta name="author" content="${esc(brandName)}">
-<meta name="robots" content="${sample ? "noindex, nofollow" : "index, follow"}">
-<link rel="canonical" href="${esc(canonical)}">
-<meta property="og:type" content="website">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(desc)}">
-<meta property="og:url" content="${esc(canonical)}">
-<meta property="og:site_name" content="${esc(ogLabel)}">${ogImage ? `
-<meta property="og:image" content="${esc(ogImage)}">
-<meta name="twitter:image" content="${esc(ogImage)}">` : ""}
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${esc(title)}">
-<meta name="twitter:description" content="${esc(desc)}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://cdn.tailwindcss.com">
-<script src="https://cdn.tailwindcss.com"></script>
-${TW}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<style>${CSS}</style>
-</head>`;
-}
-
-const header = (c) => `<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-white/90 border-b border-brand-line">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2.5"><span class="shrink-0">${LOGO}</span>
-      <span class="flex flex-col leading-tight"><span class="text-[15px] font-semibold text-brand-ink">${esc(c.kw)}</span><span class="text-[10px] muted tracking-widest uppercase">${esc(c.en)}</span></span></a>
-    <a href="/sangdam" class="btn btn-primary text-sm py-2.5 px-5">상담 문의</a>
-  </div>
-</header>
-<div class="h-16"></div>`;
-
-// 업로드 페이지에서 입력된 사이트 정보(전화·블로그·유튜브). 값이 없으면 아무것도 그리지 않는다.
-const telHref = (p) => `tel:${String(p).replace(/[^0-9+]/g, "")}`;
-const extUrl = (v) => { const s = String(v || "").trim(); return /^https?:\/\//i.test(s) ? s : ""; };
-// 푸터 연락처 목록(전화). 카카오톡·블로그·유튜브·관련 링크는 아래 아이콘 줄로 그린다.
-const contactItems = (c) => {
-  const p = c.profile || {};
-  return p.phone ? `<li class="opacity-80 leading-relaxed pt-2"><span class="block text-[11px] uppercase tracking-widest opacity-60">CONTACT</span><a class="inline-block mt-1 font-semibold text-white" href="${esc(telHref(p.phone))}">${esc(p.phone)}</a></li>` : "";
-};
-// 사업자 정보: 값이 있는 항목만 한 줄로 이어 쓴다(상호는 기본값이 있어 항상 나온다).
-const regnoFmt = (v) => { const d = String(v || "").replace(/[^0-9]/g, ""); return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}` : String(v || "").trim(); };
-const businessLine = (c) => {
-  const p = c.profile || {};
-  const parts = [p.company && `상호 ${p.company}`, p.ceo && `대표 ${p.ceo}`, p.regno && `사업자등록번호 ${regnoFmt(p.regno)}`, p.address && `주소 ${p.address}`].filter(Boolean);
-  return parts.length ? `<p class="mt-5 text-[12px] leading-relaxed opacity-60 max-w-xl">${parts.map(esc).join(" · ")}</p>` : "";
-};
-// 관련 페이지(제목 + 링크) → 주소로 플랫폼을 알아내 아이콘 버튼으로 그린다.
+// ── 푸터 채널 아이콘
 const ICONS = {
   instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>',
   youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/>',
@@ -135,235 +37,267 @@ const ICONS = {
 const platformOf = (url) => {
   let h = ""; try { h = new URL(url).hostname.toLowerCase(); } catch (_) { return "web"; }
   const is = (...d) => d.some((x) => h === x || h.endsWith("." + x));
-  if (is("instagram.com")) return "instagram";
-  if (is("youtube.com", "youtu.be")) return "youtube";
-  if (is("naver.com")) return "naver";
-  if (is("facebook.com", "fb.com", "fb.me")) return "facebook";
-  if (is("threads.net", "threads.com")) return "threads";
-  if (is("tiktok.com")) return "tiktok";
-  if (is("x.com", "twitter.com")) return "x";
-  if (is("kakao.com")) return "kakao";
-  return "web";
+  if (is("instagram.com")) return "instagram"; if (is("youtube.com", "youtu.be")) return "youtube"; if (is("naver.com")) return "naver";
+  if (is("facebook.com", "fb.com", "fb.me")) return "facebook"; if (is("threads.net", "threads.com")) return "threads"; if (is("tiktok.com")) return "tiktok";
+  if (is("x.com", "twitter.com")) return "x"; if (is("kakao.com")) return "kakao"; return "web";
 };
-// 카카오톡·블로그·유튜브 + 업로드 페이지에서 넣은 관련 링크를 한 목록으로 합친다(같은 주소는 한 번만).
-const linkList = (c) => {
-  const p = c.profile || {};
+const linkList = (p) => {
   const all = [{ name: "카카오톡", url: p.kakao }, { name: "인스타그램", url: p.instagram }, { name: "블로그", url: p.blog }, { name: "유튜브", url: p.youtube }, { name: "스레드", url: p.threads }, { name: "웹사이트", url: p.website }, ...(Array.isArray(p.services) ? p.services : [])];
   const seen = new Set();
   return all.filter((x) => x && extUrl(x.url) && (x.name || "").trim()).filter((x) => { const k = extUrl(x.url).replace(/\/+$/, "").toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
 };
-const iconRow = (c) => {
-  const items = linkList(c);
-  if (!items.length) return "";
-  return `<div class="max-w-7xl mx-auto px-5 sm:px-8 pb-10"><p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">관련 페이지</p>
-    <ul class="flex flex-wrap gap-x-4 gap-y-5">${items.map((x) => `<li><a href="${esc(extUrl(x.url))}" target="_blank" rel="noopener" title="${esc(x.name)}" aria-label="${esc(x.name)}" class="group inline-flex flex-col items-center gap-1.5 w-16 text-center">
-      <span class="w-11 h-11 rounded-full border border-white/25 flex items-center justify-center text-white/85 group-hover:bg-white/10 group-hover:text-white transition"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[platformOf(extUrl(x.url))]}</svg></span>
-      <span class="text-[11px] leading-tight opacity-70 group-hover:opacity-100 break-keep">${esc(x.name)}</span></a></li>`).join("")}</ul></div>`;
-};
-const footer = (c) => `<footer class="bg-brand-ink text-white/90">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-3">
-    <div class="sm:col-span-2 md:col-span-2">
-      <a href="/" class="inline-flex items-center gap-2.5"><span class="shrink-0">${LOGO}</span>
-        <span class="flex flex-col leading-tight"><span class="text-base font-semibold text-white">${esc(c.kw)}</span><span class="text-[10px] tracking-widest uppercase opacity-60">${esc(c.en)}</span></span></a>
-      <p class="mt-5 text-sm leading-relaxed opacity-75 max-w-md">${esc(c.subs.slice(0, 3).join("·"))} 등 ${esc(c.kw)}를 안내합니다. 지역별 페이지에서 가까운 지역을 확인하세요.</p>
-      ${businessLine(c)}
-    </div>
-    <div>
-      <p class="text-xs font-semibold tracking-widest uppercase opacity-70 mb-4">바로가기</p>
-      <ul class="space-y-2.5 text-sm">
-        <li><a href="/sangdam" class="opacity-80 hover:opacity-100 transition">상담 안내</a></li>${contactItems(c)}
-      </ul>
-    </div>
-  </div>
-  ${iconRow(c)}
-  <div class="border-t border-white/10"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 text-[12px] opacity-60 flex flex-wrap items-center justify-between gap-3">
-    <span>© 2026 ${esc((c.profile && c.profile.company) || c.kw)}.</span></div></div>
-</footer>`;
 
-const tail = (itemList) => `${itemList}
-<div class="float-btn"><a href="/sangdam" class="relative inline-flex items-center gap-2 bg-brand-primary text-white font-semibold px-5 py-3.5 rounded-full shadow-xl"><span class="pulse-ring"></span>${PHONE}<span>상담 문의</span></a></div>
-<button id="topBtn" aria-label="맨 위로" class="fixed left-4 bottom-4 z-50 hidden w-11 h-11 rounded-full bg-white border border-brand-line text-brand-ink shadow-lg items-center justify-center">${UP}</button>
-<script defer>
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target);}});},{threshold:.1});
-document.querySelectorAll('.fade-up').forEach(function(el){io.observe(el);});
-var topBtn=document.getElementById('topBtn');
-window.addEventListener('scroll',function(){if(window.scrollY>400)topBtn.classList.add('!flex');else topBtn.classList.remove('!flex');},{passive:true});
-topBtn&&topBtn.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
-</script>
-</body>
-</html>`;
-
-const works = (c, n, id = "works") => `<section class="py-16 sm:py-20 scroll-mt" id="${id}"><div class="max-w-7xl mx-auto px-5 sm:px-8">
-  <div class="flex flex-wrap items-end justify-between gap-4 mb-9 fade-up"><div><span class="eyebrow">시공 사례</span>
-    <h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(c.title)} 작업 사진</h2>
-    <p class="mt-3 text-sm muted max-w-xl">작업 전후 사진입니다.</p></div>
-    <a href="/sangdam" class="btn btn-ghost text-sm">사진 보내고 상담하기</a></div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">${Array.from({ length: n }, (_, i) => `<article class="fade-up"><div class="grid grid-cols-2 gap-2 sm:gap-3">
-    <figure class="photo-fig aspect-[4/5]"><span class="ba-tag">BEFORE</span>${img(`ba-${i + 1}-before`, `${c.title} 작업 전`, i * 2)}</figure>
-    <figure class="photo-fig aspect-[4/5]"><span class="ba-tag after">AFTER</span>${img(`ba-${i + 1}-after`, `${c.title} 작업 후`, i * 2 + 1)}</figure></div></article>`).join("")}</div></div></section>`;
-
-const services = (c, eyebrow, h2, lead, id = "service") => `<section class="py-16 sm:py-20" id="${id}"><div class="max-w-7xl mx-auto px-5 sm:px-8">
-  <div class="max-w-2xl fade-up"><span class="eyebrow">${esc(eyebrow)}</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(h2)}</h2>${lead ? `<p class="mt-4 text-sm muted leading-relaxed">${esc(lead)}</p>` : ""}</div>
-  <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5">${c.subs.map((s, i) => `<div class="card p-5 sm:p-6 fade-up"><span class="num-label">${String(i + 1).padStart(2, "0")}</span>
-    <h3 class="mt-3 text-[15px] font-semibold text-brand-ink">${esc(s)}</h3><p class="mt-2 text-[13px] muted leading-relaxed">${esc(c.region ? c.region + " 지역 " : "")}${esc(s)} 문의를 받습니다. 현장 사진을 보내 주시면 확인 후 안내합니다.</p></div>`).join("")}</div></div></section>`;
-
-const faqBlock = (items) => `<section class="py-16 sm:py-20 scroll-mt" id="faq"><div class="max-w-4xl mx-auto px-5 sm:px-8">
-  <div class="fade-up"><span class="eyebrow">자주 묻는 질문</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">FAQ</h2><p class="mt-3 text-sm muted">의뢰 전에 가장 많이 확인하시는 항목을 모았습니다.</p></div>
-  <div class="mt-9 divide-y divide-brand-line border-t border-b border-brand-line">${items.map(([q, a], i) => `<details class="faq"${i === 0 ? " open" : ""}><summary class="flex items-center justify-between gap-4 py-5"><span class="text-[15px] sm:text-base font-semibold text-brand-ink">${esc(q)}</span>${CHEV}</summary>
-    <div class="pb-6 -mt-1 text-[14px] leading-relaxed text-brand-mute max-w-prose-fix">${esc(a)}</div></details>`).join("")}</div></div></section>
-${json({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) })}`;
-
-const cta = (c, title) => `<section class="py-20 sm:py-28 bg-brand-ink text-white relative overflow-hidden" id="cta"><div class="max-w-5xl mx-auto px-5 sm:px-8 relative"><div class="text-center fade-up">
-  <span class="eyebrow !text-white/70">상담 안내</span>
-  <h2 class="mt-4 text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight">${esc(title)}</h2>
-  <p class="mt-5 text-white/75 max-w-2xl mx-auto leading-relaxed">${esc(c.kw)}는 현장 상태에 따라 방식이 달라 사진이 있어야 정확한 안내가 가능합니다. 사진과 지역을 보내 주시면 확인 후 회신합니다.</p>
-  <div class="mt-9 flex flex-wrap items-center justify-center gap-3"><a href="/sangdam" class="btn !bg-white !text-brand-ink hover:!bg-brand-accent hover:!text-white">상담 페이지로 이동</a></div>
-  <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 max-w-xl mx-auto text-center text-[11px] sm:text-[12px] uppercase tracking-widest text-white/60">
-    <div class="border-t border-white/15 pt-4">사진·지역만 전송</div><div class="border-t border-white/15 pt-4">사진 확인 후 일정 조율</div><div class="border-t border-white/15 pt-4">지역별 안내</div></div></div></div></section>`;
-
-const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${img(`card-${(i % 4) + 1}`, `${p.h1_title} 시공 사례`, i + 2)}</div></div>
-  <div class="p-3.5 sm:p-5"><span class="num-label">${labelText}</span><h3 class="mt-1 text-sm sm:text-base font-semibold text-brand-ink line-clamp-1">${esc(p.h1_title)}</h3>
-  <p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(p.region)} ${esc(c.kw)} 안내. ${esc(c.subs[0])} 등 상담.</p></div></a>`;
-
+// ── 컨텍스트
 function ctx(site, meta, data, extra = {}) {
-  return { profile: extra.profile || {}, site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.noindex, host: site, ...extra };
+  const p = extra.profile || {};
+  const content = meta.content || {};
+  return {
+    site, host: site, kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords || [], content, profile: p, noindex: !!data.noindex,
+    phone: digits(p.phone), phoneShow: p.phone || "", updated: data.updated || "", pages: extra.pages || [], media: extra.media || {},
+  };
 }
-const businessLd = (c) => {
-  const p = c.profile || {};
-  const same = linkList(c).map((x) => extUrl(x.url));
-  return json({ "@context": "https://schema.org", "@type": "HomeAndConstructionBusiness", name: c.kw, url: `https://${c.host}/`, ...(p.phone ? { telephone: p.phone } : {}), ...(same.length ? { sameAs: same } : {}) });
+const guideOf = (c, sub) => (c.content.guide || {})[sub] || null;
+const timeLine = (c, n = 3) => c.subs.map((x) => [x, guideOf(c, x)]).filter(([, g]) => g).slice(0, n).map(([x, g]) => `${x}${eunNeun(x)} ${g.time}`).join(", ");
+const areaNames = (c) => c.pages.map((p) => p.region);
+
+// ── CSS (인라인, 외부 의존은 Pretendard 폰트 하나)
+const CSS = `
+:root{--ink:#0f1a2b;--sub:#5b697b;--line:#e2e7ef;--bg:#fff;--navy:#12294d;--navy-l:#1d3f73;--hot:#d9560f;--hot-d:#b94709;--cream:#f4f6fa;--shadow:0 12px 34px rgba(18,41,77,.14)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable','Pretendard','Malgun Gothic',sans-serif;color:var(--ink);background:var(--bg);font-size:17px;line-height:1.8;letter-spacing:-.015em;word-break:keep-all;overflow-wrap:break-word;-webkit-text-size-adjust:100%}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:0 22px}
+header{background:var(--navy);position:sticky;top:0;z-index:30}
+.hd{display:flex;justify-content:space-between;align-items:center;height:64px}
+.logo{font-weight:800;font-size:21px;color:#fff;letter-spacing:-.02em}
+.hd-call{color:#fff;font-weight:700;font-size:14.5px;border:1.5px solid rgba(255,255,255,.55);padding:8px 15px;border-radius:99px}
+.hero{position:relative;background:var(--navy);overflow:hidden;min-height:400px;display:flex;align-items:flex-end}
+.hero-bg{position:absolute;inset:0}.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.38;display:block}
+.hero-in{position:relative;z-index:2;width:100%;padding:44px 22px 42px;max-width:900px;margin:0 auto}
+.crumb{font-size:13px;color:#b5c6e0;margin-bottom:12px;letter-spacing:.04em}.crumb a{color:#d5e0f2}
+h1{font-weight:800;font-size:38px;line-height:1.2;letter-spacing:-.03em;color:#fff}
+.hl{margin:12px 0 0;font-size:24px;font-weight:700;line-height:1.4;color:#ffd9bf}
+.lead{margin:14px 0 0;max-width:560px;font-size:17.5px;color:#dfe8f5;line-height:1.75}
+.cta-row{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:16px 26px;border-radius:12px;font-weight:800;font-size:16.5px;cursor:pointer;border:0;font-family:inherit}
+.btn-sms{background:var(--hot);color:#fff;box-shadow:0 10px 26px rgba(217,86,15,.38)}
+.btn-tel{background:rgba(255,255,255,.14);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+.cta-note{margin:14px 0 0;font-size:14.5px;color:#cfdcf0;font-weight:600}
+.hero-ev{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.hero-ev-box{position:relative;flex:1 1 0;min-width:120px;max-width:200px;aspect-ratio:3/4;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08)}
+.hero-ev-box img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-ev-box span{position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;color:#fff;background:rgba(18,41,77,.82);padding:2px 8px;border-radius:99px}
+.hero-ev-cap{flex-basis:100%;font-size:13px;color:#cfdcf0;font-weight:600;margin-top:2px}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.badges>div{background:#fff;padding:22px 14px;text-align:center;font-size:14.5px;font-weight:600;color:var(--navy);line-height:1.6}
+section{padding:50px 0 0}
+h2{font-weight:800;font-size:29px;letter-spacing:-.025em;line-height:1.35;color:var(--navy)}
+.sec-sub{color:var(--sub);margin:9px 0 20px;font-size:16px}
+.sec-badge{font-size:13px;font-weight:700;color:var(--hot-d);background:#fdeee3;padding:4px 11px;border-radius:99px;vertical-align:middle;margin-left:6px;white-space:nowrap}
+.prose{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:22px 24px;font-size:16.5px;line-height:1.85;margin-top:16px}
+.prose p+p{margin-top:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.card{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 22px 22px 26px;position:relative;overflow:hidden;transition:.12s}
+.card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--hot)}
+.card:hover{border-color:var(--hot);box-shadow:0 8px 22px rgba(18,41,77,.1)}
+.card h3{font-size:18px;color:var(--navy);margin-bottom:6px;font-weight:800}
+.card p{font-size:15.5px;color:var(--sub);line-height:1.65}
+.chips-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chips-links a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:99px;padding:9px 17px;font-size:14.5px;color:var(--ink)}
+.chips-links a:hover{border-color:var(--hot);color:var(--hot)}
+.ba{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ba-slider{position:relative;aspect-ratio:4/3;overflow:hidden;background:#e9edf3;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize}
+.ba-slider img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.ba-before{clip-path:inset(0 50% 0 0)}
+.ba-handle{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;transform:translateX(-1px);pointer-events:none;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.ba-handle::after{content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:#fff;color:var(--hot);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;box-shadow:0 2px 9px rgba(0,0,0,.28)}
+.ba-tag{position:absolute;top:10px;font-size:12px;font-weight:700;color:#fff;background:rgba(18,41,77,.8);padding:3px 10px;border-radius:99px;pointer-events:none}
+.ba-tag-b{left:10px}.ba-tag-a{right:10px}
+.ba-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a95a5;font-size:13px}
+.ba-cap{padding:13px 16px;font-size:15px;font-weight:700;color:var(--navy)}
+.steps{counter-reset:s;margin-top:20px}
+.step{display:flex;gap:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:10px}
+.step:before{counter-increment:s;content:counter(s,decimal-leading-zero);font-weight:800;color:var(--hot);font-size:19px}
+.step h3{font-size:17px;color:var(--navy);font-weight:800}.step p{font-size:15.5px;color:var(--sub)}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 22px;margin-bottom:10px}
+summary{font-weight:800;cursor:pointer;font-size:16.5px;list-style:none;position:relative;padding:6px 26px 6px 0;color:var(--navy)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:0;top:6px;font-size:20px;color:var(--hot)}
+details[open] summary::after{content:"-"}
+details p{margin-top:10px;color:var(--sub);font-size:16px;line-height:1.8}
+.whyp{margin:0 0 18px;padding:20px 18px;border-left:5px solid var(--hot);background:var(--cream);border-radius:10px;font-size:17px;line-height:1.65}
+.whyp p{margin:0 0 10px}.whyp .w1{font-size:21px;font-weight:800;line-height:1.45}.whyp .w2{margin:14px 0 0;font-size:18px;font-weight:800;color:var(--hot)}
+.picker-card{background:#fff;border:2px solid var(--navy);border-radius:20px;padding:28px 24px;box-shadow:var(--shadow)}
+.pick-group{margin-top:22px}.pick-group h3{font-size:15.5px;margin-bottom:10px;font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-size:15px;cursor:pointer;user-select:none;transition:all .12s}
+.chip input{width:16px;height:16px;accent-color:var(--hot)}
+.chip.active{background:var(--hot);color:#fff;border-color:var(--hot)}
+.sms-preview{margin-top:20px;background:var(--cream);border-radius:12px;padding:16px 18px;font-size:14px;color:var(--sub);white-space:pre-line}
+.sms-hint{margin-top:14px;font-size:15px;line-height:1.6;font-weight:600}
+.picker-card .btn-sms{margin-top:16px;width:100%;justify-content:center}
+.cta-band{background:var(--navy);color:#fff;padding:42px 32px;border-radius:20px;margin:56px 0 0;box-shadow:var(--shadow)}
+.cta-band h2{color:#fff}.cta-band p{color:#c3d3ea;margin:10px 0 22px;font-size:16px}
+.cta-band .btn-tel{background:rgba(255,255,255,.12)}
+footer{background:var(--navy);color:#c3d3ea;padding:40px 0 116px;font-size:14px;margin-top:64px;line-height:1.9}
+footer strong{color:#fff}
+.f-links{display:flex;flex-wrap:wrap;gap:14px 12px;margin:18px 0 6px}
+.f-links a{display:inline-flex;flex-direction:column;align-items:center;gap:5px;width:62px;text-align:center;font-size:11px;opacity:.85}
+.f-links a:hover{opacity:1}
+.f-ico{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;color:#fff}
+.fixbar{position:fixed;left:0;right:0;bottom:0;display:flex;z-index:40;box-shadow:0 -6px 20px rgba(0,0,0,.16)}
+.fixbar a{text-align:center;padding:17px 10px;font-weight:800;font-size:16px}
+.fixbar .f-sms{flex:1;background:var(--hot);color:#fff;font-size:18px}.fixbar .f-call{flex:0 0 124px;background:var(--navy);color:#fff;font-weight:700}
+@media(max-width:640px){
+ body{font-size:17.5px;line-height:1.7}h1{font-size:30px}.hl{font-size:21px}h2{font-size:24px}
+ .grid{grid-template-columns:1fr}.badges{grid-template-columns:1fr}.badges>div{padding:16px 14px}
+ .hero{min-height:330px}.hero-in{padding:34px 20px}.cta-band{padding:34px 22px}
+ .card h3,.step h3{font-size:19px}.card p,.step p{font-size:16.5px}summary{font-size:18px}details p{font-size:17px}.chip{font-size:16.5px}.btn{font-size:17.5px}
+}`;
+
+const head = (c, { title, desc, keywords, canonical, ogImage }) => `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="keywords" content="${esc(keywords)}">
+<meta name="robots" content="${c.noindex ? "noindex, nofollow" : "index, follow"}"><link rel="canonical" href="${esc(canonical)}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="${esc(c.kw)}"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">` : ""}
+<link rel="icon" href="/favicon.svg"><link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"><style>${CSS}</style>`;
+
+const header = (c) => `<header><div class="wrap hd"><a class="logo" href="/">${esc(c.kw)}</a>${c.phone ? `<a class="hd-call" href="${esc(telHref(c.phone))}">${esc(c.phoneShow)}</a>` : ""}</div></header>`;
+
+const footer = (c) => {
+  const p = c.profile;
+  const biz = [p.company && `<strong>${esc(p.company)}</strong>`, p.ceo && `대표 ${esc(p.ceo)}`, p.regno && `사업자등록번호 ${esc(regnoFmt(p.regno))}`].filter(Boolean).join(" · ");
+  const contact = [c.phoneShow && `전화 ${esc(c.phoneShow)}`, p.hours && `영업시간 ${esc(p.hours)}`].filter(Boolean).join(" · ");
+  const links = linkList(p);
+  return `<footer><div class="wrap">${biz ? `${biz}<br>` : ""}${contact ? `${contact}<br>` : ""}${p.address ? `사업장 ${esc(p.address)}<br>` : ""}서비스 지역: ${esc(areaNames(c).slice(0, 12).join("·"))}${areaNames(c).length > 12 ? ` 외 ${areaNames(c).length - 12}곳` : ""}<br>
+${links.length ? `<div class="f-links">${links.map((x) => `<a href="${esc(extUrl(x.url))}" target="_blank" rel="noopener" title="${esc(x.name)}" aria-label="${esc(x.name)}"><span class="f-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[platformOf(extUrl(x.url))]}</svg></span>${esc(x.name)}</a>`).join("")}</div>` : ""}
+© 2026 ${esc(p.company || c.kw)}. All rights reserved.</div></footer>
+<div class="fixbar"><a class="f-sms" href="#picker">📷 사진 보내고 문자 문의</a>${c.phone ? `<a class="f-call" href="${esc(telHref(c.phone))}">📞 전화</a>` : ""}</div>`;
 };
-const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.kw} 페이지 목록`,
-  itemListElement: [{ "@type": "ListItem", position: 1, url: `https://${c.host}/`, name: c.kw }, ...pages.map((p, i) => ({ "@type": "ListItem", position: i + 2, url: `https://${c.host}${p.page_path}`, name: p.h1_title }))] });
 
-export function homePage({ site, meta, pages, data, profile }) {
-  const c = ctx(site, meta, data, { title: meta.main_keyword, profile });
-  const desc = `${c.kw} 안내 페이지입니다. ${c.subs.slice(0, 3).join("·")} 등 ${c.kw}를 지역별로 확인하세요. 사진과 지역을 보내 주시면 확인 후 안내합니다.`;
-  const kwMeta = [c.kw, ...c.subs.slice(0, 4)].join(", ");
-  const faq = [
-    [`${c.kw}는 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).join(", ")} 등 ${c.kw} 관련 상담이 필요한 경우입니다. 현장 사진을 보내 주시면 가능 여부를 확인해 드립니다.`],
-    [`진행 기간은 얼마나 걸리나요?`, `${timeLine(c) ? `대표 작업 기준으로 ${timeLine(c)}입니다. ` : ""}면적과 현장 상태에 따라 달라지며 정확한 일정은 상담 시 안내합니다.`],
-    [`비용은 어떻게 정해지나요?`, `현장 상태와 작업 범위에 따라 달라지므로 확인 후 안내합니다. 이 페이지는 금액을 단정하지 않습니다.`],
-    [`일부만 진행할 수도 있나요?`, `${c.subs[c.subs.length - 1]}처럼 필요한 부분만 진행하는 것도 상담할 수 있습니다.`],
-    [`어느 지역까지 가능한가요?`, `아래 지역별 ${c.kw} 안내에서 확인하시고, 없는 지역은 문의해 주세요.`],
-    [`상담은 어떻게 신청하나요?`, `상담 페이지에서 현장 사진과 지역을 남겨 주시면 순서대로 확인 후 연락드립니다.`],
-  ];
-  const six = pages.slice(0, 6);
-  return `${head({ title: c.kw, desc, keywords: kwMeta, canonical: `https://${c.host}/`, brandName: c.kw, sample: c.sample, ogLabel: c.kw, ogImage: IMGS.has("hero-1") ? `https://${c.host}/img/hero-1.webp` : "" })}
-<body class="bg-brand-bg text-brand-ink">
-${header(c)}
-${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `https://${c.host}/` }] })}
-<section class="relative" id="top"><div class="grid grid-cols-1 md:grid-cols-2">
-  <div class="relative h-[46vh] md:h-[74vh] min-h-[360px] max-h-[800px] overflow-hidden order-1">
-    ${[0, 1, 2].map((i) => `<div class="hero-slide absolute inset-0" data-index="${i}" style="opacity:${i === 0 ? 1 : 0};transition:opacity .8s ease;z-index:${i === 0 ? 1 : 0};">${img(`hero-${i + 1}`, `${c.kw} 시공 사례`, i)}</div>`).join("")}
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">${[0, 1, 2].map((i) => `<button class="hero-dot" data-target="${i}" aria-label="슬라이드 ${i + 1}" style="width:${i === 0 ? 22 : 7}px;height:7px;border-radius:9999px;border:none;cursor:pointer;background:${i === 0 ? "#fff" : "rgba(255,255,255,.5)"};transition:width .3s,background .3s;padding:0;"></button>`).join("")}</div>
-  </div>
-  <div class="order-2 flex items-center bg-brand-ink text-white px-6 sm:px-10 md:px-14 py-14 md:py-0 md:h-[74vh]"><div>
-    <span class="eyebrow !text-white/70">${esc(c.en)}</span>
-    <h1 class="mt-4 text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight">${esc(c.kw)}</h1>
-    <p class="mt-4 max-w-md text-base sm:text-lg text-white/80 leading-relaxed">${esc(c.subs.slice(0, 3).join("·"))} ${esc(c.kw)}<br>지역별 페이지에서 가까운 지역을 확인하세요</p>
-    <div class="mt-7 flex flex-wrap gap-3"><a href="/sangdam" class="btn btn-primary">상담 문의</a><a href="#works" class="btn btn-outline">시공사례 보기</a></div></div></div></div>
-  <div class="bg-brand-ink text-white/85"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-[12.5px] sm:text-sm">
-    ${[["문의 방법", "사진 · 지역 전송"], ["대상 지역", `${pages.length}개 지역 안내`], ["진행 방식", "사진 확인 후 일정 조율"], ["비용 안내", "현장 확인 후 안내"]].map(([a, b]) => `<div><span class="block text-[11px] uppercase tracking-widest opacity-60">${a}</span><span class="mt-1 inline-block font-semibold text-white">${b}</span></div>`).join("")}</div></div>
-</section>
-${works(c, 4)}
-<section class="py-16 sm:py-20 bg-brand-sub"><div class="max-w-7xl mx-auto px-5 sm:px-8">
-  <div class="max-w-2xl fade-up"><span class="eyebrow">진행 전 확인 사항</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(c.kw)} 유형별 안내</h2>
-  <p class="mt-4 text-sm muted leading-relaxed">현장 상태와 범위에 따라 방식과 일정이 달라집니다. 대표 유형을 정리했습니다.</p></div>
-  <div class="mt-10 overflow-x-auto fade-up"><table class="w-full text-sm border-collapse"><thead><tr class="border-b border-brand-line text-left">
-    <th class="py-3 pr-4 font-semibold text-brand-ink">항목</th><th class="py-3 pr-4 font-semibold text-brand-ink">대상</th><th class="py-3 pr-4 font-semibold text-brand-ink">소요 시간</th><th class="py-3 font-semibold text-brand-ink">특징</th></tr></thead>
-  <tbody class="divide-y divide-brand-line muted">${c.subs.map((x) => [x, guideOf(x)]).filter(([, g]) => g).map(([x, g]) => `<tr><td class="py-3 pr-4 font-semibold text-brand-ink whitespace-nowrap">${esc(x)}</td><td class="py-3 pr-4">${esc(g.target)}</td><td class="py-3 pr-4">${esc(g.time)}</td><td class="py-3">${esc(g.point)}</td></tr>`).join("")}</tbody></table></div>
-  <p class="mt-4 text-[12px] muted">소요 시간은 일반적인 작업 기준이며 면적과 현장 상태에 따라 달라집니다. 비용은 현장 확인 후 안내합니다.</p></div></section>
-${services(c, "서비스", `${c.kw} 종류`, `${c.subs.slice(0, 3).join(", ")} 등 ${c.kw}를 한 곳에서 안내합니다.`)}
-<section class="py-16 sm:py-20 bg-brand-sub" id="process"><div class="max-w-7xl mx-auto px-5 sm:px-8">
-  <div class="max-w-2xl fade-up"><span class="eyebrow">진행 과정</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">사진 한 장이 상담의 시작입니다</h2><p class="mt-3 text-sm muted">현장 사진과 지역을 받으면, 다음과 같은 흐름으로 진행됩니다.</p></div>
-  <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">${[["사진·지역 전송", "현장 사진 1~3장과 지역을 보내 주세요."], ["확인·안내", "사진을 보고 가능 여부와 진행 방식을 회신합니다."], ["방문·진행", "협의한 일정에 방문해 작업을 진행합니다."], ["정리·확인", "마무리 후 상태를 함께 확인합니다."]].map(([t, d], i) => `<div class="card p-6 fade-up"><span class="text-3xl font-normal text-brand-accent leading-none">${String(i + 1).padStart(2, "0")}</span><h3 class="mt-3 text-base font-semibold text-brand-ink">${t}</h3><p class="mt-2 text-[13.5px] muted leading-relaxed">${d}</p></div>`).join("")}</div></div></section>
-<section class="py-14 sm:py-16"><div class="max-w-4xl mx-auto px-5 sm:px-8 fade-up"><span class="eyebrow">${esc(c.kw)} 안내</span>
-  <h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">${esc(c.kw)}, 먼저 확인할 것</h2>
-  <div class="mt-6 space-y-5 text-[15px] leading-relaxed text-brand-ink/90 max-w-prose-fix">
-    <p>${esc(c.kw)}는 ${esc(c.subs.slice(0, 3).join(", "))} 등 여러 작업을 포함합니다. 현장 상태에 따라 필요한 범위가 다르므로, 사진으로 상태를 먼저 확인하는 것이 정확합니다.</p>
-    <h3 class="text-xl font-semibold text-brand-ink mt-8">상담 전에 준비하면 좋은 것</h3>
-    <ul class="list-disc pl-5 space-y-1.5 marker:text-brand-accent"><li>문제가 있는 부분의 사진 1~3장</li><li>위치(지역)와 건물 유형</li><li>원하는 작업 범위</li><li>가능한 일정</li></ul>
-    <h3 class="text-xl font-semibold text-brand-ink mt-8">작업 종류별 차이</h3>
-    <p>${esc(c.subs.slice(0, 3).join(", "))}은 작업 방식과 일정이 서로 다릅니다. 같은 이름의 작업이라도 현장 조건에 따라 달라질 수 있어 확인 후 안내합니다.</p>
-    <h3 class="text-xl font-semibold text-brand-ink mt-8">지역별 안내</h3>
-    <p>아래 지역별 페이지에서 가까운 지역의 ${esc(c.kw)} 안내를 확인할 수 있습니다. 없는 지역은 문의해 주세요.</p>
-  </div><p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.updated || "")}</p></div></section>
-<section class="py-16 sm:py-20 scroll-mt bg-brand-sub" id="area"><div class="max-w-7xl mx-auto px-5 sm:px-8">
-  <div class="flex items-end justify-between flex-wrap gap-3 mb-9 fade-up"><div><span class="eyebrow">연관 페이지</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">지역별 ${esc(c.kw)} 보기</h2>
-  <p class="mt-3 text-sm muted max-w-xl">가까운 지역 페이지에서 안내를 확인하세요.</p></div></div>
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6">${six.map((p, i) => regionCard(c, p, i, "지역 페이지")).join("")}</div></div></section>
-${faqBlock(faq)}
-${cta(c, "사진과 지역만 보내주세요")}
-<script defer>(function(){var s=document.querySelectorAll('.hero-slide'),d=document.querySelectorAll('.hero-dot');if(!s.length)return;var cur=0,t;
-function go(n){s[cur].style.opacity='0';s[cur].style.zIndex='0';d[cur].style.width='7px';d[cur].style.background='rgba(255,255,255,.45)';cur=(n+s.length)%s.length;s[cur].style.opacity='1';s[cur].style.zIndex='1';d[cur].style.width='22px';d[cur].style.background='#4472B8';}
-function auto(){t=setInterval(function(){go(cur+1);},5000);}d.forEach(function(x){x.addEventListener('click',function(){go(parseInt(x.dataset.target));clearInterval(t);auto();});});auto();})();</script>
-${footer(c)}
-${tail(businessLd(c) + itemListLd(c, pages))}`;
+// ── 섹션 조각
+const heroBlock = (c, { h1, headline, lead, crumb }) => {
+  const bgName = hasImg("ba-3-after") ? "ba-3-after" : hasImg("hero-1") ? "hero-1" : "";
+  const ev = hasImg("ba-3-before") && hasImg("ba-3-after")
+    ? `<div class="hero-ev"><div class="hero-ev-box">${imgTag("ba-3-before", `${c.kw} 작업 전`)}<span>작업 전</span></div><div class="hero-ev-box">${imgTag("ba-3-after", `${c.kw} 작업 후`)}<span>작업 후</span></div><div class="hero-ev-cap">${esc(captionOf(c, 3))}</div></div>` : "";
+  return `<div class="hero">${bgName ? `<div class="hero-bg">${imgTag(bgName, "")}</div>` : ""}<div class="hero-in">${crumb ? `<div class="crumb">${crumb}</div>` : ""}<h1>${esc(h1)}</h1>
+<p class="hl">${esc(headline)}</p><p class="lead">${esc(lead)}</p>
+<div class="cta-row"><a class="btn btn-sms" href="#picker">📷 사진 보내고 문자 문의 ↓</a>${c.phone ? `<a class="btn btn-tel" href="${esc(telHref(c.phone))}">📞 전화</a>` : ""}</div>
+<p class="cta-note">📷 사진 한 장이면 가능 여부를 먼저 안내합니다.</p>${ev}</div></div>`;
+};
+const captionOf = (c, slot) => (c.media.captions && c.media.captions[slot]) || (c.subs[slot - 1] ? `${c.subs[slot - 1]} 사례` : `${c.kw} 사례`);
+
+const badgesBlock = (c) => `<div class="badges"><div>사진 보고 가능 여부 안내</div><div>${c.pages.length}개 지역 상담</div><div>문자 · 전화 상담</div><div>비용은 현장 확인 후 안내</div></div>`;
+
+const itemsBlock = (c, title, sub) => `<section><h2>${esc(title)}</h2><p class="sec-sub">${esc(sub)}</p><div class="grid">${c.subs.map((s) => { const g = guideOf(c, s); return `<a class="card" href="#picker" data-pick="작업:${esc(s)}"><h3>${esc(s)}</h3><p>${esc(g ? `${g.target}. ${g.point}.` : `${s} 관련 작업을 상담합니다.`)}</p></a>`; }).join("")}</div></section>`;
+
+const symptomsBlock = (c) => ((c.content.symptoms || []).length ? `<section><h2>이런 증상도 접수합니다</h2><p class="sec-sub">해당하는 증상을 눌러 문의에 담아 보세요.</p><div class="chips-links">${c.content.symptoms.map((s) => `<a href="#picker" data-pick="증상:${esc(s)}">${esc(s)}</a>`).join("")}</div></section>` : "");
+
+const compareBlock = (c, title) => {
+  const cells = [1, 2, 3, 4].map((n) => {
+    const both = hasImg(`ba-${n}-before`) && hasImg(`ba-${n}-after`);
+    const inner = both
+      ? `${imgTag(`ba-${n}-after`, `${captionOf(c, n)} 작업 후`, 'class="ba-after"')}${imgTag(`ba-${n}-before`, `${captionOf(c, n)} 작업 전`, 'class="ba-before"')}<div class="ba-handle"></div><span class="ba-tag ba-tag-b">작업 전</span><span class="ba-tag ba-tag-a">작업 후</span>`
+      : `<div class="ba-empty">사진 준비 중</div>`;
+    return `<div class="ba"><div class="ba-slider"${both ? " data-slider" : ""}>${inner}</div><div class="ba-cap">${esc(captionOf(c, n))}</div></div>`;
+  }).join("");
+  return `<section><h2>${esc(title)} <span class="sec-badge">작업 사진</span></h2><p class="sec-sub">손잡이를 좌우로 움직이면 같은 자리의 작업 전과 후가 바뀝니다.</p><div class="grid">${cells}</div></section>`;
+};
+
+const stepsBlock = () => `<section><h2>진행 절차</h2><div class="steps">
+<div class="step"><div><h3>사진·증상 접수</h3><p>문제 부위 사진과 지역, 원하는 작업을 문자로 보내 주세요.</p></div></div>
+<div class="step"><div><h3>상담</h3><p>사진을 보고 가능한 방법과 일정을 안내합니다. 비용은 현장 확인 후 안내합니다.</p></div></div>
+<div class="step"><div><h3>시공</h3><p>협의한 일정에 맞춰 작업합니다.</p></div></div>
+<div class="step"><div><h3>완료 확인</h3><p>작업 결과를 함께 확인합니다.</p></div></div></div></section>`;
+
+const areaBlock = (c, current) => `<section><h2>${current ? `${esc(current)} 가까운 지역` : "서비스 지역"}</h2><p class="sec-sub">${current ? "다른 지역 안내도 확인해 보세요." : `${c.pages.length}개 지역에서 상담을 받고 있습니다. 지역을 눌러 안내를 확인하세요.`}</p>
+<div class="chips-links">${c.pages.filter((p) => p.region !== current).slice(0, current ? 12 : 99).map((p) => `<a href="${esc(p.page_path)}">${esc(p.region)} ${esc(c.kw)}</a>`).join("")}</div></section>`;
+
+const faqItems = (c, region) => {
+  const R = region ? `${region} ` : "";
+  const out = [];
+  out.push([`${R}${c.kw}${eunNeun(c.kw)} 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).map((s) => { const g = guideOf(c, s); return g ? `${s}(${g.target})` : s; }).join(", ")} 같은 경우에 상담하실 수 있습니다. 사진을 보내 주시면 가능 여부부터 안내합니다.`]);
+  for (const s of c.subs.slice(0, 3)) { const g = guideOf(c, s); if (g) out.push([`${s}${eunNeun(s)} 어떤 작업인가요?`, `${g.target}에 해당합니다. ${g.point}.`]); }
+  out.push([`진행 기간은 얼마나 걸리나요?`, `${timeLine(c) ? `대표 작업 기준으로 ${timeLine(c)}입니다. ` : ""}면적과 현장 상태에 따라 달라지며 정확한 일정은 상담 시 안내합니다.`]);
+  out.push([`비용은 어떻게 정해지나요?`, `현장 상태와 작업 범위에 따라 달라지므로 확인 후 안내합니다. 이 페이지는 금액을 단정하지 않습니다.`]);
+  out.push([`상담은 어떻게 하나요?`, `아래 '체크하고 문자 보내기'에서 해당 항목을 체크하고 사진을 첨부해 문자를 보내 주세요.${c.phoneShow ? ` 전화(${c.phoneShow})로도 문의할 수 있습니다.` : ""}`]);
+  return out.slice(0, 7);
+};
+const faqBlock = (items) => `<section><h2>자주 묻는 질문</h2>${items.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section>`;
+const faqLd = (items) => jsonLd({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) });
+
+const chipGroup = (cat, title, values, pre = []) => `<div class="pick-group"><h3>${esc(title)}</h3><div class="chips">${values.map((v) => `<label class="chip${pre.includes(v) ? " active" : ""}"><input type="checkbox" data-cat="${esc(cat)}" value="${esc(v)}"${pre.includes(v) ? " checked" : ""}>${esc(v)}</label>`).join("")}</div></div>`;
+const pickerBlock = (c, { pageName, region }) => `<section id="picker"><div class="whyp"><p>말로 설명하기 어려운 부분이 많습니다.</p><p class="w1">사진 한 장이 가장 정확한 설명입니다.</p><p>사진을 먼저 확인하고 연락드리기 때문에 같은 설명을 반복하실 필요가 없고, 가능한지와 어떤 방법이 맞는지부터 말씀드릴 수 있습니다.</p><p class="w2">📷 멀리서 1장, 가까이 1~2장이면 충분합니다.</p></div>
+<div class="picker-card"><h2>체크하고 문자 보내기</h2><p class="sec-sub" style="margin-bottom:0">해당 항목을 체크하면 문자 내용이 자동으로 채워집니다. 사진만 첨부해 보내 주세요.</p>
+${chipGroup("작업", "작업", [...c.subs, "잘 모르겠음"])}${(c.content.symptoms || []).length ? chipGroup("증상", "증상", [...c.content.symptoms, "기타", "잘 모르겠음"]) : ""}
+${chipGroup("지역", "지역", [...areaNames(c), "그 외 지역"], region ? [region] : [])}
+<div class="sms-preview" id="smsPreview"></div><p class="sms-hint">📷 문자 창이 열리면 <b>＋</b> 또는 📎 를 눌러 사진을 붙여 주세요.</p>
+<a id="sms-final" class="btn btn-sms" href="${c.phone ? `sms:${esc(c.phone)}` : "#picker"}">💬 이 내용으로 문자 보내기</a></div></section>`;
+
+const ctaBand = (c, title) => `<div class="cta-band"><h2>${esc(title)}</h2><p>문제 부위 사진과 지역을 보내 주시면 가능 여부를 먼저 안내합니다.</p><div class="cta-row" style="margin-top:0"><a class="btn btn-sms" href="#picker">📷 사진 보내고 문자 문의 ↑</a>${c.phone ? `<a class="btn btn-tel" href="${esc(telHref(c.phone))}">📞 전화 상담</a>` : ""}</div></div>`;
+
+const SCRIPT = (c, pageName, region) => `<script>(function(){
+var phone=${JSON.stringify(c.phone)},KW=${JSON.stringify(c.kw)},PAGE=${JSON.stringify(pageName)},REGION=${JSON.stringify(region || "")};
+var btn=document.getElementById('sms-final'),pv=document.getElementById('smsPreview');
+function pick(cat){return Array.prototype.slice.call(document.querySelectorAll('input[data-cat="'+cat+'"]:checked')).map(function(e){return e.value})}
+function build(){var L=['['+KW+'] '+PAGE],a=pick('작업'),b=pick('증상'),d=pick('지역');
+if(a.length)L.push('작업: '+a.join('\\u00b7'));if(b.length)L.push('증상: '+b.join('\\u00b7'));
+L.push('지역: '+(d.length?d.join('\\u00b7'):REGION));L.push('\\u203b 사진은 이 문자에 첨부해 주세요');
+var body=L.join('\\n');if(phone)btn.href='sms:'+phone+'?body='+encodeURIComponent(body);
+pv.textContent='문자 미리보기\\n\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\n'+body;}
+document.querySelectorAll('#picker input[type=checkbox]').forEach(function(el){el.addEventListener('change',function(){var l=el.closest('label');if(l)l.classList.toggle('active',el.checked);build();});});
+document.querySelectorAll('[data-pick]').forEach(function(a){a.addEventListener('click',function(){var p=a.getAttribute('data-pick').split(':'),cat=p[0],val=p.slice(1).join(':');
+document.querySelectorAll('#picker input[data-cat="'+cat+'"]').forEach(function(el){if(el.value===val){el.checked=true;var l=el.closest('label');if(l)l.classList.add('active');}});build();});});
+build();
+document.querySelectorAll('[data-slider]').forEach(function(s){var before=s.querySelector('.ba-before'),handle=s.querySelector('.ba-handle'),drag=false;
+function set(x){var r=s.getBoundingClientRect(),p=Math.max(0,Math.min(1,(x-r.left)/r.width));before.style.clipPath='inset(0 '+((1-p)*100)+'% 0 0)';handle.style.left=(p*100)+'%';}
+s.addEventListener('pointerdown',function(e){drag=true;try{s.setPointerCapture(e.pointerId);}catch(_){}set(e.clientX);});
+s.addEventListener('pointermove',function(e){if(drag)set(e.clientX);});
+s.addEventListener('pointerup',function(){drag=false;});s.addEventListener('pointercancel',function(){drag=false;});});
+})();</script>`;
+
+const businessLd = (c, extra = {}) => jsonLd({
+  "@context": "https://schema.org", "@type": "HomeAndConstructionBusiness", name: c.profile.company || c.kw, url: `https://${c.host}/`,
+  ...(c.phone ? { telephone: intlTel(c.phone) } : {}), description: `${c.kw} — ${c.subs.slice(0, 4).join(", ")} 상담`,
+  areaServed: areaNames(c).map((n) => ({ "@type": "City", name: n })), ...(linkList(c.profile).length ? { sameAs: linkList(c.profile).map((x) => extUrl(x.url)) } : {}), ...extra,
+});
+
+const ogImageOf = (c) => { const n = hasImg("ba-3-after") ? "ba-3-after" : hasImg("hero-1") ? "hero-1" : ""; return n ? `https://${c.host}${imgSrc(n)}` : ""; };
+
+// ── 페이지
+export function homePage({ site, meta, pages, data, profile, media }) {
+  const c = ctx(site, meta, data, { profile, pages, media });
+  const ct = c.content;
+  const faq = faqItems(c);
+  const desc = `${c.kw} 상담. ${c.subs.slice(0, 4).join("·")} 등 ${c.pages.length}개 지역에서 사진을 보내 주시면 가능 여부부터 안내합니다.`;
+  return `${head(c, { title: `${c.kw} | ${c.subs.slice(0, 4).join("·")}`, desc, keywords: [c.kw, ...c.subs].join(", "), canonical: `https://${c.host}/`, ogImage: ogImageOf(c) })}
+${businessLd(c)}${faqLd(faq)}</head><body>${header(c)}
+${heroBlock(c, { h1: c.kw, headline: ct.headline || `${c.kw}, 어떻게 해야 할지 고민이신가요?`, lead: ct.lead || desc })}
+${badgesBlock(c)}<div class="wrap">
+${itemsBlock(c, `${c.kw} 작업 항목`, "비슷한 상황을 골라 문의에 담을 수 있습니다.")}${symptomsBlock(c)}${compareBlock(c, "작업 전후 비교")}${stepsBlock()}${areaBlock(c, "")}${faqBlock(faq)}${pickerBlock(c, { pageName: c.kw, region: "" })}${ctaBand(c, "사진 한 장이면 충분합니다")}</div>
+${footer(c)}${SCRIPT(c, c.kw, "")}</body></html>`;
 }
 
-export function regionPage({ site, meta, page, pages, data, profile }) {
-  const region = page.region, c = ctx(site, meta, data, { region, title: page.h1_title, profile });
-  const hub = pages.filter((p) => p.page_path !== page.page_path).slice(0, 5);
-  const desc = `${region} 전 지역 ${c.kw} 안내입니다. ${c.subs.slice(0, 3).join("·")} 등을 상담합니다. 사진과 지역을 보내 주시면 확인 후 안내합니다.`;
-  const kwMeta = [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`)].join(", ");
-  const faq = [
-    [`${region} ${c.kw}는 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).join(", ")} 등이 필요한 경우입니다. ${region} 현장 사진을 보내 주시면 확인해 드립니다.`],
-    [`진행 기간은 얼마나 걸리나요?`, `${timeLine(c) ? `대표 작업 기준으로 ${timeLine(c)}입니다. ` : ""}면적과 현장 상태에 따라 달라지며 ${region} 현장 일정은 상담 시 안내합니다.`],
-    [`비용은 어떻게 정해지나요?`, `현장 확인 후 안내합니다. 이 페이지는 금액을 단정하지 않습니다.`],
-    [`${region} 어느 곳까지 가능한가요?`, `${region} 지역 안에서 가능 여부를 사진과 위치로 확인합니다.`],
-    [`상담은 어떻게 신청하나요?`, `상담 페이지에서 현장 사진과 ${region} 내 위치를 남겨 주세요.`],
-  ];
-  return `${head({ title: page.h1_title, desc, keywords: kwMeta, canonical: `https://${c.host}${page.page_path}`, brandName: c.kw, sample: c.sample, ogLabel: c.kw })}
-<body class="bg-brand-bg text-brand-ink">
-${header(c)}
-${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `https://${c.host}/` }, { "@type": "ListItem", position: 2, name: page.h1_title, item: `https://${c.host}${page.page_path}` }] })}
-<section class="relative"><div class="relative h-[46vh] sm:h-[58vh] min-h-[320px] sm:min-h-[460px] max-h-[680px] overflow-hidden">
-  <div class="absolute inset-0">${img("wide", `${page.h1_title} 시공 사례`, 0)}</div><div class="absolute inset-0 hero-overlay-thin"></div>
-  <div class="absolute inset-0 flex items-end pb-14 sm:pb-20"><div class="max-w-7xl mx-auto px-5 sm:px-8 w-full text-white">
-    <span class="eyebrow !text-white">${esc(page.region_slug.toUpperCase())}</span>
-    <h1 class="mt-3 sm:mt-4 text-4xl sm:text-6xl md:text-7xl font-normal tracking-tight hero-shadow">${esc(page.h1_title)}</h1>
-    <p class="mt-2 sm:mt-3 max-w-xl text-sm sm:text-base lg:text-lg text-white/90 leading-relaxed hero-shadow">${esc(region)} 전 지역 — ${esc(c.subs.slice(0, 3).join("·"))} ${esc(c.kw)}</p>
-    <div class="mt-7 flex flex-wrap gap-3"><a href="/sangdam" class="btn btn-primary">상담 문의</a><a href="/" class="btn btn-outline">메인페이지</a></div></div></div></div></section>
-${works(c, 2)}
-<section class="py-14 sm:py-16 bg-brand-sub"><div class="max-w-4xl mx-auto px-5 sm:px-8 fade-up"><span class="eyebrow">${esc(region)} 정보</span>
-  <h2 class="mt-3 text-2xl sm:text-3xl font-normal tracking-tight">한눈에 보는 ${esc(c.kw)} 정보</h2>
-  <div class="mt-6 overflow-x-auto"><table class="w-full text-sm border-collapse"><tbody class="divide-y divide-brand-line">
-    <tr><td class="py-3 pr-4 font-semibold text-brand-ink w-36">대상 지역</td><td class="py-3 muted">${esc(region)} 전 지역</td></tr>
-    <tr><td class="py-3 pr-4 font-semibold text-brand-ink">대표 서비스</td><td class="py-3 muted">${esc(c.subs.slice(0, 3).join(", "))} 외</td></tr>
-    <tr><td class="py-3 pr-4 font-semibold text-brand-ink">소요 시간·비용</td><td class="py-3 muted">${esc(timeLine(c, 2) || "작업 범위에 따라 다릅니다")} · 비용은 현장 확인 후 안내</td></tr>
-    <tr><td class="py-3 pr-4 font-semibold text-brand-ink">문의 방법</td><td class="py-3 muted">사진 · 지역 전송</td></tr></tbody></table></div>
-  <p class="mt-8 text-[12px] muted">최종수정일 ${esc(data.updated || "")}</p></div></section>
-${services(c, "대표 서비스", `${region}에서 자주 받는 의뢰`, "")}
-<section class="py-14 sm:py-16"><div class="max-w-4xl mx-auto px-5 sm:px-8 fade-up"><span class="eyebrow">${esc(region)} 안내</span>
-  <h2 class="mt-3 text-2xl sm:text-3xl font-normal tracking-tight">${esc(page.h1_title)}, 어떻게 진행되나요</h2>
-  <div class="mt-5 space-y-4 text-[15px] leading-relaxed text-brand-ink/90 max-w-prose-fix">
-    <p>${esc(region)} 지역의 ${esc(c.kw)} 문의는 ${esc(c.subs.slice(0, 2).join(", "))} 등이 많습니다. 현장 상태에 따라 범위가 달라 사진으로 먼저 확인합니다.</p>
-    <h3 class="text-xl font-semibold mt-8">${esc(region)}에서 자주 나오는 요청</h3>
-    <ul class="list-disc pl-5 space-y-1.5 marker:text-brand-accent">${c.subs.slice(0, 4).map((s) => `<li>${esc(s)}</li>`).join("")}</ul>
-    <h3 class="text-xl font-semibold mt-8">문의 안내</h3>
-    <p>의뢰는 <a href="/sangdam" class="underline font-semibold">상담 안내</a> 페이지에서 현장 사진과 ${esc(region)} 내 위치를 함께 보내 주시면 회신이 빠릅니다.</p></div></div></section>
-<section class="py-16 sm:py-20 scroll-mt bg-brand-sub" id="area"><div class="max-w-7xl mx-auto px-5 sm:px-8">
-  <div class="flex items-end justify-between flex-wrap gap-3 mb-9 fade-up"><div><span class="eyebrow">${esc(c.kw)} 안내</span><h2 class="mt-3 text-3xl sm:text-4xl font-normal tracking-tight">다른 지역 ${esc(c.kw)} 보기</h2>
-  <p class="mt-3 text-sm muted max-w-xl">대표 페이지와 다른 지역 안내에서 더 확인할 수 있습니다.</p></div></div>
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6">
-    <a href="/" class="card group block"><div class="aspect-[16/11] bg-brand-sub overflow-hidden"><div class="w-full h-full transition-transform duration-700 group-hover:scale-105">${img("hero-1", `${c.kw} 시공 사례`, 0)}</div></div>
-    <div class="p-3.5 sm:p-5"><span class="num-label">대표 페이지</span><h3 class="mt-1 text-sm sm:text-base font-semibold text-brand-ink line-clamp-1">${esc(c.kw)}</h3><p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(c.subs.slice(0, 3).join("·"))} 지역별 안내 모음.</p></div></a>
-    ${hub.map((p, i) => regionCard(c, p, i, "지역 페이지")).join("")}</div></div></section>
-${faqBlock(faq)}
-${cta(c, `${region} ${c.kw}, 사진과 지역만 보내주세요`)}
-${footer(c)}
-${tail(itemListLd(c, [page, ...hub]))}`;
+export function regionPage({ site, meta, page, pages, data, profile, media }) {
+  const region = page.region;
+  const c = ctx(site, meta, data, { profile, pages, media });
+  const ct = c.content, intro = (media && media.intro) || "";
+  const faq = faqItems(c, region);
+  const desc = `${region} ${c.kw} 상담. ${c.subs.slice(0, 3).join("·")} 등을 사진으로 먼저 확인하고 안내합니다.`;
+  const items = c.subs.slice(0, 3).map((s) => `${s}${eunNeun(s)} ${guideOf(c, s) ? guideOf(c, s).time : "현장에 따라 다릅니다"}`).join(", ");
+  return `${head(c, { title: `${region} ${c.kw} | ${c.kw}`, desc, keywords: [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`)].join(", "), canonical: `https://${c.host}${page.page_path}`, ogImage: ogImageOf(c) })}
+${businessLd(c, { areaServed: [{ "@type": "City", name: region }] })}${faqLd(faq)}</head><body>${header(c)}
+${heroBlock(c, { h1: page.h1_title, headline: `${region}에서 ${ct.headline || `${c.kw}, 어떻게 해야 할지 고민이신가요?`}`, lead: ct.lead || desc, crumb: `<a href="/">${esc(c.kw)}</a> › ${esc(region)}` })}
+${badgesBlock(c)}<div class="wrap">
+<section><h2>${esc(region)} ${esc(c.kw)} 안내</h2><div class="prose">${intro ? intro.split(/\n+/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("") : ""}<p>${esc(region)} 지역 ${esc(c.kw)} 상담을 받고 있습니다. 대표 작업 기준으로 ${esc(items)}입니다. 면적과 현장 상태에 따라 달라지므로 ${esc(region)} 현장 사진을 보내 주시면 가능 여부와 일정을 먼저 안내합니다. 비용은 현장 확인 후 안내합니다.</p></div></section>
+${itemsBlock(c, `${region} ${c.kw} 작업 항목`, `${region}에서 많이 문의하시는 작업입니다.`)}${symptomsBlock(c)}${compareBlock(c, `${region} 작업 전후`)}${areaBlock(c, region)}${faqBlock(faq)}${pickerBlock(c, { pageName: `${region} ${c.kw}`, region })}${ctaBand(c, `${region} 상담`)}</div>
+${footer(c)}${SCRIPT(c, `${region} ${c.kw}`, region)}</body></html>`;
 }
 
-export function sangdamPage({ site, meta, data, profile }) {
-  const c = ctx(site, meta, data, { title: "상담 안내", profile });
-  return `${head({ title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내 페이지입니다. 사진과 지역을 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, brandName: c.kw, sample: c.sample, ogLabel: c.kw })}
-<body class="bg-brand-bg text-brand-ink">${header(c)}
-<section class="py-20 sm:py-28"><div class="max-w-3xl mx-auto px-5 sm:px-8"><span class="eyebrow">상담 안내</span>
-  <h1 class="mt-3 text-3xl sm:text-5xl font-normal tracking-tight">${esc(c.kw)} 상담</h1>
-  <p class="mt-5 text-brand-ink/80 leading-relaxed">현장 사진과 지역을 보내 주시면 확인 후 회신합니다. 현장 사진과 지역을 남겨 주세요.</p>
-  <div class="mt-9 flex flex-wrap gap-3">${c.profile.phone ? `<a href="${esc(telHref(c.profile.phone))}" class="btn btn-primary">전화 ${esc(c.profile.phone)}</a>` : ""}${extUrl(c.profile.kakao) ? `<a href="${esc(extUrl(c.profile.kakao))}" target="_blank" rel="noopener" class="btn btn-ghost">카카오톡 상담</a>` : ""}<a href="/" class="btn btn-ghost">메인페이지</a></div></div></section>
-${footer(c)}
-${tail("")}`;
+export function sangdamPage({ site, meta, data, profile, pages, media }) {
+  const c = ctx(site, meta, data, { profile, pages, media });
+  return `${head(c, { title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내. 체크하고 사진을 첨부해 문자로 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, ogImage: "" })}</head><body>${header(c)}
+<div class="wrap" style="padding-top:36px"><h1 style="color:var(--navy);font-size:32px">${esc(c.kw)} 상담</h1><p class="sec-sub">현장 사진과 지역을 보내 주시면 확인 후 안내합니다.</p></div>
+<div class="wrap">${pickerBlock(c, { pageName: `${c.kw} 상담`, region: "" })}</div>${footer(c)}${SCRIPT(c, `${c.kw} 상담`, "")}</body></html>`;
 }

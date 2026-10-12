@@ -18,11 +18,16 @@ for (const [site, m] of Object.entries(data.site_meta || {})) meta[site.split('.
 writeFileSync('worker/sites-meta.json', JSON.stringify(meta));
 
 // 업로드 페이지에서 올린 공사 전/후 사진(작업 사례 1~4). 전·후가 둘 다 있는 사례만 쓴다(없으면 건너뜀).
-const baBySub = {};
+const baBySub = {}, capBySub = {}, introBySub = {};
 if (process.env.BIZHELP_BA_URL) {
   try {
     const r = await fetch(process.env.BIZHELP_BA_URL, { signal: AbortSignal.timeout(15000) });
-    if (r.ok) for (const it of (await r.json()).items || []) (((baBySub[it.slug] ||= {})[it.region || ''] ||= {})[it.slot] ||= {})[it.phase] = it;
+    if (r.ok) {
+      const j = await r.json();
+      for (const it of j.items || []) (((baBySub[it.slug] ||= {})[it.region || ''] ||= {})[it.slot] ||= {})[it.phase] = it;
+      for (const it of j.captions || []) if (it.caption) ((capBySub[it.slug] ||= {})[it.region || ''] ||= {})[it.slot] = it.caption;
+      for (const it of j.intros || []) if (it.intro) (introBySub[it.slug] ||= {})[it.region || ''] = it.intro;
+    }
     console.log(`전후 사진: ${Object.keys(baBySub).length}개 사이트`);
   } catch (e) { console.log('전후 사진 조회 실패(무시):', e.message); }
 }
@@ -80,9 +85,11 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   const pages = data.pages.filter((p) => p.site === site && !p.pending && p.region).sort((a, b) => a.page_path.localeCompare(b.page_path));
   const put = (rel, html) => { const dir = `dist-sites/s/${sub}${rel}`.replace(/\/$/, ''); mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/index.html`, html); n++; };
   apply('');
-  put('/', homePage({ site, meta: m, pages, data, profile }));
-  put('/sangdam', sangdamPage({ site, meta: m, data, profile }));
-  for (const page of pages) { apply(page.region_slug); put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile })); }
+  // 사진 설명(캡션)·지역 소개 문구: 지역에 입력한 값이 있으면 그것, 없으면 공통
+  const mediaFor = (region) => ({ captions: { ...(capBySub[sub]?.[''] || {}), ...(region ? capBySub[sub]?.[region] || {} : {}) }, intro: region ? introBySub[sub]?.[region] || '' : '' });
+  put('/', homePage({ site, meta: m, pages, data, profile, media: mediaFor('') }));
+  put('/sangdam', sangdamPage({ site, meta: m, data, profile, pages, media: mediaFor('') }));
+  for (const page of pages) { apply(page.region_slug); put(page.page_path, regionPage({ site, meta: m, page, pages, data, profile, media: mediaFor(page.region_slug) })); }
   const urls = ['/', ...pages.map((p) => p.page_path)];
   writeFileSync(`dist-sites/s/${sub}/robots.txt`, sample ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: https://${site}/sitemap.xml\n`);
   writeFileSync(`dist-sites/s/${sub}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `<url><loc>https://${site}${u}</loc></url>`).join('\n')}\n</urlset>\n`);
