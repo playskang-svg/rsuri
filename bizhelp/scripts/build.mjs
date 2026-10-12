@@ -60,7 +60,7 @@ cpSync('public/favicon.svg', 'dist-sites/favicon.svg');
 // 응답 헤더: 사진은 하루 캐시(+재검증, 파일명이 같아도 새 사진으로 바뀌므로 immutable 은 쓰지 않는다), 기본 보안 헤더. 검색 노출 차단은 공개 전까지 유지
 const headers = ['/*', '  X-Content-Type-Options: nosniff', '  Referrer-Policy: strict-origin-when-cross-origin'];
 if (sample) headers.push('  X-Robots-Tag: noindex, nofollow');
-headers.push('/s/*/img/*', '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800', '/favicon.svg', '  Cache-Control: public, max-age=604800');
+headers.push('/s/:site/img/*', '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800', '/favicon.svg', '  Cache-Control: public, max-age=604800');
 writeFileSync('dist-sites/_headers', headers.join('\n') + '\n');
 
 let n = 0;
