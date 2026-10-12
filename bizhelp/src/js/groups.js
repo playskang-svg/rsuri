@@ -1,4 +1,4 @@
-// 대시보드의 메인 키워드 그룹 관리: 새로 만들기 · 수정 · 지금 반영(배포).
+// 대시보드의 메인 키워드 그룹 관리: 새로 만들기 · 수정 · 일괄 등록. 저장만 한다(사이트 반영은 매일 05:00 KST 정기 배포).
 // 그룹을 저장하면 사이트(<주소>.suriwiki.com), 업로드 페이지(/upload/<주소>), 지역 페이지(/<지역>)가 같은 규칙으로 함께 생긴다.
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -15,13 +15,6 @@ function modal(html) {
 }
 const closeModal = () => { const m = $('#gm'); if (m) m.remove(); };
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-
-async function deploy(btn, out) {
-  const orig = btn.textContent; btn.disabled = true; btn.textContent = '⏳ 요청 중...';
-  const j = await api('/api/deploy', { method: 'POST' });
-  out.textContent = j.message || (j.ok ? '배포를 시작했습니다.' : j.error || '실패'); out.style.color = j.ok ? '#15803d' : '#b45309';
-  btn.textContent = orig; btn.disabled = false;
-}
 
 function guideRows(subs, guide) {
   return subs.map((s) => { const g = (guide || {})[s] || {}; return `<div class="gm-guide" data-sub="${esc(s)}"><b>${esc(s)}</b>
@@ -101,17 +94,13 @@ async function save(m, isEdit) {
 }
 
 function done(j, isEdit) {
-  const canDeploy = CATALOG && CATALOG.deploy && CATALOG.deploy.enabled;
   const m = modal(`<div class="gm-hd"><h3>${isEdit ? '저장했습니다' : '그룹을 만들었습니다'}</h3><button type="button" class="gm-x" data-x aria-label="닫기">✕</button></div>
   <div class="gm-body"><p class="gm-note">${esc(j.group.main_keyword)} 그룹이 저장되었습니다. 아래가 함께 만들어집니다.</p>
     <ul class="gm-list"><li>사이트: <b>https://${esc(j.host)}/</b> <small>(지역 페이지 ${j.group.regions.length}개)</small></li>
     <li>업로드 페이지: <a href="${esc(j.upload)}" target="_blank" rel="noopener">${esc(j.upload)}</a></li></ul>
-    <p class="gm-hint">사이트와 지역 페이지는 <b>배포 때</b> 만들어집니다. 새 주소는 첫 배포 때 도메인이 연결되며 몇 분 걸릴 수 있습니다. ${canDeploy ? '' : '자동 배포는 매일 05:00(KST)입니다.'}</p>
-    <div class="gm-deploy"><button type="button" class="gm-btn" id="gd-btn"${canDeploy ? '' : ' disabled'}>🚀 지금 반영</button><span id="gd-out" class="gm-hint"></span></div>
-    ${canDeploy ? '' : '<p class="gm-hint">‘지금 반영’은 GitHub 토큰(GH_DISPATCH_TOKEN)을 등록하면 켜집니다.</p>'}</div>
+    <p class="gm-hint">사이트와 지역 페이지는 다음 정기 배포(매일 05:00 KST) 때 만들어집니다. 새 주소는 첫 배포 때 도메인이 연결되며 몇 분 걸릴 수 있습니다.</p></div>
   <div class="gm-ft"><button type="button" class="gm-btn ghost" id="gd-close">닫고 새로고침</button></div>`);
   m.addEventListener('click', (e) => { if (e.target.closest('[data-x]') || e.target.closest('#gd-close')) { closeModal(); location.reload(); } });
-  $('#gd-btn', m).addEventListener('click', (e) => deploy(e.currentTarget, $('#gd-out', m)));
 }
 
 
@@ -146,9 +135,9 @@ function openImport() {
   $('#gi-apply', m).addEventListener('click', async () => {
     const btn = $('#gi-apply', m); btn.disabled = true; const j = await run(true); if (!j) { btn.disabled = false; return; }
     show(j); btn.style.display = 'none'; $('#gi-check', m).style.display = 'none';
-    const ft = m.querySelector('.gm-ft'); ft.insertAdjacentHTML('afterbegin', '<button type="button" class="gm-btn" id="gi-deploy">🚀 지금 반영</button><button type="button" class="gm-btn ghost" id="gi-reload">닫고 새로고침</button>');
+    $('#gi-err', m).style.color = '#475569'; $('#gi-err', m).textContent = '저장되었습니다. 사이트는 다음 정기 배포(매일 05:00 KST) 때 반영됩니다.';
+    const ft = m.querySelector('.gm-ft'); ft.insertAdjacentHTML('afterbegin', '<button type="button" class="gm-btn ghost" id="gi-reload">닫고 새로고침</button>');
     $('#gi-reload', m).addEventListener('click', () => { closeModal(); location.reload(); });
-    $('#gi-deploy', m).addEventListener('click', (e) => deploy(e.currentTarget, $('#gi-err', m)));
   });
   m.addEventListener('click', (e) => { if (e.target.closest('[data-x]')) closeModal(); });
 }
@@ -160,11 +149,5 @@ export function initGroups() {
     if (t.dataset.grp === 'new') openForm(null);
     if (t.dataset.grp === 'import') openImport();
     if (t.dataset.grp === 'edit') openForm(t.dataset.slug);
-    if (t.dataset.grp === 'deploy') {
-      if (!CATALOG) { const j = await api('/api/groups'); CATALOG = { regions: j.regions || [], deploy: j.deploy || {} }; }
-      const box = modal(`<div class="gm-hd"><h3>지금 반영</h3><button type="button" class="gm-x" data-x aria-label="닫기">✕</button></div><div class="gm-body"><p class="gm-note">저장된 그룹·사진·정보를 키워드 사이트에 바로 반영합니다(배포).</p><div class="gm-deploy"><button type="button" class="gm-btn" id="gd-btn">🚀 배포 시작</button><span id="gd-out" class="gm-hint"></span></div></div>`);
-      box.addEventListener('click', (ev) => { if (ev.target.closest('[data-x]')) closeModal(); });
-      $('#gd-btn', box).addEventListener('click', (ev) => deploy(ev.currentTarget, $('#gd-out', box)));
-    }
   });
 }

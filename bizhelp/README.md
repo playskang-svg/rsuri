@@ -81,7 +81,7 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
   - 규칙은 `scripts/group-model.mjs` 한 곳(워커 검증·빌드가 공유). 지역 카탈로그 37곳, 예약 주소(admin·www 등)와 형식 검증
   - 내용(대표 문구·소개·증상·서브 키워드별 안내)을 비우면 키워드로 자동 생성하고, 증상·안내 칸이 비면 해당 부분은 건너뛴다
 - 반영: 배포 때 생성된다(매일 05:00 KST, 푸시, 수동 실행). 새 주소는 첫 배포에서 커스텀 도메인이 연결된다. 배포 워크플로가 호스트 충돌을 먼저 검사한다
-- '지금 반영' 버튼: GitHub 시크릿 `GH_DISPATCH_TOKEN`(저장소 Actions 쓰기 권한 토큰)을 등록하면 켜진다. 60초에 한 번만 받는다. 미등록이면 버튼이 안내 문구를 보여 준다
+- 대시보드에는 '지금 반영' 버튼을 두지 않는다(2026-10-12 사용자 결정 — 저장만 되고 반영 시점이 혼동된다는 이유). 저장한 그룹·사진·정보는 매일 05:00 KST 정기 배포 때 반영되고, 급하면 GitHub Actions 에서 Run workflow. 서버의 `POST /api/deploy`(GH_DISPATCH_TOKEN 필요)는 남아 있지만 화면에서 부르지 않는다
 - 빌드는 `/api/export/groups`를 읽고, 실패하면 `registry/sites.json`으로 대체한다
 - 주의: 아직 로그인이 없다(authorize 자리). 그룹 생성·수정·배포 요청은 로그인 보호를 붙이기 전까지 누구나 가능하다
 
@@ -97,7 +97,7 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - 대시보드 '📥 키워드 일괄 등록': 한 줄에 그룹 하나 — `메인키워드 | 서브키워드(쉼표 3~8개) | 지역(쉼표) | 주소 이름(선택)`. 엑셀에서 복사해 붙여 넣어도 된다(탭 구분). '검증'은 저장하지 않고 결과만 보여 주고, '등록'에서 만든다. 같은 키워드가 이미 있으면 그 그룹을 갱신(내용은 유지)하고, 주소 이름을 비우면 한글에서 자동으로 만든다(`scripts/group-model.mjs romanize`)
 - 목록(37곳)에 없는 지역은 '자동 추가'를 켜면 D1 `regions_extra`에 더해지고 지역 페이지가 만들어진다. 지역 주소는 한글에서 자동으로 만들고, 그룹 수정 화면의 '＋ 지역 추가'로도 더할 수 있다
 - API: `POST /api/groups/import {rows, apply, auto_regions}`, `POST /api/regions {name, slug?}`. 빌드는 `/api/export/groups`에서 그룹과 추가 지역을 함께 읽는다
-- 등록 후 '지금 반영'(배포)까지 이어진다(GH_DISPATCH_TOKEN 등록 시)
+- 등록하면 저장만 된다. 반영은 다음 정기 배포(매일 05:00 KST) 때
 
 ## 대시보드 로그인
 - 대시보드(`/`)와 관리 API(report·groups·regions·deploy·share)는 로그인해야 열린다. 비밀번호 하나, 세션은 서명된 쿠키 7일, 5회 틀리면 10분 잠금. 오른쪽 위 '로그아웃'
