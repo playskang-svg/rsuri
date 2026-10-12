@@ -117,6 +117,6 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 
 ## 연락처·회사 정보 (2026-10-12 확정)
 
-- 회사명: 애드블스 (adbles)
+- 회사명: 애드블스 (adbles) · 대표 박서희 · 사업자등록번호 479-93-02093
 - make.bizhelp.kr 상담 연락처: 카카오톡 ID `newtr`, 이메일 cosmos0302@naver.com (전화번호·카카오 채널은 쓰지 않는다)
 - builder.suriwiki.com 은 기존대로 카카오 채널 pf.kakao.com/_bcVPX · 010-4684-8838
