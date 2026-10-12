@@ -20,7 +20,8 @@ let SRC = {};
 export const setImages = (names, src = {}) => { IMGS = new Set(names); SRC = src; };
 const hasImg = (name) => IMGS.has(name);
 const imgSrc = (name) => SRC[name] || `/img/${name}.webp`;
-const imgTag = (name, alt, extra = "") => (hasImg(name) ? `<img ${extra} src="${esc(imgSrc(name))}" alt="${esc(alt)}" loading="lazy" decoding="async">` : "");
+// 첫 화면(LCP) 사진만 eager + fetchpriority=high, 나머지는 lazy
+const imgTag = (name, alt, extra = "", eager = false) => (hasImg(name) ? `<img ${extra} src="${esc(imgSrc(name))}" alt="${esc(alt)}" ${eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">` : "");
 
 // ── 푸터 채널 아이콘
 const ICONS = {
@@ -61,12 +62,12 @@ const guideOf = (c, sub) => (c.content.guide || {})[sub] || null;
 const timeLine = (c, n = 3) => c.subs.map((x) => [x, guideOf(c, x)]).filter(([, g]) => g).slice(0, n).map(([x, g]) => `${x}${eunNeun(x)} ${g.time}`).join(", ");
 const areaNames = (c) => c.pages.map((p) => p.region);
 
-// ── CSS (인라인, 외부 의존은 Pretendard 폰트 하나)
+// ── CSS (인라인, 외부 의존 없음 — 웹폰트를 내려받지 않고 기기 기본 한글 폰트를 쓴다)
 const CSS = `
-:root{--ink:#0f1a2b;--sub:#5b697b;--line:#e2e7ef;--bg:#fff;--navy:#12294d;--navy-l:#1d3f73;--hot:#d9560f;--hot-d:#b94709;--cream:#f4f6fa;--shadow:0 12px 34px rgba(18,41,77,.14)}
+:root{--ink:#0f1a2b;--sub:#5b697b;--line:#e2e7ef;--bg:#fff;--navy:#12294d;--navy-l:#1d3f73;--hot:#c2410c;--hot-d:#b94709;--cream:#f4f6fa;--shadow:0 12px 34px rgba(18,41,77,.14)}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Pretendard Variable','Pretendard','Malgun Gothic',sans-serif;color:var(--ink);background:var(--bg);font-size:17px;line-height:1.8;letter-spacing:-.015em;word-break:keep-all;overflow-wrap:break-word;-webkit-text-size-adjust:100%}
+body{font-family:Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','Segoe UI',Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:17px;line-height:1.8;letter-spacing:-.015em;word-break:keep-all;overflow-wrap:break-word;-webkit-text-size-adjust:100%}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:900px;margin:0 auto;padding:0 22px}
 header{background:var(--navy);position:sticky;top:0;z-index:30}
@@ -166,7 +167,7 @@ const head = (c, { title, desc, keywords, canonical, ogImage }) => `<!DOCTYPE ht
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="keywords" content="${esc(keywords)}">
 <meta name="robots" content="${c.noindex ? "noindex, nofollow" : "index, follow"}"><link rel="canonical" href="${esc(canonical)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="${esc(c.kw)}"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">` : ""}
-<link rel="icon" href="/favicon.svg"><link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"><style>${CSS}${c.tpl.themeCss || ""}</style>`;
+<link rel="icon" href="/favicon.svg"><meta name="theme-color" content="#12294d"><style>${CSS}${c.tpl.themeCss || ""}</style>`;
 
 const header = (c) => `<header><div class="wrap hd"><a class="logo" href="/">${esc(c.kw)}</a>${c.phone ? `<a class="hd-call" href="${esc(telHref(c.phone))}">${esc(c.phoneShow)}</a>` : ""}</div></header>`;
 
@@ -191,7 +192,7 @@ const heroBlock = (c, { h1, headline, lead, crumb }) => {
     ? `<div class="hero-ev"><div class="hero-ev-box">${imgTag(beforeName, `${c.kw} 작업 전`)}<span>작업 전</span></div><div class="hero-ev-box">${imgTag(afterName, `${c.kw} 작업 후`)}<span>작업 후</span></div><div class="hero-ev-cap">${esc(captionOf(c, hs))}</div></div>` : "";
   const actions = `<div class="cta-row"><a class="btn btn-sms" href="#picker">📷 사진 보내고 문자 문의 ↓</a>${c.phone ? `<a class="btn btn-tel" href="${esc(telHref(c.phone))}">📞 전화</a>` : ""}</div>`;
   const card = c.tpl.hero === "split" ? `<div class="hero-card"><b>${c.phoneShow ? esc(c.phoneShow) : "사진으로 문의"}</b><span>사진 한 장이면 가능 여부를 먼저 안내합니다</span>${c.phone ? `<a class="btn btn-sms" href="${esc(telHref(c.phone))}">📞 바로 전화</a>` : ""}<a class="btn btn-tel" href="#picker">📷 문자로 사진 보내기</a></div>` : "";
-  return `<div class="hero hero-${c.tpl.hero}">${bgName ? `<div class="hero-bg">${imgTag(bgName, "")}</div>` : ""}<div class="hero-in"><div class="hero-main">${crumb ? `<div class="crumb">${crumb}</div>` : ""}<h1>${esc(h1)}</h1>
+  return `<div class="hero hero-${c.tpl.hero}">${bgName ? `<div class="hero-bg">${imgTag(bgName, "", "", true)}</div>` : ""}<div class="hero-in"><div class="hero-main">${crumb ? `<div class="crumb">${crumb}</div>` : ""}<h1>${esc(h1)}</h1>
 <p class="hl">${esc(headline)}</p><p class="lead">${esc(lead)}</p>${c.tpl.hero === "split" ? "" : actions}
 ${c.tpl.hero === "split" ? "" : `<p class="cta-note">📷 사진 한 장이면 가능 여부를 먼저 안내합니다.</p>`}${ev}</div>${card}</div></div>`;
 };
