@@ -64,6 +64,7 @@ jobs:
       - run: node scripts/build.mjs
         env:
           BIZHELP_PROFILES_URL: https://admin.suriwiki.com/api/export/profiles
+          BIZHELP_BA_URL: https://admin.suriwiki.com/api/export/ba
       - name: Check hostname conflicts
         if: github.event_name != 'pull_request'
         run: |

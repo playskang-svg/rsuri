@@ -31,6 +31,7 @@ async function ensureSchema(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS license (slug TEXT PRIMARY KEY, file_key TEXT, name TEXT, type TEXT, size INTEGER, ocr_text TEXT, updated_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, slug TEXT, category TEXT, name TEXT, type TEXT, size INTEGER, file_key TEXT, grp TEXT, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS blobs (key TEXT PRIMARY KEY, type TEXT, data TEXT)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS ba_photos (slug TEXT, region TEXT, slot INTEGER, phase TEXT, type TEXT, size INTEGER, updated_at INTEGER, PRIMARY KEY (slug, region, slot, phase))'),
     db.prepare('CREATE TABLE IF NOT EXISTS shares (id TEXT PRIMARY KEY, created_at INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS page_seen (page_key TEXT PRIMARY KEY, first_seen TEXT)'),
     db.prepare('CREATE TABLE IF NOT EXISTS rank_log (page_key TEXT, check_date TEXT, rank_position INTEGER, PRIMARY KEY (page_key, check_date))'),
@@ -138,6 +139,7 @@ async function readShare(env, id) {
   return new Response(b64dec(row.data), { headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=31536000, immutable', 'x-robots-tag': 'noindex' } });
 }
 
+const regionsOf = (slug) => REGISTRY.pages.filter((p) => p.site.split('.')[0] === slug).map((p) => ({ slug: p.region_slug, name: p.region })).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 const categoriesOf = (slug) => (SITES[slug]?.subs || []).map((name, i) => ({ id: `cat${i + 1}`, name }));
 const clean = (v, max = 300) => String(v ?? '').trim().slice(0, max);
 const uid = () => crypto.randomUUID().replace(/-/g, '');
@@ -174,6 +176,9 @@ export default {
     // 리포트 화면이 읽는 실제 집계(사이트·페이지·순위)
     if (path === '/api/report' && request.method === 'GET') return json(await buildReport(env));
 
+    // 키워드 사이트 빌드가 읽어가는 공사 전/후 사진 목록(파일 본문은 /api/s/<slug>/ba/<사례>/<전후>)
+    if (path === '/api/export/ba' && request.method === 'GET') return json({ ok: true, items: (await env.DB.prepare('SELECT slug, region, slot, phase, type, updated_at FROM ba_photos').all()).results });
+
     // 키워드 사이트 빌드가 읽어가는 공개 정보(전화·카카오톡·블로그·유튜브·사업자 정보·관련 서비스). 사업자등록증·메모·파일은 포함하지 않는다.
     if (path === '/api/export/profiles' && request.method === 'GET') {
       const { results } = await env.DB.prepare(`SELECT slug, ${PROFILE_COLS}, updated_at FROM profile`).all();
@@ -201,7 +206,35 @@ async function route(request, env, url, slug, rest) {
     const profile = shapeProfile(await db.prepare(`SELECT ${PROFILE_COLS} FROM profile WHERE slug=?`).bind(slug).first());
     const lic = await db.prepare('SELECT name, type, size, ocr_text, updated_at FROM license WHERE slug=?').bind(slug).first();
     const counts = (await db.prepare('SELECT category, COUNT(*) n FROM files WHERE slug=? GROUP BY category').bind(slug).all()).results;
-    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts });
+    const ba = (await db.prepare('SELECT region, slot, phase, type, size, updated_at FROM ba_photos WHERE slug=?').bind(slug).all()).results;
+    return json({ ok: true, storage: env.FILES ? 'r2' : 'd1', maxFile: maxBytes(env, 'image'), video: !!env.FILES, keyword: SITES[slug].keyword, categories: categoriesOf(slug), regions: regionsOf(slug), profile, defaults: DEFAULT_PROFILE, license: lic || null, counts, ba });
+  }
+
+  // ── 공사 전/후 사진: 작업 사례 1~4 × 전/후 한 장씩. 범위 = 전체 공통(region '') 또는 특정 지역 페이지. 전·후 둘 다 있는 사례만 쓰고, 지역에 없으면 공통 → 기본 사진 순으로 대신한다.
+  const bam = rest.match(/^ba\/(?:([a-z0-9-]+)\/)?([1-4])\/(before|after)$/);
+  if (bam) {
+    const region = bam[1] || '', slot = Number(bam[2]), phase = bam[3], key = `ba/${slug}/${region}/${slot}/${phase}`;
+    if (region && !regionsOf(slug).some((r) => r.slug === region)) return err(404, '없는 지역입니다');
+    if (method === 'PUT') {
+      const type = (request.headers.get('content-type') || '').split(';')[0];
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(type)) return err(415, '사진(JPG·PNG·WebP)만 가능합니다');
+      const buf = await request.arrayBuffer();
+      if (!buf.byteLength || buf.byteLength > D1_MAX) return err(413, '사진은 최대 1.2MB입니다(화면에서 자동으로 줄어듭니다)');
+      await db.batch([
+        db.prepare('INSERT OR REPLACE INTO blobs (key, type, data) VALUES (?,?,?)').bind(key, type, b64enc(buf)),
+        db.prepare('INSERT OR REPLACE INTO ba_photos (slug, region, slot, phase, type, size, updated_at) VALUES (?,?,?,?,?,?,?)').bind(slug, region, slot, phase, type, buf.byteLength, Date.now()),
+      ]);
+      return json({ ok: true });
+    }
+    if (method === 'GET') {
+      const row = await db.prepare('SELECT type, data FROM blobs WHERE key=?').bind(key).first();
+      if (!row) return err(404, 'not found');
+      return new Response(b64dec(row.data), { headers: { 'content-type': row.type, 'cache-control': 'private, max-age=60', 'x-robots-tag': 'noindex' } });
+    }
+    if (method === 'DELETE') {
+      await db.batch([db.prepare('DELETE FROM blobs WHERE key=?').bind(key), db.prepare('DELETE FROM ba_photos WHERE slug=? AND region=? AND slot=? AND phase=?').bind(slug, region, slot, phase)]);
+      return json({ ok: true });
+    }
   }
 
   // ── 사이트 정보 저장
