@@ -103,3 +103,8 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - 대시보드(`/`)와 관리 API(report·groups·regions·deploy·share)는 로그인해야 열린다. 비밀번호 하나, 세션은 서명된 쿠키 7일, 5회 틀리면 10분 잠금. 오른쪽 위 '로그아웃'
 - 업로드 페이지(`/upload/<주소>`)와 그 API, 사이트 빌드용 내보내기(`/api/export/*`), 공유 이미지(`/share/*`)는 열려 있다. 업로드 페이지 로그인은 분양 시점에 따로 만든다
 - 기본 비밀번호는 코드에 해시로만 들어 있다. 바꾸려면 GitHub 시크릿 `ADMIN_PASSWORD`(선택: `SESSION_SECRET`)를 등록하면 다음 배포 때 워커 시크릿으로 올라가고 그 값이 우선한다
+
+## 둘러보기 대시보드 · 홍보 페이지
+
+- `https://admin.suriwiki.com/demo/` — 로그인 없이 보는 읽기 전용 대시보드. 같은 `index.html`에 `window.SW_DEMO=1`을 넣어 서빙하고, 데이터는 `/api/demo/report`(읽기 전용, 관리 API 아님)에서 읽는다. 그룹 생성·수정·일괄 등록·지금 반영·이미지 공유·로그아웃 버튼은 만들지 않는다.
+- `https://builder.suriwiki.com/` — 사이트빌더 홍보 페이지. 원본은 `promo/index.html`, 빌드가 `{{SITES}}`·`{{PAGES}}`·`{{REGIONS}}`·`{{TEMPLATES}}`·`{{CASES}}`·`{{MARQUEE}}`·`{{TEMPLATE_ROWS}}`를 배포 시점의 실제 값으로 채워 `dist-sites/s/builder/`에 쓴다(추측 수치 없음). 후기 섹션(`{{REVIEWS}}`)은 `promo/reviews.json`에 실제 후기(`{name, rating 1~5, text, keyword?, date?}`)가 있을 때만 생성된다. `builder`는 그룹 주소 이름으로 예약.

@@ -3,7 +3,7 @@
   "main": "worker/admin.mjs",
   "compatibility_date": "2026-10-01",
   // 정적 리포트는 ASSETS가 직접 서빙하고, /upload/* 와 /api/* 만 워커가 처리한다.
-  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/", "/index.html", "/api/*", "/upload/*", "/share/*"] },
+  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/", "/index.html", "/api/*", "/upload/*", "/share/*", "/demo", "/demo/*"] },
   // D1(정보·메타데이터·메모). ID를 적지 않으면 wrangler가 배포 때 자동으로 만든다(자동 프로비저닝).
   "d1_databases": [{ "binding": "DB", "database_name": "suriwiki-admin" }],
   // R2(파일 저장소)는 결제 수단 등록 후 활성화한다. 켤 때 아래 줄을 추가:

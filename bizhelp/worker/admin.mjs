@@ -244,6 +244,13 @@ export default {
       return new Response(res.body, { status: res.status, headers: h });
     }
 
+    // 둘러보기(읽기 전용) 대시보드: 로그인 없이 현황만 본다. 그룹 생성·수정·반영·공유는 숨기고, API도 읽기 전용 경로만 쓴다.
+    if (path === '/demo' || path === '/demo/') {
+      const res = await env.ASSETS.fetch(new Request(new URL('/', url), request));
+      const html = (await res.text()).replace('</head>', '<script>window.SW_DEMO=1</script></head>');
+      return new Response(html, { status: res.status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
+    }
+
     // 업로드 페이지: /upload/<slug>[/]
     const up = path.match(/^\/upload\/([a-z0-9-]+)\/?$/);
     if (up) {
@@ -368,6 +375,8 @@ export default {
 
     // 리포트 화면이 읽는 실제 집계(사이트·페이지·순위)
     if (path === '/api/report' && request.method === 'GET') return json(await buildReport(env));
+    // 둘러보기 대시보드용 읽기 전용 리포트(로그인 불필요). 사이트·순위 현황만 담긴다.
+    if (path === '/api/demo/report' && request.method === 'GET') return json(await buildReport(env));
 
     // 키워드 사이트 빌드가 읽어가는 공사 전/후 사진 목록(파일 본문은 /api/s/<slug>/ba/<사례>/<전후>)
     if (path === '/api/export/ba' && request.method === 'GET') return json({ ok: true, items: (await env.DB.prepare('SELECT slug, region, slot, phase, type, updated_at FROM ba_photos').all()).results, captions: (await env.DB.prepare('SELECT slug, region, slot, caption FROM ba_captions').all()).results, intros: (await env.DB.prepare('SELECT slug, region, intro FROM region_intro').all()).results });
