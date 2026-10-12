@@ -2,14 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
 <meta name="robots" content="noindex,nofollow">
-<title>파일 업로드</title>
+<title>사이트 관리</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--p:#4f46e5;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--ok:#16a34a;--bad:#dc2626}
-body{font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:#f5f6fa;color:var(--g800);padding-bottom:60px}
+body{font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:#f5f6fa;color:var(--g800);padding-bottom:calc(60px + env(safe-area-inset-bottom));-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+img,video{max-width:100%}
 .header{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:22px 16px;text-align:center}
 .header h1{font-size:20px;font-weight:800}.header small{display:block;margin-top:4px;opacity:.85;font-size:12px}
 .container{max-width:760px;margin:0 auto;padding:14px}
@@ -72,10 +74,80 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
 .map .no td{color:#94a3b8}
 .hm-tip{margin-top:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6}
 .hm-ft{padding:12px 18px;border-top:1px solid var(--g200);text-align:right}
+
+/* ── 모바일 최적화 ── */
+.card h3{flex-wrap:wrap}
+.card h3 .hint{font-weight:500;flex-basis:100%;line-height:1.5}
+@media(max-width:700px){
+  .header{padding:16px 14px calc(14px + 0px);position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(79,70,229,.25);text-align:left;display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px}
+  .header h1{font-size:17px;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .header small{flex-basis:100%;margin-top:0;order:3;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .help-btn{margin:0;padding:10px 14px;min-height:40px;font-size:12.5px;white-space:nowrap}
+  .container{padding:10px 10px 0}
+  .card{padding:14px 13px;border-radius:12px;margin-bottom:11px}
+  /* 입력칸: 16px 이상이어야 iOS가 확대하지 않는다 */
+  input[type=text],input[type=tel],textarea,select{font-size:16px;padding:12px 11px;border-radius:10px}
+  .row{margin-bottom:12px}.row label{font-size:13px}
+  /* 손가락으로 누르기 편한 크기(44px 안팎) */
+  .btn{min-height:44px;padding:11px 16px;font-size:14px;border-radius:10px}
+  .btn.sm{min-height:40px;padding:9px 13px;font-size:13px}
+  #save-profile{width:100%}
+  .tab{padding:8px 13px;font-size:13px}
+  .cats{grid-template-columns:1fr 1fr}
+  .cat{padding:14px 8px;font-size:14px}
+  .zone{padding:26px 12px}
+  .zone p:last-of-type{display:none}
+  #btn-folder{width:100%;min-height:44px;white-space:normal;line-height:1.35}
+  .mob .btn{min-height:50px;font-size:15px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+  .th .x{width:30px;height:30px;font-size:14px}
+  .th .ck{width:24px;height:24px}
+  .card h3>span:not(.hint):not(.status){display:flex;gap:6px;flex-wrap:wrap;width:100%}
+  .card h3>span:not(.hint):not(.status) .btn{flex:1}
+  .pg .btn{flex:1}
+  .ba-cap{font-size:16px}
+  /* 템플릿: 한 줄에 하나, 버튼은 크게 */
+  .tpl-grid{grid-template-columns:1fr}
+  .tpl .tb .btn{flex:1;min-height:42px}
+  /* 템플릿 미리보기: 전체 화면 */
+  .pv-back{padding:0;align-items:stretch}
+  .pv{border-radius:0;height:100%;max-width:none}
+  .pv-hd{padding:10px 12px;gap:6px}
+  .pv-hd>span{display:flex;gap:6px;flex-wrap:wrap;width:100%}.pv-hd>span .btn{flex:1;min-height:40px;padding:8px 6px}
+  .pv-body.m iframe{width:100%}
+  /* 이동 창: 아래에서 올라오는 시트 */
+  .modal{align-items:flex-end;padding:0}
+  .modal>div{border-radius:16px 16px 0 0;max-width:none;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  .modal>div .btn{flex:1}
+  /* 사용법 팝업: 아래에서 올라오는 시트, 도식은 위→아래 */
+  .hb{align-items:flex-end;padding:0}
+  .hm{max-width:none;border-radius:18px 18px 0 0;max-height:92dvh;max-height:92vh;animation:sheet .22s ease-out}
+  @supports(height:1dvh){.hm{max-height:92dvh}}
+  .hm-hd{padding:14px 16px}.hm-x{width:40px;height:40px;font-size:16px}
+  .hm-body{padding:14px 16px}
+  .flow{flex-direction:column;gap:4px}
+  .fs{flex:none;min-width:0;display:grid;grid-template-columns:28px 1fr;align-items:center;text-align:left;column-gap:10px;padding:10px 12px;font-size:12.5px}
+  .fs .n{grid-row:1/3;align-self:center}.fs b{margin:0;font-size:14px}
+  .fa{align-self:center;transform:rotate(90deg);line-height:1;font-size:14px}
+  .map,.map tbody,.map tr,.map td{display:block;width:auto}
+  .map tr{border:1px solid var(--g200);border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#fff}
+  .map td{border:0;padding:2px 0}
+  .map td:first-child{width:auto;white-space:normal;font-size:13px}
+  .map td:nth-child(2){display:none}
+  .map td:last-child{color:var(--g600);font-size:12.5px}
+  .map td:last-child:before{content:"→ ";color:#4f46e5;font-weight:800}
+  .map .no{background:var(--g50)}.map .no td:last-child:before{content:"✕ ";color:var(--g400)}
+  .hm-ft{padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;background:#fff}
+  .hm-ft label{margin:0!important;font-size:13px!important}
+  .hm-ft .btn{min-width:96px}
+}
+@keyframes sheet{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@media(max-width:360px){.cats{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.hm{animation:none}}
 </style>
 </head>
 <body>
-<div class="header"><h1 id="title">파일 업로드</h1><small>사이트: <span id="host"></span></small><button type="button" class="help-btn" id="help-btn">📖 사용법 보기</button></div>
+<div class="header"><h1 id="title">사이트 관리</h1><small>사이트: <span id="host"></span></small><button type="button" class="help-btn" id="help-btn">📖 사용법 보기</button></div>
 <div class="container">
 
   <div class="card" id="storage-note" style="display:none"><h3>업로드 안내</h3><p class="hint">사진과 사업자등록증은 1.2MB 이하로 자동 축소되어 올라갑니다(PDF는 1.2MB 이하만 가능). 동영상은 대용량 파일 저장소를 연결하면 열립니다.</p></div>
@@ -218,7 +290,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   // ── 개요
   async function load() {
     const o = await api('overview');
-    document.title = `${o.keyword} 파일 업로드`; $('title').textContent = `${o.keyword} 파일 업로드`; $('host').textContent = `${slug}.suriwiki.com`;
+    document.title = `${o.keyword} 관리`; $('title').textContent = `${o.keyword} 관리`; $('host').textContent = `${slug}.suriwiki.com`;
     S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
     S.defaults = o.defaults || {};
     for (const k of ['company', 'ceo', 'regno', 'address', 'hours', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
@@ -347,7 +419,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     catch (x) { flash($('profile-status'), x.message, true); }
   };
   $('copy-all').onclick = () => {
-    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `영업시간: ${$('f-hours').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
+    const t = [`[${$('title').textContent.replace(/ 관리$/, '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `영업시간: ${$('f-hours').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
     navigator.clipboard.writeText(t).then(() => alert('복사했습니다'));
   };
 
