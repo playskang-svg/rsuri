@@ -126,6 +126,41 @@ a{color:inherit}
 .footer .brand{color:#7c3aed;font-weight:800}
 .sample-note{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:9px 13px;margin-bottom:16px;font-size:12.5px;font-weight:700;text-align:center}
 
+/* ── 테마 v2: 구조는 그대로, 색과 질감만 정돈 (네이비 + 틸 포인트) ── */
+:root{--bg:#f1f4f9;--border:#dde3ee;--text:#0f172a;--muted:#64748b}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#0b1e3f 0%,#12356b 55%,#0e5a8a 100%);border-bottom:3px solid #2dd4bf;box-shadow:0 6px 24px rgba(11,30,63,.28)}
+.hero::before{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.28),transparent 68%)}
+.hero>*{position:relative}
+.hero-brand{color:#5eead4;letter-spacing:3px;opacity:1}
+.hero-biz{font-weight:800;letter-spacing:-.5px}
+.hero-sub{opacity:.82;font-weight:500}
+.count-card{border-radius:20px;box-shadow:0 12px 26px -10px rgba(15,23,42,.35)}
+.count-card.main{background:linear-gradient(150deg,#1e40af,#3b82f6)}
+.count-card.sub{background:linear-gradient(150deg,#0f766e,#2dd4bf)}
+.count-card.total{background:linear-gradient(150deg,#1e293b,#475569)}
+.count-card.naver{background:linear-gradient(150deg,#02a94c,#1fd070);border:2px solid rgba(255,255,255,.65);animation:glow2 2.6s ease-in-out infinite}
+@keyframes glow2{0%,100%{box-shadow:0 12px 26px -8px rgba(3,199,90,.5)}50%{box-shadow:0 0 0 5px rgba(3,199,90,.16),0 16px 34px -8px rgba(3,199,90,.65)}}
+.count-card.naver::after{background:rgba(255,255,255,.25);letter-spacing:.5px}
+.count-icon{width:46px;height:46px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,.18);font-size:24px}
+.count-card.naver .count-icon{background:#fff}
+.count-value{font-weight:800;letter-spacing:-2.5px}
+.count-label{font-weight:700;opacity:.92;letter-spacing:.2px}
+.cc-wow{background:#f8fafc;border-top:1px solid #e8edf5}
+.btn{border-radius:12px;font-weight:700}
+.btn.indigo{background:#1e3a8a;box-shadow:0 4px 12px rgba(30,58,138,.28)}
+.btn.sky{background:#0d9488;box-shadow:0 4px 12px rgba(13,148,136,.28)}
+.btn.green{background:#16a34a;box-shadow:0 8px 18px -6px rgba(22,163,74,.55)}
+.section-title{color:#0f172a}
+.section-title::before{width:5px;background:linear-gradient(180deg,#2dd4bf,#2563eb)}
+.nv-box{border-radius:16px;box-shadow:0 12px 32px -12px rgba(15,23,42,.2)}
+.top1-card{border-radius:16px}
+.kw-new,.top1-newcnt,.pg-new-tag{animation:blink 1.6s ease-in-out infinite}
+.site-card{--pri:#2563eb;--dark:#1d4ed8;--light:#eff6ff;--soft:#dbeafe;--bord:#bfdbfe;--hover:#1d4ed8;--rgb:37,99,235;border-radius:14px}
+.site-card.c3{--pri:#7c3aed;--dark:#5b21b6;--light:#f5f3ff;--soft:#ede9fe;--bord:#ddd6fe;--hover:#6d28d9;--rgb:124,58,237}
+.site-cnt-badge{background:#eff6ff;border-color:#bfdbfe}
+.rank-note{background:#ecfeff;color:#155e75}
+.footer .brand{color:#0d9488}
+
 @media(max-width:600px){
   .hero{padding:24px 20px 20px}.hero-biz{font-size:22px}.hero-sub{font-size:12px}
   .content{padding:16px 12px 30px}
