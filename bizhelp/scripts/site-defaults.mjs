@@ -7,9 +7,11 @@ export const DEFAULT_PROFILE = {
   ceo: '',
   regno: '',
   address: '',
+  instagram: '',
   blog: '',
   youtube: '',
-  services: [], // [{ name, url }] — 푸터 '관련 서비스' 링크
+  threads: '',
+  website: '',
 };
 
 const filled = (v) => (Array.isArray(v) ? v.length > 0 : String(v ?? '').trim() !== '');

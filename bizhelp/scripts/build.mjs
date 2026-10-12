@@ -11,7 +11,7 @@ for (const d of ['dist', 'dist-sites']) { rmSync(d, { recursive: true, force: tr
 cpSync('src', 'dist', { recursive: true });
 if (existsSync('public')) cpSync('public', 'dist', { recursive: true });
 
-const data = JSON.parse(readFileSync('src/data/report.json', 'utf8'));
+const data = JSON.parse(readFileSync('registry/sites.json', 'utf8'));
 // 관리자 워커가 슬러그를 검증하고 카테고리(=서브키워드)를 알 수 있게 메타를 넘긴다.
 const meta = {};
 for (const [site, m] of Object.entries(data.site_meta || {})) meta[site.split('.')[0]] = { keyword: m.main_keyword, subs: m.sub_keywords };
@@ -26,7 +26,7 @@ if (process.env.BIZHELP_PROFILES_URL) {
     console.log(`profiles: ${Object.keys(profiles).length}개`);
   } catch (e) { console.log('profiles 조회 실패(무시):', e.message); }
 }
-const sample = !!data.sample;
+const sample = !!data.noindex; // 실제 공개 전에는 검색 노출을 막는다
 cpSync('public/favicon.svg', 'dist-sites/favicon.svg');
 if (sample) writeFileSync('dist-sites/_headers', '/*\n  X-Robots-Tag: noindex, nofollow\n'); // 샘플 단계 — 실제 공개 시 data.sample=false
 

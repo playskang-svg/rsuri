@@ -1,7 +1,7 @@
 // 사이트 제작 현황 리포트 렌더러.
 // 섹션 순서(고정): 카운트 카드 4종 → 유효키워드 목록 버튼/패널 → 저장·업로드 버튼 →
 //                 새로운 1위 → 검색 1위 → 사이트별 페이지 목록(카드 그리드)
-const DATA_URL = '/data/report.json';
+const DATA_URL = '/api/report';
 const RANK_VALID = 30;
 
 const $app = document.getElementById('app');
@@ -217,18 +217,22 @@ function loadScript(src) {
   return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
 }
 
+// 리포트 상단(제목·건수·새 1위)을 한 장의 이미지로 만든다.
+async function snapshot() {
+  if (!window.html2canvas) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  const targets = ['count-capture', 'new1-capture'].map((id) => document.getElementById(id)).filter(Boolean);
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:720px;padding:16px;background:#f5f6fa';
+  wrap.innerHTML = `<div class="hero" style="border-radius:14px;margin-bottom:12px">${document.querySelector('.hero').innerHTML}</div>` + targets.map((t) => t.outerHTML).join('');
+  document.body.appendChild(wrap);
+  try { return await window.html2canvas(wrap, { scale: 2, backgroundColor: '#f5f6fa' }); } finally { wrap.remove(); }
+}
+
 async function capture(btn) {
   const orig = btn.textContent;
   btn.disabled = true; btn.textContent = '⏳ 캡처 중...';
   try {
-    if (!window.html2canvas) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-    const targets = ['count-capture', 'new1-capture'].map((id) => document.getElementById(id)).filter(Boolean);
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:720px;padding:16px;background:#f5f6fa';
-    wrap.innerHTML = `<div class="hero" style="border-radius:14px;margin-bottom:12px">${document.querySelector('.hero').innerHTML}</div>` + targets.map((t) => t.outerHTML).join('');
-    document.body.appendChild(wrap);
-    const canvas = await window.html2canvas(wrap, { scale: 2, backgroundColor: '#f5f6fa' });
-    wrap.remove();
+    const canvas = await snapshot();
     const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
     if (navigator.clipboard && window.ClipboardItem) {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -243,14 +247,43 @@ async function capture(btn) {
   setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
 }
 
+// 캡처한 이미지를 서버에 올리고 공유 주소(URL)를 돌려받는다. 서버 저장 한도(1.2MB)에 맞춰 JPEG 품질을 낮춰 가며 줄인다.
+async function shareImage(btn) {
+  const orig = btn.textContent, out = document.getElementById('share-result'), box = document.getElementById('upload-url-box');
+  btn.disabled = true; btn.textContent = '⏳ 업로드 중...'; out.textContent = ''; box.innerHTML = '';
+  try {
+    const canvas = await snapshot();
+    let blob = null;
+    for (const q of [0.9, 0.8, 0.7, 0.6, 0.5]) { blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', q)); if (blob && blob.size <= 1_200_000) break; }
+    if (!blob || blob.size > 1_200_000) throw new Error('이미지가 너무 큽니다');
+    const j = await fetch('/api/share', { method: 'PUT', headers: { 'content-type': 'image/jpeg' }, body: blob }).then((r) => r.json());
+    if (!j.ok) throw new Error(j.error || '업로드 실패');
+    box.innerHTML = `<div class="upload-url"><input type="text" readonly value="${esc(j.url)}" onclick="this.select()"><a href="${esc(j.url)}" target="_blank" rel="noopener">열기</a></div>`;
+    try { await navigator.clipboard.writeText(j.url); out.textContent = '업로드 완료 · 주소를 복사했습니다'; } catch { out.textContent = '업로드 완료 · 아래 주소를 복사하세요'; }
+    btn.textContent = '✅ 완료';
+  } catch (e) {
+    out.textContent = `업로드하지 못했습니다: ${e.message}`; btn.textContent = '⚠️ 실패';
+  }
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+}
+
 function wire() {
   $app.addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]');
     if (!b) return;
     if (b.dataset.act === 'toggle-list') document.getElementById('nvListBox')?.classList.toggle('open');
     if (b.dataset.act === 'capture') capture(b);
-    if (b.dataset.act === 'share') document.getElementById('share-result').textContent = '이미지 업로드 서버가 아직 연결되지 않았습니다.';
+    if (b.dataset.act === 'share') shareImage(b);
   });
+}
+
+// 순위 수집 상태 안내(실제 상태만 보여 준다)
+function renderNotice(st) {
+  if (!st) return '';
+  const msg = !st.configured ? '네이버 순위 수집이 아직 설정되지 않았습니다(API 키 등록 필요). 키를 등록하기 전까지 순위·유효키워드는 0으로 표시됩니다.'
+    : st.noindex ? `네이버 순위를 매일 수집합니다(마지막 측정 ${st.last_check || '아직 없음'}, 오늘 ${st.checked_today}/${st.total}). 키워드 사이트가 검색 노출 차단 상태라 공개 전환 후에 순위가 잡힙니다.`
+    : `네이버 순위를 매일 수집합니다(마지막 측정 ${st.last_check || '아직 없음'}, 오늘 ${st.checked_today}/${st.total}).`;
+  return `<div class="rank-note">ℹ️ ${esc(msg)}</div>`;
 }
 
 async function start() {
@@ -262,7 +295,7 @@ async function start() {
   document.getElementById('hero-biz').textContent = data.business_name || '';
   document.title = `${data.business_name || ''} · 사이트 제작 현황 리포트`;
   const c = compute(data);
-  $app.innerHTML = renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
+  $app.innerHTML = renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
   wire();
   window.__report = c; // 점검용
 }

@@ -80,12 +80,15 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <div class="row"><label>사업자등록번호</label><input type="text" id="f-regno" maxlength="20" placeholder="예: 123-45-67890"></div>
     <div class="row"><label>사업장 주소</label><input type="text" id="f-address" maxlength="200" placeholder="사업자등록증의 주소"></div>
     <div class="row"><label>연락처(전화번호)</label><input type="tel" id="f-phone" maxlength="20"></div>
-    <div class="row"><label>카카오톡 채널 주소</label><input type="text" id="f-kakao" placeholder="https://pf.kakao.com/..."></div>
-    <div class="row"><label>블로그 이름 또는 주소</label><input type="text" id="f-blog" placeholder="예: https://blog.naver.com/..."></div>
-    <div class="row"><label>유튜브 이름 또는 주소</label><input type="text" id="f-youtube" placeholder="예: https://youtube.com/@..."></div>
-    <div class="row"><label>인스타·유튜브·웹사이트 등 관련 페이지 <span class="hint">(제목 + 링크, 최대 8개 · 푸터에 아이콘으로 표시됩니다. 인스타그램·유튜브·네이버·페이스북·스레드·틱톡·X·카카오는 주소로 아이콘이 자동 선택됩니다)</span></label><div id="f-services"></div><button class="btn out sm" id="svc-add" type="button" style="margin-top:6px">+ 링크 추가</button></div>
+    <p class="hint" style="margin:6px 0">채널 링크 — 입력한 것만 푸터에 아이콘으로 표시됩니다(https:// 없이 적어도 됩니다)</p>
+    <div class="row"><label>카카오톡</label><input type="text" id="f-kakao" placeholder="https://pf.kakao.com/..."></div>
+    <div class="row"><label>인스타그램</label><input type="text" id="f-instagram" placeholder="https://instagram.com/..."></div>
+    <div class="row"><label>블로그</label><input type="text" id="f-blog" placeholder="https://blog.naver.com/..."></div>
+    <div class="row"><label>유튜브</label><input type="text" id="f-youtube" placeholder="https://youtube.com/@..."></div>
+    <div class="row"><label>스레드</label><input type="text" id="f-threads" placeholder="https://www.threads.net/@..."></div>
+    <div class="row"><label>웹사이트</label><input type="text" id="f-website" placeholder="https://..."></div>
     <div class="row"><label>참고 사이트 <span class="hint">(사이트에는 표시되지 않는 내부 메모용)</span></label><input type="text" id="f-reference" placeholder="참고할 사이트 주소를 입력하세요"></div>
-    <p class="hint" style="margin-bottom:8px">비워 두면 기본값(상호·연락처·카카오톡 채널)이 표시되고, 대표자·사업자등록번호·주소·블로그·유튜브·관련 페이지는 입력한 경우에만 표시됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
+    <p class="hint" style="margin-bottom:8px">비워 두면 기본값(상호·연락처·카카오톡 채널)이 표시되고, 대표자·사업자등록번호·주소와 인스타그램·블로그·유튜브·스레드·웹사이트는 입력한 경우에만 표시됩니다. 저장한 내용은 다음 배포 때 반영됩니다(매일 05:00 자동).</p>
     <button class="btn" id="save-profile">저장</button><span class="status" id="profile-status"></span>
   </div>
 
@@ -149,8 +152,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     document.title = `${o.keyword} 파일 업로드`; $('title').textContent = `${o.keyword} 파일 업로드`; $('host').textContent = `${slug}.suriwiki.com`;
     S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
     S.defaults = o.defaults || {};
-    for (const k of ['company', 'ceo', 'regno', 'address', 'phone', 'kakao', 'blog', 'youtube', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
-    renderServices(o.profile.services || []);
+    for (const k of ['company', 'ceo', 'regno', 'address', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
     const counts = Object.fromEntries(o.counts.map((c) => [c.category, c.n]));
     $('cats').innerHTML = S.cats.map((c) => `<div class="cat" data-c="${c.id}">${esc(c.name)}<small>${counts[c.id] || 0}개</small></div>`).join('');
     $('memo-cat').innerHTML = '<option value="">전체 (카테고리 무관)</option>' + S.cats.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
@@ -203,18 +205,12 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('lic-copy').onclick = () => navigator.clipboard.writeText(S.ocr).then(() => alert('복사했습니다'));
 
   // ── 사이트 정보
-  // ── 관련 서비스 링크(이름 + 주소 한 줄씩)
-  function svcRow(x = {}) { const d = document.createElement('div'); d.className = 'svc'; d.style.cssText = 'display:flex;gap:6px;margin-bottom:6px'; d.innerHTML = '<input type="text" class="svc-n" maxlength="30" placeholder="제목 (예: 인스타그램)" style="flex:1"><input type="text" class="svc-u" placeholder="https://..." style="flex:2"><button class="btn out sm svc-x" type="button">삭제</button>'; d.querySelector('.svc-n').value = x.name || ''; d.querySelector('.svc-u').value = x.url || ''; return d; }
-  function renderServices(list) { const box = $('f-services'); box.innerHTML = ''; (list.length ? list : []).forEach((x) => box.appendChild(svcRow(x))); }
-  $('svc-add').onclick = () => { if ($('f-services').children.length >= 8) return alert('최대 8개까지 추가할 수 있습니다'); $('f-services').appendChild(svcRow()); };
-  $('f-services').onclick = (e) => { if (e.target.classList.contains('svc-x')) e.target.closest('.svc').remove(); };
-  const readServices = () => [...document.querySelectorAll('#f-services .svc')].map((d) => ({ name: d.querySelector('.svc-n').value, url: d.querySelector('.svc-u').value }));
   $('save-profile').onclick = async () => {
-    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, phone: $('f-phone').value, kakao: $('f-kakao').value, blog: $('f-blog').value, youtube: $('f-youtube').value, services: readServices(), reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
+    try { await api('profile', { method: 'PUT', body: JSON.stringify({ company: $('f-company').value, ceo: $('f-ceo').value, regno: $('f-regno').value, address: $('f-address').value, phone: $('f-phone').value, kakao: $('f-kakao').value, instagram: $('f-instagram').value, blog: $('f-blog').value, youtube: $('f-youtube').value, threads: $('f-threads').value, website: $('f-website').value, reference: $('f-reference').value }) }); flash($('profile-status'), '저장했습니다'); }
     catch (x) { flash($('profile-status'), x.message, true); }
   };
   $('copy-all').onclick = () => {
-    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
+    const t = [`[${$('title').textContent.replace(' 파일 업로드', '')}] ${slug}.suriwiki.com`, `상호: ${$('f-company').value}`, `대표자: ${$('f-ceo').value}`, `사업자등록번호: ${$('f-regno').value}`, `주소: ${$('f-address').value}`, `전화번호: ${$('f-phone').value}`, `카카오톡: ${$('f-kakao').value}`, `인스타그램: ${$('f-instagram').value}`, `스레드: ${$('f-threads').value}`, `웹사이트: ${$('f-website').value}`, `블로그: ${$('f-blog').value}`, `유튜브: ${$('f-youtube').value}`, `참고 사이트: ${$('f-reference').value}`, '', S.ocr ? `--- 사업자등록증 추출 텍스트 ---\n${S.ocr}` : ''].join('\n');
     navigator.clipboard.writeText(t).then(() => alert('복사했습니다'));
   };
 
