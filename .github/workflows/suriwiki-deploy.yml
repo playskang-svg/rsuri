@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-suriwiki
+  group: deploy-suriwiki-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 defaults:
