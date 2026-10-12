@@ -13,6 +13,14 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
 a{color:var(--teal-d);text-decoration:none}a:hover{text-decoration:underline}
 .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+nav.top{background:var(--navy);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px}
+nav.top .logo{color:#fff;font-weight:800;white-space:nowrap}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.nav-links a{color:#d3e0ee;font-size:14px;padding:6px 10px;border-radius:8px}
+.nav-links a:hover{background:rgba(255,255,255,.1);text-decoration:none;color:#fff}
+.nav-links .nav-cta{background:var(--teal);color:#fff;font-weight:700}
+@media (max-width:640px){.nav-links a:not(.nav-cta):not(:first-child){display:none}}
 header.hero{background:linear-gradient(135deg,var(--navy),#16406b);color:#fff;padding:64px 0 56px;border-bottom:4px solid var(--teal)}
 .eyebrow{display:inline-block;background:rgba(15,169,155,.22);color:#9ff0e6;font-weight:700;font-size:13px;padding:4px 12px;border-radius:99px;margin-bottom:14px}
 .hero h1{margin:0 0 14px;font-size:clamp(28px,5.5vw,44px);line-height:1.28}
@@ -55,12 +63,23 @@ footer{padding:30px 0 56px;color:var(--sub);font-size:14px;text-align:center}
 </style>
 </head>
 <body>
+<nav class="top"><div class="wrap">
+<a class="logo" href="/">수리위키 사이트빌더</a>
+<div class="nav-links">
+<a href="https://admin.suriwiki.com/demo/">대시보드 둘러보기</a>
+<a href="https://baegwan-nusu.suriwiki.com/">완성 사이트</a>
+<a href="https://admin.suriwiki.com/upload/baegwan-nusu/">업로드 페이지</a>
+<a href="#project">구축 의뢰</a>
+<a class="nav-cta" href="#contact">문의</a>
+</div>
+</div></nav>
 <header class="hero"><div class="wrap">
 <span class="eyebrow">수리·시공 업체 전용 사이트빌더</span>
 <h1>키워드와 지역만 정하면<br>내 업체 홈페이지가 완성됩니다</h1>
 <p>홈 화면, 지역별 페이지, 사진으로 보는 시공 사례, 체크하면 작성되는 상담 문자까지. 코딩도 디자인도 필요 없이, 사진과 업체 정보만 올리면 사이트가 알아서 만들어지고 최신으로 유지됩니다.</p>
 <div class="btns">
 <a class="btn" href="#demo">완성된 사이트 둘러보기</a>
+<a class="btn ghost" href="https://admin.suriwiki.com/demo/">대시보드 둘러보기</a>
 <a class="btn ghost" href="#contact">분양 문의하기</a>
 </div>
 </div></header>
@@ -98,7 +117,7 @@ footer{padding:30px 0 56px;color:var(--sub);font-size:14px;text-align:center}
 <li>전용 업로드 페이지: 업체 정보·사진·사업자등록증을 한곳에서</li>
 <li>템플릿 미리보기: PC·모바일 화면으로 보고 선택</li>
 <li>사용법 안내 팝업: 처음 접속해도 순서를 바로 파악</li>
-<li>관리자 대시보드: 사이트 현황과 그룹 관리, 키워드 일괄 등록</li>
+<li>관리자 대시보드: 사이트 현황과 그룹 관리, 키워드 일괄 등록 — <a href="https://admin.suriwiki.com/demo/">둘러보기</a></li>
 <li>순위 현황 리포트: 키워드별 노출 순위 확인(연동 설정 시)</li>
 <li>사업자등록증 사진으로 입력 보조</li>
 </ul></div>
@@ -143,7 +162,20 @@ footer{padding:30px 0 56px;color:var(--sub);font-size:14px;text-align:center}
 <a href="https://hyeongwanmun-gyoche.suriwiki.com/">현관문교체</a>
 <a href="https://singkdae-reform.suriwiki.com/">싱크대리폼</a>
 </div>
-<p class="lead" style="margin-top:16px">업체가 사용하는 화면: <a href="https://admin.suriwiki.com/upload/baegwan-nusu/">업로드 페이지 보기 →</a> (템플릿 미리보기와 사용법 안내가 들어 있습니다)</p>
+<p class="lead" style="margin-top:16px">업체가 사용하는 화면: <a href="https://admin.suriwiki.com/upload/baegwan-nusu/">업로드 페이지 보기 →</a> (템플릿 미리보기와 사용법 안내가 들어 있습니다)<br>
+운영자가 보는 화면: <a href="https://admin.suriwiki.com/demo/">대시보드 둘러보기 →</a> (읽기 전용으로 실제 현황을 보여 줍니다)</p>
+</section>
+
+<section id="project" class="project">
+<h2>사이트빌더 시스템 전체 구축도 의뢰할 수 있습니다</h2>
+<p class="lead">키워드 사이트 한 개를 분양받는 것 외에, 이 사이트빌더 시스템 자체를 귀사의 도메인과 브랜드로 구축해 드립니다. 여러 업체나 지점을 관리하는 회사, 대행사, 프랜차이즈에 맞습니다.</p>
+<div class="grid">
+<div class="card"><div class="ico">🏗️</div><h3>구축 범위</h3><p>관리자 대시보드, 업로드 페이지, 키워드·지역 사이트 자동 생성, 템플릿, 상담 문자 연결, 순위 리포트까지 지금 보고 계신 시스템 전체입니다.</p></div>
+<div class="card"><div class="ico">🏷️</div><h3>귀사 도메인·브랜드로</h3><p>귀사 도메인 아래에 키워드별 주소가 생기고, 로고·색상·문구를 귀사 기준으로 맞춥니다. 업종도 수리·시공에 한정하지 않습니다.</p></div>
+<div class="card"><div class="ico">🧩</div><h3>맞춤 조정</h3><p>템플릿 추가, 입력 항목 변경, 지역 목록, 문의 방식(문자·카카오톡·전화·폼) 등 필요한 부분만 바꿔 드립니다.</p></div>
+<div class="card"><div class="ico">⚙️</div><h3>운영 비용이 가볍습니다</h3><p>정적 페이지로 만들어 서버 관리가 거의 없고, 사이트 수가 늘어도 같은 방식으로 운영됩니다. 인수인계 문서와 운영 교육을 포함합니다.</p></div>
+</div>
+<div class="note">구축 기간과 비용은 범위에 따라 달라집니다. 현재 운영 중인 사이트 수와 원하시는 업종·지역 범위를 알려주시면 견적과 일정을 안내해 드립니다. <a href="#contact">문의하기 →</a></div>
 </section>
 
 <section>
@@ -152,12 +184,13 @@ footer{padding:30px 0 56px;color:var(--sub);font-size:14px;text-align:center}
 <details><summary>홈페이지를 직접 만들 줄 몰라도 되나요?</summary><p>됩니다. 업로드 페이지에 정보와 사진을 올리는 것이 전부이고, 페이지 제작과 반영은 시스템이 처리합니다.</p></details>
 <details><summary>지역은 몇 개까지 넣을 수 있나요?</summary><p>서비스하는 지역을 선택해 지역마다 페이지를 만듭니다. 기본 지역 목록에 없는 지역은 추가할 수 있습니다. 구체적인 구성은 문의 시 안내해 드립니다.</p></details>
 <details><summary>수정한 내용은 언제 사이트에 반영되나요?</summary><p>업로드 페이지에 올린 내용은 매일 새벽에 자동으로 반영되고, 급하면 운영자가 즉시 반영할 수 있습니다.</p></details>
+<details><summary>우리 회사 전용으로 시스템 전체를 만들 수 있나요?</summary><p>가능합니다. 귀사 도메인과 브랜드로 대시보드·업로드 페이지·사이트 생성까지 같은 구조를 구축해 드리고, 업종과 입력 항목은 맞춰 조정합니다. 아래 문의로 연락 주세요.</p></details>
 <details><summary>비용은 어떻게 되나요?</summary><p>분양 조건과 비용은 문의해 주시면 안내해 드립니다.</p></details>
 </section>
 
 <div class="cta" id="contact">
 <h2>내 업체 사이트, 지금 시작해 보세요</h2>
-<p>대표 키워드와 서비스 지역만 알려주시면 구성을 안내해 드립니다.</p>
+<p>키워드 사이트 분양은 대표 키워드와 서비스 지역을, 시스템 전체 구축은 업종과 사이트 규모를 알려주시면 안내해 드립니다.</p>
 <div class="btns">
 <a class="btn" href="https://pf.kakao.com/_bcVPX">카카오톡으로 문의</a>
 <a class="btn ghost" href="tel:010-4684-8838">010-4684-8838</a>

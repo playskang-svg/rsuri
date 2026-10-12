@@ -1,7 +1,9 @@
 // 사이트 제작 현황 리포트 렌더러.
 // 섹션 순서(고정): 카운트 카드 4종 → 유효키워드 목록 버튼/패널 → 저장·업로드 버튼 →
 //                 새로운 1위 → 검색 1위 → 사이트별 페이지 목록(카드 그리드)
-const DATA_URL = '/api/report';
+// 둘러보기 모드(/demo/): 로그인 없이 읽기 전용. 그룹 생성·수정·반영·이미지 공유 버튼은 만들지 않는다.
+const DEMO = !!window.SW_DEMO;
+const DATA_URL = DEMO ? '/api/demo/report' : '/api/report';
 const RANK_VALID = 30;
 
 const $app = document.getElementById('app');
@@ -149,7 +151,7 @@ function renderValidList(c) {
 
 const renderButtons = () => `<div class="btn-row">
   <button type="button" class="btn indigo" id="capture-btn" data-act="capture">📋 클립보드로 저장</button>
-  <button type="button" class="btn sky" id="share-url-btn" data-act="share">🔗 이미지업로드URL</button></div>
+  ${DEMO ? '' : '<button type="button" class="btn sky" id="share-url-btn" data-act="share">🔗 이미지업로드URL</button>'}</div>
   <div class="share-result" id="share-result"></div><div id="upload-url-box"></div>`;
 
 function renderTop1(c) {
@@ -174,11 +176,11 @@ const core = (s) => { const k = String(s ?? '').trim(); const m = k.split(/\s+[�
 const label = (p) => p.pending ? String(p.h1_title) : core(p.h1_title);
 
 function renderSites(c) {
-  if (!c.siteNames.length) return '<div class="empty">아직 등록된 사이트가 없습니다.<br><button type="button" class="btn indigo" style="margin-top:14px" data-grp="new">＋ 새 메인키워드 그룹</button></div>';
+  if (!c.siteNames.length) return `<div class="empty">아직 등록된 사이트가 없습니다.${DEMO ? '' : '<br><button type="button" class="btn indigo" style="margin-top:14px" data-grp="new">＋ 새 메인키워드 그룹</button>'}</div>`;
   let h = `<div class="section-title">사이트별 페이지 목록 <span class="section-sub">${c.mainCount}개 사이트 / ${c.subCount}개 페이지</span>
     <span class="top-new-badge${c.newPages ? '' : ' zero'}" title="이번 주(${c.weekStart} 월요일 이후) 새로 생긴 페이지 합계">🆕 이번주 신규 <b>${c.newPages}</b>개</span>
     <span class="badge-legend"><span><i style="background:#22c55e"></i>타이틀·H1 정상</span><span><i style="background:#3b82f6"></i>1개 불일치</span><span><i style="background:#ef4444"></i>둘다 불일치</span></span></div>
-    <div class="grp-bar"><button type="button" class="btn indigo" data-grp="new">＋ 새 메인키워드 그룹</button><button type="button" class="btn indigo" style="background:#0f766e" data-grp="import">📥 키워드 일괄 등록</button><button type="button" class="btn sky" data-grp="deploy">🚀 지금 반영</button></div>
+    ${DEMO ? '' : '<div class="grp-bar"><button type="button" class="btn indigo" data-grp="new">＋ 새 메인키워드 그룹</button><button type="button" class="btn indigo" style="background:#0f766e" data-grp="import">📥 키워드 일괄 등록</button><button type="button" class="btn sky" data-grp="deploy">🚀 지금 반영</button></div>'}
     <div class="site-grid">`;
   c.siteNames.forEach((site, si) => {
     const list = c.sitesMap.get(site).slice().sort((a, b) => (a.page_path || '').localeCompare(b.page_path || ''));
@@ -200,7 +202,7 @@ function renderSites(c) {
     const nw = fresh.length;
     h += `<div class="site-card c${si % 8}"><div class="site-head"><div class="site-head-left"><div class="site-icon">${si + 1}</div>
       <div class="site-info"><div class="site-domain">${esc(site)}</div><div class="site-title">메인사이트 ${si + 1}/${c.mainCount}${c.createdBySite.get(site) ? ` · 📅 생성 ${c.createdBySite.get(site)}` : ''}${c.tplName(site) ? ` · 🎨 ${esc(c.tplName(site))}` : ''}</div></div></div>
-      <div class="site-meta"><button type="button" class="site-link-btn" style="background:#0f766e;border:0;cursor:pointer" data-grp="edit" data-slug="${esc(site.split('.')[0])}" title="키워드·지역·내용 수정">수정</button><a class="site-link-btn" style="background:#475569" href="/upload/${esc(site.split('.')[0])}" target="_blank" rel="noopener" title="사진·정보 업로드">업로드</a><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
+      <div class="site-meta">${DEMO ? '' : `<button type="button" class="site-link-btn" style="background:#0f766e;border:0;cursor:pointer" data-grp="edit" data-slug="${esc(site.split('.')[0])}" title="키워드·지역·내용 수정">수정</button>`}<a class="site-link-btn" style="background:#475569" href="/upload/${esc(site.split('.')[0])}" target="_blank" rel="noopener" title="사진·정보 업로드">업로드</a><a class="site-link-btn" href="${esc(c.siteUrl(site))}" target="_blank" rel="noopener">방문 ↗</a></div></div>
       <div class="site-badges"><span class="site-cnt-badge" title="총 페이지 수">📄 <b>${list.length}</b>개</span>
       <span class="site-wow-badge ${nw ? 'up' : 'zero'}" title="이번 주 신규 ${nw}개 (${c.weekStart} 월요일 이후)">📈 <b>${nw ? '+' + nw : '±0'}</b></span></div>
       <div class="page-list">`;
@@ -295,12 +297,13 @@ async function start() {
   } catch { data = null; }
   if (!data || !data.success) { $app.innerHTML = '<div class="empty">데이터를 불러올 수 없습니다.</div>'; return; }
   document.getElementById('hero-biz').textContent = data.business_name || '';
-  document.title = `${data.business_name || ''} · 사이트 제작 현황 리포트`;
+  if (!DEMO) document.title = `${data.business_name || ''} · 사이트 제작 현황 리포트`;
   const c = compute(data);
-  $app.innerHTML = renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
+  if (DEMO) { document.body.classList.add('demo'); document.title = `${data.business_name || ''} · 대시보드 둘러보기`; }
+  $app.innerHTML = (DEMO ? '<div class="rank-note demo-note">👀 둘러보기 모드입니다. 실제 현황을 읽기 전용으로 보여 주며, 그룹 생성·수정·반영은 <a href="/">관리자 로그인</a> 후 할 수 있습니다. 궁금한 점은 <a href="https://builder.suriwiki.com/#contact">문의하기</a>.</div>' : '') + renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
   wire();
   window.__report = c; // 점검용
 }
 import { initGroups } from './groups.js';
-initGroups();
+if (!DEMO) initGroups();
 start();
