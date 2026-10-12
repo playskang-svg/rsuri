@@ -91,7 +91,7 @@ ${TW}
 const header = (c) => `<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-white/90 border-b border-brand-line">
   <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2.5"><span class="shrink-0">${LOGO}</span>
-      <span class="flex flex-col leading-tight"><span class="text-[15px] font-semibold text-brand-ink">${esc(c.brand)} ${esc(c.kw)}</span><span class="text-[10px] muted tracking-widest uppercase">${esc(c.en)}</span></span></a>
+      <span class="flex flex-col leading-tight"><span class="text-[15px] font-semibold text-brand-ink">${esc(c.kw)}</span><span class="text-[10px] muted tracking-widest uppercase">${esc(c.en)}</span></span></a>
     <a href="/sangdam" class="btn btn-primary text-sm py-2.5 px-5">상담 문의</a>
   </div>
 </header>
@@ -101,7 +101,7 @@ const footer = (c) => `<footer class="bg-brand-ink text-white/90">
   <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-3">
     <div class="sm:col-span-2 md:col-span-2">
       <a href="/" class="inline-flex items-center gap-2.5"><span class="shrink-0">${LOGO}</span>
-        <span class="flex flex-col leading-tight"><span class="text-base font-semibold text-white">${esc(c.brand)} ${esc(c.kw)}</span><span class="text-[10px] tracking-widest uppercase opacity-60">${esc(c.en)}</span></span></a>
+        <span class="flex flex-col leading-tight"><span class="text-base font-semibold text-white">${esc(c.kw)}</span><span class="text-[10px] tracking-widest uppercase opacity-60">${esc(c.en)}</span></span></a>
       <p class="mt-5 text-sm leading-relaxed opacity-75 max-w-md">${esc(c.subs.slice(0, 3).join("·"))} 등 ${esc(c.kw)}를 안내합니다. 지역별 페이지에서 가까운 지역을 확인하세요.</p>
     </div>
     <div>
@@ -112,7 +112,7 @@ const footer = (c) => `<footer class="bg-brand-ink text-white/90">
     </div>
   </div>
   <div class="border-t border-white/10"><div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 text-[12px] opacity-60 flex flex-wrap items-center justify-between gap-3">
-    <span>© 2026 ${esc(c.brand)} ${esc(c.kw)}.</span></div></div>
+    <span>© 2026 ${esc(c.kw)}.</span></div></div>
 </footer>`;
 
 const tail = (itemList) => `${itemList}
@@ -161,15 +161,15 @@ const regionCard = (c, p, i, labelText) => `<a href="${esc(p.page_path)}" class=
   <p class="mt-0.5 text-[12px] sm:text-[13px] muted line-clamp-2 leading-relaxed">${esc(p.region)} ${esc(c.kw)} 안내. ${esc(c.subs[0])} 등 상담.</p></div></a>`;
 
 function ctx(site, meta, data, extra = {}) {
-  return { site, brand: data.business_name || "수리위키", kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.sample, host: site, ...extra };
+  return { site, kw: meta.main_keyword, en: meta.en || "", subs: meta.sub_keywords, sample: !!data.sample, host: site, ...extra };
 }
-const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.brand} ${c.kw} 페이지 목록`,
+const itemListLd = (c, pages) => json({ "@context": "https://schema.org", "@type": "ItemList", name: `${c.kw} 페이지 목록`,
   itemListElement: [{ "@type": "ListItem", position: 1, url: `https://${c.host}/`, name: c.kw }, ...pages.map((p, i) => ({ "@type": "ListItem", position: i + 2, url: `https://${c.host}${p.page_path}`, name: p.h1_title }))] });
 
 export function homePage({ site, meta, pages, data }) {
   const c = ctx(site, meta, data, { title: meta.main_keyword });
   const desc = `${c.kw} 안내 페이지입니다. ${c.subs.slice(0, 3).join("·")} 등 ${c.kw}를 지역별로 확인하세요. 사진과 지역을 보내 주시면 확인 후 안내합니다.`;
-  const kwMeta = [c.kw, ...c.subs.slice(0, 4), c.brand].join(", ");
+  const kwMeta = [c.kw, ...c.subs.slice(0, 4)].join(", ");
   const faq = [
     [`${c.kw}는 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).join(", ")} 등 ${c.kw} 관련 상담이 필요한 경우입니다. 현장 사진을 보내 주시면 가능 여부를 확인해 드립니다.`],
     [`진행 기간은 얼마나 걸리나요?`, `작업 범위와 현장 상태에 따라 다릅니다. 정확한 일정은 상담 시 안내합니다.`],
@@ -179,7 +179,7 @@ export function homePage({ site, meta, pages, data }) {
     [`상담은 어떻게 신청하나요?`, `상담 페이지에서 현장 사진과 지역을 남겨 주시면 순서대로 확인 후 연락드립니다.`],
   ];
   const six = pages.slice(0, 6);
-  return `${head({ title: c.kw, desc, keywords: kwMeta, canonical: `https://${c.host}/`, brandName: c.brand, sample: c.sample, ogLabel: `${c.brand} ${c.kw}`, ogImage: IMGS.has("hero-1") ? `https://${c.host}/img/hero-1.webp` : "" })}
+  return `${head({ title: c.kw, desc, keywords: kwMeta, canonical: `https://${c.host}/`, brandName: c.kw, sample: c.sample, ogLabel: c.kw, ogImage: IMGS.has("hero-1") ? `https://${c.host}/img/hero-1.webp` : "" })}
 <body class="bg-brand-bg text-brand-ink">
 ${header(c)}
 ${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `https://${c.host}/` }] })}
@@ -235,7 +235,7 @@ export function regionPage({ site, meta, page, pages, data }) {
   const region = page.region, c = ctx(site, meta, data, { region, title: page.h1_title });
   const hub = pages.filter((p) => p.page_path !== page.page_path).slice(0, 5);
   const desc = `${region} 전 지역 ${c.kw} 안내입니다. ${c.subs.slice(0, 3).join("·")} 등을 상담합니다. 사진과 지역을 보내 주시면 확인 후 안내합니다.`;
-  const kwMeta = [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`), c.brand].join(", ");
+  const kwMeta = [page.h1_title, ...c.subs.slice(0, 3).map((s) => `${region} ${s}`)].join(", ");
   const faq = [
     [`${region} ${c.kw}는 어떤 경우에 필요한가요?`, `${c.subs.slice(0, 3).join(", ")} 등이 필요한 경우입니다. ${region} 현장 사진을 보내 주시면 확인해 드립니다.`],
     [`진행 기간은 얼마나 걸리나요?`, `작업 범위와 현장 상태에 따라 다릅니다. 상담 시 안내합니다.`],
@@ -243,7 +243,7 @@ export function regionPage({ site, meta, page, pages, data }) {
     [`${region} 어느 곳까지 가능한가요?`, `${region} 지역 안에서 가능 여부를 사진과 위치로 확인합니다.`],
     [`상담은 어떻게 신청하나요?`, `상담 페이지에서 현장 사진과 ${region} 내 위치를 남겨 주세요.`],
   ];
-  return `${head({ title: page.h1_title, desc, keywords: kwMeta, canonical: `https://${c.host}${page.page_path}`, brandName: c.brand, sample: c.sample, ogLabel: `${c.brand} ${c.kw}` })}
+  return `${head({ title: page.h1_title, desc, keywords: kwMeta, canonical: `https://${c.host}${page.page_path}`, brandName: c.kw, sample: c.sample, ogLabel: c.kw })}
 <body class="bg-brand-bg text-brand-ink">
 ${header(c)}
 ${json({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `https://${c.host}/` }, { "@type": "ListItem", position: 2, name: page.h1_title, item: `https://${c.host}${page.page_path}` }] })}
@@ -287,7 +287,7 @@ ${tail(itemListLd(c, [page, ...hub]))}`;
 
 export function sangdamPage({ site, meta, data }) {
   const c = ctx(site, meta, data, { title: "상담 안내" });
-  return `${head({ title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내 페이지입니다. 사진과 지역을 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, brandName: c.brand, sample: c.sample, ogLabel: `${c.brand} ${c.kw}` })}
+  return `${head({ title: `상담 안내 | ${c.kw}`, desc: `${c.kw} 상담 안내 페이지입니다. 사진과 지역을 보내 주세요.`, keywords: `${c.kw}, 상담`, canonical: `https://${c.host}/sangdam`, brandName: c.kw, sample: c.sample, ogLabel: c.kw })}
 <body class="bg-brand-bg text-brand-ink">${header(c)}
 <section class="py-20 sm:py-28"><div class="max-w-3xl mx-auto px-5 sm:px-8"><span class="eyebrow">상담 안내</span>
   <h1 class="mt-3 text-3xl sm:text-5xl font-normal tracking-tight">${esc(c.kw)} 상담</h1>
