@@ -120,3 +120,14 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - 회사명: 애드블스 (adbles) · 대표 박서희 · 사업자등록번호 479-93-02093
 - make.bizhelp.kr 상담 연락처: 전화 010-5516-0301, 카카오톡 ID `newtr`, 이메일 cosmos0302@naver.com (카카오 채널은 쓰지 않는다)
 - builder.suriwiki.com 은 기존대로 카카오 채널 pf.kakao.com/_bcVPX · 010-4684-8838
+
+## 검색 노출(SEO) 구성 (2026-10-12)
+
+모든 호스트(키워드 사이트·builder·make)에 공통 적용. 현재 `registry/sites.json`의 `noindex: true` 때문에 전 페이지가 검색 차단 상태이며, 공개 시 이 값을 `false`로 바꾸면 한꺼번에 풀린다(robots 메타·robots.txt·X-Robots-Tag 모두 연동).
+
+- 페이지마다 title·description·canonical·OG·Twitter 카드, 큰 이미지 미리보기 허용(`max-image-preview:large`)
+- JSON-LD: 키워드 사이트 홈(WebSite·HomeAndConstructionBusiness·FAQPage), 지역 페이지(BreadcrumbList·사업체·FAQPage), builder·make(Service, make는 Organization)
+- `/sangdam` 은 `noindex, follow` 이고 사이트맵에서 제외
+- 호스트별 `sitemap.xml`(lastmod=빌드일)과 `robots.txt`(Yeti·Googlebot 명시, Sitemap 줄)
+- 확인 태그: GitHub 변수/시크릿 `SEO_NAVER_VERIFY`(네이버 서치어드바이저), `SEO_GOOGLE_VERIFY`(구글 서치콘솔)를 빌드 환경에 넣으면 전 페이지 head에 들어간다. 값은 아직 미등록
+- 점검: 빌드 뒤 `npm run seo` (제목·설명 길이, canonical, h1 1개, JSON-LD 파싱, 사이트맵 포함 여부)
