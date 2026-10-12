@@ -114,3 +114,9 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - 업로드 페이지(`/upload/<주소>/`, 제목 `<키워드> 관리`)의 '지역 페이지 만들기' 카드: 지역명(한글·영문 1~10자)을 넣고 만들기 → `POST /api/s/<주소>/regions`. 새 지역이면 `regions_extra`(공용 카탈로그)에 영문 주소(한글 로마자, 겹치면 -2)로 더하고, 이 그룹의 `regions`에 추가한다. 하루 30개·사이트당 80개 제한. 빼기는 `DELETE /api/s/<주소>/regions/<지역>`(최소 1개 유지).
 - 반영: 빌드가 `dist-sites/s/<주소>/regions.json`(그 배포에 들어간 지역 목록)을 쓴다. 키워드 사이트 워커(`worker/sites.mjs`)는 HTML 요청마다 이 목록과 관리자 워커의 `/render/<주소>/_state`(지금 D1 지역 목록, 서비스 바인딩 `ADMIN`)를 비교해 **다를 때만** `/render/<주소>/[지역|sangdam]` 실시간 렌더로 홈·지역·상담 페이지를 대신 보여 준다(1분 캐시). 다음 배포에 정식 정적 페이지로 굳고, 관리자 쪽이 응답하지 않으면 정적 페이지로 돌아간다. 뺀 지역은 정적 페이지가 남아 있어도 404.
 - 실시간 렌더는 같은 템플릿 코드(`renderPreview`)를 쓰며 사진 주소는 관리자 주소로 절대화한다. 검색 노출 차단 상태(registry `noindex`)는 그대로 따른다.
+
+## 연락처·회사 정보 (2026-10-12 확정)
+
+- 회사명: 애드블스 (adbles)
+- make.bizhelp.kr 상담 연락처: 카카오톡 ID `newtr`, 이메일 cosmos0302@naver.com (전화번호·카카오 채널은 쓰지 않는다)
+- builder.suriwiki.com 은 기존대로 카카오 채널 pf.kakao.com/_bcVPX · 010-4684-8838
