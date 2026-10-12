@@ -149,11 +149,6 @@ function renderValidList(c) {
     <div class="nv-box" id="nvListBox"><div class="nv-hd">🟢 네이버 순위 ${RANK_VALID}위 안에 든 키워드 ${c.validNow.length}개 (순위순)</div><div class="nv-scroll">${items}</div></div>`;
 }
 
-const renderButtons = () => `<div class="btn-row">
-  <button type="button" class="btn indigo" id="capture-btn" data-act="capture">📋 클립보드로 저장</button>
-  ${DEMO ? '' : '<button type="button" class="btn sky" id="share-url-btn" data-act="share">🔗 이미지업로드URL</button>'}</div>
-  <div class="share-result" id="share-result"></div><div id="upload-url-box"></div>`;
-
 function renderTop1(c) {
   if (!c.top.length) return '';
   const chip = (x, isNew) => `<a class="top1-chip${isNew ? ' is-new' : ''}" href="${naverUrl(x.kw.keyword)}" target="_blank" rel="noopener">${esc(x.kw.keyword)}${isNew ? '<span class="kw-new">NEW</span>' : ''}</a>`;
@@ -217,67 +212,11 @@ function renderSites(c) {
   return h + '</div>';
 }
 
-function loadScript(src) {
-  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
-}
-
-// 리포트 상단(제목·건수·새 1위)을 한 장의 이미지로 만든다.
-async function snapshot() {
-  if (!window.html2canvas) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-  const targets = ['count-capture', 'new1-capture'].map((id) => document.getElementById(id)).filter(Boolean);
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:720px;padding:16px;background:#f5f6fa';
-  wrap.innerHTML = `<div class="hero" style="border-radius:14px;margin-bottom:12px">${document.querySelector('.hero').innerHTML}</div>` + targets.map((t) => t.outerHTML).join('');
-  document.body.appendChild(wrap);
-  try { return await window.html2canvas(wrap, { scale: 2, backgroundColor: '#f5f6fa' }); } finally { wrap.remove(); }
-}
-
-async function capture(btn) {
-  const orig = btn.textContent;
-  btn.disabled = true; btn.textContent = '⏳ 캡처 중...';
-  try {
-    const canvas = await snapshot();
-    const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
-    if (navigator.clipboard && window.ClipboardItem) {
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      btn.textContent = '✅ 복사됨';
-    } else {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${Date.now()}.png`; a.click();
-      btn.textContent = '✅ 다운로드됨';
-    }
-  } catch (e) {
-    btn.textContent = '⚠️ 실패';
-  }
-  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
-}
-
-// 캡처한 이미지를 서버에 올리고 공유 주소(URL)를 돌려받는다. 서버 저장 한도(1.2MB)에 맞춰 JPEG 품질을 낮춰 가며 줄인다.
-async function shareImage(btn) {
-  const orig = btn.textContent, out = document.getElementById('share-result'), box = document.getElementById('upload-url-box');
-  btn.disabled = true; btn.textContent = '⏳ 업로드 중...'; out.textContent = ''; box.innerHTML = '';
-  try {
-    const canvas = await snapshot();
-    let blob = null;
-    for (const q of [0.9, 0.8, 0.7, 0.6, 0.5]) { blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', q)); if (blob && blob.size <= 1_200_000) break; }
-    if (!blob || blob.size > 1_200_000) throw new Error('이미지가 너무 큽니다');
-    const j = await fetch('/api/share', { method: 'PUT', headers: { 'content-type': 'image/jpeg' }, body: blob }).then((r) => r.json());
-    if (!j.ok) throw new Error(j.error || '업로드 실패');
-    box.innerHTML = `<div class="upload-url"><input type="text" readonly value="${esc(j.url)}" onclick="this.select()"><a href="${esc(j.url)}" target="_blank" rel="noopener">열기</a></div>`;
-    try { await navigator.clipboard.writeText(j.url); out.textContent = '업로드 완료 · 주소를 복사했습니다'; } catch { out.textContent = '업로드 완료 · 아래 주소를 복사하세요'; }
-    btn.textContent = '✅ 완료';
-  } catch (e) {
-    out.textContent = `업로드하지 못했습니다: ${e.message}`; btn.textContent = '⚠️ 실패';
-  }
-  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
-}
-
 function wire() {
   $app.addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]');
     if (!b) return;
     if (b.dataset.act === 'toggle-list') document.getElementById('nvListBox')?.classList.toggle('open');
-    if (b.dataset.act === 'capture') capture(b);
-    if (b.dataset.act === 'share') shareImage(b);
   });
 }
 
@@ -300,7 +239,7 @@ async function start() {
   if (!DEMO) document.title = `${data.business_name || ''} · 사이트 제작 현황 리포트`;
   const c = compute(data);
   if (DEMO) { document.body.classList.add('demo'); document.title = `${data.business_name || ''} · 대시보드 둘러보기`; }
-  $app.innerHTML = (DEMO ? '<div class="rank-note demo-note">👀 둘러보기 모드입니다. 실제 현황을 읽기 전용으로 보여 주며, 그룹 생성·수정·반영은 <a href="/">관리자 로그인</a> 후 할 수 있습니다. 궁금한 점은 <a href="https://builder.suriwiki.com/#contact">문의하기</a>.</div>' : '') + renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderButtons() + renderTop1(c) + renderSites(c);
+  $app.innerHTML = (DEMO ? '<div class="rank-note demo-note">👀 둘러보기 모드입니다. 실제 현황을 읽기 전용으로 보여 주며, 그룹 생성·수정·반영은 <a href="/">관리자 로그인</a> 후 할 수 있습니다. 궁금한 점은 <a href="https://builder.suriwiki.com/#contact">문의하기</a>.</div>' : '') + renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderTop1(c) + renderSites(c);
   wire();
   window.__report = c; // 점검용
 }
