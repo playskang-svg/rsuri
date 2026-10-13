@@ -163,9 +163,10 @@ footer strong{color:#fff}
 }`;
 
 // 검색엔진 확인 태그: 서치어드바이저(네이버)·서치콘솔(구글)에서 받은 값을 환경변수로 넣으면 모든 페이지 head 에 들어간다
+const ENV = typeof process !== "undefined" && process.env ? process.env : {}; // 워커(실시간 렌더)에는 process 가 없을 수 있다
 const verifyTags = () => [
-  process.env.SEO_NAVER_VERIFY ? `<meta name="naver-site-verification" content="${esc(process.env.SEO_NAVER_VERIFY)}">` : "",
-  process.env.SEO_GOOGLE_VERIFY ? `<meta name="google-site-verification" content="${esc(process.env.SEO_GOOGLE_VERIFY)}">` : "",
+  ENV.SEO_NAVER_VERIFY ? `<meta name="naver-site-verification" content="${esc(ENV.SEO_NAVER_VERIFY)}">` : "",
+  ENV.SEO_GOOGLE_VERIFY ? `<meta name="google-site-verification" content="${esc(ENV.SEO_GOOGLE_VERIFY)}">` : "",
 ].join("");
 // 큰 이미지 미리보기·전체 스니펫을 허용(구글), 네이버는 robots 를 그대로 따른다
 const robotsContent = (noindex, follow = true) => (noindex ? "noindex, nofollow" : `${follow ? "index, follow" : "noindex, follow"}, max-image-preview:large, max-snippet:-1, max-video-preview:-1`);

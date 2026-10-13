@@ -129,5 +129,5 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - JSON-LD: 키워드 사이트 홈(WebSite·HomeAndConstructionBusiness·FAQPage), 지역 페이지(BreadcrumbList·사업체·FAQPage), builder·make(Service, make는 Organization)
 - `/sangdam` 은 `noindex, follow` 이고 사이트맵에서 제외
 - 호스트별 `sitemap.xml`(lastmod=빌드일)과 `robots.txt`(Yeti·Googlebot 명시, Sitemap 줄)
-- 확인 태그: GitHub 변수/시크릿 `SEO_NAVER_VERIFY`(네이버 서치어드바이저), `SEO_GOOGLE_VERIFY`(구글 서치콘솔)를 빌드 환경에 넣으면 전 페이지 head에 들어간다. 값은 아직 미등록
+- 확인 태그: 저장소 Settings → Variables(Actions)에 `SEO_NAVER_VERIFY`(네이버 서치어드바이저), `SEO_GOOGLE_VERIFY`(구글 서치콘솔)를 등록하면 sites 빌드가 전 페이지 head에 넣는다. 값은 아직 미등록
 - 점검: 빌드 뒤 `npm run seo` (제목·설명 길이, canonical, h1 1개, JSON-LD 파싱, 사이트맵 포함 여부)
