@@ -71,6 +71,8 @@ jobs:
           BIZHELP_PROFILES_URL: https://admin.suriwiki.com/api/export/profiles
           BIZHELP_BA_URL: https://admin.suriwiki.com/api/export/ba
           BIZHELP_GROUPS_URL: https://admin.suriwiki.com/api/export/groups
+          SEO_NAVER_VERIFY: ${{ vars.SEO_NAVER_VERIFY }}   # 네이버 서치어드바이저 소유확인 값(저장소 Variables). 비어 있으면 태그를 넣지 않는다
+          SEO_GOOGLE_VERIFY: ${{ vars.SEO_GOOGLE_VERIFY }} # 구글 서치콘솔 소유확인 값
       - name: Check hostname conflicts
         if: github.event_name != 'pull_request'
         run: |
