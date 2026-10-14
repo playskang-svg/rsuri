@@ -192,7 +192,7 @@ if (existsSync('promo/make/index.html') && existsSync('promo/index.html')) {
     .replace(/\{\{SITES\}\}/g, String(sitesArr.length)).replace(/\{\{PAGES\}\}/g, String((data.pages || []).length))
     .replace(/\{\{REGIONS\}\}/g, String(allRegions().length)).replace('{{CASES}}', cases).replace(/\{\{MARQUEE\}\}/g, marquee);
   writeFileSync('dist-sites/s/make/index.html', seoHead(html, { host: 'make.bizhelp.kr', ld: [
-    { '@context': 'https://schema.org', '@type': 'Organization', name: '애드블스', alternateName: '애드블스 메이크', url: 'https://make.bizhelp.kr/', telephone: '+82-10-5516-0301', email: 'cosmos0302@naver.com', founder: { '@type': 'Person', name: '박서희' }, taxID: '479-93-02093' },
+    { '@context': 'https://schema.org', '@type': 'Organization', name: '애드블스', alternateName: '애드블스 메이크', url: 'https://make.bizhelp.kr/', telephone: '+82-10-5516-0301', email: 'cosmos0302@kakao.com', founder: { '@type': 'Person', name: '박서희' }, taxID: '479-93-02093' },
     { '@context': 'https://schema.org', '@type': 'Service', name: 'AI 에이전트 마케팅 자동화 구축·교육', serviceType: '마케팅 자동화 구축 및 교육', provider: { '@type': 'Organization', name: '애드블스', url: 'https://make.bizhelp.kr/' }, areaServed: { '@type': 'Country', name: '대한민국' }, description: '검색 노출 사이트 자동 생성, 콘텐츠 자동 발행, 상담 접수 자동화를 기업 맞춤으로 구축하거나 직접 만드는 법을 교육합니다.' },
   ] }));
   writeFileSync('dist-sites/s/make/sitemap.xml', sitemapXml('make.bizhelp.kr', ['/']));
