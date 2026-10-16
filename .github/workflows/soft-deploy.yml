@@ -29,6 +29,28 @@ jobs:
         env:
           SEO_NAVER_VERIFY: ${{ vars.SOFT_NAVER_VERIFY }}
           SEO_GOOGLE_VERIFY: ${{ vars.SOFT_GOOGLE_VERIFY }}
+      # 토큰이 배포 대상 도메인의 존을 볼 수 있는지 진단한다(값은 출력하지 않음). 실패해도 다음 단계로 간다.
+      - name: Diagnose zone access
+        continue-on-error: true
+        run: |
+          T="$(printf '%s' "$CF_TOKEN" | tr -d '[:space:]')"; A="$(printf '%s' "$CF_ACCOUNT" | tr -d '[:space:]')"
+          echo "SOFT_CLOUDFLARE_API_TOKEN 등록: $([ -n "$SOFT_SET" ] && echo 예 || echo 아니오)"
+          echo "SOFT_CLOUDFLARE_ACCOUNT_ID 등록: $([ -n "$SOFT_ACC_SET" ] && echo 예 || echo 아니오)"
+          V="$(curl -sS -H "Authorization: Bearer $T" https://api.cloudflare.com/client/v4/user/tokens/verify | jq -r '.result.status // .errors[0].message')"
+          echo "토큰 상태: $V"
+          for F in wrangler.*.generated.jsonc; do
+            H="$(jq -r '.routes[0].pattern' "$F")"; Z="${H#*.}"
+            R="$(curl -sS -H "Authorization: Bearer $T" "https://api.cloudflare.com/client/v4/zones?name=$Z")"
+            N="$(echo "$R" | jq -r '.result | length')"
+            SAME="$(echo "$R" | jq -r --arg a "$A" '[.result[] | select(.account.id==$a)] | length')"
+            echo "$H → 존 $Z: 토큰으로 보이는 존 ${N}개, 그중 배포 계정 소속 ${SAME}개 (success=$(echo "$R" | jq -r .success))"
+          done
+          echo "토큰으로 보이는 존 목록(이름만): $(curl -sS -H "Authorization: Bearer $T" 'https://api.cloudflare.com/client/v4/zones?per_page=50' | jq -r '[.result[].name] | join(", ")')"
+        env:
+          CF_TOKEN: ${{ secrets.SOFT_CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.SOFT_CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SOFT_SET: ${{ secrets.SOFT_CLOUDFLARE_API_TOKEN != '' && '1' || '' }}
+          SOFT_ACC_SET: ${{ secrets.SOFT_CLOUDFLARE_ACCOUNT_ID != '' && '1' || '' }}
       # 다른 워커에 이미 붙은 호스트를 가로채지 않는다
       - name: Check hostname conflicts
         if: github.event_name != 'pull_request'
