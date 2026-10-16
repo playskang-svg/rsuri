@@ -1,5 +1,6 @@
 # soft/ — 소프트웨어 공식 다운로드 안내 사이트(키워드 다발 1개 = 서브도메인 1개). 수리위키와 워커 이름이 달라 서로 덮어쓰지 않는다.
 # main 머지로만 배포, PR 에서는 다발 검증·빌드만 한다.
+# adbles.com 존은 수리위키와 다른 Cloudflare 계정/토큰에 있을 수 있다. SOFT_CLOUDFLARE_API_TOKEN·SOFT_CLOUDFLARE_ACCOUNT_ID 가 있으면 그것을 쓰고, 없으면 공용 시크릿을 쓴다.
 name: soft-deploy
 on:
   push:
@@ -44,8 +45,8 @@ jobs:
           [ "$BAD" = "0" ] || exit 1
           echo "충돌 없음"
         env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.SOFT_CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.SOFT_CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
       - name: Deploy
         if: github.event_name != 'pull_request'
         run: |
@@ -53,5 +54,5 @@ jobs:
           export CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
           for F in wrangler.*.generated.jsonc; do echo "▶ $F"; npx --yes wrangler@4 deploy -c "$F"; done
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.SOFT_CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.SOFT_CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
