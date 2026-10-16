@@ -1,0 +1,11 @@
+{
+  "name": "adbles-soft",
+  "private": true,
+  "type": "module",
+  "description": "키워드 다발(메인 키워드 1~9개)로 소프트웨어 공식 다운로드 안내 사이트를 만드는 정적 빌더",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check",
+    "links": "node scripts/check-links.mjs"
+  }
+}

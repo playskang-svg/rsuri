@@ -1,0 +1,182 @@
+{
+  "id": "pc-essentials",
+  "host": "soft.adbles.com",
+  "name": "애드블스 소프트",
+  "title": "윈도우 필수프로그램 공식 다운로드 모음",
+  "tagline": "압축·동영상·PDF·캡처·백신·원격제어·브라우저·메신저 — 공식 배포처로만 연결합니다.",
+  "noindex": true,
+  "perPage": 6,
+  "checked": "2026-10-16",
+  "contact": "cosmos0302@kakao.com",
+  "keywords": [
+    {
+      "slug": "zip",
+      "keyword": "압축프로그램",
+      "title": "무료 압축프로그램",
+      "intro": "압축프로그램은 여러 파일을 하나로 묶어 크기를 줄이거나, 받은 ZIP·7Z·RAR 파일을 푸는 데 씁니다. 윈도우도 ZIP은 기본으로 풀 수 있지만, 다른 형식이나 분할 압축·암호 압축을 다루려면 별도 프로그램이 편합니다.",
+      "pick": [
+        "받는 파일 형식부터 보세요. 국내에서 받은 ALZ·EGG 파일은 알집·반디집 계열이 다룹니다.",
+        "회사 PC라면 라이선스를 확인하세요. 개인만 무료인 프로그램이 있습니다.",
+        "광고 없는 프로그램을 원하면 오픈소스(7-Zip·PeaZip)가 맞습니다."
+      ],
+      "faq": [
+        { "q": "윈도우 기본 기능만으로 압축을 풀 수 있나요?", "a": "ZIP 파일은 파일 탐색기에서 바로 풀 수 있습니다. 다른 형식은 윈도우 버전에 따라 지원 범위가 달라, 열리지 않으면 압축프로그램을 설치하면 됩니다." },
+        { "q": "압축 파일을 열었더니 실행 파일(.exe)이 들어 있어요.", "a": "출처를 모르는 압축 파일 안의 실행 파일은 열지 말고 먼저 백신으로 검사하세요." }
+      ],
+      "programs": ["bandizip", "alzip", "7zip", "peazip"]
+    },
+    {
+      "slug": "player",
+      "keyword": "동영상플레이어",
+      "title": "무료 동영상플레이어",
+      "intro": "동영상플레이어는 MP4·MKV 같은 영상 파일과 자막을 재생합니다. 윈도우 기본 앱으로 재생되지 않는 코덱이 있을 때 별도 플레이어를 설치합니다.",
+      "pick": [
+        "여러 운영체제를 함께 쓰면 VLC처럼 윈도우·맥·모바일을 모두 지원하는 플레이어가 편합니다.",
+        "맥에서는 맥 전용으로 만든 IINA가 있습니다.",
+        "광고가 싫다면 오픈소스 플레이어를 고르세요."
+      ],
+      "faq": [
+        { "q": "자막 파일은 어떻게 붙이나요?", "a": "대부분의 플레이어는 영상과 자막 파일 이름을 같게 두면 자동으로 불러옵니다. 아니면 재생 중에 자막 파일을 창에 끌어다 놓으면 됩니다." }
+      ],
+      "programs": ["vlc", "gomplayer", "iina"]
+    },
+    {
+      "slug": "pdf",
+      "keyword": "PDF뷰어",
+      "title": "무료 PDF 뷰어",
+      "intro": "PDF 뷰어는 PDF 문서를 열어 읽고 인쇄하는 프로그램입니다. 크롬·엣지 같은 브라우저로도 PDF를 열 수 있지만, 서명·주석·양식 입력을 자주 한다면 전용 뷰어가 편합니다.",
+      "pick": [
+        "읽기만 한다면 가볍고 빠른 뷰어(SumatraPDF)로 충분합니다.",
+        "양식 입력·전자서명이 필요하면 Acrobat Reader나 Foxit PDF Reader를 쓰세요.",
+        "PDF 편집(본문 수정)은 대부분 유료 기능입니다."
+      ],
+      "faq": [
+        { "q": "PDF 내용을 고치려면 무엇이 필요한가요?", "a": "무료 뷰어는 주로 보기·주석·양식 입력까지 됩니다. 본문 수정은 유료 편집 프로그램이 필요한 경우가 많습니다." }
+      ],
+      "programs": ["acrobat-reader", "foxit-reader", "sumatrapdf"]
+    },
+    {
+      "slug": "hwp",
+      "keyword": "한글뷰어",
+      "title": "한글(HWP) 파일 뷰어",
+      "intro": "관공서·학교에서 받은 HWP 파일은 한컴오피스가 없으면 열리지 않을 때가 많습니다. 한글과컴퓨터가 무료로 배포하는 뷰어를 설치하면 열람과 인쇄를 할 수 있습니다.",
+      "pick": [
+        "보기·인쇄만 필요하면 무료 뷰어로 충분합니다.",
+        "내용을 고쳐 다시 제출해야 한다면 편집이 되는 한컴오피스가 필요합니다.",
+        "뷰어는 한컴 공식 다운로드 센터에서 받으세요. 검색 광고의 비슷한 이름 프로그램은 피하세요."
+      ],
+      "faq": [
+        { "q": "한글 뷰어로 문서를 고칠 수 있나요?", "a": "뷰어는 열람·인쇄용입니다. 편집하려면 한컴오피스 같은 편집 프로그램이 필요합니다." }
+      ],
+      "programs": ["hancom-viewer"]
+    },
+    {
+      "slug": "capture",
+      "keyword": "화면캡처프로그램",
+      "title": "화면 캡처 프로그램",
+      "intro": "화면 캡처 프로그램은 모니터 화면을 이미지로 저장합니다. 윈도우 10·11에는 캡처 도구가 기본으로 들어 있고, 스크롤 캡처나 화살표·모자이크 편집이 필요하면 별도 프로그램을 씁니다.",
+      "pick": [
+        "가끔 한 장씩 찍는다면 윈도우 기본 캡처 도구(Win + Shift + S)로 충분합니다.",
+        "캡처 후 바로 표시·편집하려면 편집 기능이 있는 프로그램이 편합니다.",
+        "회사 PC는 개인 무료 조건인지 확인하세요."
+      ],
+      "faq": [
+        { "q": "윈도우에서 바로 캡처하는 단축키는?", "a": "Win + Shift + S를 누르면 캡처 도구가 열리고 원하는 영역을 선택할 수 있습니다." }
+      ],
+      "programs": ["snipping-tool", "picpick", "alcapture", "sharex", "greenshot"]
+    },
+    {
+      "slug": "antivirus",
+      "keyword": "무료백신",
+      "title": "무료 백신 프로그램",
+      "intro": "윈도우 10·11에는 Microsoft Defender 바이러스 백신이 기본으로 켜져 있습니다. 국산 백신을 추가로 설치하는 경우가 많지만, 실시간 감시 백신을 여러 개 동시에 켜 두면 서로 충돌할 수 있습니다.",
+      "pick": [
+        "실시간 감시 백신은 하나만 켜 두는 것이 원칙입니다.",
+        "기업·기관 PC는 개인 무료 백신을 쓸 수 없는 경우가 많습니다. 라이선스를 확인하세요.",
+        "백신 이름을 붙인 광고 사이트가 많습니다. 반드시 개발사 공식 사이트에서 받으세요."
+      ],
+      "faq": [
+        { "q": "윈도우 기본 백신만으로 충분한가요?", "a": "Microsoft Defender는 윈도우에 기본 포함된 실시간 백신입니다. 다른 백신을 설치하면 Defender가 자동으로 꺼지는 경우가 있으니 설치 후 상태를 확인하세요." }
+      ],
+      "programs": ["defender", "alyac", "v3-lite", "avast-free"]
+    },
+    {
+      "slug": "remote",
+      "keyword": "원격제어프로그램",
+      "title": "원격제어 프로그램",
+      "intro": "원격제어 프로그램은 다른 곳의 PC 화면을 내 PC나 휴대폰에서 보고 조작하게 해 줍니다. 부모님 PC를 도와드리거나 집 PC에 접속할 때 씁니다.",
+      "pick": [
+        "개인 용도로 무료인 프로그램도 업무에 쓰면 유료인 경우가 있습니다.",
+        "구글 계정이 있다면 Chrome 원격 데스크톱이 설정이 간단합니다.",
+        "모르는 사람이 원격 접속 프로그램 설치를 요구하면 사기를 의심하세요."
+      ],
+      "faq": [
+        { "q": "원격제어 프로그램이 보이스피싱에 쓰인다던데요?", "a": "사기범이 원격 프로그램 설치를 유도해 금융 정보를 빼내는 사례가 있습니다. 전화로 설치를 요구받으면 끊고 해당 기관 대표번호로 직접 확인하세요." }
+      ],
+      "programs": ["chrome-remote-desktop", "teamviewer", "anydesk", "rustdesk"]
+    },
+    {
+      "slug": "browser",
+      "keyword": "인터넷브라우저",
+      "title": "인터넷 브라우저",
+      "intro": "윈도우에는 마이크로소프트 엣지가 기본으로 들어 있습니다. 크롬·파이어폭스·웨일은 따로 설치하며, 즐겨찾기와 비밀번호를 계정으로 동기화할 수 있습니다.",
+      "pick": [
+        "휴대폰과 같은 브라우저를 쓰면 즐겨찾기·비밀번호 동기화가 편합니다.",
+        "브라우저를 바꿔도 기존 브라우저의 즐겨찾기를 가져오기 기능으로 옮길 수 있습니다.",
+        "브라우저 확장 프로그램은 공식 스토어에서만 설치하세요."
+      ],
+      "faq": [
+        { "q": "기본 브라우저는 어떻게 바꾸나요?", "a": "윈도우 설정 → 앱 → 기본 앱에서 원하는 브라우저를 고르고 기본값으로 설정하면 됩니다." }
+      ],
+      "programs": ["chrome", "edge", "firefox", "whale"]
+    },
+    {
+      "slug": "messenger",
+      "keyword": "메신저PC버전",
+      "title": "메신저 PC 버전",
+      "intro": "카카오톡·텔레그램·디스코드는 휴대폰 앱과 같은 계정으로 PC에서도 대화할 수 있습니다. 파일을 주고받거나 긴 글을 쓸 때 PC 버전이 편합니다.",
+      "pick": [
+        "PC 버전은 보통 휴대폰 앱으로 로그인 인증을 합니다.",
+        "공용 PC에서는 사용 후 반드시 로그아웃하세요.",
+        "메신저 이름을 단 비공식 설치 파일은 받지 마세요."
+      ],
+      "faq": [
+        { "q": "PC 카카오톡 로그인은 어떻게 하나요?", "a": "PC에서 QR 코드나 계정 정보로 로그인하고, 휴대폰 카카오톡에서 인증을 확인하는 방식입니다. 자세한 절차는 카카오 고객센터 안내를 따르세요." }
+      ],
+      "programs": ["kakaotalk", "telegram", "discord"]
+    }
+  ],
+  "programs": {
+    "bandizip": { "name": "반디집", "en": "Bandizip", "vendor": "반디소프트", "license": "무료 (유료 에디션 별도)", "summary": "ZIP·7Z·RAR 등 여러 형식을 풀고 만들 수 있는 국산 압축 프로그램입니다.", "features": ["여러 압축 형식 해제", "분할·암호 압축", "탐색기 오른쪽 클릭 메뉴"], "official": "https://www.bandisoft.com/bandizip/", "os": { "windows": "https://www.bandisoft.com/bandizip/" } },
+    "alzip": { "name": "알집", "en": "ALZip", "vendor": "이스트소프트", "license": "개인 무료 (기업 유료)", "summary": "알툴즈 제품군의 압축 프로그램으로, 국산 압축 형식인 ALZ·EGG도 다룹니다.", "features": ["ALZ·EGG 형식 지원", "분할 압축", "알툴즈 공식 배포"], "official": "https://www.altools.co.kr/product/ALZIP", "os": { "windows": "https://www.altools.co.kr/product/ALZIP" } },
+    "7zip": { "name": "7-Zip", "en": "7-Zip", "vendor": "Igor Pavlov", "license": "오픈소스 (기업 포함 무료)", "summary": "7z 형식을 만든 오픈소스 압축 프로그램입니다. 광고가 없고 회사 PC에서도 무료로 쓸 수 있습니다.", "features": ["7z 고압축", "광고 없음", "가벼운 설치"], "official": "https://www.7-zip.org/download.html", "os": { "windows": "https://www.7-zip.org/download.html", "linux": "https://www.7-zip.org/download.html" } },
+    "peazip": { "name": "PeaZip", "en": "PeaZip", "vendor": "Giorgio Tani", "license": "오픈소스 (무료)", "summary": "윈도우·맥·리눅스를 모두 지원하는 오픈소스 압축 프로그램입니다.", "features": ["여러 운영체제 지원", "광고 없음", "암호화 압축"], "official": "https://peazip.github.io/", "os": { "windows": "https://peazip.github.io/", "macos": "https://peazip.github.io/", "linux": "https://peazip.github.io/" } },
+    "vlc": { "name": "VLC 미디어 플레이어", "en": "VLC media player", "vendor": "VideoLAN", "license": "오픈소스 (무료)", "summary": "코덱을 따로 설치하지 않아도 대부분의 영상·음악 파일을 재생하는 오픈소스 플레이어입니다.", "features": ["코덱 내장", "광고 없음", "PC·모바일 모두 지원"], "official": "https://www.videolan.org/vlc/", "os": { "windows": "https://www.videolan.org/vlc/", "macos": "https://www.videolan.org/vlc/", "linux": "https://www.videolan.org/vlc/", "android": "https://www.videolan.org/vlc/", "ios": "https://www.videolan.org/vlc/" } },
+    "gomplayer": { "name": "곰플레이어", "en": "GOM Player", "vendor": "곰앤컴퍼니", "license": "무료 (유료판 별도)", "summary": "국내에서 오래 쓰여 온 동영상 플레이어로, 자막 검색 기능을 제공합니다.", "features": ["한국어 인터페이스", "자막 기능", "무료판 광고 포함"], "official": "https://www.gomlab.com/gomplayer-media-player/", "os": { "windows": "https://www.gomlab.com/gomplayer-media-player/" } },
+    "iina": { "name": "IINA", "en": "IINA", "vendor": "IINA 프로젝트", "license": "오픈소스 (무료)", "summary": "맥 전용으로 만든 오픈소스 동영상 플레이어입니다.", "features": ["macOS 전용 디자인", "광고 없음", "자막 지원"], "official": "https://iina.io/", "os": { "macos": "https://iina.io/" } },
+    "acrobat-reader": { "name": "Adobe Acrobat Reader", "en": "Adobe Acrobat Reader", "vendor": "Adobe", "license": "무료 (편집 기능은 유료)", "summary": "PDF를 만든 어도비의 무료 PDF 뷰어로, 양식 입력과 서명을 지원합니다.", "features": ["양식 입력", "전자서명", "주석"], "official": "https://get.adobe.com/kr/reader/", "os": { "windows": "https://get.adobe.com/kr/reader/", "macos": "https://get.adobe.com/kr/reader/" }, "note": "설치 화면에 함께 설치할 다른 프로그램이 체크되어 있을 수 있으니 확인하고 진행하세요." },
+    "foxit-reader": { "name": "Foxit PDF Reader", "en": "Foxit PDF Reader", "vendor": "Foxit", "license": "무료", "summary": "가볍게 쓰는 무료 PDF 뷰어로, 주석·양식 입력 기능이 있습니다.", "features": ["주석", "양식 입력", "탭 보기"], "official": "https://www.foxit.com/pdf-reader/", "os": { "windows": "https://www.foxit.com/pdf-reader/", "macos": "https://www.foxit.com/pdf-reader/" } },
+    "sumatrapdf": { "name": "SumatraPDF", "en": "SumatraPDF", "vendor": "Krzysztof Kowalczyk", "license": "오픈소스 (무료)", "summary": "PDF·EPUB·XPS 등을 빠르게 여는 가벼운 오픈소스 뷰어입니다.", "features": ["매우 가벼움", "전자책 형식 지원", "광고 없음"], "official": "https://www.sumatrapdfreader.org/download-free-pdf-viewer", "os": { "windows": "https://www.sumatrapdfreader.org/download-free-pdf-viewer" } },
+    "hancom-viewer": { "name": "한컴오피스 뷰어", "en": "Hancom Office Viewer", "vendor": "한글과컴퓨터", "license": "무료", "summary": "한컴오피스가 없어도 HWP 문서를 열어 보고 인쇄할 수 있는 한글과컴퓨터의 무료 뷰어입니다.", "features": ["HWP 열람", "인쇄", "편집은 불가"], "official": "https://www.hancom.com/support/downloadCenter/download", "os": { "windows": "https://www.hancom.com/support/downloadCenter/download" } },
+    "snipping-tool": { "name": "캡처 도구", "en": "Snipping Tool", "vendor": "Microsoft", "license": "윈도우 기본 포함", "builtin": true, "summary": "윈도우 10·11에 기본으로 들어 있는 화면 캡처 앱입니다. Win + Shift + S로 바로 열립니다.", "features": ["설치 불필요", "영역·창·전체 화면 캡처", "단축키 Win + Shift + S"], "official": "https://support.microsoft.com/ko-kr/windows/apps/use-snipping-tool-to-capture-screenshots", "os": { "windows": "https://support.microsoft.com/ko-kr/windows/apps/use-snipping-tool-to-capture-screenshots" } },
+    "picpick": { "name": "픽픽", "en": "PicPick", "vendor": "NGWIN", "license": "개인 무료 (기업 유료)", "summary": "캡처와 이미지 편집, 색상 추출·눈금자 같은 도구를 함께 담은 국산 캡처 프로그램입니다.", "features": ["스크롤 캡처", "캡처 후 바로 편집", "색상 추출·눈금자"], "official": "https://picpick.app/ko/", "os": { "windows": "https://picpick.app/ko/" } },
+    "alcapture": { "name": "알캡처", "en": "ALCapture", "vendor": "이스트소프트", "license": "개인 무료 (기업 유료)", "summary": "알툴즈 제품군의 화면 캡처 프로그램입니다.", "features": ["영역·스크롤 캡처", "간단 편집", "알툴즈 공식 배포"], "official": "https://www.altools.co.kr/product/ALCAPTURE", "os": { "windows": "https://www.altools.co.kr/product/ALCAPTURE" } },
+    "sharex": { "name": "ShareX", "en": "ShareX", "vendor": "ShareX 팀", "license": "오픈소스 (무료)", "summary": "캡처·화면 녹화·자동 업로드까지 되는 오픈소스 캡처 도구입니다.", "features": ["화면 녹화", "자동화 작업", "광고 없음"], "official": "https://getsharex.com/", "os": { "windows": "https://getsharex.com/" } },
+    "greenshot": { "name": "Greenshot", "en": "Greenshot", "vendor": "Greenshot 팀", "license": "오픈소스 (윈도우판 무료)", "summary": "가볍고 단순한 오픈소스 캡처 프로그램으로, 캡처 후 표시·강조 편집이 됩니다.", "features": ["가벼움", "강조·모자이크 편집", "광고 없음"], "official": "https://getgreenshot.org/", "os": { "windows": "https://getgreenshot.org/" } },
+    "defender": { "name": "Microsoft Defender 바이러스 백신", "en": "Microsoft Defender Antivirus", "vendor": "Microsoft", "license": "윈도우 기본 포함", "builtin": true, "summary": "윈도우 10·11에 기본으로 들어 있는 실시간 백신입니다. 따로 설치하지 않아도 됩니다.", "features": ["설치 불필요", "실시간 감시", "윈도우 보안 앱에서 관리"], "official": "https://www.microsoft.com/ko-kr/windows/comprehensive-security", "os": { "windows": "https://www.microsoft.com/ko-kr/windows/comprehensive-security" } },
+    "alyac": { "name": "알약", "en": "ALYac", "vendor": "이스트시큐리티", "license": "개인 무료 (기업 유료)", "summary": "이스트시큐리티의 국산 백신으로, 개인 사용자는 무료로 쓸 수 있습니다.", "features": ["실시간 감시", "랜섬웨어 차단 기능", "PC 최적화 도구"], "official": "https://www.estsecurity.com/public/product/alyac", "os": { "windows": "https://www.estsecurity.com/public/product/alyac" } },
+    "v3-lite": { "name": "V3 Lite", "en": "AhnLab V3 Lite", "vendor": "안랩", "license": "개인 무료 (기업·기관 유료)", "summary": "안랩의 개인용 무료 백신입니다. 기업·교육기관·관공서·PC방 등은 유료 제품을 써야 합니다.", "features": ["실시간 감시", "PC 검사", "개인 무료"], "official": "https://www.ahnlab.com/ko/product/v3-lite", "os": { "windows": "https://www.ahnlab.com/ko/product/v3-lite" } },
+    "avast-free": { "name": "어베스트 무료 백신", "en": "Avast Free Antivirus", "vendor": "Avast", "license": "무료 (유료판 별도)", "summary": "해외에서 널리 쓰이는 무료 백신으로, 윈도우와 맥을 지원합니다.", "features": ["실시간 감시", "윈도우·맥 지원", "유료 기능 안내 포함"], "official": "https://www.avast.com/ko-kr/free-antivirus-download", "os": { "windows": "https://www.avast.com/ko-kr/free-antivirus-download", "macos": "https://www.avast.com/ko-kr/free-antivirus-download" } },
+    "chrome-remote-desktop": { "name": "Chrome 원격 데스크톱", "en": "Chrome Remote Desktop", "vendor": "Google", "license": "무료", "summary": "구글 계정으로 내 PC에 원격 접속하거나 다른 사람의 화면을 도와줄 수 있는 무료 서비스입니다.", "features": ["구글 계정으로 연결", "PC·모바일 접속", "설정 간단"], "official": "https://remotedesktop.google.com/", "os": { "windows": "https://remotedesktop.google.com/", "macos": "https://remotedesktop.google.com/", "linux": "https://remotedesktop.google.com/", "android": "https://remotedesktop.google.com/", "ios": "https://remotedesktop.google.com/" } },
+    "teamviewer": { "name": "팀뷰어", "en": "TeamViewer", "vendor": "TeamViewer", "license": "개인 무료 (상업용 유료)", "summary": "가장 널리 알려진 원격제어 프로그램 중 하나로, 개인 용도는 무료입니다.", "features": ["여러 운영체제 지원", "파일 전송", "개인 무료"], "official": "https://www.teamviewer.com/ko/download/", "os": { "windows": "https://www.teamviewer.com/ko/download/", "macos": "https://www.teamviewer.com/ko/download/", "linux": "https://www.teamviewer.com/ko/download/", "android": "https://www.teamviewer.com/ko/download/", "ios": "https://www.teamviewer.com/ko/download/" } },
+    "anydesk": { "name": "애니데스크", "en": "AnyDesk", "vendor": "AnyDesk", "license": "개인 무료 (상업용 유료)", "summary": "설치 파일이 작고 연결이 빠른 원격제어 프로그램으로, 개인 용도는 무료입니다.", "features": ["가벼운 실행 파일", "여러 운영체제 지원", "개인 무료"], "official": "https://anydesk.com/ko/downloads", "os": { "windows": "https://anydesk.com/ko/downloads", "macos": "https://anydesk.com/ko/downloads", "linux": "https://anydesk.com/ko/downloads", "android": "https://anydesk.com/ko/downloads", "ios": "https://anydesk.com/ko/downloads" } },
+    "rustdesk": { "name": "RustDesk", "en": "RustDesk", "vendor": "RustDesk", "license": "오픈소스 (무료)", "summary": "자체 서버로도 운영할 수 있는 오픈소스 원격제어 프로그램입니다.", "features": ["오픈소스", "자체 서버 운영 가능", "여러 운영체제 지원"], "official": "https://rustdesk.com/", "os": { "windows": "https://rustdesk.com/", "macos": "https://rustdesk.com/", "linux": "https://rustdesk.com/", "android": "https://rustdesk.com/", "ios": "https://rustdesk.com/" } },
+    "chrome": { "name": "크롬", "en": "Google Chrome", "vendor": "Google", "license": "무료", "summary": "구글의 웹 브라우저로, 구글 계정으로 즐겨찾기·비밀번호를 동기화합니다.", "features": ["구글 계정 동기화", "확장 프로그램", "PC·모바일 지원"], "official": "https://www.google.com/chrome/", "os": { "windows": "https://www.google.com/chrome/", "macos": "https://www.google.com/chrome/", "linux": "https://www.google.com/chrome/", "android": "https://www.google.com/chrome/", "ios": "https://www.google.com/chrome/" } },
+    "edge": { "name": "엣지", "en": "Microsoft Edge", "vendor": "Microsoft", "license": "무료 (윈도우 기본 포함)", "summary": "윈도우에 기본으로 들어 있는 마이크로소프트의 브라우저입니다. 맥·모바일용도 따로 받을 수 있습니다.", "features": ["윈도우 기본 포함", "PDF 열기", "마이크로소프트 계정 동기화"], "official": "https://www.microsoft.com/ko-kr/edge/download", "os": { "windows": "https://www.microsoft.com/ko-kr/edge/download", "macos": "https://www.microsoft.com/ko-kr/edge/download", "linux": "https://www.microsoft.com/ko-kr/edge/download", "android": "https://www.microsoft.com/ko-kr/edge/download", "ios": "https://www.microsoft.com/ko-kr/edge/download" } },
+    "firefox": { "name": "파이어폭스", "en": "Mozilla Firefox", "vendor": "Mozilla", "license": "오픈소스 (무료)", "summary": "비영리 재단 모질라가 만드는 오픈소스 브라우저입니다.", "features": ["오픈소스", "추적 방지 기능", "PC·모바일 지원"], "official": "https://www.firefox.com/ko/", "os": { "windows": "https://www.firefox.com/ko/", "macos": "https://www.firefox.com/ko/", "linux": "https://www.firefox.com/ko/", "android": "https://www.firefox.com/ko/", "ios": "https://www.firefox.com/ko/" } },
+    "whale": { "name": "웨일", "en": "NAVER Whale", "vendor": "네이버", "license": "무료", "summary": "네이버가 만든 브라우저로, 네이버 계정으로 동기화하고 사이드바 기능을 제공합니다.", "features": ["네이버 계정 동기화", "사이드바", "PC·모바일 지원"], "official": "https://whale.naver.com/", "os": { "windows": "https://whale.naver.com/", "macos": "https://whale.naver.com/", "android": "https://whale.naver.com/", "ios": "https://whale.naver.com/" } },
+    "kakaotalk": { "name": "카카오톡", "en": "KakaoTalk", "vendor": "카카오", "license": "무료", "summary": "휴대폰 카카오톡 계정으로 PC에서도 대화하고 파일을 주고받을 수 있습니다.", "features": ["휴대폰 계정 연동", "파일 전송", "PC·맥 지원"], "official": "https://www.kakaocorp.com/page/service/service/KakaoTalk", "os": { "windows": "https://www.kakaocorp.com/page/service/service/KakaoTalk", "macos": "https://www.kakaocorp.com/page/service/service/KakaoTalk", "android": "https://www.kakaocorp.com/page/service/service/KakaoTalk", "ios": "https://www.kakaocorp.com/page/service/service/KakaoTalk" } },
+    "telegram": { "name": "텔레그램", "en": "Telegram", "vendor": "Telegram", "license": "무료 (프리미엄 별도)", "summary": "클라우드 기반 메신저로, 여러 기기에서 같은 대화를 이어 볼 수 있습니다.", "features": ["여러 기기 동시 사용", "대용량 파일 전송", "PC·모바일 지원"], "official": "https://telegram.org/apps", "os": { "windows": "https://desktop.telegram.org/", "macos": "https://desktop.telegram.org/", "linux": "https://desktop.telegram.org/", "android": "https://telegram.org/apps", "ios": "https://telegram.org/apps" } },
+    "discord": { "name": "디스코드", "en": "Discord", "vendor": "Discord", "license": "무료 (유료 구독 별도)", "summary": "음성 채팅과 커뮤니티 서버 기능을 갖춘 메신저입니다.", "features": ["음성·화면 공유", "커뮤니티 서버", "PC·모바일 지원"], "official": "https://discord.com/download", "os": { "windows": "https://discord.com/download", "macos": "https://discord.com/download", "linux": "https://discord.com/download", "android": "https://discord.com/download", "ios": "https://discord.com/download" } }
+  }
+}
