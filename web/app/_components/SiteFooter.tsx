@@ -124,6 +124,13 @@ export async function SiteFooter() {
           </div>
         </div>
 
+        <nav aria-label="함께 보면 좋은 정보" className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          <span className="font-bold text-white">함께 보면 좋은 정보</span>
+          <a href="https://isatips.adbles.com/" className="inline-flex min-h-11 items-center">이사팁스 · 이사·입주 준비</a>
+          <a href="https://gajun.kr/" className="inline-flex min-h-11 items-center">가전비교연구소 · 가전 고르기</a>
+          <a href="https://tipspedia.kr/" className="inline-flex min-h-11 items-center">팁스피디아 · 생활꿀팁</a>
+        </nav>
+
         <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs">
           <p>수리위키 · 지역별 집수리 안내 · 표시광고법·전자상거래법 준수</p>
           <p className="tracking-[0.08em]" style={{ fontFamily: "var(--mono)" }}>© 2026 SURIWIKI REPAIR LAB.</p>
