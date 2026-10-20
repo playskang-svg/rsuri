@@ -1,0 +1,2190 @@
+{
+  "site": "suriwiki",
+  "label": "수리위키",
+  "domain": "suriwiki.com",
+  "repo": "playskang-svg/rsuri",
+  "scannedAt": "2026-09-10T05:41:23.723Z",
+  "pagesCrawled": 25,
+  "sitemapUrls": 415,
+  "externalChecked": 0,
+  "summary": {
+    "medium": 1,
+    "low": 1
+  },
+  "occurrences": 243,
+  "findings": [
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "scope": "site-wide",
+      "page": "https://suriwiki.com (전역)",
+      "occurrences": 219,
+      "pages": 25,
+      "hrefs": [
+        "#process",
+        "#cases",
+        "#services"
+      ],
+      "examples": [
+        {
+          "page": "https://suriwiki.com",
+          "href": "#process",
+          "text": "진행 과정",
+          "nav": true
+        },
+        {
+          "page": "https://suriwiki.com",
+          "href": "#process",
+          "text": "진행 과정",
+          "nav": true
+        },
+        {
+          "page": "https://suriwiki.com",
+          "href": "#process",
+          "text": "진행 과정",
+          "nav": true
+        }
+      ],
+      "note": "25쪽 219건에 같은 결함이 있다. 페이지마다 고칠 문제가 아니라 공통 컴포넌트·레이아웃 한 곳의 문제다."
+    },
+    {
+      "severity": "low",
+      "kind": "no-canonical",
+      "scope": "site-wide",
+      "page": "https://suriwiki.com (전역)",
+      "occurrences": 24,
+      "pages": 24,
+      "hrefs": [],
+      "examples": [
+        {
+          "page": "https://suriwiki.com",
+          "href": null,
+          "text": null,
+          "nav": false
+        },
+        {
+          "page": "https://suriwiki.com/sink-drain-set-repair",
+          "href": null,
+          "text": null,
+          "nav": false
+        },
+        {
+          "page": "https://suriwiki.com/sink-faucet-leak-repair",
+          "href": null,
+          "text": null,
+          "nav": false
+        }
+      ],
+      "note": "24쪽 24건에 같은 결함이 있다. 페이지마다 고칠 문제가 아니라 공통 컴포넌트·레이아웃 한 곳의 문제다."
+    }
+  ],
+  "detail": {
+    "no-canonical": [
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/sink-drain-set-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/range-hood-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/countertop-crack-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/disposer-removal"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/leak-detection-emergency"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/leak-insurance-claim"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/window-frame-caulking"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/bathroom-partial-remodel"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/toilet-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/sink-basin-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/window-roller-weatherstrip"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/window-rail-reinforcement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/door-closer-installation"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/abs-door-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/eco-silk-wallpaper"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/ceiling-drywall-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/flooring-scratch-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair"
+      }
+    ],
+    "dead-anchor": [
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sitemap",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-drain-set-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-faucet-leak-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/range-hood-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/countertop-crack-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/disposer-removal",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-detection-emergency",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/leak-insurance-claim",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-floor-waterproofing",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-frame-caulking",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/rooftop-urethane-waterproofing",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-partial-remodel",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/toilet-tank-parts-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/sink-basin-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/bathroom-vent-fan-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-roller-weatherstrip",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/window-rail-reinforcement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/door-closer-installation",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/abs-door-replacement",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/eco-silk-wallpaper",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/ceiling-drywall-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/flooring-scratch-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#cases",
+        "text": "시공사례",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#services",
+        "text": "서비스",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      },
+      {
+        "severity": "medium",
+        "kind": "dead-anchor",
+        "page": "https://suriwiki.com/led-lighting-breaker-repair",
+        "href": "#process",
+        "text": "진행 과정",
+        "nav": true,
+        "note": "같은 문서에 그 id가 없다"
+      }
+    ]
+  },
+  "autoFixable": [
+    "dead-internal-anchor",
+    "protocol-relative",
+    "trailing-double-slash",
+    "http-to-https",
+    "self-referencing-canonical"
+  ],
+  "reportOnly": [
+    "dead-external",
+    "redirect-chain",
+    "orphan-page"
+  ]
+}
