@@ -1,16 +1,18 @@
-# admin.suriwiki.com — 사이트 제작 현황 리포트
+# admin.suriwiki.com — 수리위키 관리센터
 
-정적 사이트(Cloudflare Workers assets). `src/index.html` 한 페이지가 `src/data/report.json`을 읽어 렌더링한다.
+정적 사이트(Cloudflare Workers assets) + 워커 API. `src/index.html` 한 화면(업체·업로드 허브)이 `/api/hub`와 `/api/report`를 읽어 그린다.
 
-## 섹션 순서 (고정)
-1. 카운트 카드 3종: 메인사이트 · 세부사이트 · 총 제작 항목
-2. 사이트별 페이지 목록 (카드 8색 순환, 이번주 신규 분리, 타이틀·H1 일치 점)
-(※ 네이버 유효키워드 카드·유효키워드 목록·새로운 1위/검색 1위 키워드는 2026-10-23 운영자 결정으로 제거)
+## 화면 구성 (2026-10-23부터 탭 없이 한 화면)
+1. 상단 통계(등록 업체·업로드 파일·사진·동영상·용량·전후 사례)
+2. 업로드 관리 바로가기(새 업체 사이트·키워드 일괄 등록·업로드 주소 전체 복사), 수리위키 연동 한 줄, 다음 할 일
+3. 분류별 업체 카드: 완성도·업로드 현황·수리위키 배지·업로드 관리/URL 복사/사이트/수정 버튼, **📄 페이지 N개** 펼침(사이트별 페이지 목록, 이번 주 신규 분리, 타이틀·H1 일치 점 — `src/js/pages.js`)
+4. 최근 업로드
+(※ 예전 '제작 리포트' 탭의 카운트 카드 3종과 네이버 순위 화면은 2026-10-23 운영자 결정으로 제거, 페이지 목록만 허브 카드로 옮겼다)
 
-## 데이터 스키마 (`src/data/report.json`)
+## 페이지 목록 데이터 (`/api/report`)
 `dates[]`(최신순), `keywords[{id,keyword,site,page_path,created_at}]`,
-`pages[{site,page_path,page_url,h1_title,page_title,first_seen,pending?}]`, `business_name`, `sample`.
-현재는 `npm run sample`이 만든 가짜 데이터다. 실제 데이터 연결 시 `DATA_URL`(src/js/report.js)만 API로 바꾼다.
+`pages[{site,page_path,page_url,h1_title,page_title,first_seen,pending?}]`, `site_meta`, `templates`.
+응답이 몇 초 걸려서 허브를 먼저 그리고 뒤에서 받아 카드 버튼 문구를 채운다.
 
 ## 주의
 - 업체 데이터가 들어가면 반드시 인증(Cloudflare Access 등)을 붙인다. 지금은 noindex만 걸려 있다.
@@ -100,7 +102,7 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 ## 관리센터 (로그인 없음)
 - 2026-10-23 운영자 결정으로 비밀번호 로그인을 없앴다. 대시보드(`/`)·관리 API·업로드 페이지 모두 주소만으로 열린다. 검색 노출은 noindex 헤더로 막는다. 접근 통제가 다시 필요하면 `worker/admin.mjs`의 `authorize()` 한 곳에 Cloudflare Access 검증을 넣는다
 - 예전 둘러보기 주소 `/demo/`는 대시보드(`/`)로 302 보낸다. `ADMIN_PASSWORD`·`SESSION_SECRET` 시크릿은 더 이상 쓰지 않는다
-- 화면은 탭 2개: **업체·업로드 허브**(기본) · **제작 리포트**(`#report`, 예전 대시보드). 예전 '수리위키 연동' 탭(`#link`)은 2026-10-23 허브에 합쳤고, 옛 주소는 허브로 열린다
+- 화면은 업체·업로드 허브 하나다. 예전 '제작 리포트'(`#report`)·'수리위키 연동'(`#link`) 탭은 2026-10-23 허브에 합쳤고, 옛 주소도 허브로 열린다
 
 ## 업체·업로드 허브 (`/api/hub`)
 - in.koreazib.com 업로드 관리 시스템을 참고해, 업체(=키워드 사이트)별 파일·사진·영상·용량을 모아 보는 화면. 차별점: 사이트 완성도(7항목 체크리스트)·'다음 할 일'(빠진 항목별 사이트 수, 누르면 거르기)·최근 업로드 썸네일·수리위키 연결 배지

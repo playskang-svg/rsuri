@@ -1,7 +1,10 @@
-// 업체·업로드 허브 + 탭 전환.
-// 허브: 업체(=키워드 사이트)마다 업로드 현황·전후 사례·사이트 완성도를 카드로 보여 주고, 분류별로 묶고, 검색·정렬한다.
-// 수리위키 본사이트 연동 상태도 허브 상단 한 줄 + 카드 배지 + '연결 대기' 거르기로 보여 준다(예전 '수리위키 연동' 탭을 합쳤다).
+// 관리센터 한 화면(업체·업로드 허브). 2026-10-23 탭을 없애고 '제작 리포트'·'수리위키 연동'을 여기에 합쳤다.
+// 업체(=키워드 사이트)마다 업로드 현황·전후 사례·사이트 완성도를 카드로 보여 주고, 분류별로 묶고, 검색·정렬한다.
+// 카드 아래 '페이지' 버튼을 펼치면 그 사이트의 페이지 목록(pages.js)이 나온다.
+// 수리위키 본사이트 연동 상태는 상단 한 줄 + 카드 배지 + '연결 대기' 거르기로 보여 준다.
 // 데이터는 /api/hub 한 번으로 받는다. 그룹 만들기·수정·일괄 등록 버튼은 groups.js 의 [data-grp] 위임 핸들러가 처리한다.
+import { initGroups } from './groups.js';
+import { loadPages, pageSummary, pageListHtml } from './pages.js';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const num = (n) => Number(n || 0).toLocaleString('ko-KR');
@@ -14,19 +17,9 @@ const toast = (msg) => { let t = $('hub-toast'); if (!t) { t = document.createEl
 const copy = (text, msg) => navigator.clipboard.writeText(text).then(() => toast(msg || '복사했습니다'), () => prompt('복사해서 쓰세요', text));
 const uploadUrl = (slug) => `${location.origin}/upload/${slug}/`;
 
-const S = { data: null, q: '', seg: '', sort: 'activity', need: '', closed: new Set() };
+const S = { data: null, q: '', seg: '', sort: 'activity', need: '', closed: new Set(), openPages: new Set() };
 try { S.closed = new Set(JSON.parse(localStorage.getItem('hub-closed') || '[]')); S.sort = localStorage.getItem('hub-sort') || S.sort; } catch (_) { /* 저장소 없음 */ }
 const saveUi = () => { try { localStorage.setItem('hub-closed', JSON.stringify([...S.closed])); localStorage.setItem('hub-sort', S.sort); } catch (_) { /* 저장소 없음 */ } };
-
-// ── 탭: #hub(기본) · #report. 예전 #link 주소는 허브로 연다.
-function showTab(tab) {
-  if (!['hub', 'report'].includes(tab)) tab = 'hub';
-  document.querySelectorAll('.tb-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
-  document.querySelectorAll('.pane').forEach((p) => { p.hidden = p.dataset.pane !== tab; });
-  window.dispatchEvent(new CustomEvent('sw:tab', { detail: tab }));
-}
-document.querySelector('.tb-tabs').addEventListener('click', (e) => { const b = e.target.closest('.tb-tab'); if (!b) return; history.replaceState(null, '', b.dataset.tab === 'hub' ? location.pathname : `#${b.dataset.tab}`); showTab(b.dataset.tab); });
-window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 
 // ── 상단 통계
 function renderStats(t) {
@@ -54,6 +47,26 @@ function ring(score) {
   return `<div class="ring" style="--p:${score};--c:${c}" title="사이트 완성도 ${score}%"><span>${score}<small>%</small></span></div>`;
 }
 
+// ── 카드 속 페이지 목록(접힘). 펼친 카드는 다시 그려도 펼친 채로 둔다.
+function pagesLabel(s) {
+  const sum = pageSummary(s.host);
+  if (!sum) return '📄 페이지 목록';
+  return `📄 페이지 <b>${num(sum.total)}</b>개${sum.fresh ? ` <em>🆕 이번 주 +${sum.fresh}</em>` : ''}`;
+}
+function pagesToggle(s) {
+  const open = S.openPages.has(s.slug);
+  return `<button type="button" class="hc-pages-btn" data-pages="${esc(s.slug)}" aria-expanded="${open}"><span>${pagesLabel(s)}</span><i aria-hidden="true">▾</i></button>
+    <div class="hc-pages" data-pl="${esc(s.slug)}"${open ? '' : ' hidden'}>${open ? pageListHtml(s.host) : ''}</div>`;
+}
+// 페이지 데이터가 늦게 도착하면 버튼 문구와 펼친 목록만 고친다(검색어·스크롤 유지)
+function refreshPages() {
+  if (!S.data) return;
+  for (const s of S.data.sites) {
+    const b = document.querySelector(`[data-pages="${CSS.escape(s.slug)}"] span`); if (b) b.innerHTML = pagesLabel(s);
+    const pl = document.querySelector(`[data-pl="${CSS.escape(s.slug)}"]`); if (pl && !pl.hidden) pl.innerHTML = pageListHtml(s.host);
+  }
+}
+
 function card(s) {
   const missing = s.checks.filter((c) => !c.ok);
   const sw = s.suriwiki === undefined ? '' : s.suriwiki
@@ -72,6 +85,7 @@ function card(s) {
       <div><dt>전후 사례</dt><dd>${num(s.cases)}</dd></div><div><dt>지역</dt><dd>${num(s.regions)}</dd></div><div><dt>용량</dt><dd>${bytes(s.bytes)}</dd></div>
     </dl>
     ${missing.length ? `<p class="hc-miss" title="${esc(missing.map((c) => c.label).join(', '))}">채울 것: ${missing.slice(0, 3).map((c) => esc(c.label)).join(' · ')}${missing.length > 3 ? ` 외 ${missing.length - 3}` : ''}</p>` : '<p class="hc-miss ok">✅ 기본 항목 모두 완료</p>'}
+    ${pagesToggle(s)}
     <div class="hc-foot"><span class="hc-ago">🕒 ${esc(ago(s.last_activity))}</span>
       <div class="hc-act">
         <a class="hb hb-p" href="/upload/${esc(s.slug)}/" target="_blank" rel="noopener">업로드 관리</a>
@@ -181,6 +195,15 @@ $('hub').addEventListener('click', (e) => {
   const t = e.target;
   const seg = t.closest('[data-seg]'); if (seg) { S.seg = seg.dataset.seg; renderHub(); return; }
   const need = t.closest('[data-need]'); if (need) { S.need = S.need === need.dataset.need ? '' : need.dataset.need; renderHub(); return; }
+  const pb = t.closest('[data-pages]');
+  if (pb) {
+    const slug = pb.dataset.pages, s = S.data.sites.find((x) => x.slug === slug), pl = pb.nextElementSibling;
+    const open = !S.openPages.has(slug);
+    open ? S.openPages.add(slug) : S.openPages.delete(slug);
+    pb.setAttribute('aria-expanded', String(open)); pl.hidden = !open;
+    if (open) pl.innerHTML = pageListHtml(s.host);
+    return;
+  }
   const tg = t.closest('[data-toggle]'); if (tg) { const k = tg.dataset.toggle; S.closed.has(k) ? S.closed.delete(k) : S.closed.add(k); saveUi(); tg.parentElement.classList.toggle('open'); tg.setAttribute('aria-expanded', String(!S.closed.has(k))); return; }
   const cp = t.closest('[data-copy]'); if (cp) { copy(uploadUrl(cp.dataset.copy), `${uploadUrl(cp.dataset.copy)} 복사됨`); return; }
   const se = t.closest('[data-seg-edit]'); if (se) { editSegment(se.dataset.segEdit); return; }
@@ -193,5 +216,6 @@ async function load() {
   if (!d || !d.ok) { $('hub').innerHTML = '<div class="empty">업체 현황을 불러올 수 없습니다. 잠시 후 새로고침해 주세요.</div>'; return; }
   S.data = d; renderStats(d.totals); renderHub();
 }
-showTab(location.hash.slice(1));
-load();
+initGroups();
+loadPages().then(refreshPages);
+load().then(refreshPages);

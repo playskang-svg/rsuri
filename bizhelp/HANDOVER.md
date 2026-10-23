@@ -14,7 +14,7 @@
 
 | 주소 | 정체 | 원본 |
 |---|---|---|
-| admin.suriwiki.com | 관리센터(로그인 없음): 업체·업로드 허브(수리위키 연동 상태 포함) · 제작 리포트, 업로드 페이지, API, 실시간 렌더 | `worker/admin.mjs`, `src/`, `wrangler.jsonc` |
+| admin.suriwiki.com | 관리센터(로그인 없음): 업체·업로드 허브 한 화면(페이지 목록·수리위키 연동 상태 포함), 업로드 페이지, API, 실시간 렌더 | `worker/admin.mjs`, `src/`, `wrangler.jsonc` |
 | admin.suriwiki.com/demo/ | 대시보드(`/`)로 302 (2026-10-23 로그인 폐지) | `worker/admin.mjs` |
 | admin.suriwiki.com/upload/<주소>/ | 업체용 관리 페이지(사진·연락처·지역 추가·템플릿) | `src/upload/index.html` |
 | <주소>.suriwiki.com | 키워드 사이트 8개 | `scripts/page-template.mjs` + 그룹 데이터 |
