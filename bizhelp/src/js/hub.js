@@ -1,7 +1,7 @@
 // 관리센터 한 화면(업체·업로드 허브). 2026-10-23 탭을 없애고 '제작 리포트'·'수리위키 연동'을 여기에 합쳤다.
 // 업체(=키워드 사이트)마다 업로드 현황·전후 사례·사이트 완성도를 카드로 보여 주고, 분류별로 묶고, 검색·정렬한다.
-// 카드 아래 '페이지' 버튼을 펼치면 그 사이트의 페이지 목록(pages.js)이 나온다.
-// 수리위키 본사이트 연동 상태는 상단 한 줄 + 카드 배지 + '연결 대기' 거르기로 보여 준다.
+// 카드 아래에 그 사이트의 페이지 목록(pages.js)이 펼쳐져 있고, '페이지' 버튼으로 접는다.
+// 수리위키 본사이트 연동 상태는 카드의 🔗 배지로만 보여 준다(상단 안내 줄·다음 할 일은 2026-10-23 운영자 결정으로 뺐다).
 // 데이터는 /api/hub 한 번으로 받는다. 그룹 만들기·수정·일괄 등록 버튼은 groups.js 의 [data-grp] 위임 핸들러가 처리한다.
 import { initGroups } from './groups.js';
 import { loadPages, pageSummary, pageListHtml } from './pages.js';
@@ -17,7 +17,7 @@ const toast = (msg) => { let t = $('hub-toast'); if (!t) { t = document.createEl
 const copy = (text, msg) => navigator.clipboard.writeText(text).then(() => toast(msg || '복사했습니다'), () => prompt('복사해서 쓰세요', text));
 const uploadUrl = (slug) => `${location.origin}/upload/${slug}/`;
 
-const S = { data: null, q: '', seg: '', sort: 'activity', need: '', closed: new Set(), openPages: new Set() };
+const S = { data: null, q: '', seg: '', sort: 'activity', closed: new Set(), shutPages: new Set() };
 try { S.closed = new Set(JSON.parse(localStorage.getItem('hub-closed') || '[]')); S.sort = localStorage.getItem('hub-sort') || S.sort; } catch (_) { /* 저장소 없음 */ }
 const saveUi = () => { try { localStorage.setItem('hub-closed', JSON.stringify([...S.closed])); localStorage.setItem('hub-sort', S.sort); } catch (_) { /* 저장소 없음 */ } };
 
@@ -28,33 +28,19 @@ function renderStats(t) {
     + st(bytes(t.bytes), '사용 용량') + st(num(t.cases), '전후 사례', `완성도 70%+ 사이트 ${t.ready}곳`);
 }
 
-// ── 다음 할 일: 체크리스트에서 비어 있는 항목을 사이트 수로 모아 보여 준다. 누르면 그 항목이 빠진 사이트만 거른다.
-// suriwiki.com 에 아직 연결되지 않은 사이트도 같은 방식으로 한 칩(SW_NEED)으로 보여 준다.
-const SW_NEED = 'suriwiki';
-const swPending = (s) => s.suriwiki === null;
-function renderTodo(sites) {
-  const m = new Map();
-  for (const s of sites) for (const c of s.checks) if (!c.ok) { const e = m.get(c.id) || { label: c.label, n: 0 }; e.n++; m.set(c.id, e); }
-  const sw = sites.filter(swPending).length;
-  if (sw) m.set(SW_NEED, { label: '수리위키 연결', n: sw });
-  const items = [...m.entries()].sort((a, b) => b[1].n - a[1].n);
-  if (!items.length) return '<div class="todo done">🎉 모든 사이트의 기본 항목이 채워졌습니다.</div>';
-  return `<div class="todo"><b class="todo-hd">📌 다음 할 일</b>${items.map(([id, e]) => `<button type="button" class="todo-chip${S.need === id ? ' on' : ''}" data-need="${id}">${esc(e.label)} 없음 <em>${e.n}곳</em></button>`).join('')}${S.need ? '<button type="button" class="todo-chip clear" data-need="">✕ 거르기 해제</button>' : ''}</div>`;
-}
-
 function ring(score) {
   const c = score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#dc2626';
   return `<div class="ring" style="--p:${score};--c:${c}" title="사이트 완성도 ${score}%"><span>${score}<small>%</small></span></div>`;
 }
 
-// ── 카드 속 페이지 목록(접힘). 펼친 카드는 다시 그려도 펼친 채로 둔다.
+// ── 카드 속 페이지 목록. 기본은 펼친 상태이고, 접은 카드는 다시 그려도 접힌 채로 둔다.
 function pagesLabel(s) {
   const sum = pageSummary(s.host);
   if (!sum) return '📄 페이지 목록';
   return `📄 페이지 <b>${num(sum.total)}</b>개${sum.fresh ? ` <em>🆕 이번 주 +${sum.fresh}</em>` : ''}`;
 }
 function pagesToggle(s) {
-  const open = S.openPages.has(s.slug);
+  const open = !S.shutPages.has(s.slug);
   return `<button type="button" class="hc-pages-btn" data-pages="${esc(s.slug)}" aria-expanded="${open}"><span>${pagesLabel(s)}</span><i aria-hidden="true">▾</i></button>
     <div class="hc-pages" data-pl="${esc(s.slug)}"${open ? '' : ' hidden'}>${open ? pageListHtml(s.host) : ''}</div>`;
 }
@@ -91,7 +77,7 @@ function card(s) {
         <a class="hb hb-p" href="/upload/${esc(s.slug)}/" target="_blank" rel="noopener">업로드 관리</a>
         <button type="button" class="hb" data-copy="${esc(s.slug)}" title="업체에 보낼 업로드 주소 복사">URL 복사</button>
         <a class="hb" href="https://${esc(s.host)}/" target="_blank" rel="noopener" title="키워드 사이트 열기">사이트 ↗</a>
-        <button type="button" class="hb" data-grp="edit" data-slug="${esc(s.slug)}" title="키워드·지역·내용 수정">수정</button>
+        <button type="button" class="hb" data-grp="edit" data-slug="${esc(s.slug)}" title="키워드·지역·내용 편집">편집</button>
       </div></div>
   </article>`;
 }
@@ -99,8 +85,7 @@ function card(s) {
 function filtered() {
   const q = S.q.trim().toLowerCase();
   let list = S.data.sites.filter((s) => (!q || `${s.main_keyword} ${s.company} ${s.host} ${s.segment}`.toLowerCase().includes(q))
-    && (!S.seg || (s.segment || UNSEG) === S.seg)
-    && (!S.need || (S.need === SW_NEED ? swPending(s) : s.checks.some((c) => c.id === S.need && !c.ok))));
+    && (!S.seg || (s.segment || UNSEG) === S.seg));
   const by = { activity: (a, b) => (b.last_activity || 0) - (a.last_activity || 0), score: (a, b) => a.score - b.score, files: (a, b) => b.files - a.files, name: (a, b) => a.main_keyword.localeCompare(b.main_keyword, 'ko') }[S.sort];
   return list.sort(by);
 }
@@ -128,19 +113,6 @@ function renderRecent(rec) {
   }).join('')}</div></section>`;
 }
 
-// ── 수리위키 본사이트 연동 한 줄: 관리센터 → suriwiki.com 빌드(매일 05:00 KST) → 키워드 사이트 푸터 링크
-function renderLinkBar(d) {
-  const sw = d.suriwiki || {};
-  const linked = d.sites.filter((s) => s.suriwiki).length;
-  const msg = sw.ok
-    ? `✅ suriwiki.com 연동 중 · 파트너 카드 ${linked}/${d.sites.length}곳 노출 · 마지막 본사이트 빌드 ${esc(sw.built_at ? new Date(sw.built_at).toLocaleString('ko-KR') : '시각 미상')}`
-    : '⏳ suriwiki.com 에 아직 partners.json 이 없습니다. 다음 본사이트 빌드(매일 05:00) 때 자동으로 연결됩니다.';
-  return `<div class="swbar"><p>${msg}</p><div class="swbar-act">
-    <a class="hb" href="https://suriwiki.com/#partners" target="_blank" rel="noopener">파트너 섹션 ↗</a>
-    <a class="hb" href="/api/export/partners" target="_blank" rel="noopener">내보내기 데이터</a>
-    <a class="hb" href="https://github.com/playskang-svg/rsuri/actions" target="_blank" rel="noopener">배포 현황 ↗</a></div></div>`;
-}
-
 function renderHub() {
   const d = S.data, segs = d.segments;
   const segChips = ['', ...segs, ...(d.sites.some((s) => !s.segment) ? [UNSEG] : [])].map((s) => `<button type="button" class="chip${S.seg === s ? ' on' : ''}" data-seg="${esc(s)}">${esc(s || '전체')}<em>${s ? d.sites.filter((x) => (x.segment || UNSEG) === s).length : d.sites.length}</em></button>`).join('');
@@ -149,9 +121,6 @@ function renderHub() {
       <div><h2>업로드 관리 바로가기</h2><p>업체마다 전용 업로드 주소가 있습니다. 주소를 보내면 업체가 휴대폰으로 사진·정보를 직접 올립니다.</p></div>
       <div class="quick-act"><button type="button" class="qb qb-p" data-grp="new">＋ 새 업체 사이트</button><button type="button" class="qb qb-o" data-grp="import">📥 키워드 일괄 등록</button><button type="button" class="qb qb-g" id="copy-all-urls">🔗 업로드 주소 전체 복사</button></div>
     </div>
-    ${d.noindex ? '<div class="rank-note">ℹ️ 키워드 사이트는 아직 검색 노출 차단(noindex) 상태입니다. 공개 전환은 registry/sites.json 의 noindex 값으로 결정합니다.</div>' : ''}
-    ${renderLinkBar(d)}
-    <div id="hub-todo">${renderTodo(d.sites)}</div>
     <div class="toolbar">
       <input type="search" id="hub-q" placeholder="업체·키워드·주소 검색" value="${esc(S.q)}" aria-label="업체 검색">
       <select id="hub-sort" aria-label="정렬">
@@ -194,12 +163,11 @@ $('hub').addEventListener('change', (e) => { if (e.target.id === 'hub-sort') { S
 $('hub').addEventListener('click', (e) => {
   const t = e.target;
   const seg = t.closest('[data-seg]'); if (seg) { S.seg = seg.dataset.seg; renderHub(); return; }
-  const need = t.closest('[data-need]'); if (need) { S.need = S.need === need.dataset.need ? '' : need.dataset.need; renderHub(); return; }
   const pb = t.closest('[data-pages]');
   if (pb) {
     const slug = pb.dataset.pages, s = S.data.sites.find((x) => x.slug === slug), pl = pb.nextElementSibling;
-    const open = !S.openPages.has(slug);
-    open ? S.openPages.add(slug) : S.openPages.delete(slug);
+    const open = S.shutPages.has(slug);
+    open ? S.shutPages.delete(slug) : S.shutPages.add(slug);
     pb.setAttribute('aria-expanded', String(open)); pl.hidden = !open;
     if (open) pl.innerHTML = pageListHtml(s.host);
     return;

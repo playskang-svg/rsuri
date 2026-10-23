@@ -29,7 +29,7 @@ async function openForm(slug) {
   if (slug) { const j = await api(`/api/groups/${slug}`); if (!j.ok) { alert(j.error || '불러오지 못했습니다'); return; } g = j.group; }
   const c = g.content || {};
   const regionBoxes = CATALOG.regions.map((r) => `<label class="gm-chip"><input type="checkbox" value="${esc(r.slug)}"${g.regions.includes(r.slug) ? ' checked' : ''}>${esc(r.name)}</label>`).join('');
-  const m = modal(`<div class="gm-hd"><h3>${slug ? '메인 키워드 그룹 수정' : '새 메인 키워드 그룹'}</h3><button type="button" class="gm-x" data-x aria-label="닫기">✕</button></div>
+  const m = modal(`<div class="gm-hd"><h3>${slug ? '메인 키워드 그룹 편집' : '새 메인 키워드 그룹'}</h3><button type="button" class="gm-x" data-x aria-label="닫기">✕</button></div>
   <p class="gm-note">그룹 하나 = 사이트 하나(분양 단위)입니다. 저장하면 <b>사이트 · 업로드 페이지 · 지역 페이지</b>가 같은 방식으로 함께 만들어집니다.</p>
   <div class="gm-body">
     <label>주소 이름 (영문 소문자·숫자·하이픈)<input id="gf-slug" maxlength="40" placeholder="예: baegwan-nusu" value="${esc(g.slug)}"${slug ? ' readonly' : ''}></label>
