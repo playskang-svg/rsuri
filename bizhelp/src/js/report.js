@@ -1,10 +1,9 @@
 // 사이트 제작 현황 리포트 렌더러.
-// 섹션 순서(고정): 카운트 카드 4종 → 유효키워드 목록 버튼/패널 → 저장·업로드 버튼 →
-//                 새로운 1위 → 검색 1위 → 사이트별 페이지 목록(카드 그리드)
+// 섹션 순서(고정): 카운트 카드 3종 → 사이트별 페이지 목록(카드 그리드)
 // 2026-10-23부터 로그인이 없어 둘러보기(읽기 전용) 모드도 없다. DEMO 분기는 남겨 두되 항상 꺼져 있다.
+// 2026-10-23 운영자 결정으로 네이버 순위(유효키워드·1위 키워드)는 관리센터에서 뺐다.
 const DEMO = false;
 const DATA_URL = '/api/report';
-const RANK_VALID = 30;
 
 const $app = document.getElementById('app');
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -43,35 +42,9 @@ function compute(data) {
   const dates = data.dates || [];
   const today = dates[0] || '';
   const keywords = data.keywords || [];
-  const rMap = new Map();
-  for (const r of data.ranks || []) {
-    if (!rMap.has(r.tracking_id)) rMap.set(r.tracking_id, new Map());
-    rMap.get(r.tracking_id).set(r.check_date, r.rank_position ? Number(r.rank_position) : null);
-  }
-  // 해당 날짜(포함) 이전 가장 최근 측정일의 순위. 순위 없음 = 탈락(null)
-  const rankAsOf = (kw, cut) => {
-    const m = rMap.get(kw.id);
-    if (!m) return null;
-    for (const d of dates) if (d <= cut && m.has(d)) return m.get(d);
-    return null;
-  };
-  const rows = keywords.map((kw) => ({ kw, r: rankAsOf(kw, '9999-12-31') }));
-  rows.sort((a, b) => (a.r || 999) - (b.r || 999) || a.kw.keyword.localeCompare(b.kw.keyword, 'ko'));
 
   const weekStart = mondayOf(today);
-  const prevCut = addDays(weekStart, -1);
-  const prevSun = addDays(prevCut, -7);
   const lastWeekStart = addDays(weekStart, -7);
-  const hasPrev = dates.some((d) => d <= prevCut);
-
-  const validAsOf = (cut) => {
-    if (!dates.some((d) => d <= cut)) return null;
-    return keywords.filter((kw) => { const r = rankAsOf(kw, cut); return r && r <= RANK_VALID; }).length;
-  };
-  const validNow = rows.filter((x) => x.r && x.r <= RANK_VALID);
-  const vPrev = hasPrev ? validAsOf(prevCut) : null;
-  const vPrevPrev = hasPrev ? validAsOf(prevSun) : null;
-  const validGain = vPrev == null || vPrevPrev == null ? null : vPrev - vPrevPrev;
 
   const pagesAll = (data.pages || []).filter((p) => isContentPage(p) || p.pending);
   const pages = pagesAll.filter((p) => !p.pending);
@@ -103,67 +76,26 @@ function compute(data) {
   const pwSites = siteNames.filter((s) => { const a = createdBySite.get(s) || ''; return a >= lastWeekStart && a < weekStart; }).length;
   const pwPages = pages.filter((p) => { const f = String(p.first_seen || '').slice(0, 10); return f >= lastWeekStart && f < weekStart; }).length;
 
-  // 새로운 1위: 지난주 끝엔 1위가 아니었는데 지금 1위. 주초에 비면 지난주 신규로 대체
-  const top = rows.filter((x) => x.r === 1);
-  let newKw = hasPrev ? top.filter((x) => rankAsOf(x.kw, prevCut) !== 1) : [];
-  let newLabel = '이번 주';
-  if (!newKw.length && top.length) {
-    newKw = keywords.map((kw) => ({ kw, r: rankAsOf(kw, prevCut) })).filter((x) => x.r === 1 && rankAsOf(x.kw, prevSun) !== 1)
-      .sort((a, b) => a.kw.keyword.localeCompare(b.kw.keyword, 'ko'));
-    newLabel = '지난 주';
-  }
   const siteUrl = (s) => (data.site_meta && data.site_meta[s] && data.site_meta[s].url) || `https://${s}`;
   const tplName = (s) => { const id = data.site_meta && data.site_meta[s] && data.site_meta[s].template; const t = (data.templates || []).find((x) => x.id === id); return t ? t.name : ''; };
-  return { siteUrl, tplName, dates, today, rows, validNow, validGain, vPrevPrev, weekStart, prevCut, mainCount, subCount, newSites, newPages, pwSites, pwPages,
-    top, newKw, newLabel, sitesMap, siteNames, createdBySite, kwOf, kwsOfSite, kwListOf, isNewPg, pagesCount: pages.length };
+  return { siteUrl, tplName, dates, today, weekStart, mainCount, subCount, newSites, newPages, pwSites, pwPages,
+    sitesMap, siteNames, createdBySite, kwOf, kwsOfSite, kwListOf, isNewPg, pagesCount: pages.length };
 }
 
 const wk = (pv) => `<span class="cc-wow-badge" title="지난주(월~일) +${pv}개 제작" style="color:${pv > 0 ? '#2563eb' : '#94a3b8'}">▲ +${pv}<span class="cc-wow-lbl">전주 제작</span></span>`;
-const gainBadge = (g) => g == null ? '<span class="cc-wow-nd">전주 데이터없음</span>'
-  : g < 0 ? '' : `<span class="cc-wow-badge" style="color:${g > 0 ? '#2563eb' : '#64748b'}">${g > 0 ? '▲' : '—'} +${g}<span class="cc-wow-lbl">전주 증가</span></span>`;
 
 function card(cls, icon, value, label, wow) {
   return `<div class="count-card ${cls}"><div class="cc-top"><div class="count-icon">${icon}</div>
     <div><span class="count-value">${value}</span><span class="count-unit">개</span></div>
     <div class="count-label">${label}</div></div><div class="cc-wow">${wow}</div></div>`;
 }
-const naverUrl = (q) => `https://search.naver.com/search.naver?query=${encodeURIComponent(q)}`;
-
 function renderCounts(c) {
   const total = c.mainCount + c.subCount;
   let h = '<div id="count-capture"><div class="count-grid">';
   h += card('main', '🌐', c.mainCount, '메인사이트', wk(c.pwSites));
   h += card('sub', '📄', c.subCount, '세부사이트', wk(c.pwPages));
   h += card('total', '📊', total, '총 제작 항목', wk(c.pwSites + c.pwPages));
-  h += card('naver', 'N', c.validNow.length, '네이버 유효키워드', gainBadge(c.validGain));
   return h + '</div></div>';
-}
-
-function renderValidList(c) {
-  if (!c.validNow.length) return '';
-  const items = c.validNow.map((x, i) => {
-    const col = x.r <= 3 ? '#dc2626' : x.r <= 10 ? '#ea580c' : '#2563eb';
-    return `<div class="nv-row"><span class="nv-idx">${i + 1}</span><span class="nv-kw">${esc(x.kw.keyword)}</span><span class="nv-site">${esc(x.kw.site)}</span><span class="nv-rank" style="color:${col}">${x.r}위</span></div>`;
-  }).join('');
-  return `<div class="btn-list-wrap"><button type="button" class="btn green" data-act="toggle-list">📋 유효키워드 ${c.validNow.length}개 목록 보기 ▼</button></div>
-    <div class="nv-box" id="nvListBox"><div class="nv-hd">🟢 네이버 순위 ${RANK_VALID}위 안에 든 키워드 ${c.validNow.length}개 (순위순)</div><div class="nv-scroll">${items}</div></div>`;
-}
-
-function renderTop1(c) {
-  if (!c.top.length) return '';
-  const chip = (x, isNew) => `<a class="top1-chip${isNew ? ' is-new' : ''}" href="${naverUrl(x.kw.keyword)}" target="_blank" rel="noopener">${esc(x.kw.keyword)}${isNew ? '<span class="kw-new">NEW</span>' : ''}</a>`;
-  const ids = new Set(c.newKw.map((x) => x.kw.id));
-  const old = c.top.filter((x) => !ids.has(x.kw.id));
-  let h = '';
-  if (c.newKw.length) {
-    h += `<div id="new1-capture"><div class="section-title">🆕 ${c.newLabel} 새로운 1위 키워드 <span class="top1-newcnt">${c.newKw.length} NEW</span></div>
-      <div class="top1-card new-card"><div class="top1-kws">${c.newKw.map((x) => chip(x, true)).join('')}</div></div></div>`;
-  }
-  if (old.length) {
-    h += `<div class="section-title">🥇 검색 1위 키워드</div><div class="top1-card"><div class="top1-head">🥇 <b>${c.top.length}</b><span>개 · 네이버 검색 1위</span></div>
-      <div class="top1-kws">${old.map((x) => chip(x, false)).join('')}</div></div>`;
-  }
-  return h;
 }
 
 // 라벨: 페이지 H1(문장형이면 앞 핵심부), 없으면 타깃 키워드
@@ -212,23 +144,6 @@ function renderSites(c) {
   return h + '</div>';
 }
 
-function wire() {
-  $app.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-act]');
-    if (!b) return;
-    if (b.dataset.act === 'toggle-list') document.getElementById('nvListBox')?.classList.toggle('open');
-  });
-}
-
-// 순위 수집 상태 안내(실제 상태만 보여 준다)
-function renderNotice(st) {
-  if (!st) return '';
-  const msg = !st.configured ? '네이버 순위 수집이 아직 설정되지 않았습니다(API 키 등록 필요). 키를 등록하기 전까지 순위·유효키워드는 0으로 표시됩니다.'
-    : st.noindex ? `네이버 순위를 매일 수집합니다(마지막 측정 ${st.last_check || '아직 없음'}, 오늘 ${st.checked_today}/${st.total}). 키워드 사이트가 검색 노출 차단 상태라 공개 전환 후에 순위가 잡힙니다.`
-    : `네이버 순위를 매일 수집합니다(마지막 측정 ${st.last_check || '아직 없음'}, 오늘 ${st.checked_today}/${st.total}).`;
-  return `<div class="rank-note">ℹ️ ${esc(msg)}</div>`;
-}
-
 async function start() {
   let data;
   try {
@@ -237,8 +152,7 @@ async function start() {
   if (!data || !data.success) { $app.innerHTML = '<div class="empty">데이터를 불러올 수 없습니다.</div>'; return; }
   document.getElementById('hero-biz').textContent = data.business_name || '';
   const c = compute(data);
-  $app.innerHTML = renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderTop1(c) + renderSites(c);
-  wire();
+  $app.innerHTML = renderCounts(c) + renderSites(c);
   window.__report = c; // 점검용
 }
 import { initGroups } from './groups.js';

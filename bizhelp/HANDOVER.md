@@ -14,7 +14,7 @@
 
 | 주소 | 정체 | 원본 |
 |---|---|---|
-| admin.suriwiki.com | 관리센터(로그인 없음): 업체·업로드 허브 · 제작 리포트 · 수리위키 연동, 업로드 페이지, API, 실시간 렌더 | `worker/admin.mjs`, `src/`, `wrangler.jsonc` |
+| admin.suriwiki.com | 관리센터(로그인 없음): 업체·업로드 허브(수리위키 연동 상태 포함) · 제작 리포트, 업로드 페이지, API, 실시간 렌더 | `worker/admin.mjs`, `src/`, `wrangler.jsonc` |
 | admin.suriwiki.com/demo/ | 대시보드(`/`)로 302 (2026-10-23 로그인 폐지) | `worker/admin.mjs` |
 | admin.suriwiki.com/upload/<주소>/ | 업체용 관리 페이지(사진·연락처·지역 추가·템플릿) | `src/upload/index.html` |
 | <주소>.suriwiki.com | 키워드 사이트 8개 | `scripts/page-template.mjs` + 그룹 데이터 |
@@ -23,7 +23,7 @@
 
 워커는 2개다.
 
-- **bizhelp-admin** (`worker/admin.mjs`): D1 `suriwiki-admin`(바인딩 `DB`), 30분 cron(네이버 순위 수집), 정적 에셋 `dist/`.
+- **bizhelp-admin** (`worker/admin.mjs`): D1 `suriwiki-admin`(바인딩 `DB`), 정적 에셋 `dist/`. cron 없음(네이버 순위 수집은 2026-10-23 제거).
 - **suriwiki-keyword-sites** (`worker/sites.mjs`, 설정은 빌드가 생성하는 `wrangler.sites.generated.jsonc`): 호스트 → `/s/<주소>/…` 정적 에셋. 서비스 바인딩 `ADMIN`으로 지역 목록이 배포본과 다르면 관리자 실시간 렌더로 대신 응답(관리자 무응답 시 정적 페이지로 복귀). 다른 존 도메인은 `FIXED = { 'make.bizhelp.kr': 'make' }`.
 
 도메인은 호스트마다 **개별 커스텀 도메인**이다. 와일드카드 라우트·DNS는 쓰지 않는다(기존 서브도메인을 가로챈 사고가 있었다). 배포 워크플로가 먼저 호스트 충돌을 검사한다.
@@ -56,7 +56,8 @@
 | `license` | 사업자등록증(OCR 텍스트는 사이트로 내보내지 않음) |
 | `ba_photos`, `ba_captions`, `region_intro` | 전후 사진·설명·지역 소개 |
 | `memos` | 업로드 페이지 메모 |
-| `page_seen`, `rank_log` | 리포트용 첫 발견일·네이버 순위 |
+| `page_seen` | 리포트용 첫 발견일 |
+| `rank_log` | 예전 네이버 순위 기록(2026-10-23부터 쓰지 않음, 보관만) |
 | `shares` | 리포트 이미지 공유(화면 버튼은 제거 예정, 아래 7장) |
 | `kv` | 잡다한 키값(예: 마지막 배포 요청 시각) |
 
@@ -89,7 +90,7 @@ npm run seo                   # 빌드 결과 SEO 점검. 문제 0건이어야 �
 | 이름 | 종류 | 상태 | 용도 |
 |---|---|---|---|
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Secret | 등록됨 | 배포 |
-| `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` | Secret | 선택 | 네이버 검색 API 순위 수집 |
+| `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` | Secret | 폐지(2026-10-23) | 네이버 순위 수집을 없애 쓰지 않는다 |
 | `ADMIN_PASSWORD`, `SESSION_SECRET` | Secret | 폐지(2026-10-23) | 로그인을 없애 쓰지 않는다 |
 | `GH_DISPATCH_TOKEN` | Secret | 선택(현재 화면에서 안 씀) | 예전 '지금 반영' 버튼용 |
 | `SEO_NAVER_VERIFY`, `SEO_GOOGLE_VERIFY` | Variable | **미등록** | 검색엔진 소유확인 메타 태그 |

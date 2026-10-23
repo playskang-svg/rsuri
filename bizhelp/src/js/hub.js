@@ -1,5 +1,6 @@
-// 업체·업로드 허브 + 탭 전환 + 수리위키 연동 화면.
+// 업체·업로드 허브 + 탭 전환.
 // 허브: 업체(=키워드 사이트)마다 업로드 현황·전후 사례·사이트 완성도를 카드로 보여 주고, 분류별로 묶고, 검색·정렬한다.
+// 수리위키 본사이트 연동 상태도 허브 상단 한 줄 + 카드 배지 + '연결 대기' 거르기로 보여 준다(예전 '수리위키 연동' 탭을 합쳤다).
 // 데이터는 /api/hub 한 번으로 받는다. 그룹 만들기·수정·일괄 등록 버튼은 groups.js 의 [data-grp] 위임 핸들러가 처리한다.
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -17,13 +18,12 @@ const S = { data: null, q: '', seg: '', sort: 'activity', need: '', closed: new 
 try { S.closed = new Set(JSON.parse(localStorage.getItem('hub-closed') || '[]')); S.sort = localStorage.getItem('hub-sort') || S.sort; } catch (_) { /* 저장소 없음 */ }
 const saveUi = () => { try { localStorage.setItem('hub-closed', JSON.stringify([...S.closed])); localStorage.setItem('hub-sort', S.sort); } catch (_) { /* 저장소 없음 */ } };
 
-// ── 탭: #hub(기본) · #report · #link
+// ── 탭: #hub(기본) · #report. 예전 #link 주소는 허브로 연다.
 function showTab(tab) {
-  if (!['hub', 'report', 'link'].includes(tab)) tab = 'hub';
+  if (!['hub', 'report'].includes(tab)) tab = 'hub';
   document.querySelectorAll('.tb-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
   document.querySelectorAll('.pane').forEach((p) => { p.hidden = p.dataset.pane !== tab; });
   window.dispatchEvent(new CustomEvent('sw:tab', { detail: tab }));
-  if (tab === 'link') renderLink();
 }
 document.querySelector('.tb-tabs').addEventListener('click', (e) => { const b = e.target.closest('.tb-tab'); if (!b) return; history.replaceState(null, '', b.dataset.tab === 'hub' ? location.pathname : `#${b.dataset.tab}`); showTab(b.dataset.tab); });
 window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
@@ -36,9 +36,14 @@ function renderStats(t) {
 }
 
 // ── 다음 할 일: 체크리스트에서 비어 있는 항목을 사이트 수로 모아 보여 준다. 누르면 그 항목이 빠진 사이트만 거른다.
+// suriwiki.com 에 아직 연결되지 않은 사이트도 같은 방식으로 한 칩(SW_NEED)으로 보여 준다.
+const SW_NEED = 'suriwiki';
+const swPending = (s) => s.suriwiki === null;
 function renderTodo(sites) {
   const m = new Map();
   for (const s of sites) for (const c of s.checks) if (!c.ok) { const e = m.get(c.id) || { label: c.label, n: 0 }; e.n++; m.set(c.id, e); }
+  const sw = sites.filter(swPending).length;
+  if (sw) m.set(SW_NEED, { label: '수리위키 연결', n: sw });
   const items = [...m.entries()].sort((a, b) => b[1].n - a[1].n);
   if (!items.length) return '<div class="todo done">🎉 모든 사이트의 기본 항목이 채워졌습니다.</div>';
   return `<div class="todo"><b class="todo-hd">📌 다음 할 일</b>${items.map(([id, e]) => `<button type="button" class="todo-chip${S.need === id ? ' on' : ''}" data-need="${id}">${esc(e.label)} 없음 <em>${e.n}곳</em></button>`).join('')}${S.need ? '<button type="button" class="todo-chip clear" data-need="">✕ 거르기 해제</button>' : ''}</div>`;
@@ -80,7 +85,8 @@ function card(s) {
 function filtered() {
   const q = S.q.trim().toLowerCase();
   let list = S.data.sites.filter((s) => (!q || `${s.main_keyword} ${s.company} ${s.host} ${s.segment}`.toLowerCase().includes(q))
-    && (!S.seg || (s.segment || UNSEG) === S.seg) && (!S.need || s.checks.some((c) => c.id === S.need && !c.ok)));
+    && (!S.seg || (s.segment || UNSEG) === S.seg)
+    && (!S.need || (S.need === SW_NEED ? swPending(s) : s.checks.some((c) => c.id === S.need && !c.ok))));
   const by = { activity: (a, b) => (b.last_activity || 0) - (a.last_activity || 0), score: (a, b) => a.score - b.score, files: (a, b) => b.files - a.files, name: (a, b) => a.main_keyword.localeCompare(b.main_keyword, 'ko') }[S.sort];
   return list.sort(by);
 }
@@ -108,6 +114,19 @@ function renderRecent(rec) {
   }).join('')}</div></section>`;
 }
 
+// ── 수리위키 본사이트 연동 한 줄: 관리센터 → suriwiki.com 빌드(매일 05:00 KST) → 키워드 사이트 푸터 링크
+function renderLinkBar(d) {
+  const sw = d.suriwiki || {};
+  const linked = d.sites.filter((s) => s.suriwiki).length;
+  const msg = sw.ok
+    ? `✅ suriwiki.com 연동 중 · 파트너 카드 ${linked}/${d.sites.length}곳 노출 · 마지막 본사이트 빌드 ${esc(sw.built_at ? new Date(sw.built_at).toLocaleString('ko-KR') : '시각 미상')}`
+    : '⏳ suriwiki.com 에 아직 partners.json 이 없습니다. 다음 본사이트 빌드(매일 05:00) 때 자동으로 연결됩니다.';
+  return `<div class="swbar"><p>${msg}</p><div class="swbar-act">
+    <a class="hb" href="https://suriwiki.com/#partners" target="_blank" rel="noopener">파트너 섹션 ↗</a>
+    <a class="hb" href="/api/export/partners" target="_blank" rel="noopener">내보내기 데이터</a>
+    <a class="hb" href="https://github.com/playskang-svg/rsuri/actions" target="_blank" rel="noopener">배포 현황 ↗</a></div></div>`;
+}
+
 function renderHub() {
   const d = S.data, segs = d.segments;
   const segChips = ['', ...segs, ...(d.sites.some((s) => !s.segment) ? [UNSEG] : [])].map((s) => `<button type="button" class="chip${S.seg === s ? ' on' : ''}" data-seg="${esc(s)}">${esc(s || '전체')}<em>${s ? d.sites.filter((x) => (x.segment || UNSEG) === s).length : d.sites.length}</em></button>`).join('');
@@ -117,6 +136,7 @@ function renderHub() {
       <div class="quick-act"><button type="button" class="qb qb-p" data-grp="new">＋ 새 업체 사이트</button><button type="button" class="qb qb-o" data-grp="import">📥 키워드 일괄 등록</button><button type="button" class="qb qb-g" id="copy-all-urls">🔗 업로드 주소 전체 복사</button></div>
     </div>
     ${d.noindex ? '<div class="rank-note">ℹ️ 키워드 사이트는 아직 검색 노출 차단(noindex) 상태입니다. 공개 전환은 registry/sites.json 의 noindex 값으로 결정합니다.</div>' : ''}
+    ${renderLinkBar(d)}
     <div id="hub-todo">${renderTodo(d.sites)}</div>
     <div class="toolbar">
       <input type="search" id="hub-q" placeholder="업체·키워드·주소 검색" value="${esc(S.q)}" aria-label="업체 검색">
@@ -167,31 +187,11 @@ $('hub').addEventListener('click', (e) => {
   if (t.closest('#copy-all-urls')) { const l = filtered(); copy(l.map((s) => `${s.main_keyword}${s.company ? ` (${s.company})` : ''}: ${uploadUrl(s.slug)}`).join('\n'), `업로드 주소 ${l.length}개 복사됨`); }
 });
 
-// ── 수리위키 연동 화면: 데이터가 어떻게 오가는지와 사이트별 연결 상태
-function renderLink() {
-  const d = S.data; if (!d) return;
-  const sw = d.suriwiki || {};
-  const rows = d.sites.map((s) => `<tr><td><b>${esc(s.main_keyword)}</b><br><span class="mono">${esc(s.host)}</span></td>
-    <td>${s.suriwiki ? `<a href="https://suriwiki.com${esc(s.suriwiki.path)}" target="_blank" rel="noopener">${esc(s.suriwiki.name)} ↗</a>` : s.suriwiki === null ? '<span class="muted">다음 빌드 때 연결</span>' : '<span class="muted">확인 불가</span>'}</td>
-    <td>${s.score}%</td><td><a href="/upload/${esc(s.slug)}/" target="_blank" rel="noopener">업로드</a> · <a href="https://${esc(s.host)}/" target="_blank" rel="noopener">사이트</a></td></tr>`).join('');
-  $('link').innerHTML = `
-    <div class="sec-hd"><h2>수리위키 본사이트 연동</h2><span>관리센터 ↔ suriwiki.com ↔ 키워드 사이트</span></div>
-    <div class="flow3">
-      <div class="f3"><b>① 관리센터</b><span>업체·키워드·지역·사진을 여기서 관리</span><code>/api/export/partners</code></div><i aria-hidden="true">→</i>
-      <div class="f3"><b>② suriwiki.com 빌드</b><span>매일 05:00 KST 파트너 목록을 읽어 홈·분야 페이지에 '지역 전문 파트너' 카드로 노출</span><code>partners.json 생성</code></div><i aria-hidden="true">→</i>
-      <div class="f3"><b>③ 키워드 사이트</b><span>&lt;주소&gt;.suriwiki.com 각 사이트 푸터에서 수리위키 본사이트로 연결</span><code>상호 링크</code></div>
-    </div>
-    <div class="rank-note">${sw.ok ? `✅ suriwiki.com 연결 확인됨 — 마지막 본사이트 빌드 ${esc(sw.built_at ? new Date(sw.built_at).toLocaleString('ko-KR') : '시각 미상')}` : '⏳ suriwiki.com 에 아직 partners.json 이 없습니다. 이번 변경이 본사이트에 배포되면 자동으로 연결됩니다.'}</div>
-    <div class="quick-act" style="margin:14px 0"><a class="qb qb-p" href="https://suriwiki.com/#partners" target="_blank" rel="noopener">suriwiki.com 파트너 섹션 ↗</a><a class="qb qb-o" href="/api/export/partners" target="_blank" rel="noopener">내보내기 데이터 보기</a><a class="qb qb-g" href="https://github.com/playskang-svg/rsuri/actions" target="_blank" rel="noopener">배포 현황(GitHub Actions) ↗</a></div>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>키워드 사이트</th><th>suriwiki.com 연결 페이지</th><th>완성도</th><th>바로가기</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-}
-
 async function load() {
   let d;
   try { d = await fetch('/api/hub', { cache: 'no-store' }).then((r) => r.json()); } catch (_) { d = null; }
   if (!d || !d.ok) { $('hub').innerHTML = '<div class="empty">업체 현황을 불러올 수 없습니다. 잠시 후 새로고침해 주세요.</div>'; return; }
   S.data = d; renderStats(d.totals); renderHub();
-  if (!$('pane-link').hidden) renderLink();
 }
 showTab(location.hash.slice(1));
 load();
