@@ -198,7 +198,8 @@ if (existsSync('promo/make/index.html') && existsSync('promo/index.html')) {
   writeFileSync('dist-sites/s/make/sitemap.xml', sitemapXml('make.bizhelp.kr', ['/']));
   for (const f of readdirSync('promo/make/img')) cpSync(`promo/make/img/${f}`, `dist-sites/s/make/img/${f}`);
   writeFileSync('dist-sites/s/make/robots.txt', robotsTxt('make.bizhelp.kr'));
-  hosts.push('make.bizhelp.kr');
+  // 2026-10-20부터 make.bizhelp.kr 은 별도 저장소(make.bizhelp)의 'make-bizhelp' 워커가 서비스한다.
+  // 여기서 도메인을 다시 붙이면 배포 전 호스트 충돌 검사에서 막히므로 hosts 에 넣지 않는다(페이지는 참고용으로만 빌드).
 }
 
 writeFileSync('wrangler.sites.generated.jsonc', JSON.stringify({
