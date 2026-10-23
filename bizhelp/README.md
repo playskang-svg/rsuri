@@ -99,14 +99,25 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - API: `POST /api/groups/import {rows, apply, auto_regions}`, `POST /api/regions {name, slug?}`. 빌드는 `/api/export/groups`에서 그룹과 추가 지역을 함께 읽는다
 - 등록하면 저장만 된다. 반영은 다음 정기 배포(매일 05:00 KST) 때
 
-## 대시보드 로그인
-- 대시보드(`/`)와 관리 API(report·groups·regions·deploy·share)는 로그인해야 열린다. 비밀번호 하나, 세션은 서명된 쿠키 7일, 5회 틀리면 10분 잠금. 오른쪽 위 '로그아웃'
-- 업로드 페이지(`/upload/<주소>`)와 그 API, 사이트 빌드용 내보내기(`/api/export/*`), 공유 이미지(`/share/*`)는 열려 있다. 업로드 페이지 로그인은 분양 시점에 따로 만든다
-- 기본 비밀번호는 코드에 해시로만 들어 있다. 바꾸려면 GitHub 시크릿 `ADMIN_PASSWORD`(선택: `SESSION_SECRET`)를 등록하면 다음 배포 때 워커 시크릿으로 올라가고 그 값이 우선한다
+## 관리센터 (로그인 없음)
+- 2026-10-23 운영자 결정으로 비밀번호 로그인을 없앴다. 대시보드(`/`)·관리 API·업로드 페이지 모두 주소만으로 열린다. 검색 노출은 noindex 헤더로 막는다. 접근 통제가 다시 필요하면 `worker/admin.mjs`의 `authorize()` 한 곳에 Cloudflare Access 검증을 넣는다
+- 예전 둘러보기 주소 `/demo/`는 대시보드(`/`)로 302 보낸다. `ADMIN_PASSWORD`·`SESSION_SECRET` 시크릿은 더 이상 쓰지 않는다
+- 화면은 탭 3개: **업체·업로드 허브**(기본) · **제작 리포트**(`#report`, 예전 대시보드) · **수리위키 연동**(`#link`)
 
-## 둘러보기 대시보드 · 홍보 페이지
+## 업체·업로드 허브 (`/api/hub`)
+- in.koreazib.com 업로드 관리 시스템을 참고해, 업체(=키워드 사이트)별 파일·사진·영상·용량을 모아 보는 화면. 차별점: 사이트 완성도(7항목 체크리스트)·'다음 할 일'(빠진 항목별 사이트 수, 누르면 거르기)·최근 업로드 썸네일·수리위키 연결 배지
+- 분류(내부팀·외부업체·파트너 등)는 `groups.segment` 열. 카드의 🏷 배지로 바꾸고(`PUT /api/groups/<주소>/segment`), 분류별로 접었다 펼친다. 사이트 내용에는 영향이 없다
+- 완성도 7항목: 대표 전화번호 · 상호·대표자 · 사업자등록증 · 전후 사례 2건+ · 현장 사진 10장+ · 채널 링크 1개+ · 지역 소개 문구. 업로드 페이지 상단에도 같은 기준으로 보인다
+- 업로드 페이지 추가 기능: 시공사례 빠른 등록(제목 → 사진 담기 → 사진마다 전/후 → 빈 작업 사례 칸 + 사진 설명, 남은 사진은 같은 제목 묶음으로 보관), 메모 제자리 수정(`PUT memos/<id>`), 전체 선택·선택 삭제(`POST files/delete`)
 
-- `https://admin.suriwiki.com/demo/` — 로그인 없이 보는 읽기 전용 대시보드. 같은 `index.html`에 `window.SW_DEMO=1`을 넣어 서빙하고, 데이터는 `/api/demo/report`(읽기 전용, 관리 API 아님)에서 읽는다. 그룹 생성·수정·일괄 등록·지금 반영·이미지 공유·로그아웃 버튼은 만들지 않는다.
+## 수리위키 본사이트 연동
+- 관리센터 `/api/export/partners` → 루트 `scripts/build-partners.mjs`(suriwiki.com 빌드 단계) → `web/lib/partners.json`·`web/public/partners.json`(커밋 안 함). 관리센터 응답이 없으면 `registry/sites.json`으로 대신한다
+- suriwiki.com 홈 '공종별 지역 전문 사이트'(`#partners`)와 분야 페이지(`/category/<분야>`)에 카드로 노출. 키워드 사이트가 noindex인 동안 링크는 `rel="nofollow"`
+- 분야 매칭은 메인 키워드 규칙(`RULES`): 필름→필름 시공, 도배·벽지→보수도배, 장판·마루→마루, 문틀·문턱·계단·문 순. 맞는 분야가 없으면 홈에만 나온다
+- 관리센터가 `https://suriwiki.com/partners.json`을 다시 읽어 카드마다 연결 페이지를 보여 준다. 키워드 사이트 푸터에는 suriwiki.com 링크가 붙는다
+
+## 홍보 페이지
+
 - `https://builder.suriwiki.com/` — 사이트빌더 홍보 페이지. 원본은 `promo/index.html`, 빌드가 `{{SITES}}`·`{{PAGES}}`·`{{REGIONS}}`·`{{TEMPLATES}}`·`{{CASES}}`·`{{MARQUEE}}`·`{{TEMPLATE_ROWS}}`를 배포 시점의 실제 값으로 채워 `dist-sites/s/builder/`에 쓴다(추측 수치 없음). 후기 섹션(`{{REVIEWS}}`)은 `promo/reviews.json`에 실제 후기(`{name, rating 1~5, text, keyword?, date?}`)가 있을 때만 생성된다. `builder`는 그룹 주소 이름으로 예약.
 
 ## 지역 페이지 만들기 (업체가 직접)

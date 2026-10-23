@@ -47,6 +47,7 @@ async function ensureSchema(db) {
   ]);
   for (const col of ['company', 'ceo', 'regno', 'address', 'kakao', 'services', 'instagram', 'threads', 'website', 'hours']) { try { await db.prepare(`ALTER TABLE profile ADD COLUMN ${col} TEXT`).run(); } catch (_) { /* 이미 있음 */ } }
   try { await db.prepare('ALTER TABLE groups ADD COLUMN template TEXT').run(); } catch (_) { /* 이미 있음 */ }
+  try { await db.prepare('ALTER TABLE groups ADD COLUMN segment TEXT').run(); } catch (_) { /* 이미 있음 */ }
   await seedGroups(db);
   schemaReady = true;
 }
@@ -88,7 +89,7 @@ async function seedGroups(db) {
   const now = Date.now();
   await db.batch(registryToGroups(REGISTRY).map((g) => db.prepare('INSERT OR IGNORE INTO groups (slug, main_keyword, en, subs, regions, content, status, created_at, updated_at, template) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(g.slug, g.main_keyword, g.en, JSON.stringify(g.subs), JSON.stringify(g.regions), JSON.stringify(g.content || {}), 'active', now, now, g.template || DEFAULT_TEMPLATE)));
 }
-const shapeGroup = (r) => ({ slug: r.slug, main_keyword: r.main_keyword, en: r.en || '', subs: JSON.parse(r.subs || '[]'), regions: JSON.parse(r.regions || '[]'), content: JSON.parse(r.content || '{}'), status: r.status, created_at: r.created_at, updated_at: r.updated_at, template: TEMPLATES[r.template] ? r.template : DEFAULT_TEMPLATE });
+const shapeGroup = (r) => ({ slug: r.slug, main_keyword: r.main_keyword, en: r.en || '', subs: JSON.parse(r.subs || '[]'), regions: JSON.parse(r.regions || '[]'), content: JSON.parse(r.content || '{}'), status: r.status, created_at: r.created_at, updated_at: r.updated_at, template: TEMPLATES[r.template] ? r.template : DEFAULT_TEMPLATE, segment: r.segment || '' });
 // 추가 지역을 먼저 읽어 카탈로그에 반영한 뒤 그룹을 읽는다(그룹이 쓰는 지역 주소를 풀려면 필요)
 const loadGroups = async (db) => { setExtraRegions((await db.prepare('SELECT slug, name FROM regions_extra').all()).results); return (await db.prepare("SELECT * FROM groups WHERE status='active' ORDER BY created_at, slug").all()).results.map(shapeGroup); };
 const getGroup = async (db, slug) => (await loadGroups(db)).find((g) => g.slug === slug) || null;
@@ -193,43 +194,73 @@ async function readShare(env, id) {
   return new Response(b64dec(row.data), { headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=31536000, immutable', 'x-robots-tag': 'noindex' } });
 }
 
-// ── 대시보드 로그인: 비밀번호 하나(기본값은 코드에 해시로만 둔다). 워커 시크릿 ADMIN_PASSWORD(또는 ADMIN_PASSWORD_HASH)를 등록하면 그 값이 우선한다.
-//    세션은 서명된 쿠키(7일). 대시보드(/)와 관리 API(report·groups·regions·deploy·share)만 보호하고, 업로드 페이지와 사이트 빌드용 내보내기는 열려 있다.
-const DEFAULT_ADMIN_HASH = '8aa65ead2de522e1fd71426b4774bbb5f8f1ca8947e95081d74de0ba79b72083';
-const ADMIN_API = /^\/api\/(report|groups|regions|deploy|share)(\/|$)/;
-const enc = new TextEncoder();
-const toHex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
-const sha256Hex = async (str) => toHex(await crypto.subtle.digest('SHA-256', enc.encode(str)));
-const adminHash = async (env) => (env.ADMIN_PASSWORD ? sha256Hex(`suriwiki-admin:${env.ADMIN_PASSWORD}`) : String(env.ADMIN_PASSWORD_HASH || DEFAULT_ADMIN_HASH).toLowerCase());
-const hmacHex = async (key, msg) => { const k = await crypto.subtle.importKey('raw', enc.encode(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']); return toHex(await crypto.subtle.sign('HMAC', k, enc.encode(msg))); };
-const safeEq = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
-const sessionKey = async (env) => String(env.SESSION_SECRET || (await adminHash(env)));
-async function makeSession(env) { const exp = Date.now() + 7 * 864e5; return `${exp}.${await hmacHex(await sessionKey(env), String(exp))}`; }
-async function isAdmin(request, env) {
-  const m = /(?:^|;\s*)admin_session=(\d+)\.([0-9a-f]{64})/.exec(request.headers.get('cookie') || '');
-  if (!m || Number(m[1]) < Date.now()) return false;
-  return safeEq(m[2], await hmacHex(await sessionKey(env), m[1]));
+// ── 대시보드 접근: 2026-10-23 운영자 결정으로 비밀번호 로그인을 없앴다. 대시보드·관리 API·업로드 페이지 모두 주소만으로 열린다.
+//    검색 노출은 noindex 헤더로 막는다. 접근 통제가 다시 필요하면 authorize() 한 곳에 Cloudflare Access 검증을 넣는다.
+
+// ── 업체·업로드 허브: 사이트(=업체)마다 파일·사진·영상·용량, 전후 사례, 사이트 완성도(체크리스트), 최근 업로드를 한 번에 모은다.
+//    수리위키 본사이트가 빌드 때 만든 partners.json을 읽어, 각 사이트가 suriwiki.com 어느 분야 페이지에 연결됐는지도 함께 돌려준다.
+const SURIWIKI_PARTNERS = 'https://suriwiki.com/partners.json';
+async function suriwikiLinks() {
+  try {
+    const r = await fetch(SURIWIKI_PARTNERS, { cf: { cacheTtl: 300 }, signal: AbortSignal.timeout(1500) });
+    if (!r.ok) return { ok: false, status: r.status };
+    const j = await r.json();
+    return { ok: true, built_at: j.built_at || '', links: Object.fromEntries((j.partners || []).map((p) => [p.slug, p.hub || null])) };
+  } catch (_) { return { ok: false }; }
 }
-const cookie = (url, value, maxAge) => `admin_session=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${url.protocol === 'https:' ? '; Secure' : ''}`;
-async function login(request, env, url) {
-  const ip = request.headers.get('cf-connecting-ip') || 'local', key = `login_fail:${ip}`, now = Date.now();
-  const [cnt, ts] = String((await env.DB.prepare('SELECT v FROM kv WHERE k=?').bind(key).first())?.v || '0|0').split('|').map(Number);
-  if (cnt >= 5 && now - ts < 10 * 60e3) return json({ ok: false, error: '시도가 너무 많습니다. 10분 뒤에 다시 시도하세요.' }, 429);
-  const b = await request.json().catch(() => ({}));
-  const ok = typeof b.password === 'string' && b.password.length > 0 && safeEq(await sha256Hex(`suriwiki-admin:${b.password}`), await adminHash(env));
-  if (!ok) { await env.DB.prepare('INSERT OR REPLACE INTO kv (k, v) VALUES (?,?)').bind(key, `${now - ts < 10 * 60e3 ? cnt + 1 : 1}|${now}`).run(); return json({ ok: false, error: '비밀번호가 맞지 않습니다.' }, 401); }
-  await env.DB.prepare('DELETE FROM kv WHERE k=?').bind(key).run();
-  const res = json({ ok: true }); res.headers.append('set-cookie', cookie(url, await makeSession(env), 7 * 86400)); return res;
+async function buildHub(env) {
+  const db = env.DB;
+  const [groups, files, ba, pairs, memos, lics, profiles, intros, recent, link] = await Promise.all([
+    loadGroups(db),
+    db.prepare("SELECT slug, COUNT(*) n, SUM(CASE WHEN type LIKE 'image/%' THEN 1 ELSE 0 END) img, SUM(CASE WHEN type LIKE 'video/%' THEN 1 ELSE 0 END) vid, SUM(size) bytes, COUNT(DISTINCT category) cats, MAX(created_at) last FROM files GROUP BY slug").all(),
+    db.prepare('SELECT slug, COUNT(*) n, SUM(size) bytes, MAX(updated_at) last FROM ba_photos GROUP BY slug').all(),
+    db.prepare('SELECT slug, COUNT(*) n FROM (SELECT slug, region, slot FROM ba_photos GROUP BY slug, region, slot HAVING COUNT(DISTINCT phase) = 2) GROUP BY slug').all(),
+    db.prepare('SELECT slug, COUNT(*) n, MAX(created_at) last FROM memos GROUP BY slug').all(),
+    db.prepare('SELECT slug, size, updated_at FROM license').all(),
+    db.prepare(`SELECT slug, ${PROFILE_COLS}, updated_at FROM profile`).all(),
+    db.prepare('SELECT slug, COUNT(*) n FROM region_intro GROUP BY slug').all(),
+    db.prepare('SELECT id, slug, name, type, size, category, created_at FROM files ORDER BY created_at DESC LIMIT 18').all(),
+    suriwikiLinks(),
+  ]);
+  const by = (rows) => new Map(rows.results.map((r) => [r.slug, r]));
+  const F = by(files), B = by(ba), P = by(pairs), M = by(memos), L = by(lics), PR = by(profiles), I = by(intros);
+  const sites = groups.map((g) => {
+    const f = F.get(g.slug) || {}, b = B.get(g.slug) || {}, pr = PR.get(g.slug) || {}, lic = L.get(g.slug), m = M.get(g.slug) || {};
+    const casePairs = (P.get(g.slug) || {}).n || 0;
+    const channels = ['kakao', 'blog', 'youtube', 'instagram', 'threads', 'website'].filter((k) => pr[k]).length;
+    // 완성도: 사이트에 실제로 드러나는 것 위주로 7항목. 하나씩 채울수록 '업체 고유 사이트'에 가까워진다.
+    const checks = [
+      { id: 'phone', label: '대표 전화번호', ok: !!pr.phone },
+      { id: 'biz', label: '상호·대표자', ok: !!(pr.company && pr.ceo) },
+      { id: 'license', label: '사업자등록증', ok: !!lic },
+      { id: 'cases', label: '전후 사례 2건+', ok: casePairs >= 2 },
+      { id: 'photos', label: '현장 사진 10장+', ok: (f.img || 0) >= 10 },
+      { id: 'channel', label: '채널 링크 1개+', ok: channels >= 1 },
+      { id: 'intro', label: '지역 소개 문구', ok: ((I.get(g.slug) || {}).n || 0) >= 1 },
+    ];
+    const last = Math.max(f.last || 0, b.last || 0, m.last || 0, pr.updated_at || 0, lic?.updated_at || 0) || null;
+    const cats = categoriesOf(g);
+    return {
+      slug: g.slug, main_keyword: g.main_keyword, host: groupHost(g.slug), segment: g.segment || '', template: templateOf(g.template).name,
+      company: pr.company || '', regions: g.regions.length, categories: cats.length,
+      files: f.n || 0, photos: (f.img || 0), videos: f.vid || 0, bytes: (f.bytes || 0) + (b.bytes || 0) + (lic?.size || 0),
+      cases: casePairs, ba_photos: b.n || 0, memos: m.n || 0, used_categories: f.cats || 0,
+      checks, score: Math.round((checks.filter((c) => c.ok).length / checks.length) * 100), last_activity: last,
+      suriwiki: link.ok ? (link.links[g.slug] || null) : undefined,
+    };
+  });
+  const sum = (k) => sites.reduce((a, s) => a + (s[k] || 0), 0);
+  const names = new Map(groups.map((g) => [g.slug, g.main_keyword]));
+  const catName = new Map(groups.flatMap((g) => categoriesOf(g).map((c) => [`${g.slug}/${c.id}`, c.name])));
+  return {
+    ok: true, generated_at: Date.now(), noindex: REGISTRY.noindex !== false,
+    totals: { sites: sites.length, files: sum('files'), photos: sum('photos'), videos: sum('videos'), bytes: sum('bytes'), cases: sum('cases'), regions: sum('regions'), ready: sites.filter((s) => s.score >= 70).length },
+    segments: [...new Set(sites.map((s) => s.segment).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ko')),
+    sites,
+    recent: recent.results.map((r) => ({ ...r, keyword: names.get(r.slug) || r.slug, category_name: catName.get(`${r.slug}/${r.category}`) || '' })),
+    suriwiki: { ok: link.ok, built_at: link.built_at || '', source: SURIWIKI_PARTNERS },
+  };
 }
-const loginPage = () => new Response(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>수리위키 관리자 로그인</title>
-<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0b1e3f,#12356b);font-family:Pretendard,"Noto Sans KR",system-ui,sans-serif;padding:16px}
-.c{background:#fff;border-radius:18px;padding:30px 26px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.35)}h1{font-size:20px;margin:0 0 4px;color:#0f172a}p{margin:0 0 18px;font-size:13px;color:#64748b}
-input{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:10px;background:#1e3a8a;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
-.e{color:#dc2626;font-size:13px;min-height:20px;margin-top:10px}</style></head><body><form class="c" id="f"><h1>수리위키 관리자</h1><p>비밀번호를 입력하세요</p>
-<input type="password" id="pw" autocomplete="current-password" autofocus placeholder="비밀번호"><button type="submit">로그인</button><div class="e" id="e"></div></form>
-<script>document.getElementById('f').addEventListener('submit',async function(ev){ev.preventDefault();var e=document.getElementById('e');e.textContent='';
-var r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:document.getElementById('pw').value})});var j=await r.json().catch(function(){return{}});
-if(j.ok){location.reload();}else{e.textContent=j.error||'로그인하지 못했습니다';}});</script></body></html>`, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
 
 const clean = (v, max = 300) => String(v ?? '').trim().slice(0, max);
 const uid = () => crypto.randomUUID().replace(/-/g, '');
@@ -240,20 +271,15 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // 대시보드(/)는 로그인해야 열린다
+    // 대시보드(/): 로그인 없이 바로 열린다
     if (path === '/' || path === '/index.html') {
-      if (!(await isAdmin(request, env))) return loginPage();
       const res = await env.ASSETS.fetch(request);
       const h = new Headers(res.headers); h.set('cache-control', 'no-store'); h.set('x-robots-tag', 'noindex, nofollow');
       return new Response(res.body, { status: res.status, headers: h });
     }
 
-    // 둘러보기(읽기 전용) 대시보드: 로그인 없이 현황만 본다. 그룹 생성·수정·반영·공유는 숨기고, API도 읽기 전용 경로만 쓴다.
-    if (path === '/demo' || path === '/demo/') {
-      const res = await env.ASSETS.fetch(new Request(new URL('/', url), request));
-      const html = (await res.text()).replace('</head>', '<script>window.SW_DEMO=1</script></head>');
-      return new Response(html, { status: res.status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
-    }
+    // 예전 둘러보기 주소(/demo/)는 홍보 페이지 등에 링크가 남아 있어 대시보드로 보낸다
+    if (path === '/demo' || path === '/demo/') return Response.redirect(`${url.origin}/`, 302);
 
     // 키워드 사이트 실시간 렌더(로그인 불필요): 사이트 워커가, 지금 D1에 있는 지역 목록이 마지막 배포와 다를 때 이 주소로 홈·지역·상담 페이지를 받아 간다.
     //  /render/<주소>/_state → 지금 지역 목록,  /render/<주소>/ → 홈,  /render/<주소>/sangdam → 상담,  /render/<주소>/<지역>/ → 지역 페이지
@@ -290,18 +316,29 @@ export default {
     if (!(await authorize(request, env))) return err(403, 'forbidden');
     await ensureSchema(env.DB);
 
-    if (path === '/api/login' && request.method === 'POST') return login(request, env, url);
-    if (path === '/api/logout' && request.method === 'POST') { const res = json({ ok: true }); res.headers.append('set-cookie', cookie(url, '', 0)); return res; }
-    // 관리 API는 로그인한 대시보드만 쓸 수 있다
-    if (ADMIN_API.test(path) && !(await isAdmin(request, env))) return json({ ok: false, error: '로그인이 필요합니다', login: true }, 401);
-
     if (path === '/api/share' && request.method === 'PUT') return saveShare(env, request);
+
+    // 업체·업로드 허브: 사이트(업체)별 업로드 현황·완성도·최근 업로드·수리위키 본사이트 연결 상태
+    if (path === '/api/hub' && request.method === 'GET') return json(await buildHub(env));
+    // 업체 분류(내부·외부·파트너 등): 허브에서 묶어 보는 단위. 사이트 내용에는 영향이 없다.
+    const sg = path.match(/^\/api\/groups\/([a-z0-9-]+)\/segment$/);
+    if (sg && request.method === 'PUT') {
+      const b = await request.json().catch(() => ({}));
+      const segment = clean(b.segment, 20);
+      const r = await env.DB.prepare('UPDATE groups SET segment=?, updated_at=? WHERE slug=?').bind(segment, Date.now(), sg[1]).run();
+      return r.meta.changes ? json({ ok: true, segment }) : err(404, '없는 그룹입니다');
+    }
+    // 수리위키 본사이트(suriwiki.com) 빌드가 읽는 파트너 사이트 목록(공개 정보만)
+    if (path === '/api/export/partners' && request.method === 'GET') {
+      const groups = await loadGroups(env.DB);
+      return json({ ok: true, noindex: REGISTRY.noindex !== false, partners: groups.map((x) => ({ slug: x.slug, host: groupHost(x.slug), url: `https://${groupHost(x.slug)}/`, main_keyword: x.main_keyword, subs: x.subs, regions: regionsOf(x).map((r) => r.name), segment: x.segment || '' })) });
+    }
 
 
     // ── 그룹(메인 키워드 단위) 관리: 대시보드가 만들고 고친다. 만들면 사이트·업로드 페이지·지역 페이지가 같은 규칙으로 함께 생긴다.
     if (path === '/api/groups' && request.method === 'GET') {
       const gs = await loadGroups(env.DB);
-      return json({ ok: true, regions: allRegions(), groups: gs.map((x) => ({ slug: x.slug, main_keyword: x.main_keyword, host: groupHost(x.slug), subs: x.subs, region_count: x.regions.length, template: x.template })), deploy: { enabled: !!env.GH_DISPATCH_TOKEN } });
+      return json({ ok: true, regions: allRegions(), groups: gs.map((x) => ({ slug: x.slug, main_keyword: x.main_keyword, host: groupHost(x.slug), subs: x.subs, region_count: x.regions.length, template: x.template, segment: x.segment })), deploy: { enabled: !!env.GH_DISPATCH_TOKEN } });
     }
     const gm = path.match(/^\/api\/groups\/([a-z0-9-]+)$/);
     if (gm && request.method === 'GET') { const x = await getGroup(env.DB, gm[1]); return x ? json({ ok: true, group: x }) : err(404, '없는 그룹입니다'); }
@@ -616,6 +653,18 @@ async function route(request, env, url, slug, rest, g) {
       return json({ ok: true });
     }
   }
+  if (rest === 'files/delete' && method === 'POST') { // 선택한 파일 한꺼번에 삭제(최대 100개)
+    const b = await request.json().catch(() => ({}));
+    const ids = (Array.isArray(b.ids) ? b.ids : []).filter((id) => /^[a-f0-9]{32}$/.test(id)).slice(0, 100);
+    let n = 0;
+    for (const id of ids) {
+      const row = await db.prepare('SELECT file_key FROM files WHERE id=? AND slug=?').bind(id, slug).first();
+      if (!row) continue;
+      await delObj(env, db, row.file_key);
+      await db.prepare('DELETE FROM files WHERE id=?').bind(id).run(); n++;
+    }
+    return json({ ok: true, deleted: n });
+  }
   if (rest === 'files/move' && method === 'POST') { // 선택한 파일 또는 폴더(묶음) 단위 카테고리 이동
     const b = await request.json();
     const category = clean(b.category, 10);
@@ -641,6 +690,13 @@ async function route(request, env, url, slug, rest, g) {
     }
   }
   const mm = rest.match(/^memos\/(\d+)$/);
+  if (mm && method === 'PUT') { // 메모 고치기
+    const b = await request.json().catch(() => ({}));
+    const content = clean(b.content, 4000);
+    if (!content) return err(400, '내용이 없습니다');
+    await db.prepare('UPDATE memos SET content=? WHERE id=? AND slug=?').bind(content, Number(mm[1]), slug).run();
+    return json({ ok: true });
+  }
   if (mm && method === 'DELETE') {
     await db.prepare('DELETE FROM memos WHERE id=? AND slug=?').bind(Number(mm[1]), slug).run();
     return json({ ok: true });

@@ -4,24 +4,56 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>사이트 제작 현황 리포트 · SURIWIKI ADMIN</title>
+<title>수리위키 관리센터 · SURIWIKI ADMIN</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/report.css">
+<link rel="stylesheet" href="/css/hub.css">
 </head>
 <body>
-<header class="hero">
-  <div class="hero-brand">SURIWIKI ADMIN</div>
-  <h1 class="hero-biz" id="hero-biz">업체명</h1>
-  <button type="button" id="logout-btn" class="logout-btn">로그아웃</button>
-  <div class="hero-sub">사이트 제작 현황 리포트</div>
+<header class="topbar">
+  <div class="tb-in">
+    <a class="tb-brand" href="/"><span class="tb-logo" aria-hidden="true">S</span><span><b>수리위키</b> 관리센터</span></a>
+    <nav class="tb-tabs" role="tablist" aria-label="관리 메뉴">
+      <button type="button" role="tab" class="tb-tab" data-tab="hub" aria-selected="true">업체·업로드 허브</button>
+      <button type="button" role="tab" class="tb-tab" data-tab="report" aria-selected="false">제작 리포트</button>
+      <button type="button" role="tab" class="tb-tab" data-tab="link" aria-selected="false">수리위키 연동</button>
+    </nav>
+    <div class="tb-links">
+      <a href="https://suriwiki.com/" target="_blank" rel="noopener">suriwiki.com ↗</a>
+      <a href="https://builder.suriwiki.com/" target="_blank" rel="noopener">사이트빌더 ↗</a>
+    </div>
+  </div>
 </header>
 
-<main class="content" id="app">
-  <div class="loading"><div class="spinner"></div><p>로딩 중...</p></div>
-</main>
+<section class="pane" id="pane-hub" data-pane="hub">
+  <div class="hub-hero">
+    <div class="hh-in">
+      <p class="hh-eyebrow">SURIWIKI PARTNER HUB</p>
+      <h1>업체별 사진·정보 수집과 사이트 완성도를 한 화면에서</h1>
+      <p class="hh-sub">업체마다 받은 현장 사진·전후 사례·사업자 정보가 곧바로 키워드 사이트와 수리위키 본사이트에 연결됩니다.</p>
+      <div class="hh-stats" id="hub-stats"><div class="hh-stat skel"></div><div class="hh-stat skel"></div><div class="hh-stat skel"></div><div class="hh-stat skel"></div><div class="hh-stat skel"></div><div class="hh-stat skel"></div></div>
+    </div>
+  </div>
+  <main class="hub" id="hub"><div class="loading"><div class="spinner"></div><p>업체 현황을 불러오는 중...</p></div></main>
+</section>
 
-<footer class="footer">Powered by <span class="brand">SuriWiki</span></footer>
+<section class="pane" id="pane-report" data-pane="report" hidden>
+  <header class="hero">
+    <div class="hero-brand">SURIWIKI ADMIN</div>
+    <h1 class="hero-biz" id="hero-biz">업체명</h1>
+    <div class="hero-sub">사이트 제작 현황 리포트</div>
+  </header>
+  <main class="content" id="app">
+    <div class="loading"><div class="spinner"></div><p>로딩 중...</p></div>
+  </main>
+</section>
+
+<section class="pane" id="pane-link" data-pane="link" hidden>
+  <main class="hub" id="link"><div class="loading"><div class="spinner"></div><p>연동 상태를 확인하는 중...</p></div></main>
+</section>
+
+<footer class="footer">Powered by <span class="brand">SuriWiki</span> · <a href="https://suriwiki.com/" target="_blank" rel="noopener">suriwiki.com</a></footer>
+<script type="module" src="/js/hub.js"></script>
 <script type="module" src="/js/report.js"></script>
-<script>document.getElementById("logout-btn").addEventListener("click",function(){fetch("/api/logout",{method:"POST"}).then(function(){location.reload();});});</script>
 </body>
 </html>

@@ -14,8 +14,8 @@
 
 | 주소 | 정체 | 원본 |
 |---|---|---|
-| admin.suriwiki.com | 관리자 대시보드(로그인), 업로드 페이지, API, 실시간 렌더 | `worker/admin.mjs`, `src/`, `wrangler.jsonc` |
-| admin.suriwiki.com/demo/ | 로그인 없는 읽기 전용 둘러보기 | 같은 `index.html` + `SW_DEMO=1` |
+| admin.suriwiki.com | 관리센터(로그인 없음): 업체·업로드 허브 · 제작 리포트 · 수리위키 연동, 업로드 페이지, API, 실시간 렌더 | `worker/admin.mjs`, `src/`, `wrangler.jsonc` |
+| admin.suriwiki.com/demo/ | 대시보드(`/`)로 302 (2026-10-23 로그인 폐지) | `worker/admin.mjs` |
 | admin.suriwiki.com/upload/<주소>/ | 업체용 관리 페이지(사진·연락처·지역 추가·템플릿) | `src/upload/index.html` |
 | <주소>.suriwiki.com | 키워드 사이트 8개 | `scripts/page-template.mjs` + 그룹 데이터 |
 | builder.suriwiki.com | 사이트빌더 홍보 페이지 | `promo/index.html` |
@@ -61,7 +61,7 @@
 | `kv` | 잡다한 키값(예: 마지막 배포 요청 시각) |
 
 빌드가 읽는 공개 내보내기: `/api/export/groups`, `/api/export/profiles`, `/api/export/ba`.
-관리 API(로그인 필요): `/api/report`, `/api/groups`(+`/import`), `/api/regions`, `/api/deploy`, `/api/share`. 업체용: `/api/s/<주소>/…`(정보·파일·전후 사진·지역·템플릿·미리보기).
+관리 API(로그인 없음): `/api/hub`, `/api/report`, `/api/groups`(+`/import`), `/api/regions`, `/api/deploy`, `/api/share`. 업체용: `/api/s/<주소>/…`(정보·파일·전후 사진·지역·템플릿·미리보기).
 
 ## 5. 빌드와 배포
 
@@ -90,7 +90,7 @@ npm run seo                   # 빌드 결과 SEO 점검. 문제 0건이어야 �
 |---|---|---|---|
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Secret | 등록됨 | 배포 |
 | `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` | Secret | 선택 | 네이버 검색 API 순위 수집 |
-| `ADMIN_PASSWORD`, `SESSION_SECRET` | Secret | 선택 | 대시보드 로그인(미등록 시 코드 속 해시 기본값) |
+| `ADMIN_PASSWORD`, `SESSION_SECRET` | Secret | 폐지(2026-10-23) | 로그인을 없애 쓰지 않는다 |
 | `GH_DISPATCH_TOKEN` | Secret | 선택(현재 화면에서 안 씀) | 예전 '지금 반영' 버튼용 |
 | `SEO_NAVER_VERIFY`, `SEO_GOOGLE_VERIFY` | Variable | **미등록** | 검색엔진 소유확인 메타 태그 |
 
@@ -125,7 +125,7 @@ npm run seo                   # 빌드 결과 SEO 점검. 문제 0건이어야 �
 
 ## 10. 남은 일 (우선순위 순)
 
-1. **업로드 페이지 로그인** — 지금은 주소만 알면 누구나 접근. 실제 업체 자료(사업자등록증 등)를 받기 전에 필수. `worker/admin.mjs`의 `authorize()` 한 곳에 붙이면 된다.
+1. **접근 통제** — 2026-10-23 운영자 요청으로 대시보드 비밀번호까지 없앴다. 지금은 주소만 알면 누구나 대시보드·업로드 페이지에 접근. 실제 업체 자료(사업자등록증 등)를 받기 전에 필수. `worker/admin.mjs`의 `authorize()` 한 곳에 붙이면 된다.
 2. **검색 공개 결정** — 7장 순서대로. 공개 전까지 순위 수집은 0으로 나온다.
 3. **열린 PR 정리** — `playskang-svg/rsuri#73`(리포트 공유 버튼 제거, CI 통과·머지 대기).
 4. **실제 후기** — `promo/reviews.json`. 실제 후기만.

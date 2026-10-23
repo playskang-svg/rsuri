@@ -188,6 +188,7 @@ const footer = (c) => {
   const links = linkList(p);
   return `<footer><div class="wrap">${biz ? `${biz}<br>` : ""}${contact ? `${contact}<br>` : ""}${p.address ? `사업장 ${esc(p.address)}<br>` : ""}서비스 지역: ${esc(areaNames(c).slice(0, 12).join("·"))}${areaNames(c).length > 12 ? ` 외 ${areaNames(c).length - 12}곳` : ""}<br>
 ${links.length ? `<div class="f-links">${links.map((x) => `<a href="${esc(extUrl(x.url))}" target="_blank" rel="noopener" title="${esc(x.name)}" aria-label="${esc(x.name)}"><span class="f-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[platformOf(extUrl(x.url))]}</svg></span>${esc(x.name)}</a>`).join("")}</div>` : ""}
+수리 방법 안내: <a href="https://suriwiki.com/" target="_blank" rel="noopener" style="color:#fff">수리위키 suriwiki.com</a><br>
 © 2026 ${esc(p.company || c.kw)}. All rights reserved.</div></footer>
 <div class="fixbar"><a class="f-sms" href="#picker">📷 사진 보내고 문자 문의</a>${c.phone ? `<a class="f-call" href="${esc(telHref(c.phone))}">📞 전화</a>` : ""}</div>`;
 };
