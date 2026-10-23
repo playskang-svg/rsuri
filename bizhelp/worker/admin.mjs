@@ -126,7 +126,8 @@ async function renderPreview(env, g, tplId, regionSlug, opt = {}) {
   return html;
 }
 
-// ── 리포트: 사이트·페이지 목록은 그룹(D1)(실제 배포 대상), 처음 만든 날은 D1(page_seen), 순위는 D1(rank_log)
+// ── 리포트: 사이트·페이지 목록은 그룹(D1)(실제 배포 대상), 처음 만든 날은 D1(page_seen)
+// 네이버 순위 수집은 2026-10-23에 뺐다. rank_log 테이블은 지난 기록 보관용으로 남겨 두고 더 쓰지 않는다.
 const kstDate = (t = Date.now()) => new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
 const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
 const pageKey = (p) => `${p.site}${p.page_path}`;
@@ -138,39 +139,13 @@ async function buildReport(env) {
   // 새로 생긴 페이지는 처음 본 날을 기록한다(이미 있으면 그대로 둔다)
   for (let i = 0; i < PAGES.length; i += 80) await db.batch(PAGES.slice(i, i + 80).map((p) => db.prepare('INSERT OR IGNORE INTO page_seen (page_key, first_seen) VALUES (?,?)').bind(pageKey(p), today)));
   const seen = new Map((await db.prepare('SELECT page_key, first_seen FROM page_seen').all()).results.map((r) => [r.page_key, r.first_seen]));
-  const logs = (await db.prepare('SELECT page_key, check_date, rank_position FROM rank_log WHERE check_date >= ?').bind(dates[dates.length - 1]).all()).results;
   const id = new Map(PAGES.map((p, i) => [pageKey(p), i + 1]));
-  const checkedToday = new Set(logs.filter((r) => r.check_date === today).map((r) => r.page_key)).size;
-  const lastCheck = (await db.prepare('SELECT MAX(check_date) d FROM rank_log').first())?.d || null;
   return {
     success: true, business_name: reg.business_name, generated_at: today, dates, site_meta: reg.site_meta,
     keywords: PAGES.map((p) => ({ id: id.get(pageKey(p)), keyword: p.h1_title, site: p.site, page_path: p.page_path, created_at: seen.get(pageKey(p)) || today })),
-    ranks: logs.filter((r) => r.rank_position && id.has(r.page_key)).map((r) => ({ tracking_id: id.get(r.page_key), check_date: r.check_date, rank_position: r.rank_position })),
     pages: PAGES.map((p) => ({ ...p, first_seen: seen.get(pageKey(p)) || today })),
     templates: templateList(),
-    rank_status: { configured: !!(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET), noindex: !!reg.noindex, last_check: lastCheck, checked_today: checkedToday, total: PAGES.length },
   };
-}
-
-// 네이버 검색 Open API(웹문서) 상위 100건에서 우리 페이지 주소를 찾아 순위를 기록한다. 한 번에 30건만(서브요청 한도) — 30분마다 돌며 오늘 안 잰 페이지부터 처리한다.
-async function collectRanks(env) {
-  if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) return { skipped: 'no-keys' };
-  const db = env.DB, today = kstDate();
-  await ensureSchema(db);
-  const PAGES = groupsToRegistry(await loadGroups(db), REGISTRY).pages;
-  const done = new Set((await db.prepare('SELECT page_key FROM rank_log WHERE check_date=?').bind(today).all()).results.map((r) => r.page_key));
-  const todo = PAGES.filter((p) => !done.has(pageKey(p))).slice(0, 30);
-  const writes = []; let stopped = '';
-  for (const p of todo) {
-    const res = await fetch(`${env.NAVER_API_BASE || 'https://openapi.naver.com'}/v1/search/webkr.json?query=${encodeURIComponent(p.h1_title)}&display=100&start=1`, { headers: { 'X-Naver-Client-Id': env.NAVER_CLIENT_ID, 'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET } });
-    if (!res.ok) { stopped = `naver ${res.status}`; break; } // 한도·키 오류면 이번 회차는 멈추고 다음에 이어서
-    const items = (await res.json()).items || [];
-    const host = new URL(p.page_url).hostname, path = p.page_path.replace(/\/+$/, '');
-    const idx = items.findIndex((it) => { try { const u = new URL(it.link); return u.hostname === host && u.pathname.replace(/\/+$/, '') === path; } catch (_) { return false; } });
-    writes.push(db.prepare('INSERT OR REPLACE INTO rank_log (page_key, check_date, rank_position) VALUES (?,?,?)').bind(pageKey(p), today, idx >= 0 ? idx + 1 : null));
-  }
-  if (writes.length) await db.batch(writes);
-  return { checked: writes.length, remaining: todo.length - writes.length, stopped };
 }
 
 // ── 리포트 이미지 공유: 브라우저가 캡처한 JPEG(1.2MB 이하)를 D1에 저장하고 주소를 돌려준다. 최근 30개만 보관한다.
@@ -266,7 +241,6 @@ const clean = (v, max = 300) => String(v ?? '').trim().slice(0, max);
 const uid = () => crypto.randomUUID().replace(/-/g, '');
 
 export default {
-  async scheduled(_event, env, ctx) { ctx.waitUntil(collectRanks(env)); },
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;

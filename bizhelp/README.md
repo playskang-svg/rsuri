@@ -3,13 +3,12 @@
 정적 사이트(Cloudflare Workers assets). `src/index.html` 한 페이지가 `src/data/report.json`을 읽어 렌더링한다.
 
 ## 섹션 순서 (고정)
-1. 카운트 카드 4종: 메인사이트 · 세부사이트 · 총 제작 항목 · 네이버 유효키워드(30위 이내)
-2. 유효키워드 목록 버튼/패널 (※ '클립보드로 저장'·'이미지업로드URL' 버튼은 2026-10-12 사용자 결정으로 제거)
-3. 🆕 새로운 1위 키워드 → 🥇 검색 1위 키워드
-4. 사이트별 페이지 목록 (카드 8색 순환, 이번주 신규 분리, 타이틀·H1 일치 점)
+1. 카운트 카드 3종: 메인사이트 · 세부사이트 · 총 제작 항목
+2. 사이트별 페이지 목록 (카드 8색 순환, 이번주 신규 분리, 타이틀·H1 일치 점)
+(※ 네이버 유효키워드 카드·유효키워드 목록·새로운 1위/검색 1위 키워드는 2026-10-23 운영자 결정으로 제거)
 
 ## 데이터 스키마 (`src/data/report.json`)
-`dates[]`(최신순), `keywords[{id,keyword,site,page_path,created_at}]`, `ranks[{tracking_id,check_date,rank_position}]`,
+`dates[]`(최신순), `keywords[{id,keyword,site,page_path,created_at}]`,
 `pages[{site,page_path,page_url,h1_title,page_title,first_seen,pending?}]`, `business_name`, `sample`.
 현재는 `npm run sample`이 만든 가짜 데이터다. 실제 데이터 연결 시 `DATA_URL`(src/js/report.js)만 API로 바꾼다.
 
@@ -54,10 +53,9 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - 사업자등록증 OCR 텍스트는 사이트로 내보내지 않는다(오인식 방지). 사람이 입력한 값만 노출한다
 
 ## 리포트(admin.suriwiki.com) 데이터
-- 사이트·페이지 목록: `registry/sites.json`(실제로 배포되는 사이트와 페이지). 순위·처음 만든 날은 코드에 넣지 않고 D1에서 집계한다(`/api/report`)
-- 처음 만든 날: 리포트가 처음 본 날을 `page_seen`에 기록. 순위: `rank_log`
-- 순위 수집: 네이버 검색 Open API(웹문서) 상위 100건에서 페이지 주소를 찾는다. 30분마다 30페이지씩 처리(cron). GitHub 시크릿 `NAVER_CLIENT_ID`·`NAVER_CLIENT_SECRET`을 등록하면 다음 배포 때 워커 시크릿으로 올라가고, 없으면 수집하지 않으며 리포트에 그 상태를 표시한다
-- 주의: Open API의 웹문서 순위는 네이버 통합검색 화면 순위와 같지 않다(참고용). 키워드 사이트가 noindex인 동안에는 순위가 잡히지 않는다
+- 사이트·페이지 목록: `registry/sites.json`(실제로 배포되는 사이트와 페이지). 처음 만든 날은 코드에 넣지 않고 D1에서 집계한다(`/api/report`)
+- 처음 만든 날: 리포트가 처음 본 날을 `page_seen`에 기록
+- (제거됨, 2026-10-23) 네이버 순위 수집: 30분 cron·`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET` 시크릿 반영·리포트 순위 화면을 모두 뺐다. 지난 기록은 D1 `rank_log`에 남아 있지만 읽지 않는다
 - (제거됨, 2026-10-12) '이미지업로드URL'/'클립보드로 저장' 화면 버튼. 서버의 `/api/share`·`/share/<id>.jpg` 는 남아 있으나 화면에서 부르지 않는다
 
 ## 공사 전/후 사진
@@ -102,7 +100,7 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 ## 관리센터 (로그인 없음)
 - 2026-10-23 운영자 결정으로 비밀번호 로그인을 없앴다. 대시보드(`/`)·관리 API·업로드 페이지 모두 주소만으로 열린다. 검색 노출은 noindex 헤더로 막는다. 접근 통제가 다시 필요하면 `worker/admin.mjs`의 `authorize()` 한 곳에 Cloudflare Access 검증을 넣는다
 - 예전 둘러보기 주소 `/demo/`는 대시보드(`/`)로 302 보낸다. `ADMIN_PASSWORD`·`SESSION_SECRET` 시크릿은 더 이상 쓰지 않는다
-- 화면은 탭 3개: **업체·업로드 허브**(기본) · **제작 리포트**(`#report`, 예전 대시보드) · **수리위키 연동**(`#link`)
+- 화면은 탭 2개: **업체·업로드 허브**(기본) · **제작 리포트**(`#report`, 예전 대시보드). 예전 '수리위키 연동' 탭(`#link`)은 2026-10-23 허브에 합쳤고, 옛 주소는 허브로 열린다
 
 ## 업체·업로드 허브 (`/api/hub`)
 - in.koreazib.com 업로드 관리 시스템을 참고해, 업체(=키워드 사이트)별 파일·사진·영상·용량을 모아 보는 화면. 차별점: 사이트 완성도(7항목 체크리스트)·'다음 할 일'(빠진 항목별 사이트 수, 누르면 거르기)·최근 업로드 썸네일·수리위키 연결 배지
@@ -115,6 +113,8 @@ main 푸시 → GitHub Actions → `wrangler deploy`. 시크릿: CLOUDFLARE_API_
 - suriwiki.com 홈 '공종별 지역 전문 사이트'(`#partners`)와 분야 페이지(`/category/<분야>`)에 카드로 노출. 키워드 사이트가 noindex인 동안 링크는 `rel="nofollow"`
 - 분야 매칭은 메인 키워드 규칙(`RULES`): 필름→필름 시공, 도배·벽지→보수도배, 장판·마루→마루, 문틀·문턱·계단·문 순. 맞는 분야가 없으면 홈에만 나온다
 - 관리센터가 `https://suriwiki.com/partners.json`을 다시 읽어 카드마다 연결 페이지를 보여 준다. 키워드 사이트 푸터에는 suriwiki.com 링크가 붙는다
+- 흐름: ① 관리센터(`/api/export/partners`) → ② suriwiki.com 빌드(매일 05:00 KST, partners.json 생성) → ③ 키워드 사이트 푸터 상호 링크
+- 허브 화면: 상단 한 줄에 연동 상태(노출 곳 수·마지막 본사이트 빌드)와 바로가기, 카드마다 🔗 배지, '다음 할 일'에 '수리위키 연결 없음 N곳' 칩(누르면 연결 대기 사이트만 거른다)
 
 ## 홍보 페이지
 
