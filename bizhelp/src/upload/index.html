@@ -12,7 +12,7 @@
 :root{--p:#4f46e5;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--ok:#16a34a;--bad:#dc2626}
 body{font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:#f5f6fa;color:var(--g800);padding-bottom:calc(60px + env(safe-area-inset-bottom));-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
 img,video{max-width:100%}
-.header{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:22px 16px;text-align:center}
+.header{background:linear-gradient(135deg,#0b1e3f,#12356b 60%,#0e5a8a);border-bottom:3px solid #2dd4bf;color:#fff;padding:22px 16px;text-align:center}
 .header h1{font-size:20px;font-weight:800}.header small{display:block;margin-top:4px;opacity:.85;font-size:12px}
 .container{max-width:760px;margin:0 auto;padding:14px}
 .card{background:#fff;border:1px solid var(--g200);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
@@ -155,14 +155,44 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   .hm-ft label{margin:0!important;font-size:13px!important}
   .hm-ft .btn{min-width:96px}
 }
+.header .back-hub{flex-basis:100%}.back-hub{display:inline-block;color:inherit;opacity:.85;font-size:12.5px;font-weight:700;text-decoration:none;margin-bottom:4px}
+.back-hub:hover{opacity:1;text-decoration:underline}
+#host{color:inherit}
+.ready-score{float:right;font-size:18px;font-weight:900;color:#4f46e5}
+.ready-bar{height:9px;border-radius:99px;background:#e5e7eb;overflow:hidden;margin:4px 0 12px}
+.ready-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#16a34a);transition:width .4s}
+.ready-list{display:flex;flex-wrap:wrap;gap:6px}
+.ready-list button{border:1px solid #e5e7eb;background:#fff;border-radius:99px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;min-height:36px}
+.ready-list button.ok{background:#f0fdf4;border-color:#bbf7d0;color:#15803d;cursor:default}
+.ready-list button.no{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.case-stage{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.cs{position:relative}
+.cs .im{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:2px solid #e5e7eb}
+.cs .im.b{border-color:#3b82f6}.cs .im.a{border-color:#10b981}
+.cs img{width:100%;height:100%;object-fit:cover;display:block}
+.cs .rm{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:13px;line-height:1}
+.cs .tag{position:absolute;left:4px;top:4px;color:#fff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:5px}
+.cs .ph{display:flex;gap:4px;margin-top:4px}
+.cs .ph button{flex:1;padding:7px 0;border:1px solid #cbd5e1;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;min-height:34px}
+.cs .ph button.b.on{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.cs .ph button.a.on{background:#10b981;border-color:#10b981;color:#fff}
+.memo .ed{position:absolute;top:6px;right:34px;border:0;background:none;cursor:pointer;font-size:12px;color:#4f46e5;font-weight:700}
+.memo textarea{width:100%;margin-top:6px}
 @keyframes sheet{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
 @media(max-width:360px){.cats{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.hm{animation:none}}
 </style>
 </head>
 <body>
-<div class="header"><h1 id="title">사이트 관리</h1><small>사이트: <span id="host"></span></small><button type="button" class="help-btn" id="help-btn">📖 사용법 보기</button></div>
+<div class="header"><a class="back-hub" href="/" title="관리센터(업체 허브)로">← 관리센터</a><h1 id="title">사이트 관리</h1><small>사이트: <a id="host" href="#" target="_blank" rel="noopener"></a></small><button type="button" class="help-btn" id="help-btn">📖 사용법 보기</button></div>
 <div class="container">
+
+  <div class="card" id="ready-card">
+    <h3>사이트 완성도 <span class="ready-score" id="ready-score">0%</span></h3>
+    <div class="ready-bar"><i id="ready-bar"></i></div>
+    <div class="ready-list" id="ready-list"></div>
+    <p class="hint" style="margin-top:8px">빠진 항목을 누르면 해당 입력 칸으로 이동합니다. 항목을 채울수록 기본값이 아닌 '우리 업체' 사이트가 됩니다.</p>
+  </div>
 
   <div class="card" id="storage-note" style="display:none"><h3>업로드 안내</h3><p class="hint">사진과 사업자등록증은 1.2MB 이하로 자동 축소되어 올라갑니다(PDF는 1.2MB 이하만 가능). 동영상은 대용량 파일 저장소를 연결하면 열립니다.</p></div>
 
@@ -224,6 +254,16 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     <p class="hint">지역 버튼을 누르면 그 지역 페이지가 새 창으로 열립니다 · ✕로 빼면 그 지역 페이지가 사라집니다(최소 1개는 남아야 합니다) · 새로 만든 지역은 1분 안에 사이트에 나타나고, 사진·소개 문구는 아래 '공사 전/후 사진'에서 그 지역을 골라 올립니다</p>
   </div>
 
+  <div class="card" id="case-card">
+    <h3>⚡ 시공사례 빠른 등록 <span class="hint">· 제목을 쓰고 사진을 담은 뒤 사진마다 [전]/[후]를 고르면 빈 작업 사례 칸에 바로 들어갑니다</span></h3>
+    <div class="row"><label>시공사례 제목 (사진 설명으로 표시)</label><input type="text" id="case-title" maxlength="60" placeholder="예: 32평 아파트 욕실 바닥 방수"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn out" id="case-add" type="button">📷 사진 담기</button><span class="hint" id="case-scope-hint" style="align-self:center"></span></div>
+    <input type="file" id="case-input" accept="image/*" multiple style="display:none">
+    <div class="case-stage" id="case-stage"></div>
+    <button class="btn" id="case-go" type="button" disabled style="width:100%;margin-top:10px">전/후 사진 2장을 담아주세요</button>
+    <p class="hint" style="margin-top:6px">첫 번째 [전] 사진과 첫 번째 [후] 사진이 사례 칸에 들어가고, 나머지 담은 사진은 아래 '업로드된 파일'에 같은 제목 묶음으로 보관됩니다. 적용 범위는 '공사 전/후 사진'에서 고른 범위(공통 또는 지역)를 따릅니다.</p>
+  </div>
+
   <div class="card" id="ba-card">
     <h3>공사 전/후 사진 <span class="hint" id="ba-range">· 작업 사례 1~4 · 전·후를 한 장씩 올리면 사이트의 BEFORE/AFTER 칸에 들어갑니다</span></h3>
     <div class="row"><label>적용 범위</label><select id="ba-scope"><option value="">전체 지역 공통 (메인 + 모든 지역 페이지)</option></select></div>
@@ -259,7 +299,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   </div>
 
   <div class="card">
-    <h3>업로드된 파일 <span><button class="btn out sm" id="btn-move">선택 항목 이동</button> <button class="btn out sm" id="btn-move-group">폴더(묶음) 이동</button></span></h3>
+    <h3>업로드된 파일 <span><button class="btn out sm" id="btn-selall">전체 선택</button> <button class="btn out sm" id="btn-move">선택 항목 이동</button> <button class="btn out sm" id="btn-move-group">폴더(묶음) 이동</button> <button class="btn bad sm" id="btn-del-sel">선택 삭제</button></span></h3>
     <div class="tabs" id="tabs"></div>
     <div class="grid" id="gallery"></div>
     <div class="pg" id="pg"></div>
@@ -283,6 +323,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
       <tr><td>지역 페이지 만들기 (지역명 입력 → 만들기)</td><td>→</td><td>메인 사이트의 지역 버튼이 늘고, 그 버튼을 누르면 '지역명 키워드' 페이지가 열립니다 (1분 안에 반영 · 빼면 사라짐)</td></tr>
       <tr><td>디자인 템플릿 선택</td><td>→</td><td>사이트의 구성·디자인 전체 (사진 칸 수도 템플릿에 맞춰짐)</td></tr>
       <tr><td>공사 전/후 사진 (작업 사례)</td><td>→</td><td>대표 이미지 · 전후 비교 슬라이더 (전·후 둘 다 올린 사례만, 사례 3은 대표 이미지)</td></tr>
+      <tr><td>시공사례 빠른 등록 (제목 + 전/후 지정)</td><td>→</td><td>빈 작업 사례 칸의 전후 사진과 사진 설명 (나머지 사진은 보관함)</td></tr>
       <tr><td>사진 설명</td><td>→</td><td>사진 아래 글귀</td></tr>
       <tr><td>지역 선택 + 사진·설명·지역 소개</td><td>→</td><td>그 지역 페이지에만 (없으면 공통 사진 사용)</td></tr>
       <tr class="no"><td>카테고리별 사진 · 메모 · 사업자등록증 · 참고 사이트</td><td>✕</td><td>사이트에 표시되지 않음 (보관용)</td></tr>
@@ -316,7 +357,8 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   // ── 개요
   async function load() {
     const o = await api('overview');
-    document.title = `${o.keyword} 관리`; $('title').textContent = `${o.keyword} 관리`; $('host').textContent = `${slug}.suriwiki.com`;
+    document.title = `${o.keyword} 관리`; $('title').textContent = `${o.keyword} 관리`; $('host').textContent = `${slug}.suriwiki.com ↗`; $('host').href = `https://${slug}.suriwiki.com/`;
+    S.overview = o;
     S.cats = o.categories; S.license = o.license; S.ocr = (o.license && o.license.ocr_text) || '';
     S.defaults = o.defaults || {};
     for (const k of ['company', 'ceo', 'regno', 'address', 'hours', 'phone', 'kakao', 'instagram', 'blog', 'youtube', 'threads', 'website', 'reference']) { $('f-' + k).value = o.profile[k] || ''; if (S.defaults[k]) $('f-' + k).placeholder = `비우면 기본값: ${S.defaults[k]}`; }
@@ -333,8 +375,66 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     $('storage-note').style.display = o.video ? 'none' : '';
     if (o.video) $('zone-limit').textContent = '사진: JPG, PNG, GIF, WebP (최대 50MB) | 동영상: MP4, WebM, MOV, AVI (최대 100MB)';
     $('file-input').accept = o.video ? 'image/*,video/*' : 'image/*';
-    renderLicense(); loadFiles(); loadMemos();
+    renderLicense(); loadFiles(); loadMemos(); renderReady();
   }
+
+  // ── 사이트 완성도: 관리센터 허브와 같은 7항목. 빠진 항목을 누르면 그 칸으로 이동한다.
+  function renderReady() {
+    const o = S.overview || {}, p = o.profile || {};
+    const ba = o.ba || [], keyOf = (x) => `${x.region || ''}/${x.slot}`;
+    const pairs = [...new Set(ba.map(keyOf))].filter((k) => ['before', 'after'].every((ph) => ba.some((x) => keyOf(x) === k && x.phase === ph))).length;
+    const photos = (o.counts || []).reduce((a, c) => a + c.n, 0);
+    const items = [
+      ['대표 전화번호', !!p.phone, 'f-phone'], ['상호·대표자', !!(p.company && p.ceo), 'f-company'], ['사업자등록증', !!o.license, 'lic-head'],
+      ['전후 사례 2건+', pairs >= 2, 'case-card'], ['현장 사진 10장+', photos >= 10, 'cats'],
+      ['채널 링크 1개+', ['kakao', 'blog', 'youtube', 'instagram', 'threads', 'website'].some((k) => p[k]), 'f-kakao'], ['지역 소개 문구', (o.intros || []).length >= 1, 'ba-scope'],
+    ];
+    const done = items.filter((x) => x[1]).length, pct = Math.round(done / items.length * 100);
+    $('ready-score').textContent = `${pct}%`; $('ready-bar').style.width = `${pct}%`;
+    $('ready-list').innerHTML = items.map(([l, ok, to]) => `<button type="button" class="${ok ? 'ok' : 'no'}" data-to="${to}">${ok ? '✅' : '⬜'} ${esc(l)}</button>`).join('');
+  }
+  $('ready-list').onclick = (e) => { const b = e.target.closest('.no[data-to]'); if (!b) return; const el = $(b.dataset.to); if (!el) return; el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.focus && /INPUT|SELECT/.test(el.tagName)) setTimeout(() => el.focus(), 400); };
+
+  // ── 시공사례 빠른 등록: 제목 → 사진 담기 → 사진마다 전/후 → 빈 사례 칸(현재 적용 범위)에 넣는다
+  const stage = [];
+  function renderStage() {
+    $('case-stage').innerHTML = stage.map((it, i) => `<div class="cs"><div class="im ${it.ph === 'before' ? 'b' : it.ph === 'after' ? 'a' : ''}"><img src="${it.url}" alt=""><button type="button" class="rm" data-rm="${i}" aria-label="빼기">×</button>${it.ph ? `<span class="tag" style="background:${it.ph === 'before' ? '#3b82f6' : '#10b981'}">시공 ${it.ph === 'before' ? '전' : '후'}</span>` : ''}</div>
+      <div class="ph"><button type="button" class="b${it.ph === 'before' ? ' on' : ''}" data-ph="before" data-i="${i}">전</button><button type="button" class="a${it.ph === 'after' ? ' on' : ''}" data-ph="after" data-i="${i}">후</button></div></div>`).join('');
+    const n = stage.length, tagged = stage.filter((x) => x.ph).length, hasB = stage.some((x) => x.ph === 'before'), hasA = stage.some((x) => x.ph === 'after');
+    const ok = n >= 2 && tagged === n && hasB && hasA, btn = $('case-go');
+    btn.disabled = !ok;
+    btn.textContent = n < 2 ? '전/후 사진 2장을 담아주세요' : tagged < n ? '각 사진에 전/후를 지정하세요' : (!hasB || !hasA) ? '시공 전·후를 각각 지정하세요' : `시공사례 등록하기 (${n}장)`;
+    const scope = $('ba-scope').value, r = (S.regions || []).find((x) => x.slug === scope);
+    $('case-scope-hint').textContent = `적용 범위: ${r ? `${r.name} 페이지` : '전체 지역 공통'}`;
+  }
+  $('case-add').onclick = () => { if (!$('case-title').value.trim()) { alert('시공사례 제목을 먼저 입력해주세요'); $('case-title').focus(); return; } $('case-input').click(); };
+  $('case-input').onchange = (e) => { for (const f of e.target.files) if (/^image\//.test(f.type)) stage.push({ file: f, url: URL.createObjectURL(f), ph: '' }); e.target.value = ''; renderStage(); };
+  $('case-stage').onclick = (e) => {
+    const rm = e.target.closest('[data-rm]'); if (rm) { const [it] = stage.splice(Number(rm.dataset.rm), 1); URL.revokeObjectURL(it.url); renderStage(); return; }
+    const b = e.target.closest('[data-ph]'); if (b) { const it = stage[Number(b.dataset.i)]; it.ph = it.ph === b.dataset.ph ? '' : b.dataset.ph; renderStage(); }
+  };
+  $('ba-scope').addEventListener('change', renderStage);
+  $('case-go').onclick = async () => {
+    const title = $('case-title').value.trim(); if (!title) { alert('시공사례 제목을 입력해주세요'); return; }
+    const region = $('ba-scope').value, nSlots = (S.tpl && S.tpl.photoSlots) || 4;
+    const used = (n) => (S.ba || []).some((x) => (x.region || '') === region && x.slot === n);
+    const slot = Array.from({ length: nSlots }, (_, i) => i + 1).find((n) => !used(n));
+    if (!slot) { alert(`빈 작업 사례 칸이 없습니다(이 범위 ${nSlots}칸 모두 사용 중). '공사 전/후 사진'에서 기존 사례를 지우거나 범위를 바꿔 주세요.`); return; }
+    const btn = $('case-go'); btn.disabled = true; btn.textContent = '등록 중...';
+    const before = stage.find((x) => x.ph === 'before'), after = stage.find((x) => x.ph === 'after');
+    const extra = stage.filter((x) => x !== before && x !== after);
+    try {
+      await put(baPath(slot, 'before'), await shrink(before.file, true));
+      await put(baPath(slot, 'after'), await shrink(after.file, true));
+      await api('ba-caption', { method: 'PUT', body: JSON.stringify({ region, slot, caption: title }) });
+      // 나머지 사진은 사진 보관함(첫 카테고리)에 같은 제목 묶음으로 둔다
+      if (extra.length && S.cats.length) for (const it of extra) await put(`files?category=${S.cat || S.cats[0].id}&name=${encodeURIComponent(`${title}_${it.ph === 'before' ? '전' : '후'}_${it.file.name}`)}&group=${encodeURIComponent(title)}`, await shrink(it.file));
+      stage.splice(0).forEach((it) => URL.revokeObjectURL(it.url)); $('case-title').value = '';
+      await load(); renderStage();
+      alert(`작업 사례 ${slot}에 '${title}' 사례를 등록했습니다. 사이트에는 다음 배포 때 반영됩니다(매일 05:00).`);
+    } catch (x) { alert('등록하지 못했습니다: ' + x.message); renderStage(); }
+  };
+  renderStage();
 
   // ── 사업자등록증
   function renderLicense() {
@@ -540,9 +640,21 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
   $('memo-new').oninput = () => { clearTimeout(mt); mt = setTimeout(async () => { const v = $('memo-new').value.trim(); if (!v) return; try { await api('memos', { method: 'POST', body: JSON.stringify({ content: v, category: $('memo-cat').value }) }); $('memo-new').value = ''; flash($('memo-status'), '저장됨'); loadMemos(); } catch (x) { flash($('memo-status'), x.message, true); } }, 1800); };
   async function loadMemos() {
     const { memos } = await api('memos');
-    $('memo-list').innerHTML = memos.map((m) => `<div class="memo"><b>${esc(catName(m.category))} · ${new Date(m.created_at).toLocaleString('ko-KR')}</b>${esc(m.content)}<button class="x" data-m="${m.id}">✕</button></div>`).join('');
+    S.memos = memos;
+    $('memo-list').innerHTML = memos.map((m) => `<div class="memo" data-id="${m.id}"><b>${esc(catName(m.category))} · ${new Date(m.created_at).toLocaleString('ko-KR')}</b><span class="mc">${esc(m.content)}</span><button class="ed" data-ed="${m.id}" type="button">수정</button><button class="x" data-m="${m.id}" type="button" aria-label="삭제">✕</button></div>`).join('');
   }
-  $('memo-list').onclick = async (e) => { const b = e.target.closest('[data-m]'); if (!b || !confirm('메모를 삭제할까요?')) return; await api('memos/' + b.dataset.m, { method: 'DELETE' }); loadMemos(); };
+  $('memo-list').onclick = async (e) => {
+    const ed = e.target.closest('[data-ed]');
+    if (ed) { // 제자리 수정: 글상자로 바꾸고, 저장을 누르면 고친다
+      const box = ed.closest('.memo'), m = (S.memos || []).find((x) => String(x.id) === ed.dataset.ed); if (!m || box.querySelector('textarea')) return;
+      box.querySelector('.mc').innerHTML = `<textarea rows="3" maxlength="4000">${esc(m.content)}</textarea><span style="display:flex;gap:6px;margin-top:6px"><button class="btn sm" data-save="${m.id}" type="button">저장</button><button class="btn out sm" data-cancel type="button">취소</button></span>`;
+      box.querySelector('textarea').focus(); return;
+    }
+    if (e.target.closest('[data-cancel]')) { loadMemos(); return; }
+    const sv = e.target.closest('[data-save]');
+    if (sv) { const v = sv.closest('.memo').querySelector('textarea').value.trim(); if (!v) return alert('내용이 없습니다'); try { await api('memos/' + sv.dataset.save, { method: 'PUT', body: JSON.stringify({ content: v }) }); flash($('memo-status'), '수정됨'); loadMemos(); } catch (x) { flash($('memo-status'), x.message, true); } return; }
+    const b = e.target.closest('[data-m]'); if (!b || !confirm('메모를 삭제할까요?')) return; await api('memos/' + b.dataset.m, { method: 'DELETE' }); loadMemos();
+  };
 
   // ── 갤러리
   async function loadFiles() {
@@ -574,6 +686,16 @@ pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--g5
     else { if (!S.sel.size) return alert('이동할 파일을 체크해주세요'); $('mv-title').textContent = '선택 항목 카테고리 이동'; $('mv-desc').textContent = `${S.sel.size}개 파일을 옮깁니다.`; }
     $('mv').classList.add('on');
   }
+  $('btn-selall').onclick = () => {
+    const boxes = [...document.querySelectorAll('#gallery .th')], all = boxes.length && boxes.every((th) => S.sel.has(th.dataset.id));
+    boxes.forEach((th) => { const on = !all; th.querySelector('.ck').checked = on; th.classList.toggle('sel', on); on ? S.sel.add(th.dataset.id) : S.sel.delete(th.dataset.id); });
+    $('btn-selall').textContent = all ? '전체 선택' : '선택 해제';
+  };
+  $('btn-del-sel').onclick = async () => {
+    if (!S.sel.size) return alert('삭제할 파일을 체크해주세요');
+    if (!confirm(`선택한 ${S.sel.size}개 파일을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    try { const j = await api('files/delete', { method: 'POST', body: JSON.stringify({ ids: [...S.sel] }) }); $('btn-selall').textContent = '전체 선택'; await load(); $('bar-t').textContent = `${j.deleted}개 삭제했습니다`; } catch (x) { alert(x.message); }
+  };
   $('btn-move').onclick = () => openMove('sel'); $('btn-move-group').onclick = () => openMove('group'); $('mv-cancel').onclick = () => $('mv').classList.remove('on');
   $('mv-go').onclick = async () => { const body = { category: $('mv-cat').value }; if (mvMode === 'group') body.group = $('mv-group').value; else body.ids = [...S.sel]; await api('files/move', { method: 'POST', body: JSON.stringify(body) }); $('mv').classList.remove('on'); await load(); };
 

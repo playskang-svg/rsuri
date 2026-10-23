@@ -1,9 +1,9 @@
 // 사이트 제작 현황 리포트 렌더러.
 // 섹션 순서(고정): 카운트 카드 4종 → 유효키워드 목록 버튼/패널 → 저장·업로드 버튼 →
 //                 새로운 1위 → 검색 1위 → 사이트별 페이지 목록(카드 그리드)
-// 둘러보기 모드(/demo/): 로그인 없이 읽기 전용. 그룹 생성·수정·반영·이미지 공유 버튼은 만들지 않는다.
-const DEMO = !!window.SW_DEMO;
-const DATA_URL = DEMO ? '/api/demo/report' : '/api/report';
+// 2026-10-23부터 로그인이 없어 둘러보기(읽기 전용) 모드도 없다. DEMO 분기는 남겨 두되 항상 꺼져 있다.
+const DEMO = false;
+const DATA_URL = '/api/report';
 const RANK_VALID = 30;
 
 const $app = document.getElementById('app');
@@ -236,13 +236,15 @@ async function start() {
   } catch { data = null; }
   if (!data || !data.success) { $app.innerHTML = '<div class="empty">데이터를 불러올 수 없습니다.</div>'; return; }
   document.getElementById('hero-biz').textContent = data.business_name || '';
-  if (!DEMO) document.title = `${data.business_name || ''} · 사이트 제작 현황 리포트`;
   const c = compute(data);
-  if (DEMO) { document.body.classList.add('demo'); document.title = `${data.business_name || ''} · 대시보드 둘러보기`; }
-  $app.innerHTML = (DEMO ? '<div class="rank-note demo-note">👀 둘러보기 모드입니다. 실제 현황을 읽기 전용으로 보여 주며, 그룹 생성·수정·반영은 <a href="/">관리자 로그인</a> 후 할 수 있습니다. 궁금한 점은 <a href="https://builder.suriwiki.com/#contact">문의하기</a>.</div>' : '') + renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderTop1(c) + renderSites(c);
+  $app.innerHTML = renderNotice(data.rank_status) + renderCounts(c) + renderValidList(c) + renderTop1(c) + renderSites(c);
   wire();
   window.__report = c; // 점검용
 }
 import { initGroups } from './groups.js';
-if (!DEMO) initGroups();
-start();
+initGroups();
+// 리포트는 '제작 리포트' 탭을 처음 열 때 불러온다(허브가 첫 화면)
+let started = false;
+const startOnce = () => { if (!started) { started = true; start(); } };
+window.addEventListener('sw:tab', (e) => { if (e.detail === 'report') startOnce(); });
+if (location.hash === '#report') startOnce();

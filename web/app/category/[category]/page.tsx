@@ -4,6 +4,7 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { categoryPhoto } from '@/lib/photos'
 import { PageHero } from '@/app/_components/PageHero'
+import { PartnerSites } from '@/app/_components/PartnerSites'
 
 export const dynamicParams = false
 
@@ -132,6 +133,12 @@ export default async function CategoryPage({
           })}
         </ul>
       </section>
+
+      <PartnerSites
+        category={category.slug}
+        title={`${category.display_name} 지역 전문 사이트`}
+        desc={`${category.display_name} 분야를 따로 운영하는 수리위키 지역 전문 사이트입니다.`}
+      />
 
       {/* ── 거미줄 링크: 홈 · 다른 분야 ── */}
       <section className="border-t border-[var(--line)] bg-white">

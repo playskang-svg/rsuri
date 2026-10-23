@@ -23,3 +23,7 @@ web/CLAUDE.md
 
 # scripts/check-mobile.mjs가 남기는 검증용 스크린샷
 web/.mobile-shots/
+
+# scripts/build-partners.mjs output (admin.suriwiki.com partner list)
+web/lib/partners.json
+web/public/partners.json

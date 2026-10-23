@@ -4,6 +4,7 @@ import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { categoryPhoto, homeHeroPhoto } from '@/lib/photos'
 import { PageHero, SectionHead } from '@/app/_components/PageHero'
+import { PartnerSites } from '@/app/_components/PartnerSites'
 
 // 참고 스킨의 "서비스 과정" 다섯 칸. 사이트 전체에서 이미 약속하는 흐름(사진 접수 → 진단 → 마감)만 적는다.
 const PROCESS_STEPS = [
@@ -249,6 +250,12 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      {/* ── 지역 전문 파트너: 관리센터(admin.suriwiki.com)에서 만든 키워드 사이트 ── */}
+      <PartnerSites
+        title="공종별 지역 전문 사이트"
+        desc="수리위키 관리센터에서 공종마다 따로 운영하는 지역 전문 사이트입니다. 지역별 안내와 실제 시공 사진을 그 사이트에서 확인할 수 있습니다."
+      />
 
       {/* 홈의 "실제 시공 기록" 섹션은 걷어냈다. 초기 CASE 6건에만 걸려 있어서 사이트 전체를
           대표하지 못하고, 실사가 아니라 참고 이미지가 시공 결과인 것처럼 보였다.
