@@ -1,0 +1,88 @@
+/* ──────────────────────────────────────────────────────────
+   사이트맵(/sitemap) 전용 스타일 — 다단 텍스트 색인, 모노 번호. 어두운 면 없음.
+   globals.css의 토큰만 쓴다. 새 색 조합 없음 — 쓰는 조합은 전부 check-contrast PAIRS에 이미 있다
+   (ink·ink-soft·copper on paper/card).
+   ────────────────────────────────────────────────────────── */
+
+/* 히어로 오른쪽 — 구획별 페이지 수 목차(계산값) */
+.smap-toc { padding: 0.25rem 1.25rem 1.25rem; }
+@media (min-width: 1024px) { .smap-toc { padding: 0.5rem 1.75rem 1.5rem; } }
+.smap-toc-head {
+  display: flex; justify-content: space-between; gap: 1rem; padding: 0.875rem 0 0.75rem; border-bottom: 1px solid var(--ink);
+  font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; color: var(--ink-soft);
+}
+.smap-toc a {
+  display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) auto; align-items: center; gap: 0.5rem;
+  min-height: 56px; border-bottom: 1px solid var(--line); transition: color 120ms;
+}
+.smap-toc a:hover { color: var(--copper); }
+.smap-toc-label { font-weight: 700; font-size: 1rem; line-height: 1.4; word-break: keep-all; }
+.smap-toc-count { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.smap-toc-total { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: 1rem; }
+.smap-toc-total .smap-toc-count { font-size: 2rem; }
+@media (min-width: 1024px) { .smap-toc-total .smap-toc-count { font-size: 2.5rem; } }
+
+/* 모노 번호 · 메타 */
+.smap-num {
+  flex: none; min-width: 1.75rem; font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.04em;
+  color: var(--copper);
+}
+.smap-note { flex: none; font-family: var(--mono); font-size: 0.8125rem; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+.smap-label { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; color: var(--ink-soft); }
+
+/* 색인 한 줄 — 44px 행, 아래 연괘선 */
+.smap-row {
+  display: flex; align-items: center; gap: 0.75rem; min-height: 44px; padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid var(--line-soft); font-weight: 500; font-size: 1rem; line-height: 1.4;
+  transition: background-color 120ms, color 120ms;
+}
+.smap-row:hover { background: var(--card); color: var(--copper); }
+.smap-row-label { flex: 1; min-width: 0; word-break: keep-all; overflow-wrap: anywhere; }
+
+/* 01 수리 분야 — 분야 블록을 다단으로 흘린다(블록은 쪼개지 않는다) */
+.smap-cols { columns: 1; column-gap: 2.5rem; }
+@media (min-width: 640px) { .smap-cols { columns: 2; } }
+@media (min-width: 1024px) { .smap-cols { columns: 3; column-gap: 3rem; } }
+.smap-block { break-inside: avoid; page-break-inside: avoid; padding-bottom: 2.25rem; }
+.smap-block-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; border-bottom: 1px solid var(--ink); }
+.smap-block-head h3 { font-family: var(--serif); font-weight: 600; font-size: 1.25rem; line-height: 1.35; letter-spacing: -0.01em; word-break: keep-all; }
+.smap-block-head h3 a { display: inline-flex; align-items: center; min-height: 48px; transition: color 120ms; }
+.smap-block-head h3 a:hover { color: var(--copper); }
+
+/* 다단 링크 목록(지역 페이지·시공 사례) */
+.smap-list { columns: 1; column-gap: 1.5rem; }
+@media (min-width: 640px) { .smap-list { columns: 2; } }
+@media (min-width: 768px) { .smap-list { columns: 3; } }
+.smap-list > li { break-inside: avoid; }
+
+/* 02 지역별 안내 — 항목별 접이식(.area-fold). 닫혀 있어도 링크는 HTML에 남아 크롤러가 전부 읽는다. */
+.smap-folds { display: grid; column-gap: 2.5rem; border-top: 1px solid var(--line); }
+@media (min-width: 1024px) {
+  .smap-folds { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .smap-folds .smap-list { columns: 2; }
+}
+.area-fold.smap-fold > summary { min-height: 56px; padding: 0.5rem; transition: background-color 120ms; }
+.area-fold.smap-fold > summary:hover,
+.area-fold.smap-fold[open] > summary { background: var(--card); }
+.smap-fold-head { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.75rem; word-break: keep-all; }
+.smap-fold-body { padding: 0.25rem 0 1.5rem; }
+.smap-fold-hub {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.5rem;
+  font-size: 0.9375rem; font-weight: 700; color: var(--copper);
+}
+.smap-fold-hub:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* 03 분야 모음 — 번호 · 이름 · 항목 수 타일. 링크라 transform 호버 없이 테두리·글자색만 바꾼다. */
+.smap-tiles { display: grid; gap: 0.625rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+.smap-tile {
+  display: flex; align-items: center; gap: 0.75rem; min-height: 60px; padding: 0.75rem 1rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control);
+  transition: border-color 120ms, color 120ms;
+}
+.smap-tile:hover { border-color: var(--copper); color: var(--copper); }
+.smap-tile-name { flex: 1; min-width: 0; font-weight: 700; font-size: 1rem; line-height: 1.4; word-break: keep-all; }
+
+/* 기계용 사이트맵 안내 */
+.smap-xml { font-size: 0.9375rem; line-height: 1.7; color: var(--ink-soft); word-break: keep-all; }
+.smap-xml a { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--mono); font-weight: 500; color: var(--copper); }
+.smap-xml a:hover { text-decoration: underline; text-underline-offset: 3px; }

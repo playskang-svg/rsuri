@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { PageHero } from '@/app/_components/PageHero'
+import { PageHero, SectionHead } from '@/app/_components/PageHero'
+import '@/app/_styles/sitemap.css'
 
 // 사람이 읽는 사이트맵. 크롤러용 public/sitemap.xml과 짝이지만 목적이 다르다 —
 // 이쪽은 방문자가 "이 사이트에 뭐가 있는지" 한 장에서 보고 바로 이동하는 자리다.
@@ -19,15 +20,19 @@ export const metadata: Metadata = {
   alternates: { canonical: '/sitemap' },
 }
 
-/** 목록 링크 한 줄. 개수가 많아 한 칸을 최대한 얇게 쓴다. */
-function LinkRow({ href, label, note }: { href: string; label: string; note?: string }) {
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+/** 색인 한 줄 — 모노 번호 · 이름 · 메타. 44px 행. */
+function LinkRow({ href, label, num, note }: { href: string; label: string; num?: string; note?: string }) {
   return (
-    <Link
-      href={href}
-      className="flex items-baseline justify-between gap-2 rounded-md px-2.5 py-3 text-[14px] font-semibold sm:py-1.5 hover:bg-[var(--teal-soft)] hover:text-[var(--teal)]"
-    >
-      <span className="min-w-0 truncate">{label}</span>
-      {note && <span className="flex-none text-[12px] font-bold text-[var(--ink-soft)]">{note}</span>}
+    <Link href={href} className="smap-row">
+      {num && (
+        <span className="smap-num" aria-hidden>
+          {num}
+        </span>
+      )}
+      <span className="smap-row-label">{label}</span>
+      {note && <span className="smap-note">{note}</span>}
     </Link>
   )
 }
@@ -75,7 +80,7 @@ export default async function SitemapPage() {
     }))
     .filter((b) => b.items.length > 0)
 
-  // 지역 페이지가 실제로 있는 키워드만 지역 색인에 낸다 (현재 10종 / 194페이지)
+  // 지역 페이지가 실제로 있는 키워드만 지역 색인에 낸다
   const keywordsWithRegions = keywords
     .filter((k) => (regionsByKeyword.get(k.id)?.length ?? 0) > 0)
     .sort(
@@ -91,28 +96,46 @@ export default async function SitemapPage() {
   const regionPageCount = [...regionsByKeyword.values()].reduce((n, l) => n + l.length, 0)
   const totalPages = 1 + keywords.length + categoryBlocks.length + regionPageCount + cases.length
 
-  const summary = [
-    { label: '수리 분야', count: keywords.length, href: '#by-service' },
-    { label: '지역별 안내', count: regionPageCount, href: '#by-region' },
-    { label: '분야 모음', count: categoryBlocks.length, href: '#by-category' },
-    { label: '시공 사례', count: cases.length, href: '#by-case' },
-  ].filter((x) => x.count > 0) // 0건이면 #by-case 섹션이 없어 앵커가 헛돈다
+  // 구획 번호는 실제로 그리는 구획에만 01부터 매긴다 — 목차와 본문 머리가 같은 번호를 쓴다.
+  const sections = [
+    { id: 'by-service', href: '#by-service', label: '수리 분야', count: keywords.length, drawn: true },
+    { id: 'by-region', href: '#by-region', label: '지역별 안내', count: regionPageCount, drawn: keywordsWithRegions.length > 0 },
+    { id: 'by-category', href: '#by-category', label: '분야 모음', count: categoryBlocks.length, drawn: true },
+    { id: 'by-case', href: '#by-case', label: '시공 사례', count: cases.length, drawn: cases.length > 0 },
+  ]
+    .filter((s) => s.drawn)
+    .map((s, i) => ({ ...s, num: pad2(i + 1) }))
+  const numOf = (id: string) => sections.find((s) => s.id === id)?.num ?? ''
+  const summary = sections.filter((x) => x.count > 0) // 0건이면 #by-case 섹션이 없어 앵커가 헛돈다
+
+  // 수리 분야 색인은 분야를 넘어 01부터 이어 번호를 단다.
+  let serial = 0
+  const numberedBlocks = categoryBlocks.map(({ category, items }) => ({
+    category,
+    items: items.map((k) => ({ k, num: pad2(++serial) })),
+  }))
 
   return (
     <main>
-      {/* ── 머리말 — 머스터드 색 블록, 오른쪽에 구획별 페이지 수 ── */}
+      {/* ── 머리말 — 종이 면, 오른쪽에 구획별 페이지 수 ── */}
       <PageHero
-        tone="yellow"
+        tone="paper"
         above={
-          <nav aria-label="현재 위치" className="mb-5 text-[13px] text-[var(--ink-soft)]">
-            <Link href="/" className="hover:text-[var(--ink)]">
-              수리위키
-            </Link>
-            {' › '}
-            <span className="font-bold text-[var(--ink)]">사이트맵</span>
+          <nav aria-label="현재 위치">
+            <ol className="flex flex-wrap items-center gap-x-2 text-[0.8125rem] text-[var(--ink-soft)]">
+              <li>
+                <Link href="/" className="inline-flex min-h-11 items-center hover:text-[var(--copper)]">
+                  수리위키
+                </Link>
+              </li>
+              <li aria-hidden>›</li>
+              <li aria-current="page" className="font-bold text-[var(--ink)]">
+                사이트맵
+              </li>
+            </ol>
           </nav>
         }
-        eyebrow="Sitemap / All Pages"
+        eyebrow="사이트맵 · 전체 페이지"
         title={
           <>
             전체 페이지를
@@ -121,103 +144,101 @@ export default async function SitemapPage() {
           </>
         }
         desc={`수리위키에 있는 페이지 ${totalPages.toLocaleString('ko-KR')}개를 수리 분야, 지역별 안내, 시공 사례로 나눠 정리했습니다. 항목을 누르면 그 페이지로 바로 이동합니다.`}
-        tags={[`${totalPages.toLocaleString('ko-KR')} Pages`, 'Board Index']}
         aside={
-          <ul className="grid grid-cols-2 gap-3">
-            {summary.map((s) => (
-              <li key={s.href}>
-                <a href={s.href} className="block bg-white px-4 py-5 transition-colors hover:bg-[var(--paper)]">
-                  <span className="eyebrow block">{s.label}</span>
-                  <span className="mt-3 block text-3xl font-black tracking-[-0.04em]">
-                    {s.count.toLocaleString('ko-KR')}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <nav aria-label="구획별 페이지 수" className="panel smap-toc" data-reveal="up">
+            <p className="smap-toc-head">
+              <span>구획</span>
+              <span>페이지</span>
+            </p>
+            <ol>
+              {summary.map((s) => (
+                <li key={s.href}>
+                  <a href={s.href}>
+                    <span className="smap-num" aria-hidden>
+                      {s.num}
+                    </span>
+                    <span className="smap-toc-label">{s.label}</span>
+                    <span className="smap-toc-count">{s.count.toLocaleString('ko-KR')}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <p className="smap-toc-total">
+              <span className="smap-label">홈 포함 전체</span>
+              <span className="smap-toc-count">{totalPages.toLocaleString('ko-KR')}</span>
+            </p>
+          </nav>
         }
       />
 
-      {/* ── 수리 분야 ── */}
-      <section id="by-service" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <h2 className="font-serif-kr text-2xl font-black sm:text-3xl">수리 분야</h2>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">
-          수리 항목 {keywords.length}종을 분야별로 묶었습니다. 뒤의 숫자는 그 항목에 준비된
-          지역 안내 페이지 수입니다.
-        </p>
-
-        <div className="mt-8 grid gap-5 lg:grid-cols-2">
-          {categoryBlocks.map(({ category, items }) => (
-            <section key={category.id} className="card p-5 sm:p-6">
-              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--line)] pb-3">
-                <h3 className="font-serif-kr text-lg font-black">
-                  <Link href={`/category/${category.slug}`} className="tap44 hover:text-[var(--copper)]">
-                    {category.display_name}
-                  </Link>
-                </h3>
-                <span className="text-[12px] font-bold text-[var(--ink-soft)]">
-                  {items.length}종
-                </span>
-              </div>
-              <ul className="mt-2 grid gap-0.5 sm:grid-cols-2">
-                {items.map((k) => {
-                  const n = regionsByKeyword.get(k.id)?.length ?? 0
-                  return (
-                    <li key={k.id}>
-                      <LinkRow
-                        href={`/${k.slug}`}
-                        label={k.display_name}
-                        note={n > 0 ? `${n}곳` : undefined}
-                      />
-                    </li>
-                  )
-                })}
-              </ul>
-            </section>
-          ))}
+      {/* ── 수리 분야 — 분야 블록을 다단으로 ── */}
+      <section id="by-service" className="section-y sec-rule scroll-mt-20">
+        <div className="wrap">
+          <SectionHead
+            num={numOf('by-service')}
+            label="수리 분야"
+            title="분야별 수리 항목"
+            desc={`수리 항목 ${keywords.length}종을 분야별로 묶었습니다. 뒤의 숫자는 그 항목에 준비된 지역 안내 페이지 수입니다.`}
+          />
+          <div className="smap-cols mt-10">
+            {numberedBlocks.map(({ category, items }) => (
+              <section key={category.id} className="smap-block" data-reveal="up">
+                <div className="smap-block-head">
+                  <h3>
+                    <Link href={`/category/${category.slug}`}>{category.display_name}</Link>
+                  </h3>
+                  <span className="smap-note">{items.length}종</span>
+                </div>
+                <ul>
+                  {items.map(({ k, num }) => {
+                    const n = regionsByKeyword.get(k.id)?.length ?? 0
+                    return (
+                      <li key={k.id}>
+                        <LinkRow href={`/${k.slug}`} num={num} label={k.display_name} note={n > 0 ? `${n}곳` : undefined} />
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── 지역별 안내 ──
-          194페이지를 한 번에 펼치면 화면이 링크 벽이 된다. 키워드별로 접어 두되
+          한 번에 펼치면 화면이 링크 벽이 된다. 키워드별로 접어 두되
           details는 닫혀 있어도 링크가 HTML에 남으므로 크롤러는 전부 읽는다. */}
       {keywordsWithRegions.length > 0 && (
-        <section id="by-region" className="scroll-mt-20 border-t border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <h2 className="font-serif-kr text-2xl font-black sm:text-3xl">지역별 안내</h2>
-            <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              수리 항목을 펼치면 그 항목의 지역 페이지 전체가 나옵니다. 모두{' '}
-              {regionPageCount.toLocaleString('ko-KR')}개입니다.
-            </p>
-
-            <div className="mt-7 border-t border-[var(--line)]">
-              {keywordsWithRegions.map((k) => {
+        <section id="by-region" className="section-y sec-rule scroll-mt-20">
+          <div className="wrap">
+            <SectionHead
+              num={numOf('by-region')}
+              label="지역별 안내"
+              title="항목별 지역 안내"
+              desc={`수리 항목을 펼치면 그 항목의 지역 페이지 전체가 나옵니다. 모두 ${regionPageCount.toLocaleString('ko-KR')}개입니다.`}
+            />
+            <div className="smap-folds mt-10" data-reveal="stagger" style={{ ['--stagger' as string]: '40ms' }}>
+              {keywordsWithRegions.map((k, i) => {
                 const list = regionsByKeyword.get(k.id)!
                 return (
-                  <details key={k.id} className="area-fold">
+                  <details key={k.id} className="area-fold smap-fold" style={{ ['--i' as string]: i }}>
                     <summary>
-                      <span>
-                        {k.display_name}{' '}
-                        <span className="text-[13px] font-semibold text-[var(--ink-soft)]">
-                          {list.length}곳
+                      <span className="smap-fold-head">
+                        <span className="smap-num" aria-hidden>
+                          {pad2(i + 1)}
                         </span>
+                        <span>{k.display_name}</span>
                       </span>
+                      <span className="smap-note">{list.length}곳</span>
                     </summary>
-                    <div className="pb-5">
-                      <Link
-                        href={`/${k.slug}`}
-                        className="inline-block px-2.5 pb-2 text-[13px] font-extrabold text-[var(--teal)] hover:underline"
-                      >
+                    <div className="smap-fold-body">
+                      <Link href={`/${k.slug}`} className="smap-fold-hub">
                         {k.display_name} 대표 페이지 →
                       </Link>
-                      <ul className="grid gap-0.5 sm:grid-cols-2 lg:grid-cols-3">
+                      <ul className="smap-list">
                         {list.map((r) => (
                           <li key={r.href}>
-                            <LinkRow
-                              href={r.href}
-                              label={`${r.name} ${k.display_name}`}
-                              note={r.upper || undefined}
-                            />
+                            <LinkRow href={r.href} label={`${r.name} ${k.display_name}`} note={r.upper || undefined} />
                           </li>
                         ))}
                       </ul>
@@ -231,45 +252,44 @@ export default async function SitemapPage() {
       )}
 
       {/* ── 분야 모음 (카테고리 페이지) ── */}
-      <section id="by-category" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <h2 className="font-serif-kr text-2xl font-black sm:text-3xl">분야 모음</h2>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">
-          한 분야에 속한 수리 항목을 모아 보는 페이지입니다.
-        </p>
-        <ul className="mt-6 flex flex-wrap gap-2.5">
-          {categoryBlocks.map(({ category, items }) => (
-            <li key={category.id}>
-              <Link
-                href={`/category/${category.slug}`}
-                className="inline-flex items-baseline gap-2 rounded-full border border-[var(--line)] bg-white px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
-              >
-                {category.display_name}
-                <span className="text-[12px] font-semibold text-[var(--ink-soft)]">
-                  {items.length}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <section id="by-category" className="section-y sec-rule scroll-mt-20">
+        <div className="wrap">
+          <SectionHead
+            num={numOf('by-category')}
+            label="분야 모음"
+            title="분야 모음 페이지"
+            desc="한 분야에 속한 수리 항목을 모아 보는 페이지입니다."
+          />
+          <ul className="smap-tiles mt-10" data-reveal="stagger" style={{ ['--stagger' as string]: '50ms' }}>
+            {categoryBlocks.map(({ category, items }, i) => (
+              <li key={category.id} style={{ ['--i' as string]: i }}>
+                <Link href={`/category/${category.slug}`} className="smap-tile">
+                  <span className="smap-num" aria-hidden>
+                    {pad2(i + 1)}
+                  </span>
+                  <span className="smap-tile-name">{category.display_name}</span>
+                  <span className="smap-note">항목 {items.length}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {/* ── 시공 사례 ── */}
       {cases.length > 0 && (
-        <section id="by-case" className="scroll-mt-20 border-t border-[var(--line)] bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <h2 className="font-serif-kr text-2xl font-black sm:text-3xl">시공 사례</h2>
-            <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              전·후 사진과 함께 정리한 기록 {cases.length}건입니다.
-            </p>
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {cases.map((c) => (
+        <section id="by-case" className="section-y sec-rule scroll-mt-20">
+          <div className="wrap">
+            <SectionHead
+              num={numOf('by-case')}
+              label="시공 사례"
+              title="시공 사례 기록"
+              desc={`전·후 사진과 함께 정리한 기록 ${cases.length}건입니다.`}
+            />
+            <ul className="smap-list mt-10" data-reveal="up">
+              {cases.map((c, i) => (
                 <li key={c.id}>
-                  <Link
-                    href={`/case/${c.slug}`}
-                    className="block rounded-xl border border-[var(--line)] bg-[var(--paper)] px-5 py-4 text-[15px] font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
-                  >
-                    {c.meta_title ?? c.slug}
-                  </Link>
+                  <LinkRow href={`/case/${c.slug}`} num={pad2(i + 1)} label={c.meta_title ?? c.slug ?? ''} />
                 </li>
               ))}
             </ul>
@@ -278,15 +298,15 @@ export default async function SitemapPage() {
       )}
 
       {/* ── 기계용 사이트맵 안내 ── */}
-      <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-        <p className="text-[13px] text-[var(--ink-soft)]">
-          검색엔진용 XML 사이트맵은{' '}
-          <a href="/sitemap.xml" className="font-bold text-[var(--teal)] hover:underline">
-            /sitemap.xml
-          </a>
-          에 있습니다.
-        </p>
-      </section>
+      <div className="sec-rule">
+        <div className="wrap py-8">
+          <p className="smap-xml">
+            검색엔진용 XML 사이트맵은{' '}
+            <a href="/sitemap.xml">/sitemap.xml</a>
+            에 있습니다.
+          </p>
+        </div>
+      </div>
     </main>
   )
 }
