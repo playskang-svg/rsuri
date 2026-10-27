@@ -23,7 +23,9 @@
 
 **버튼** — `.btn-call`(카카오·상담, 테라코타) · `.btn-ghost`(밝은 면) · `.btn-ghost-dark`(어두운 면) · `.btn-sm`(40px, 헤더용). 링크·버튼에 transform 호버 금지.
 
-**부속** — `.tick`(10px 체크 사각, `.tick-gold`) · `.chip-mono`(사진 위 라벨) · `.tap44` · `.sr-only`
+**부속** — `.tick`(10px 체크 사각, `.tick-gold`) · `.chip-mono`(사진 위 라벨; 히어로 박스 안에서는 코너 틱을 피해 22px 안쪽) · `.tap44` · `.sr-only` · `.case-cta`(시공 전후 그리드 마지막 칸 상담 패널, `.panel-dark .on-dark`와 같이)
+
+**홈 전용 블록** — `.home-hero`(모바일에서 전화 버튼은 숨김 — 하단 상담바가 맡는다) · `.stat-band`(3칸: 수리 항목·안내 지역·안내 페이지) · `.marquee`(JS 없음·reduced-motion이면 한 줄 손 스크롤 스트립) · `.principles`(≥900px `3fr 4fr 5fr`) · `.region-cols`(모바일부터 2열, 768 3열, 1024 4열) · `#process`는 섹션 머리 괘선을 숨기고 레일 선 하나만 · `.cat-photo`는 1024px 미만에서 숨김
 
 **옛 블록(이름 유지, 룩만 갱신)** — `.sec-head` `.num-cols` `.faq` `.page-hero` `.hero-inner` `.hero-photo` `.hero-tags` `.cta-band` `.site-foot` `.crumb-*` `.area-fold` `.search-*` `.diag-*` `.rule-list` `.cond-table` `.note-*` `.step-*`. `.callbar`는 전역 상담바가 대신하므로 `display:none`.
 
@@ -38,7 +40,7 @@
 
 | 이름 | 사용 |
 |---|---|
-| `CompareBox` | `sets`(PhotoSet[] 또는 FieldPhotoSet[]) · `size` 'hero'/'card' · `alt` · `ratio` '4/5'/'3/4' · `showThumbs` · `thumbsPosition` · `autoWipe`(홈 히어로만) · `eager` · `dark` · `showCaption`. 개념도 세트는 자동으로 `개념도` 칩. |
+| `CompareBox` | `sets`(PhotoSet[] 또는 FieldPhotoSet[]) · `size` 'hero'/'card' · `alt` · `ratio` '4/5'/'3/4' · `showThumbs` · `thumbsPosition` · `autoWipe`(홈 히어로만) · `eager` · `dark` · `showCaption`. 개념도 세트는 자동으로 `개념도` 칩. 세트에 `sameAngle:false`가 있으면 와이프 대신 **2단 나란히**(`.compare[data-layout="pair"]`, 3:2, 구분선·핸들 없음)로 그린다 — 촬영 위치가 다른 전/후를 와이프하면 다른 곳 사진처럼 보인다. 터치는 가로로 8px 이상 끌었을 때만 드래그(세로 스크롤 중 구분선이 튀지 않게), 마우스는 클릭 위치로 바로. |
 | `BeforeAfterSlider` | 옛 이름 래퍼(`sets`, `alt`) → CompareBox card. 그대로 써도 된다. |
 | `SectionHead` | `num="01" label="시공 전후" title desc as align('split'/'stack') dark`. 옛 `eyebrow` prop도 받는다. 번호는 페이지 안에서 01부터. |
 | `PageHero` | `tone` 'paper'/'beige'/'dark'/'image'(옛 yellow→beige, blue→dark 매핑). `photo`가 있으면 우측 3:4 렌더링 박스(image). `images`는 첫 장만. `eyebrow`(한국어 라벨) · `above`(브레드크럼) · `aside` · `tags` · children(버튼). |
@@ -51,6 +53,15 @@
 | `HeroSlider` | 유지(지역 랜딩 히어로). 신규 사용 금지. |
 
 사진 헬퍼(`web/lib/photos.ts`): `keywordPhoto` `keywordPhotos` `categoryPhoto` `homeHeroPhoto`(기존) + `fieldPhotoSets()` `fieldPhotoPairs()` `homePhotoSets()`.
+홈 세트 순서와 `sameAngle` 판정은 `scripts/build-site-data.mjs`의 `HOME_SET_ORDER` 한 곳에서 정한다(0번 = 히어로, 와이프가 성립하는 세트를 앞에).
+
+## 4.1 문구 규칙 (홈)
+
+- 숫자는 계산값만: `keywords.length` · 지역 수는 `'강남'/'강남구'`처럼 같은 이름을 합친 고유 수(`regionKey`) · `landings.length` · `photoSets.length`.
+- '같은 각도'·'같은 자리' 같은 사진에 대한 주장은 쓰지 않는다. 촬영 위치가 다를 수 있다고 밝힌다.
+- 상담 CTA는 어디로 가는지 밝힌다 — `카카오톡으로 사진 상담`(pf.kakao.com), 전화는 번호 그대로. '문자'를 쓰면 `sms:` 링크를 실제로 둔다.
+- 사업자 정보(상호·대표·등록번호·소재지)는 운영자가 주기 전까지 적지 않는다. 근거 없는 '법 준수' 문구도 쓰지 않는다.
+- 한 페이지에서 같은 약속 문장을 세 번 반복하지 않는다(h1 · 원칙 01 · 상담 띠가 각각 다른 원문 약속을 맡는다).
 
 ## 5. 페이지별 적용 규칙
 
