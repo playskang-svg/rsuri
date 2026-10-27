@@ -63,14 +63,12 @@ export function SiteHeader({
             <a href={tel} className="head-phone hidden md:inline-flex">
               {phone}
             </a>
-            <a
-              href={KAKAO_CHANNEL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-call btn-sm hidden lg:inline-flex"
-            >
-              사진 상담
-            </a>
+            {/* .btn-call이 display를 직접 정하므로 Tailwind hidden이 밀린다 — span으로 감싸 lg 이상만 보인다 */}
+            <span className="hidden lg:inline-flex">
+              <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call btn-sm">
+                사진 상담
+              </a>
+            </span>
             <button
               type="button"
               className="menu-btn lg:hidden"

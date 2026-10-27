@@ -206,7 +206,7 @@ export default async function HomePage() {
                     <p className="t-serif-line">{set.caption}</p>
                     {set.keywordSlug && (
                       <p className="label-mono mt-2">
-                        <a href={`/${set.keywordSlug}`} className="hover:text-[var(--copper)] hover:underline">
+                        <a href={`/${set.keywordSlug}`} className="inline-flex min-h-11 items-center hover:text-[var(--copper)] hover:underline">
                           {set.keywordName} →
                         </a>
                       </p>
