@@ -259,6 +259,8 @@ a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visibl
   border-radius: var(--r-control); background: transparent;
 }
 .menu-btn:hover { background: rgb(var(--shadow-rgb) / 0.06); }
+/* .menu-btn이 display를 직접 정해 Tailwind lg:hidden이 밀린다 — 데스크톱 내비가 펴지는 lg부터 숨긴다 */
+@media (min-width: 1024px) { .menu-btn { display: none; } }
 .menu-bars { display: flex; flex-direction: column; gap: 4.5px; width: 1.25rem; }
 .menu-bars i { display: block; height: 1.5px; background: var(--ink); transition: transform 200ms, opacity 200ms; }
 .menu-btn[aria-expanded="true"] .menu-bars i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
