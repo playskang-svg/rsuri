@@ -1,23 +1,33 @@
-// 모든 페이지의 푸터 위에 붙는 어두운 상담 띠. 참고 스킨의 "짐의 양보다 먼저, 두 공간의 조건을 봅니다."
-// 자리를 수리위키 말로 바꿨다 — 교체보다 보수·복원이 되는지를 먼저 본다는 원칙.
-// (2026-09-11 키워드를 문·문틀·문지방·필름·계단·마루·도배로 좁히면서 누수 중심 문구에서 바꿨다.)
+// 모든 페이지 푸터 위의 어두운 상담 띠 — --ink-2 + 블루프린트 그리드.
+// 문구는 사이트가 이미 하는 약속만. h1·원칙 01이 '바꾸기 전에 고칠 수 있는지'를 이미 말하므로
+// 여기서는 홈 lead 원문의 다른 약속('사진 한 장이면 진단 시작')을 쓴다 — 같은 문장을 세 번 만나지 않게.
+import { telHrefOf } from '@/lib/contact'
+
 const KAKAO_CHANNEL_URL = 'https://pf.kakao.com/_bcVPX'
 
-export function CtaBand() {
+export function CtaBand({ phone }: { phone?: string }) {
   return (
-    <section className="cta-band" aria-label="상담 안내">
+    <section className="cta-band blueprint" aria-label="상담 안내">
       <div className="inner">
-        <div>
-          <p className="eyebrow">Repair With Diagnosis</p>
+        <div data-reveal="up">
+          <p className="label-mono">상담</p>
           <h2>
-            바꾸기 전에,
+            사진 한 장이면
             <br />
-            고칠 수 있는지 봅니다.
+            진단을 시작할 수 있어요.
           </h2>
+          <p className="cta-note">작업 중에는 전화를 받기 어려운 시간이 많습니다 — 카카오톡 채널로 사진과 지역을 보내주세요.</p>
         </div>
-        <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call justify-self-start">
-          사진으로 상담하기
-        </a>
+        <div className="cta-btns">
+          <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call">
+            카카오톡으로 사진 상담
+          </a>
+          {phone && (
+            <a href={telHrefOf(phone)} className="btn-ghost-dark">
+              {phone}
+            </a>
+          )}
+        </div>
       </div>
     </section>
   )

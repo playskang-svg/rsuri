@@ -73,6 +73,15 @@ const PAIRS = [
   ['베이지 면 위 보조', 'ink-soft', 'beige', false],
   ['팁 박스 글자 / 팁 바탕', 'tip-ink', 'tip-bg', false],
   ['경고 글자 / 경고 바탕', 'danger-ink', 'danger-bg', false],
+  // 2026-10 리디자인 — 어두운 면 2단(--ink-2: 진행 과정·상담 띠), 베이지·연괘선 면, CTA 글자색
+  ['어두운 면2 위 본문', 'on-ink', 'ink-2', false],
+  ['어두운 면2 위 보조', 'on-ink-soft', 'ink-2', false],
+  ['어두운 면2 위 오커', 'gold', 'ink-2', false],
+  ['어두운 면2 위 흰 글자', 'card', 'ink-2', false],
+  ['베이지 면 위 강조', 'copper', 'beige', false],
+  ['보조 / 연괘선 면', 'ink-soft', 'line-soft', false],
+  ['CTA 글자색 / 종이', 'cta', 'paper', false],
+  ['파란 선택 면 위 흰 글자', 'card', 'copper', false],
 ]
 
 const tokens = parseTokens(readFileSync(CSS, 'utf8'))

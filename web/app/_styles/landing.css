@@ -1,0 +1,217 @@
+/* ──────────────────────────────────────────────────────────
+   지역 랜딩(/{keyword}/{region}) 전용 — 「현장 기록지 × 렌더링 박스」 적용분
+
+   공용 클래스(globals.css)는 다른 작업과 겹치므로 고치지 않고, 이 페이지에서만 lp- 접두어로 덧댄다.
+   Tailwind 유틸리티는 cascade layer 안에 있어 여기(레이어 밖) 규칙이 항상 이긴다 —
+   같은 속성을 유틸리티로 또 주지 않는다.
+   색은 globals.css 토큰만 쓴다. 쓰는 글자/바탕 조합은 전부 check-contrast.mjs PAIRS에 이미 있다.
+   ────────────────────────────────────────────────────────── */
+
+/* 섹션 리듬 — 모듈이 열 개 넘게 이어지는 긴 문서라 홈(.section-y)보다 한 단계 촘촘하게. 모바일 64px. */
+.lp-sec { padding-block: clamp(4rem, 7vw, 6rem); }
+
+/* ══════════════════════════════════════════════════════════
+   히어로 (.page-hero[data-tone=dark])
+   ══════════════════════════════════════════════════════════ */
+/* 요약(M01)은 밝게, 지역 검증 문장(M28)은 한 단계 낮게 */
+.lp-hero .hero-desc[data-module="M01"] { color: var(--on-ink); }
+.lp-hero .hero-desc + .hero-desc { margin-top: 0.75rem; }
+
+/* 사진 칸 — 슬라이더 사진이 전부 absolute라 내용 폭이 0이다. 공용 규칙의 margin-inline:auto와 만나면
+   데스크톱에서 칸이 0폭으로 접히므로 폭을 직접 준다(높이 70vh 상한 안에서 3:4 유지). */
+.lp-hero .hero-inner > .hero-photo { width: 100%; }
+@media (max-width: 1023px) {
+  /* 모바일은 사진이 먼저 나온다 — 3:4 그대로면 첫 화면을 사진이 다 차지해 h1이 밀린다. */
+  .lp-hero .hero-inner > .hero-photo { aspect-ratio: 4 / 3; }
+  .lp-hero .hero-photo img { object-position: center 62%; }
+}
+@media (min-width: 1024px) {
+  .lp-hero .hero-inner > .hero-photo { width: min(100%, calc(70vh * 3 / 4)); }
+}
+
+/* 브레드크럼 — 링크·드롭다운 머리마다 탭 높이 44px */
+.lp-crumbs { position: relative; }
+.lp-crumbs ol > li > a,
+.lp-crumbs .crumb-drop > summary { display: inline-flex; align-items: center; min-height: 44px; }
+.lp-crumbs .crumb-panel a { padding-block: 0.75rem; line-height: 1.25rem; }
+@media (max-width: 639px) {
+  /* 드롭다운을 브레드크럼 줄 폭에 맞춰 연다 — 항목 위치에서 열면 360px 화면에서 오른쪽이 잘린다. */
+  .lp-crumbs .crumb-drop { position: static; }
+  .lp-crumbs .crumb-panel { left: 0; right: 0; width: auto; max-width: none; max-height: min(60vh, 22rem); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   시공 전후 — 왼쪽 섹션 머리(데스크톱 고정) + 오른쪽 렌더링 박스(매트 안에 비교 박스)
+   ══════════════════════════════════════════════════════════ */
+.lp-case { display: grid; gap: 2.5rem; }
+.lp-case-box { width: 100%; max-width: 30rem; justify-self: center; padding: 0.75rem; }
+.lp-case-box .compare[data-size] { border-radius: calc(var(--r-panel) - 4px); }
+.lp-case-box .compare-caption { padding: 0 0.25rem 0.25rem; }
+@media (min-width: 1024px) {
+  .lp-case { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
+  .lp-case-head { position: sticky; top: 6rem; }
+  .lp-case-box { justify-self: end; padding: 1rem; }
+}
+/* 개념도 고지 — 실제 현장 사진으로 오인되지 않게 박스 밖에서도 밝힌다 */
+.lp-note {
+  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.625rem;
+  border: 1px solid var(--line); border-radius: var(--r-chip);
+  font-family: var(--mono); font-size: 0.8125rem; letter-spacing: 0.02em; line-height: 1.4; color: var(--ink-soft);
+}
+
+/* ══════════════════════════════════════════════════════════
+   괘선 격자 — 칸 사이에만 1px 선, 위는 잉크 선·아래는 괘선. 카드 상자 대신 기록지 칸.
+   칸마다 위·왼쪽 테두리를 -1px 겹쳐 두고, 바깥으로 삐져나간 첫 줄·첫 열 선은 overflow로 잘라낸다.
+   마지막 줄이 덜 차도 빈자리에 선이 남지 않는다. 첫 열은 왼쪽 여백 없이 제목 선에 맞춘다.
+   ══════════════════════════════════════════════════════════ */
+.lp-grid { display: grid; overflow: hidden; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+.lp-grid > * {
+  min-width: 0; margin: -1px 0 0 -1px; padding: 1.5rem 0 1.75rem 1px;
+  border-top: 1px solid var(--line); border-left: 1px solid var(--line); word-break: keep-all;
+}
+.lp-grid[data-dense] > * { padding-top: 1rem; padding-bottom: 1.125rem; }
+@media (min-width: 640px) {
+  .lp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lp-grid > * { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .lp-grid > :nth-child(2n + 1) { padding-left: 1px; }
+}
+@media (min-width: 1024px) {
+  .lp-grid[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lp-grid[data-cols="3"] > :nth-child(2n + 1) { padding-left: 1.5rem; }
+  .lp-grid[data-cols="3"] > :nth-child(3n + 1) { padding-left: 1px; }
+}
+.lp-num { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; line-height: 1.5; color: var(--copper); }
+
+/* ══════════════════════════════════════════════════════════
+   기준 행 — 왼쪽 항목명, 오른쪽 설명 (상태 구분 · 수리/교체 기준)
+   ══════════════════════════════════════════════════════════ */
+.lp-rows { max-width: 56rem; border-top: 1px solid var(--ink); }
+.lp-rows > li { display: grid; gap: 0.625rem; padding: 1.25rem 0; border-bottom: 1px solid var(--line); word-break: keep-all; }
+@media (min-width: 640px) {
+  .lp-rows > li { grid-template-columns: 13rem minmax(0, 1fr); gap: 2rem; align-items: baseline; }
+}
+.lp-badge {
+  justify-self: start; display: inline-flex; align-items: center; padding: 0.25rem 0.625rem;
+  border-radius: var(--r-chip); background: var(--ink); color: var(--card);
+  font-size: 0.875rem; font-weight: 700; line-height: 1.4;
+}
+.lp-row-key { font-weight: 700; }
+
+/* ══════════════════════════════════════════════════════════
+   현장 판단 인용 — 베이지 인용 면(렌더링 박스 아님: 그림자·둥근 모서리 없음)
+   ══════════════════════════════════════════════════════════ */
+.lp-quote { max-width: 48rem; padding: 1.5rem 1.25rem; background: var(--beige); border-left: 2px solid var(--ink); }
+.lp-quote p { font-family: var(--serif); font-weight: 400; font-size: 1.125rem; line-height: 1.8; color: var(--ink); word-break: keep-all; }
+@media (min-width: 1024px) {
+  .lp-quote { padding: 2rem 2.25rem; }
+  .lp-quote p { font-size: 1.25rem; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   지역 롱폼 본문
+   ══════════════════════════════════════════════════════════ */
+.lp-prose { max-width: 46rem; }
+.lp-lead { font-family: var(--serif); font-weight: 400; font-size: 1.1875rem; line-height: 1.75; color: var(--ink); word-break: keep-all; }
+@media (min-width: 1024px) { .lp-lead { font-size: 1.375rem; } }
+.lp-article { margin-top: 3rem; }
+.lp-article > p { line-height: 1.85; word-break: keep-all; }
+
+/* 체크 목록 — 한 줄씩 괘선 */
+.lp-list { border-top: 1px solid var(--line); }
+.lp-list > li { display: flex; align-items: flex-start; gap: 0.875rem; padding: 0.875rem 0; border-bottom: 1px solid var(--line-soft); word-break: keep-all; }
+.lp-list > li > .tick { margin-top: 0.5rem; }
+.lp-list > li > .lp-num { flex: none; margin-top: 0.2rem; }
+
+/* 본문 끝 — 다음 갈 곳 한 줄 */
+.lp-next { display: grid; gap: 1rem; padding: 1.5rem 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+@media (min-width: 640px) { .lp-next { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2rem; } }
+
+/* ══════════════════════════════════════════════════════════
+   진행 절차 — 단계(왼쪽) + 현장 사진 렌더링 박스(오른쪽, 데스크톱 고정)
+   ══════════════════════════════════════════════════════════ */
+.lp-process { display: grid; gap: 2.5rem; }
+.lp-process > ol { max-width: 46rem; }
+.lp-process > .lp-process-photo { width: 100%; aspect-ratio: 4 / 3; }
+.lp-process-photo img { object-position: center 62%; }
+@media (min-width: 1024px) {
+  .lp-process.has-photo { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 4rem; align-items: start; }
+  .lp-process.has-photo > ol { grid-column: 1; grid-row: 1; }
+  .lp-process > .lp-process-photo {
+    grid-column: 2; grid-row: 1; justify-self: end; max-width: 26rem; aspect-ratio: 3 / 4;
+    position: sticky; top: 6rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   관련 페이지 — 썸네일 행 목록(카드 상자 대신 괘선 행)
+   ══════════════════════════════════════════════════════════ */
+.lp-sub { font-size: 1.0625rem; font-weight: 700; line-height: 1.45; word-break: keep-all; }
+.lp-links { display: grid; column-gap: 2rem; border-top: 1px solid var(--ink); }
+@media (min-width: 640px) { .lp-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .lp-links { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.lp-links > li { min-width: 0; border-bottom: 1px solid var(--line); }
+.lp-card { display: flex; align-items: center; gap: 1rem; min-height: 44px; padding: 0.875rem 0.5rem; transition: background-color 120ms; }
+a.lp-card:hover { background: var(--card); }
+a.lp-card:hover .lp-card-title { color: var(--copper); }
+.lp-card.is-here { background: var(--card); box-shadow: inset 2px 0 0 var(--ink); padding-left: 0.875rem; }
+.lp-card-thumb { flex: none; width: 3.5rem; aspect-ratio: 3 / 4; overflow: hidden; border-radius: var(--r-chip); background: var(--line-soft); }
+.lp-card-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.lp-card-body { flex: 1; min-width: 0; }
+.lp-card-title { font-weight: 700; line-height: 1.45; word-break: keep-all; transition: color 120ms; }
+.lp-card-meta { margin-top: 0.25rem; font-size: 0.875rem; line-height: 1.5; color: var(--ink-soft); }
+.lp-card-go { margin-top: 0.375rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--copper); }
+.lp-here {
+  display: inline-flex; margin-bottom: 0.375rem; padding: 2px 6px; border: 1px solid var(--ink); border-radius: var(--r-chip);
+  font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.04em; line-height: 1.4;
+}
+
+/* 시공 기록 바로가기 한 줄 */
+.lp-link-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 56rem;
+  padding: 1.5rem 0.25rem; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line);
+  transition: background-color 120ms;
+}
+.lp-link-row:hover { background: var(--card); }
+.lp-arrow {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+  border: 1px solid var(--line); border-radius: var(--r-control); color: var(--copper); transition: border-color 120ms;
+}
+.lp-link-row:hover .lp-arrow { border-color: var(--copper); }
+
+/* ══════════════════════════════════════════════════════════
+   하단 상담 박스(M24) — 베이지 면 렌더링 박스 + 세리프 제목 + 버튼 두 개
+   ══════════════════════════════════════════════════════════ */
+.panel.lp-consult { display: grid; gap: 1.75rem; padding: 2rem 1.25rem; background: var(--beige); }
+@media (min-width: 640px) { .panel.lp-consult { padding: 2.5rem 2rem; } }
+@media (min-width: 1024px) {
+  .panel.lp-consult { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; gap: 3rem; padding: 3.5rem; }
+}
+.lp-consult-title {
+  margin-top: 0.75rem; max-width: 20ch; font-family: var(--serif); font-weight: 600;
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.125rem); line-height: 1.3; letter-spacing: -0.015em; word-break: keep-all;
+}
+.lp-consult-facts { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 1.5rem; font-size: 0.875rem; color: var(--ink-soft); }
+.lp-consult-facts > li { display: inline-flex; align-items: center; gap: 0.5rem; }
+.lp-consult-btns { display: grid; gap: 0.625rem; }
+@media (min-width: 640px) and (max-width: 1023px) { .lp-consult-btns { display: flex; flex-wrap: wrap; } }
+
+/* ══════════════════════════════════════════════════════════
+   사이트맵 — 권역별 접이식 색인 안의 링크(행 높이 44px)
+   ══════════════════════════════════════════════════════════ */
+.lp-fold-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1rem; padding-bottom: 1.25rem; }
+@media (min-width: 640px) { .lp-fold-links { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .lp-fold-links { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.lp-fold-links > li { min-width: 0; }
+.lp-fold-links a {
+  display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 0.75rem 0.25rem; line-height: 1.25rem; font-size: 0.875rem; font-weight: 500; color: var(--ink-soft);
+  border-bottom: 1px solid var(--line-soft); transition: color 120ms, background-color 120ms;
+}
+.lp-fold-links a:hover { color: var(--copper); background: var(--card); }
+
+/* ══════════════════════════════════════════════════════════
+   공용 규칙과의 조율
+   ══════════════════════════════════════════════════════════ */
+/* globals.css의 `#process .sec-head .sec-line{display:none}`은 홈(가로 진행 레일이 괘선 역할)용이다.
+   지역 랜딩의 진행 절차는 세로 단계라 이중 괘선이 생기지 않으므로 다른 섹션처럼 머리 괘선을 둔다. */
+#process.lp-sec .sec-head .sec-line { display: block; }

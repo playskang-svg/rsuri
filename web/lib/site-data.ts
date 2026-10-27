@@ -10,6 +10,22 @@ import { fileURLToPath } from 'node:url'
 import type { KeywordImage } from './keyword-images'
 import type { Category, LocalPro, Page, PageImage, PageSection, Region, RepairKeyword } from './types'
 
+/** 현장 사진 세트 한 벌 — field-photos.json의 sets 한 항목. 홈·허브가 전/후 박스에 쓴다. */
+export interface FieldPhotoSet {
+  key: string
+  /** field = /photos/field/ 실사, illustration = 개념도(svg), external = 외부 URL(네이버) */
+  kind: 'field' | 'illustration' | 'external'
+  before: string | null
+  after: string | null
+  process: string[]
+  caption: string
+  /** 이 세트를 쓰는 대표 허브 — 캡션 아래 링크. 없으면 null */
+  keywordSlug: string | null
+  keywordName: string | null
+  /** 전/후를 같은 자리·같은 각도에서 찍었는지(field-photos.json). false면 와이프 대신 2단 나란히로 보여 준다. */
+  sameAngle?: boolean
+}
+
 export interface SiteData {
   site: { phone: string; homeHero: string }
   categories: Category[]
@@ -21,6 +37,10 @@ export interface SiteData {
   photoPools: Record<string, string[]>
   /** 분야 slug → 대표 사진 (홈 분야 카드·분야 히어로) */
   categoryPhotos: Record<string, string>
+  /** 모든 사진 세트(실사·개념도·외부 구분 포함) */
+  photoSets: FieldPhotoSet[]
+  /** 홈 히어로·시공 전후 기록용 — 실사 전/후 쌍만, 극적인 순 */
+  homePhotoSets: FieldPhotoSet[]
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url))

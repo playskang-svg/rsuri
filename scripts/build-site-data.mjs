@@ -288,6 +288,56 @@ for (const kw of keywords) {
   photoPools[kw.slug] = uniq([...own, ...(photos.familyPhotos[kw.family] ?? [])])
 }
 
+// 홈 히어로·시공 전후 기록이 쓰는 실사 전/후 세트.
+// 경로를 TSX에 박지 않고 여기서 한 번만 고른다 — 사진이 바뀌면 field-photos.json만 고치면 된다.
+// 조건: before·after 둘 다 /photos/field/ 실사(개념도 svg·외부 URL 제외).
+// frame-corner는 반려견 울타리가 찍혀 대표 노출을 피한다(운영자 지적). frame-paint는 전 사진이 없다.
+//
+// sameAngle(전/후 같은 자리·각도 여부)은 field-photos.json sets에 적는다 — 홈·허브·지역 페이지가 같은 값을 쓴다.
+//   true  = 구분선 와이프 박스로 보여도 전/후가 이어진다(문지방·문틀 위치가 좌우 같은 자리).
+//   false = 촬영 위치가 달라 와이프하면 다른 곳처럼 보인다 → 2단 나란히(data-layout=pair)로 보여 준다.
+// 순서: 와이프가 성립하는 세트를 앞에(0번 = 홈 히어로), 각도가 다른 세트는 뒤에.
+// frame-bluedoor는 가장 극적이지만 전(복도 쪽)·후(욕실 안쪽)가 반대편에서 찍혀 히어로 와이프에서
+// '파란 문을 새로 단 것'처럼 읽혔다(2026-10 비평) — 나란히 레이아웃으로 그리드에 둔다.
+const HOME_SET_ORDER = ['frame-bath-rot', 'threshold-bath', 'threshold-marble', 'frame-terrazzo', 'frame-bluedoor', 'frame-sliding']
+const isField = (u) => typeof u === 'string' && u.startsWith('/photos/field/')
+function setKind(set) {
+  const urls = [set.before, set.after, ...(set.process ?? [])].filter(Boolean)
+  if (urls.every((u) => u.startsWith('/illustrations/'))) return 'illustration'
+  if (urls.every(isField)) return 'field'
+  return 'external'
+}
+// 세트 → 그 세트를 쓰는 대표 키워드(keywordSets에서 먼저 쓴 허브). 캡션 아래 링크가 된다.
+function keywordOfSet(name) {
+  const uses = (kw) => (photos.keywordSets[kw.slug] ?? photos.familySets[kw.family] ?? []).includes(name)
+  // 세트 이름 앞머리(frame·threshold…)가 계열 이름과 같으면 그 계열의 허브를 먼저 — 문틀 사진은
+  // 문틀수리로 보내야지, 같은 사진을 빌려 쓰는 문수리로 보내면 캡션과 링크가 어긋난다.
+  const family = name.split('-')[0]
+  return keywords.find((kw) => kw.family === family && uses(kw)) ?? keywords.find(uses) ?? null
+}
+const photoSets = Object.entries(photos.sets).map(([key, set]) => {
+  const kw = keywordOfSet(key)
+  return {
+    key,
+    kind: setKind(set),
+    before: set.before ?? null,
+    after: set.after ?? null,
+    process: set.process ?? [],
+    caption: set.caption,
+    keywordSlug: kw?.slug ?? null,
+    keywordName: kw?.display_name ?? null,
+    // 확인한 세트만 true. 적지 않은 실사·외부 사진은 나란히(같은 자리라고 주장하지 않는다), 개념도는 와이프.
+    sameAngle: typeof set.sameAngle === 'boolean' ? set.sameAngle : setKind(set) === 'illustration',
+  }
+})
+const photoSetByKey = new Map(photoSets.map((s) => [s.key, s]))
+const homePhotoSets = HOME_SET_ORDER.map((key) => {
+  const s = photoSetByKey.get(key)
+  if (!s) throw new Error(`field-photos.json에 없는 홈 세트: ${key}`)
+  if (s.kind !== 'field' || !s.before || !s.after) throw new Error(`홈 세트 ${key}는 실사 전/후 쌍이어야 합니다`)
+  return s
+})
+
 const out = {
   _note: 'scripts/build-site-data.mjs가 만든 파일. 직접 고치지 말고 scripts/data/의 원본을 고친 뒤 다시 생성한다.',
   site: { phone: SITE_PHONE, homeHero: photos.homeHero },
@@ -298,12 +348,14 @@ const out = {
   pages,
   keywordImages,
   photoPools,
+  photoSets,
+  homePhotoSets,
 }
 
 const json = JSON.stringify(out, null, 1) + '\n'
 {
   writeFileSync(OUT, json)
   console.log(
-    `site-data.json — 분야 ${categories.length} · 허브 ${keywords.length} · 지역 ${regions.length} · 지역 페이지 ${pages.length} · 사진 ${keywordImages.length}`,
+    `site-data.json — 분야 ${categories.length} · 허브 ${keywords.length} · 지역 ${regions.length} · 지역 페이지 ${pages.length} · 사진 ${keywordImages.length} · 홈 전후 세트 ${homePhotoSets.length}`,
   )
 }

@@ -4,27 +4,32 @@
     "frame-bath-rot": {
       "before": "/photos/field/frame-bath-rot-before.webp",
       "after": "/photos/field/frame-bath-rot-after.webp",
-      "caption": "욕실 문틀 하단 부식 — 삭은 부분 절삭, 새 목재 접합 후 필름 마감"
+      "caption": "욕실 문틀 하단 부식 — 삭은 부분 절삭, 새 목재 접합 후 필름 마감",
+      "sameAngle": true
     },
     "frame-terrazzo": {
       "before": "/photos/field/frame-terrazzo-before.webp",
       "after": "/photos/field/frame-terrazzo-after.webp",
-      "caption": "욕실 문틀 하단 벗겨짐 — 부분 교체 후 기존 색 필름으로 마감"
+      "caption": "욕실 문틀 하단 벗겨짐 — 부분 교체 후 기존 색 필름으로 마감",
+      "sameAngle": false
     },
     "frame-bluedoor": {
       "before": "/photos/field/frame-bluedoor-before.webp",
       "after": "/photos/field/frame-bluedoor-after.webp",
-      "caption": "물먹어 속까지 드러난 문틀 — 하단 교체 후 화이트 마감"
+      "caption": "물먹어 속까지 드러난 문틀 — 하단 교체 후 화이트 마감",
+      "sameAngle": false
     },
     "frame-sliding": {
       "before": "/photos/field/frame-sliding-before.webp",
       "after": "/photos/field/frame-sliding-after.webp",
-      "caption": "미닫이 문틀 하단 오염·파손 — 보수 후 필름 재시공"
+      "caption": "미닫이 문틀 하단 오염·파손 — 보수 후 필름 재시공",
+      "sameAngle": false
     },
     "frame-corner": {
       "before": "/photos/field/frame-corner-before.webp",
       "after": "/photos/field/frame-corner-after.webp",
-      "caption": "문틀 모서리 필름 벗겨짐·패임 — 메꿈 후 필름 재시공"
+      "caption": "문틀 모서리 필름 벗겨짐·패임 — 메꿈 후 필름 재시공",
+      "sameAngle": false
     },
     "frame-paint": {
       "process": [
@@ -36,12 +41,14 @@
     "threshold-bath": {
       "before": "/photos/field/threshold-bath-before.webp",
       "after": "/photos/field/threshold-bath-after.webp",
-      "caption": "깨진 화장실 문지방 — 철거 후 새 문지방 설치·이음부 마감"
+      "caption": "깨진 화장실 문지방 — 철거 후 새 문지방 설치·이음부 마감",
+      "sameAngle": true
     },
     "threshold-marble": {
       "before": "/photos/field/threshold-marble-before.webp",
       "after": "/photos/field/threshold-marble-after.webp",
-      "caption": "욕실 문지방 교체 — 기존 문지방 철거 후 새로 앉힘"
+      "caption": "욕실 문지방 교체 — 기존 문지방 철거 후 새로 앉힘",
+      "sameAngle": true
     },
     "ill-door-panel": {
       "before": "/illustrations/door-repair/panel-hole-before.svg",
@@ -93,6 +100,7 @@
       "caption": "벽지 손상 상태 확인 및 부분도배 준비"
     }
   },
+  "_sameAngle_note": "sets.*.sameAngle — 전/후를 같은 자리·같은 각도에서 찍었는지(사진을 직접 보고 판단). true만 구분선 와이프로 겹쳐 보여 준다. false이거나 적지 않은 실사·외부 사진은 2단 나란히로 보여 준다 — '같은 자리'라는 주장은 확인한 세트에만 한다. 개념도(svg)는 같은 구도로 그렸으므로 와이프.",
   "_keywordSets_note": "키워드 slug → 시공 전후 세트. 여기 없는 키워드는 계열(family) 기본값을 쓴다. 실사와 개념도를 한 키워드에 섞지 않는다 — 섞으면 개념도 표기가 사라져 그림이 실제 현장처럼 보인다.",
   "familySets": {
     "door": [],
@@ -238,7 +246,7 @@
   "homeHero": "/photos/field/frame-bluedoor-after.webp",
   "_categoryPhotos_note": "홈 분야 카드·분야 페이지 히어로에 거는 대표 사진. 분야마다 가장 잘 보이는 완성 사진을 직접 고른다(무작위로 고르면 반려견 울타리가 걸린 장면 같은 게 대표가 된다). 없는 분야는 글만.",
   "categoryPhotos": {
-    "door": "/photos/field/frame-sliding-after.webp",
+    "door": "/photos/field/frame-white-hinge.webp",
     "doorframe": "/photos/field/frame-terrazzo-after.webp",
     "threshold": "/photos/field/threshold-marble-after.webp",
     "film": "/photos/field/frame-bath-rot-after.webp"

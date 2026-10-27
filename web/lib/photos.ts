@@ -7,7 +7,7 @@
 // 규칙: 그 키워드와 맞는 실사가 없으면 null을 돌려주고, 호출하는 쪽은 사진 칸을 비운다.
 // 맞지 않는 사진을 채워 넣는 것보다 빈 칸이 낫다. 사진 목록은 scripts/data/field-photos.json.
 
-import { loadSiteData } from './site-data'
+import { loadSiteData, type FieldPhotoSet } from './site-data'
 import { USE_FIXTURES } from './supabase'
 
 function hashCode(s: string): number {
@@ -42,4 +42,34 @@ export function homeHeroPhoto(): string | null {
 export function categoryPhoto(categorySlug: string): string | null {
   if (USE_FIXTURES) return null
   return loadSiteData().categoryPhotos[categorySlug] ?? null
+}
+
+/** 모든 사진 세트. 실사·개념도·외부를 kind로 구분한다. */
+export function fieldPhotoSets(): FieldPhotoSet[] {
+  if (USE_FIXTURES) return []
+  return loadSiteData().photoSets
+}
+
+/** 실사 전/후 쌍만 (개념도·외부 URL·한 장짜리 제외). */
+export function fieldPhotoPairs(): FieldPhotoSet[] {
+  return fieldPhotoSets().filter((s) => s.kind === 'field' && s.before && s.after)
+}
+
+/** 홈 히어로·전후 기록 세트 — build-site-data.mjs가 고른 순서 그대로. */
+export function homePhotoSets(): FieldPhotoSet[] {
+  if (USE_FIXTURES) return []
+  return loadSiteData().homePhotoSets
+}
+
+/**
+ * 시공 전 사진 주소 → 같은 자리·각도 여부. 키워드 사진 세트(허브·지역 페이지)는 DB 행 모양이라
+ * 이 값을 싣지 못한다 — 같은 세트 표(field-photos.json)에서 전 사진 주소로 찾아 붙인다.
+ */
+export function sameAngleByBefore(): Map<string, boolean> {
+  const map = new Map<string, boolean>()
+  if (USE_FIXTURES) return map
+  for (const s of loadSiteData().photoSets ?? []) {
+    if (s.before) map.set(s.before, s.sameAngle === true)
+  }
+  return map
 }

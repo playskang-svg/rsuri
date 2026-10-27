@@ -1,0 +1,133 @@
+/* ──────────────────────────────────────────────────────────
+   키워드 허브(/{keyword}) 전용 스타일.
+   공용 클래스(globals.css)는 건드리지 않고, 페이지 루트 main.hub 아래에서만 덧댄다.
+   색은 :root 토큰만 쓰고, 조합은 check-contrast.mjs PAIRS에 이미 있는 것만 쓴다
+   (ink·ink-soft·copper × paper·card·beige).
+   ────────────────────────────────────────────────────────── */
+
+/* ── 히어로: 브레드크럼 · 설명 ── */
+.hub .hub-crumb { margin-bottom: 1.25rem; }
+.hub .hub-crumb ol {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  font-size: 0.8125rem; line-height: 1.5; color: var(--ink-soft);
+}
+.hub .hub-crumb a { transition: color 120ms; }
+.hub .hub-crumb a:hover { color: var(--copper); }
+.hub .hub-crumb [aria-current] { color: var(--ink); font-weight: 700; }
+.hub .hub-hook { margin-top: 0.875rem; font-weight: 700; }
+.hub .hub-note { margin-top: 0.875rem; color: var(--ink-soft); }
+.hub .hub-alias { margin-top: 0.875rem; }
+
+/* 히어로 오른쪽 — 맞는 실사가 없을 때만 서는 "고치는 항목" 기록지 */
+.hub .hub-aside { padding: 1.25rem 1.25rem 1.5rem; }
+@media (min-width: 640px) { .hub .hub-aside { padding: 1.75rem 2rem 2rem; } }
+.hub .hub-aside-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding-bottom: 0.875rem; border-bottom: 1px solid var(--ink);
+}
+.hub .hub-aside-head .label-mono { display: inline-flex; align-items: center; gap: 0.5rem; }
+.hub .hub-aside ul > li {
+  display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); gap: 0.5rem; align-items: baseline;
+  padding: 0.75rem 0; border-bottom: 1px solid var(--line-soft);
+  font-weight: 600; line-height: 1.5; word-break: keep-all;
+}
+.hub .hub-tagline {
+  margin-top: 1.25rem; font-family: var(--serif); font-weight: 400;
+  font-size: 1.0625rem; line-height: 1.6; word-break: keep-all;
+}
+
+/* ── 01 시공 전후: 비교 박스(왼쪽) + 기록 목록(오른쪽) ── */
+.hub .hub-cases { display: grid; gap: 2rem; }
+.hub .hub-compare { width: 100%; max-width: 28rem; }
+@media (min-width: 768px) {
+  .hub .hub-cases { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 2.5rem; align-items: start; }
+  .hub .hub-compare { max-width: none; }
+}
+@media (min-width: 1024px) {
+  .hub .hub-cases { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4rem; }
+}
+/* CompareBox를 렌더링 박스(.panel) 안에 넣는다 — 사진은 박스 모서리까지, 썸네일 줄만 안쪽 여백 */
+.hub .hub-compare .compare-wrap { gap: 0; }
+.hub .hub-compare .compare-thumbs { margin: 0; padding: 0.75rem; }
+.hub .hub-records-head { display: flex; align-items: center; gap: 0.5rem; }
+.hub .hub-records { margin-top: 1rem; border-top: 1px solid var(--ink); }
+.hub .hub-records > li {
+  display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0.75rem;
+  padding: 1rem 0; border-bottom: 1px solid var(--line);
+}
+.hub .hub-records .label-mono { color: var(--copper); line-height: 1.7rem; }
+.hub .hub-records p {
+  font-family: var(--serif); font-weight: 400; font-size: 1.0625rem; line-height: 1.6; word-break: keep-all;
+}
+.hub .hub-cases-note { margin-top: 1.25rem; }
+
+/* ── 세부 항목: 괘선 장부 — 위 굵은 선 + 칸마다 아래 1px ── */
+.hub .hub-items { display: grid; border-top: 1px solid var(--ink); }
+@media (min-width: 640px) { .hub .hub-items { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; } }
+@media (min-width: 1024px) { .hub .hub-items { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 2.5rem; } }
+.hub .hub-items > li { padding: 1.5rem 0 1.75rem; border-bottom: 1px solid var(--line); }
+.hub .hub-items .label-mono { color: var(--copper); }
+.hub .hub-items h3 { margin-top: 1.25rem; font-size: 1.1875rem; font-weight: 700; line-height: 1.4; word-break: keep-all; }
+.hub .hub-items p { margin-top: 0.5rem; color: var(--ink-soft); line-height: 1.7; word-break: keep-all; }
+
+/* ── 자가 점검: 체크 사각 + 문장, 2열 ── */
+.hub .hub-checks { display: grid; border-top: 1px solid var(--ink); }
+@media (min-width: 768px) { .hub .hub-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; } }
+.hub .hub-checks > li {
+  display: flex; align-items: flex-start; gap: 0.875rem;
+  padding: 1.125rem 0; border-bottom: 1px solid var(--line); line-height: 1.65; word-break: keep-all;
+}
+.hub .hub-checks .tick { margin-top: 0.5rem; }
+
+/* ── 전문 시공: 번호 + 세리프 한 문장 ── */
+.hub .hub-reasons { display: grid; border-top: 1px solid var(--ink); }
+@media (min-width: 768px) { .hub .hub-reasons { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; } }
+@media (min-width: 1024px) { .hub .hub-reasons { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.hub .hub-reasons > li { padding: 1.5rem 0 1.75rem; border-bottom: 1px solid var(--line); }
+.hub .hub-reasons .label-mono { display: flex; align-items: center; gap: 0.5rem; color: var(--copper); }
+.hub .hub-reasons p {
+  margin-top: 0.875rem; font-family: var(--serif); font-weight: 400;
+  font-size: 1.125rem; line-height: 1.65; word-break: keep-all;
+}
+
+/* ── 진행 과정: ProcessRail dark={false} — 밝은 면 색은 globals.css .rail-light ── */
+.hub .rail-light .rail-step p { font-size: 1rem; }
+
+/* ── 서비스 지역 ── */
+.hub .hub-region-note { margin-top: 1.5rem; color: var(--ink-soft); word-break: keep-all; }
+/* 지역 페이지가 없는 항목 — 상담 박스(베이지 렌더링 박스) */
+.hub .hub-nolocal { background: var(--beige); padding: 1.5rem 1.25rem 1.75rem; }
+@media (min-width: 640px) { .hub .hub-nolocal { padding: 2.25rem 2.5rem 2.5rem; } }
+.hub .hub-nolocal > * + * { margin-top: 2rem; }
+@media (min-width: 1024px) {
+  .hub .hub-nolocal { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 3rem; align-items: start; }
+  .hub .hub-nolocal > * + * { margin-top: 0; }
+}
+.hub .hub-nolocal h3 {
+  margin-top: 0.75rem; font-family: var(--serif); font-weight: 600;
+  font-size: 1.5rem; line-height: 1.35; letter-spacing: -0.01em; word-break: keep-all;
+}
+.hub .hub-nolocal .hub-body { margin-top: 0.75rem; color: var(--ink-soft); line-height: 1.7; word-break: keep-all; }
+.hub .hub-nolocal .hub-links a { border-bottom-color: var(--line); }
+.hub .hub-nolocal .hub-links a:hover { background: var(--paper); }
+
+/* ── 링크 목록(관련 페이지·같은 분야) — RegionColumns와 같은 44px+ 행 ── */
+.hub .hub-sub { font-size: 1.125rem; font-weight: 700; line-height: 1.4; word-break: keep-all; }
+.hub .hub-links { display: grid; column-gap: 2rem; }
+@media (min-width: 640px) { .hub .hub-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .hub .hub-links:not([data-cols="2"]) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.hub .hub-links a {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  min-height: 48px; padding: 0.5rem; border-bottom: 1px solid var(--line-soft);
+  font-weight: 500; line-height: 1.45; word-break: keep-all;
+  transition: background-color 120ms, color 120ms;
+}
+.hub .hub-links a:hover { background: var(--card); color: var(--copper); }
+.hub .hub-links .soft { color: var(--ink-soft); font-weight: 400; }
+.hub .hub-links .meta { display: inline-flex; align-items: center; gap: 0.5rem; flex: none; color: var(--copper); }
+.hub .hub-links .meta .label-mono { letter-spacing: 0; }
+.hub .hub-more { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--copper); }
+.hub .hub-more:hover { color: var(--copper-deep); text-decoration: underline; }
+
+/* ── 자주 묻는 질문 ── */
+.hub .hub-faq { max-width: 52rem; }
