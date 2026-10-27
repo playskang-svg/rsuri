@@ -29,7 +29,8 @@ export function CategoryIndex({ panels, defaultOpenSlug }: { panels: CategoryPan
                     <li key={k.id}>
                       <Link href={`/${k.slug}`}>
                         <span>{k.display_name}</span>
-                        <span className="label-mono">{k.regionCount > 0 ? `지역 ${k.regionCount}` : '상담'}</span>
+                        {/* 지역 페이지가 없는 항목은 메타를 비운다 — '상담'이라 적으면 서비스 범위가 다른 것처럼 읽힌다 */}
+                        {k.regionCount > 0 && <span className="label-mono">지역 {k.regionCount}</span>}
                       </Link>
                     </li>
                   ))}

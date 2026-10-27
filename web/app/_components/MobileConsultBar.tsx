@@ -9,7 +9,7 @@ export function MobileConsultBar({ phone }: { phone: string }) {
   return (
     <div className="consult-bar" aria-label="상담">
       <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call">
-        사진으로 상담
+        카카오 사진 상담
       </a>
       <a href={telHrefOf(phone)} className="btn-ghost">
         전화

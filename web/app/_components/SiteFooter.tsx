@@ -7,6 +7,8 @@ import { loadSiteData } from '@/lib/site-data'
 // 4열(로고+소개 / 바로가기 / 많이 찾는 수리 / 고객지원), 모바일 2→1열. 링크 데이터는 그대로.
 const FOOTER_KEYWORD_LIMIT = 12
 
+const KAKAO_CHANNEL_URL = 'https://pf.kakao.com/_bcVPX'
+
 // 헤더 내비와 같은 앵커. 해시만 쓰는 이유는 layout.tsx의 NAV 주석 참고.
 const FOOTER_NAV = [
   { href: '#cases', label: '시공사례' },
@@ -52,13 +54,13 @@ export async function SiteFooter() {
             <h3>바로가기</h3>
             <ul className="mt-3">
               <li>
-                <Link href="/" className="inline-flex min-h-11 items-center">
+                <Link href="/" className="flex min-h-11 items-center">
                   홈
                 </Link>
               </li>
               {FOOTER_NAV.map((n) => (
                 <li key={n.href}>
-                  <Link href={n.href} className="inline-flex min-h-11 items-center">
+                  <Link href={n.href} className="flex min-h-11 items-center">
                     {n.label}
                   </Link>
                 </li>
@@ -69,16 +71,16 @@ export async function SiteFooter() {
           {topKeywords.length > 0 && (
             <nav aria-label="주요 수리 항목">
               <h3>많이 찾는 수리</h3>
-              <ul className="mt-3 grid grid-cols-2 gap-x-4 lg:grid-cols-1">
+              <ul className="mt-3 grid grid-cols-2 gap-x-4">
                 {topKeywords.map(({ keyword }) => (
                   <li key={keyword.id}>
-                    <Link href={`/${keyword.slug}`} className="inline-flex min-h-11 items-center">
+                    <Link href={`/${keyword.slug}`} className="flex min-h-11 items-center">
                       {keyword.display_name}
                     </Link>
                   </li>
                 ))}
                 <li>
-                  <Link href="/#services" className="inline-flex min-h-11 items-center font-bold text-[var(--gold)]">
+                  <Link href="/#services" className="flex min-h-11 items-center font-bold text-[var(--gold)]">
                     전체 보기 →
                   </Link>
                 </li>
@@ -91,14 +93,25 @@ export async function SiteFooter() {
             <ul className="mt-3">
               {phone && (
                 <li>
-                  <a href={telHref} className="inline-flex min-h-11 items-center font-bold text-[var(--gold)]">
+                  <a href={telHref} className="flex min-h-11 items-center font-bold text-[var(--gold)]">
                     {phone}
                   </a>
                 </li>
               )}
-              <li className="flex min-h-11 items-center">사진·문자 상담 환영</li>
               <li>
-                <Link href="/sitemap" className="inline-flex min-h-11 items-center">
+                <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center">
+                  카카오톡 채널로 사진 상담 →
+                </a>
+              </li>
+              {phone && (
+                <li>
+                  <a href={`sms:${phone.replace(/[^0-9+]/g, '')}`} className="flex min-h-11 items-center">
+                    문자로 사진 보내기
+                  </a>
+                </li>
+              )}
+              <li>
+                <Link href="/sitemap" className="flex min-h-11 items-center">
                   전체 안내 색인
                 </Link>
               </li>
@@ -108,13 +121,14 @@ export async function SiteFooter() {
 
         <nav aria-label="함께 보면 좋은 정보" className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-1">
           <span className="label-mono !text-[var(--on-ink)]">함께 보면 좋은 정보</span>
-          <a href="https://isatips.adbles.com/" className="inline-flex min-h-11 items-center">이사팁스 · 이사·입주 준비</a>
-          <a href="https://gajun.kr/" className="inline-flex min-h-11 items-center">가전비교연구소 · 가전 고르기</a>
-          <a href="https://tipspedia.kr/" className="inline-flex min-h-11 items-center">팁스피디아 · 생활꿀팁</a>
+          <a href="https://isatips.adbles.com/" className="flex min-h-11 items-center">이사팁스 · 이사·입주 준비</a>
+          <a href="https://gajun.kr/" className="flex min-h-11 items-center">가전비교연구소 · 가전 고르기</a>
+          <a href="https://tipspedia.kr/" className="flex min-h-11 items-center">팁스피디아 · 생활꿀팁</a>
         </nav>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line-dark)] pt-6 text-xs">
-          <p>수리위키 · 지역별 집수리 안내 · 표시광고법·전자상거래법 준수</p>
+          {/* 사업자 정보(상호·대표·등록번호·소재지)는 운영자가 주기 전까지 적지 않는다 — 근거 없는 '법 준수' 문구도 뺐다. */}
+          <p>수리위키 · 지역별 집수리 안내</p>
           <p className="label-mono !text-[var(--on-ink-soft)]">© 2026 수리위키</p>
         </div>
       </div>

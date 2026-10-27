@@ -27,18 +27,21 @@ const PROCESS_STEPS = [
 const PRINCIPLES = [
   { num: '01', text: '바꾸기 전에 고칠 수 있는지 먼저 봅니다' },
   { num: '02', text: '작업 전에 범위와 금액을 정하고, 작업 뒤에 추가 비용을 붙이지 않습니다' },
-  {
-    num: '03',
-    text: '작업 중에는 전화를 받기 어려운 시간이 많습니다. 문틀 전체가 나오는 사진 한 장과 손상 부위 근접 사진 한 장, 그리고 지역을 함께 보내주시면 부분 교체로 될지 확인해 회신드립니다.',
-  },
+  // 03은 홈 공통 원칙이라 문틀 전용 원문('문틀 전체가 나오는 사진…두 장') 대신 사이트 공통 상담 문구(services desc 원문)를 쓴다 —
+  // 마루·계단으로 들어온 방문자에게 문틀 사진을 요구하고, h1 lead '사진 한 장'과도 어긋났다(2026-10 비평).
+  { num: '03', text: '작업 중에는 전화 연결이 어려워 사진과 지역·수리 내용을 남겨 주시면 확인 후 안내드립니다.' },
 ]
 
 // 지역이 177곳까지 늘어난다. 전부 깔면 홈이 링크 덤프가 되고 본문이 밀린다 —
 // 안내 항목이 많은 순으로 이만큼만 노출하고, 잘라낸 개수는 화면에 밝힌다.
 const REGION_CHIP_LIMIT = 60
 
-// 시공 전후 기록 그리드 — 0번은 히어로가 쓰므로 1번부터 최대 6장.
-const CASE_GRID_LIMIT = 6
+// 시공 전후 기록 그리드 — 0번은 히어로가 쓰므로 1번부터 최대 5장 + 마지막 칸은 상담 패널(3열에서 빈 칸이 남지 않게).
+const CASE_GRID_LIMIT = 5
+
+// 지역 이름 정규화 — '강남'과 '강남구', '수원'과 '수원시'는 같은 동네다. 홈 목록·숫자에서만 합친다(URL·slug는 그대로).
+// '대구'·'중구'처럼 두 글자 이름은 접미사가 아니므로 건드리지 않는다.
+const regionKey = (name: string) => (name.length > 2 ? name.replace(/(구|시|군)$/, '') : name)
 
 const KAKAO_CHANNEL_URL = 'https://pf.kakao.com/_bcVPX'
 
@@ -84,32 +87,46 @@ export default async function HomePage() {
     })
     .filter((x) => x.items.length > 0)
 
-  // 지역 색인: 동별로 발행 키워드 수 집계
-  const dongStats = new Map<number, { dong: string; upper: string; count: number; href: string }>()
+  // 지역 색인: 동별로 발행 키워드 수 집계. 먼저 지역 id로 모은 뒤 같은 이름('강남'·'강남구')을 합친다 —
+  // 두 줄로 나오면 중복·오류로 읽힌다. href는 페이지가 많은 쪽 slug를 유지한다(URL 불변).
+  const byRegion = new Map<number, { dong: string; upper: string; count: number; href: string }>()
   for (const { chain, kw } of landings) {
     const dong = chain[chain.length - 1]
-    const cur = dongStats.get(dong.id)
+    const cur = byRegion.get(dong.id)
     if (cur) cur.count += 1
     else
-      dongStats.set(dong.id, {
+      byRegion.set(dong.id, {
         dong: dong.display_name,
         upper: chain.slice(0, -1).map((r) => r.display_name).join(' '),
         count: 1,
         href: `/${kw!.slug}/${chain.map((r) => r.slug).join('/')}`,
       })
   }
+  const dongStats = new Map<string, { dong: string; upper: string; count: number; href: string }>()
+  for (const r of [...byRegion.values()].sort((a, b) => b.count - a.count)) {
+    const key = regionKey(r.dong)
+    const cur = dongStats.get(key)
+    if (cur) cur.count += r.count
+    else dongStats.set(key, { ...r, dong: key })
+  }
   const regionChips = [...dongStats.values()].sort((a, b) => b.count - a.count || a.dong.localeCompare(b.dong, 'ko'))
+  // 히어로 스탯의 '안내 지역'도 같은 기준으로 센다 — 별칭으로 부풀린 수처럼 보이지 않게.
+  const regionCount = new Set(regions.map((r) => regionKey(r.display_name))).size
 
-  const marqueeItems = [...keywords]
-    .sort((a, b) => a.menu_order - b.menu_order)
-    .map((k) => ({ label: k.display_name, href: `/${k.slug}` }))
+  // 마키 띠 — 수리 항목 50개를 전부 흘리면 검색어 나열로 읽힌다. 분야 이름과 분야마다 안내 지역이 많은 항목 둘만.
+  const marqueeItems = categoryPanels.flatMap(({ category, items }) => [
+    { label: category.display_name, href: `/category/${category.slug}` },
+    ...[...items]
+      .sort((a, b) => b.regionCount - a.regionCount)
+      .slice(0, 2)
+      .map((k) => ({ label: k.display_name, href: `/${k.slug}` })),
+  ])
 
-  // 숫자는 전부 데이터에서 계산된 것만 — 후기·평점·경력은 없다.
+  // 숫자는 전부 데이터에서 계산된 것만 — 후기·평점·경력은 없다. 실사 세트 수는 히어로 라벨·#cases에서 밝힌다.
   const stats = [
     { value: keywords.length, label: '수리 항목' },
-    { value: regions.length, label: '안내 지역' },
+    { value: regionCount, label: '안내 지역' },
     { value: landings.length, label: '안내 페이지' },
-    { value: photoSets.length, label: '실사 전후 기록' },
   ]
   const caseSets = photoSets.slice(1, 1 + CASE_GRID_LIMIT)
 
@@ -122,7 +139,7 @@ export default async function HomePage() {
             {/* 모바일에서는 .hero-text가 display:contents라 부모 단위 관찰이 안 된다 — 자식마다 reveal + 80ms 지연 */}
             <div className="hero-text">
               <p className="label-mono hero-label !text-[var(--gold)]" data-reveal="up" style={{ transitionDelay: '0ms' }}>
-                기록 01 / {String(photoSets.length).padStart(2, '0')} · 실사 전후 {photoSets.length}세트
+                현장 기록 · 실사 전후 {photoSets.length}세트
               </p>
               <h1 className="t-display" data-reveal="up" style={{ transitionDelay: '80ms' }}>
                 바꾸기 전에
@@ -137,14 +154,14 @@ export default async function HomePage() {
               </p>
               <div className="hero-btns" data-reveal="up" style={{ transitionDelay: '240ms' }}>
                 <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call">
-                  사진으로 상담하기
+                  카카오톡으로 사진 상담
                 </a>
                 <a href={telHref} className="btn-ghost-dark">
                   {phone}
                 </a>
               </div>
               <p className="hero-note" data-reveal="up" style={{ transitionDelay: '320ms' }}>
-                작업 중에는 전화를 받기 어려운 시간이 많습니다 — 사진 한 장과 지역을 보내주세요
+                작업 중에는 전화를 받기 어려운 시간이 많습니다 — 카카오톡 채널로 사진 한 장과 지역을 보내주세요.
               </p>
             </div>
 
@@ -192,11 +209,12 @@ export default async function HomePage() {
       {caseSets.length > 0 && (
         <section id="cases" className="section-y sec-rule scroll-mt-16">
           <div className="wrap">
+            {/* '같은 각도' 주장은 쓰지 않는다 — 촬영 위치가 다른 세트가 있고, 그 세트는 나란히 보여 준다. */}
             <SectionHead
               num="01"
               label="시공 전후"
-              title="같은 자리, 같은 각도로 남긴 기록"
-              desc="실제 현장에서 같은 자리를 찍은 전과 후입니다. 구분선을 움직여 보세요."
+              title="현장에서 남긴 시공 전후 기록"
+              desc="같은 현장에서 찍은 시공 전과 후입니다. 촬영 위치는 조금 다를 수 있습니다. 구분선이 있는 사진은 움직여 보세요."
             />
             <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3" data-reveal="stagger" style={{ ['--stagger' as string]: '90ms' }}>
               {caseSets.map((set, i) => (
@@ -214,6 +232,22 @@ export default async function HomePage() {
                   </div>
                 </li>
               ))}
+              {/* 마지막 칸 — 상담 패널. 5장을 3열에 깔면 빈 칸이 남는다. 문구는 히어로 lead 원문. */}
+              <li className="panel-dark case-cta on-dark" style={{ ['--i' as string]: caseSets.length }}>
+                <div>
+                  <p className="label-mono">기록 추가</p>
+                  <p className="t-serif-line mt-4">사진 한 장이면 진단을 시작할 수 있어요.</p>
+                  <p className="mt-3 text-[0.9375rem] leading-relaxed">깨진 곳·상한 곳 사진과 지역, 증상을 남기면 먼저 확인합니다.</p>
+                </div>
+                <div className="case-cta-btns">
+                  <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call">
+                    카카오톡으로 사진 상담
+                  </a>
+                  <a href={telHref} className="btn-ghost-dark">
+                    {phone}
+                  </a>
+                </div>
+              </li>
             </ul>
           </div>
         </section>

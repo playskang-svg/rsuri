@@ -66,7 +66,7 @@ export function SiteHeader({
             {/* .btn-call이 display를 직접 정하므로 Tailwind hidden이 밀린다 — span으로 감싸 lg 이상만 보인다 */}
             <span className="hidden lg:inline-flex">
               <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call btn-sm">
-                사진 상담
+                카카오 사진 상담
               </a>
             </span>
             <button
@@ -100,7 +100,7 @@ export function SiteHeader({
           </nav>
           <div className="sheet-cta">
             <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call">
-              사진으로 상담하기
+              카카오톡으로 사진 상담
             </a>
             <a href={tel} className="btn-ghost">
               {phone}
