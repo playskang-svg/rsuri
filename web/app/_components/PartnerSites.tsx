@@ -30,7 +30,7 @@ export function PartnerSites({
                 <span className="label-mono">{p.host}</span>
                 <span className="text-[1.125rem] font-bold">{p.main_keyword}</span>
                 {p.subs.length > 0 && (
-                  <span className="text-[0.9375rem] leading-relaxed text-[var(--ink-soft)]">{p.subs.slice(0, 3).join(' · ')}</span>
+                  <span className="text-base leading-relaxed text-[var(--ink-soft)]">{p.subs.slice(0, 3).join(' · ')}</span>
                 )}
                 <span className="label-mono mt-auto pt-3 !text-[var(--copper)]">
                   {p.region_count > 0 ? `지역 ${p.region_count}곳 안내 →` : '사이트 보기 →'}

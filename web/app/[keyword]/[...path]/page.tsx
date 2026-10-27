@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import type { CSSProperties } from 'react'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
@@ -12,7 +12,10 @@ import { fallbackPhone, telHrefOf } from '@/lib/contact'
 import { BeforeAfterSlider } from '@/app/_components/BeforeAfterSlider'
 import { HeroSlider } from '@/app/_components/HeroSlider'
 import { FloatingActions } from '@/app/_components/FloatingActions'
+import { SectionHead } from '@/app/_components/PageHero'
 import type { Page, PageImageRole, Region } from '@/lib/types'
+// 이 페이지 전용 스타일(lp-*). 공용 globals.css는 건드리지 않는다.
+import '../../_styles/landing.css'
 
 const ROLE_LABEL: Record<PageImageRole, string> = {
   BEFORE: '시공 전',
@@ -25,9 +28,8 @@ const ROLE_LABEL: Record<PageImageRole, string> = {
 
 const firstDongs = (dongs: string, n: number) => dongs.split('·').slice(0, n).join('·')
 
-// 거미줄 링크 한 줄 스타일 — globals.css는 다른 담당 파일이라 클래스 추가 대신 여기서 묶는다.
-const ROW =
-  'group flex items-baseline justify-between gap-2 rounded-lg border border-transparent px-3 py-2.5 hover:border-[var(--line)] hover:bg-[var(--paper)]'
+// 등장 효과 stagger의 자식 순번(--i). 지연 간격은 globals.css가 정한다.
+const nth = (i: number) => ({ ['--i' as string]: i }) as CSSProperties
 
 export const dynamicParams = false
 
@@ -277,133 +279,140 @@ export default async function LandingPage({
       ? shots.slice(0, 4).map((sh) => ({ src: sh.url }))
       : keywordPhotos(keyword.slug).map((src) => ({ src }))
 
+  // 섹션 번호 — 모듈 조합마다 보이는 섹션이 달라 미리 정해 둘 수 없다. 아래 JSX가 실제로
+  // 그리는 순서대로 01부터 매긴다(서버에서 위에서 아래로 한 번 평가되므로 평가 순서가 곧 화면 순서다).
+  let secNo = 0
+  const nextNo = () => String(++secNo).padStart(2, '0')
+
   return (
-    <main className="pb-24 md:pb-0">
-      {/* ── 히어로 — 참고 스킨의 차콜 색 블록 + 오른쪽 사진 칸 ──
-          지역+키워드를 초대형으로 올려 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다.
-          사진은 글자 뒤 배경이 아니라 옆 칸이라 어둡게 덮는 그라데이션이 필요 없다. */}
-      <section className="page-hero" data-tone="dark" data-module="M01">
+    <main>
+      {/* ── 히어로 — 차콜 면 + 블루프린트 그리드, 옆 칸(모바일은 위) 실사 ──
+          지역+키워드를 크게 올려 스크롤 전에 "어디서 무슨 수리"인지가 끝나게 한다.
+          사진은 글자 뒤 배경이 아니라 옆 칸이라 어둡게 덮는 그라데이션이 필요 없다.
+          첫 화면이라 등장 효과(data-reveal)를 걸지 않는다. */}
+      <section className="page-hero lp-hero" data-tone="dark" data-module="M01">
         <div className={`hero-inner ${heroImages.length > 0 ? 'photo-first' : 'solo'}`}>
-        <div className="min-w-0">
-          {/* 브레드크럼이 곧 이동 장치다. 두 세그먼트를 열면 사촌(같은 지역 다른 수리)과
-              형제(같은 수리 다른 지역)로 바로 건너뛴다 — 본문에 링크를 깔지 않고도
-              페이지끼리 얽히게 만드는 자리이고, 화면은 한 줄만 쓴다. */}
-          <nav aria-label="현재 위치">
-            <ol className="flex flex-wrap items-center gap-1.5 text-[13px] text-[var(--on-ink-soft)]">
-              <li>
-                <Link href="/" className="hover:text-white">
-                  홈
-                </Link>
-              </li>
-              <li aria-hidden>›</li>
-              <li>
-                {sameRegion.length > 0 ? (
-                  <details className="crumb-drop">
-                    <summary className="font-semibold hover:text-white">
-                      {keyword.display_name}
-                    </summary>
-                    <div className="crumb-panel">
-                      <Link href={`/${keyword.slug}`}>{keyword.display_name} 전체 지역</Link>
-                      {sameRegion.map(({ page: p, kw }) => (
-                        <Link key={p.id} href={`/${kw!.slug}/${pathStr}`}>
-                          {region.display_name} {kw!.display_name}
-                        </Link>
-                      ))}
-                    </div>
-                  </details>
-                ) : (
-                  <Link href={`/${keyword.slug}`} className="hover:text-white">
-                    {keyword.display_name}
+          <div className="min-w-0">
+            {/* 브레드크럼이 곧 이동 장치다. 두 세그먼트를 열면 사촌(같은 지역 다른 수리)과
+                형제(같은 수리 다른 지역)로 바로 건너뛴다 — 본문에 링크를 깔지 않고도
+                페이지끼리 얽히게 만드는 자리이고, 화면은 한 줄만 쓴다. */}
+            <nav aria-label="현재 위치" className="lp-crumbs">
+              <ol className="flex flex-wrap items-center gap-x-1.5 text-[13px] text-[var(--on-ink-soft)]">
+                <li>
+                  <Link href="/" className="hover:text-[var(--on-ink)]">
+                    홈
                   </Link>
-                )}
-              </li>
-              {chain.slice(0, -1).map((r) => (
-                <li key={r.id} className="flex items-center gap-1.5">
-                  <span aria-hidden>›</span>
-                  <span>{r.display_name}</span>
                 </li>
-              ))}
-              <li className="flex items-center gap-1.5">
-                <span aria-hidden>›</span>
-                {sameKeywordAll.length > 0 ? (
-                  <details className="crumb-drop">
-                    <summary className="font-bold text-white">{region.display_name}</summary>
-                    <div className="crumb-panel">
-                      {sameKeywordAll.slice(0, 60).map((x) => (
-                        <Link
-                          key={x.page.id}
-                          href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
-                        >
-                          {x.region!.display_name} {keyword.display_name}
-                        </Link>
-                      ))}
-                    </div>
-                  </details>
-                ) : (
-                  <span className="font-bold text-white">{region.display_name}</span>
-                )}
-              </li>
-            </ol>
-          </nav>
+                <li aria-hidden>›</li>
+                <li>
+                  {sameRegion.length > 0 ? (
+                    <details className="crumb-drop">
+                      <summary className="font-medium hover:text-[var(--on-ink)]">
+                        {keyword.display_name}
+                      </summary>
+                      <div className="crumb-panel">
+                        <Link href={`/${keyword.slug}`}>{keyword.display_name} 전체 지역</Link>
+                        {sameRegion.map(({ page: p, kw }) => (
+                          <Link key={p.id} href={`/${kw!.slug}/${pathStr}`}>
+                            {region.display_name} {kw!.display_name}
+                          </Link>
+                        ))}
+                      </div>
+                    </details>
+                  ) : (
+                    <Link href={`/${keyword.slug}`} className="hover:text-[var(--on-ink)]">
+                      {keyword.display_name}
+                    </Link>
+                  )}
+                </li>
+                {chain.slice(0, -1).map((r) => (
+                  <li key={r.id} className="flex items-center gap-1.5">
+                    <span aria-hidden>›</span>
+                    <span>{r.display_name}</span>
+                  </li>
+                ))}
+                <li className="flex items-center gap-1.5">
+                  <span aria-hidden>›</span>
+                  {sameKeywordAll.length > 0 ? (
+                    <details className="crumb-drop">
+                      <summary className="font-bold text-[var(--on-ink)]">{region.display_name}</summary>
+                      <div className="crumb-panel">
+                        {sameKeywordAll.slice(0, 60).map((x) => (
+                          <Link
+                            key={x.page.id}
+                            href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
+                          >
+                            {x.region!.display_name} {keyword.display_name}
+                          </Link>
+                        ))}
+                      </div>
+                    </details>
+                  ) : (
+                    <span className="font-bold text-[var(--on-ink)]">{region.display_name}</span>
+                  )}
+                </li>
+              </ol>
+            </nav>
 
-          <p className="eyebrow mt-6">
-            Local Service / {region.display_name} {keyword.display_name} 출장 시공
-          </p>
-
-          <h1>
-            {region.display_name}
-            <br />
-            {keyword.display_name}
-          </h1>
-
-          <p className="prose-kr hero-desc text-[var(--on-ink)]" data-module="M01">
-            {guide?.summary ?? kc?.tagline ?? keyword.description ?? ''}
-          </p>
-          {regionDisplayText && (
-            <p className="prose-kr hero-desc mt-3 text-[var(--on-ink-soft)]" data-module="M28">
-              {regionDisplayText}
+            {/* 옛 영문 라벨(Local Service /) 대신 분야 이름 — 한국어 모노 라벨 */}
+            <p className="label-mono mt-5">
+              {category ? `${category.display_name} · ` : ''}
+              {region.display_name} {keyword.display_name} 출장 시공
             </p>
-          )}
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            {telHref && (
-              <a href={telHref} className="btn-call">
-                <PhoneIcon />
-                {phone} 상담문의
-              </a>
+            <h1>
+              {region.display_name}
+              <br />
+              {keyword.display_name}
+            </h1>
+
+            <p className="prose-kr hero-desc" data-module="M01">
+              {guide?.summary ?? kc?.tagline ?? keyword.description ?? ''}
+            </p>
+            {regionDisplayText && (
+              <p className="prose-kr hero-desc" data-module="M28">
+                {regionDisplayText}
+              </p>
             )}
-            <Link href={`/${keyword.slug}`} className="btn-ghost">
-              {keyword.display_name} 전체 지역
-            </Link>
+
+            <div className="mt-8 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+              {telHref && (
+                <a href={telHref} className="btn-call">
+                  <PhoneIcon />
+                  {phone} 상담문의
+                </a>
+              )}
+              <Link href={`/${keyword.slug}`} className="btn-ghost-dark">
+                {keyword.display_name} 전체 지역
+              </Link>
+            </div>
+
+            {/* 괘선 아래 라벨 + 값 — 이 페이지에서만 달라지는 사실 두 가지 */}
+            <dl className="hero-tags">
+              <div>
+                <dt>출장 범위</dt>
+                <dd>
+                  {region.profile?.dongs
+                    ? `${firstDongs(region.profile.dongs, 3)} 등 전 동 출장`
+                    : `${region.display_name} 전 지역 출장`}
+                </dd>
+              </div>
+              <div>
+                <dt>상담</dt>
+                <dd>사진 한 장이면 가능 여부 회신</dd>
+              </div>
+            </dl>
           </div>
 
-          {/* 괘선 아래 라벨만 있고 값이 없어 미완성 칸처럼 보이던 자리.
-              장식용 영문 대신 이 페이지에서만 달라지는 사실 두 가지를 넣는다. */}
-          <dl className="hero-tags">
-            <div>
-              <dt>Service Area</dt>
-              <dd>
-                {region.profile?.dongs
-                  ? `${firstDongs(region.profile.dongs, 3)} 등 전 동 출장`
-                  : `${region.display_name} 전 지역 출장`}
-              </dd>
+          {/* 사진 칸 — 슬라이더의 사진·버튼은 이 칸 안에 absolute 로 깔린다(폭은 landing.css가 준다) */}
+          {heroImages.length > 0 && (
+            <div className="hero-photo isolate">
+              <HeroSlider
+                images={heroImages}
+                alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
+              />
             </div>
-            <div>
-              <dt>Consult</dt>
-              <dd>사진 한 장이면 가능 여부 회신</dd>
-            </div>
-          </dl>
-        </div>
-
-        {/* 사진 칸 — 슬라이더의 사진·버튼은 이 칸 안에 absolute 로 깔린다 */}
-        {heroImages.length > 0 && (
-          <div className="hero-photo isolate">
-            <HeroSlider
-              images={heroImages}
-              alt={`${region.display_name} ${keyword.display_name} 시공 현장`}
-            />
-          </div>
-        )}
+          )}
         </div>
       </section>
 
@@ -411,23 +420,31 @@ export default async function LandingPage({
           히어로 다음 첫 섹션. 두 사진을 겹쳐 두고 가운데 손잡이를 좌우로 밀면 '전'이 잘리고
           '후'가 드러난다 — 나란히 놓는 것보다 같은 자리·같은 각도라는 게 드러나 비교가 된다.
           실제 사진이 등록된 키워드에서만 나온다. 스톡 두 장을 전/후로 붙이면 서로 다른 현장을
-          같은 집의 시공 결과인 것처럼 보이게 되므로 사진이 없으면 섹션을 만들지 않는다. */}
+          같은 집의 시공 결과인 것처럼 보이게 되므로 사진이 없으면 섹션을 만들지 않는다.
+          렌더링 박스(.panel)는 이 페이지에서 전/후·사진·상담 박스에만 쓴다. */}
       {hasModule('M20') && inheritedSets.length > 0 && (
-        <section id="cases" className="scroll-mt-20 border-b border-[var(--line)] bg-white" data-module="M20">
-          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-            <Pill>CASES</Pill>
-            <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
-              {region.display_name} {keyword.display_name} 시공 전후
-            </h2>
-            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
-              가운데 손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다.
-            </p>
-            {casesAreIllustration && (
-              <p className="mt-2 inline-block rounded-full bg-[var(--paper)] px-3 py-1 text-[12px] font-bold text-[var(--ink-soft)]">
-                작업 내용을 나타낸 개념도입니다
-              </p>
-            )}
-            <div className="mt-8">
+        <section id="cases" className="lp-sec sec-rule scroll-mt-20" data-module="M20">
+          <div className="wrap lp-case">
+            <div className="lp-case-head">
+              <SectionHead
+                num={nextNo()}
+                label="시공 전후"
+                align="stack"
+                title={
+                  <>
+                    {region.display_name} {keyword.display_name} 시공 전후
+                  </>
+                }
+                desc="가운데 손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다."
+              />
+              {casesAreIllustration && (
+                <p className="lp-note mt-5" data-reveal="up">
+                  <span className="tick" aria-hidden />
+                  작업 내용을 나타낸 개념도입니다
+                </p>
+              )}
+            </div>
+            <div className="panel lp-case-box" data-reveal="photo">
               <BeforeAfterSlider
                 sets={inheritedSets}
                 alt={`${region.display_name} ${keyword.display_name} 시공 전후`}
@@ -439,55 +456,59 @@ export default async function LandingPage({
 
       {/* ── 자가진단 ──
           히어로에서 밀려난 체크리스트. 사진 배경 위에 두면 안 읽힌다.
-          서비스 항목은 아래 SERVICE 섹션이 전담한다 — 여기에도 두면 같은 내용이 두 번 나온다. */}
+          서비스 항목은 아래 서비스 섹션이 전담한다 — 여기에도 두면 같은 내용이 두 번 나온다. */}
       {hasModule('M03') && symptoms.length > 0 && (
-        <section className="border-b border-[var(--line)] bg-white" data-module="M03">
-          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-            <Pill>SELF CHECK</Pill>
-            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
-              이런 증상이면 {region.display_name} {josa(keyword.display_name, '이', '가')} 필요합니다
-            </h2>
-            <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+        <section className="lp-sec sec-rule" data-module="M03">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="자가 진단"
+              title={
+                <>
+                  이런 증상이면 {region.display_name} {josa(keyword.display_name, '이', '가')} 필요합니다
+                </>
+              }
+            />
+            <ul className="lp-grid mt-10" data-dense="" data-reveal="stagger">
               {symptoms.map((sym, i) => (
-                <li
-                  key={i}
-                  className="flex gap-3 rounded-lg bg-[var(--paper)] px-5 py-3.5 text-[15px] leading-snug"
-                >
-                  <span aria-hidden className="font-black text-[var(--copper)]">
-                    ✔
-                  </span>
+                <li key={i} className="diag-item" style={nth(i)}>
+                  <span aria-hidden className="diag-box" />
                   <span>{sym}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-sm text-[var(--ink-soft)]">
+            <p className="t-serif-line mt-8" data-reveal="up">
               한 가지라도 해당된다면, 진행이 빠른 초기에 사진 상담을 권합니다.
             </p>
           </div>
         </section>
       )}
 
-      {/* ── AREA · 핵심 포인트 ──
+      {/* ── 지역 핵심 포인트 ──
           지역 페이지가 서로 다른 글이 되는 첫 번째 자리. 같은 키워드라도 동네마다
-          실제로 들어오는 의뢰 유형이 다르다. 앞의 3개만 카드로 크게 세우고,
+          실제로 들어오는 의뢰 유형이 다르다. 앞의 3개만 괘선 격자 칸으로 세우고,
           나머지는 아래 "자주 발생하는 상황" 목록이 받는다. */}
       {hasModule('M03') && local && local.top_requests.length > 0 && (
-        <section className="border-y border-[var(--line)] bg-[var(--paper)]" data-module="M03">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <Pill>AREA</Pill>
-            <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
-              {region.display_name} {keyword.display_name}의 핵심 포인트
-            </h2>
-            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
-              시공 전 미리 알아두면 좋은 부분을 정리했습니다.
-            </p>
-            <ul className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="lp-sec sec-rule" data-module="M03">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="지역 포인트"
+              title={
+                <>
+                  {region.display_name} {keyword.display_name}의 핵심 포인트
+                </>
+              }
+              desc="시공 전 미리 알아두면 좋은 부분을 정리했습니다."
+            />
+            <ul className="lp-grid mt-10" data-cols="3" data-reveal="stagger">
               {local.top_requests.slice(0, 3).map((r, i) => (
-                <li key={i} className="rounded-lg border border-[var(--line)] bg-white p-7">
-                  <h3 className="text-lg font-extrabold">{r.title}</h3>
-                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
-                    {r.desc}
+                <li key={i} style={nth(i)}>
+                  <p className="lp-num" aria-hidden>
+                    {String(i + 1).padStart(2, '0')}
                   </p>
+                  <h3 className="t-h3 mt-5">{r.title}</h3>
+                  <p className="mt-3 text-[var(--ink-soft)]">{r.desc}</p>
                 </li>
               ))}
             </ul>
@@ -497,23 +518,16 @@ export default async function LandingPage({
 
       {/* ── M05 상태 구분 ── */}
       {hasModule('M05') && kc?.status_criteria && (
-        <section className="border-b border-[var(--line)] bg-[var(--paper)]" data-module="M05">
-          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-            <Pill>DIAGNOSIS</Pill>
-            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
-              {kc.status_criteria.title}
-            </h2>
-            <ul className="mt-7 space-y-4">
+        <section className="lp-sec sec-rule" data-module="M05">
+          <div className="wrap">
+            <SectionHead num={nextNo()} label="진단 기준" title={kc.status_criteria.title} />
+            <ul className="lp-rows mt-10" data-reveal="stagger">
               {kc.status_criteria.list.map((item: string, i: number) => {
                 const [badge, ...rest] = item.split(': ')
                 return (
-                  <li key={i} className="rounded-lg border border-[var(--line)] bg-white p-5">
-                    <span className="inline-block rounded bg-[var(--ink-base)] px-2.5 py-1 text-[13px] font-bold text-white mb-2">
-                      {badge}
-                    </span>
-                    <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
-                      {rest.join(': ')}
-                    </p>
+                  <li key={i} style={nth(i)}>
+                    <span className="lp-badge">{badge}</span>
+                    <p className="text-[var(--ink-soft)]">{rest.join(': ')}</p>
                   </li>
                 )
               })}
@@ -522,18 +536,13 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── M06 전문가 판단 ── */}
+      {/* ── M06 전문가 판단 — 베이지 인용 면 ── */}
       {hasModule('M06') && kc?.pro_judgment && (
-        <section className="border-b border-[var(--line)] bg-white" data-module="M06">
-          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-            <Pill>PRO TIP</Pill>
-            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-[1.7rem]">
-              {kc.pro_judgment.title}
-            </h2>
-            <div className="mt-6 rounded-xl border border-[var(--copper)]/30 bg-[var(--copper)]/5 p-6">
-              <p className="prose-kr text-[15.5px] font-medium leading-relaxed text-[var(--ink-base)]">
-                {kc.pro_judgment.body}
-              </p>
+        <section className="lp-sec sec-rule" data-module="M06">
+          <div className="wrap">
+            <SectionHead num={nextNo()} label="현장 판단" title={kc.pro_judgment.title} />
+            <div className="lp-quote mt-10" data-reveal="up">
+              <p className="prose-kr">{kc.pro_judgment.body}</p>
             </div>
           </div>
         </section>
@@ -542,80 +551,85 @@ export default async function LandingPage({
       {/* ── 지역 롱폼 본문 ──
           검색 엔진이 이 페이지를 "지역명만 바꾼 복붙"이 아니라고 판단하는 근거가 되는 본문.
           소제목마다 지역+키워드를 붙인다 — 목차만 훑어도 이 페이지가 무엇에 대한 글인지
-          드러나야 하고, 그게 곧 타겟 키워드다. */}
+          드러나야 하고, 그게 곧 타겟 키워드다. 원래 제목(h2)이 없는 자리라 번호 라벨만 단다. */}
       {local && (hasModule('M04') || hasModule('M09')) && (
-        <section className="bg-white" data-module="M04 M09">
-          <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-            <p className="prose-kr text-[17px] font-bold leading-relaxed">{local.longform.lead}</p>
-
-            {local.longform.sections.map((s, i) => (
-              <div key={i} className="mt-12">
-                <h3 className="font-serif-kr text-xl font-black sm:text-2xl">
-                  {region.display_name} {keyword.display_name} — {s.title}
-                </h3>
-                <hr className="mt-3 border-[var(--line)]" />
-                <p className="prose-kr mt-5 text-[15px] leading-relaxed text-[var(--ink-soft)]">
-                  {s.body}
-                </p>
-                {/* 첫 소제목 아래에만 상황 목록을 붙인다. 문단마다 반복하면 목록이 본문을 덮는다. */}
-                {i === 0 && local.top_requests.length > 3 && (
-                  <ul className="mt-6 space-y-2.5">
-                    {local.top_requests.slice(3).map((r, j) => (
-                      <li
-                        key={j}
-                        className="flex gap-3 rounded-lg bg-[var(--paper)] px-5 py-3.5 text-[15px]"
-                      >
-                        <span aria-hidden className="font-black text-[var(--copper)]">
-                          ✔
-                        </span>
-                        <span>
-                          <b>{r.title}</b>{' '}
-                          <span className="text-[var(--ink-soft)]">— {r.desc}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-
-            {/* 본문을 다 읽은 사람이 갈 곳을 만들어 준다 — 여기서 끊기면 이탈이다. */}
-            <div className="mt-12 flex flex-wrap items-center justify-between gap-4 rounded-lg border-l-4 border-[var(--ink)] bg-[var(--paper)] px-6 py-6">
-              <div>
-                <p className="text-[15px] text-[var(--ink-soft)]">다른 지역도 함께 보세요</p>
-                <p className="mt-1 font-bold">
-                  {keyword.display_name} 지역별 안내를 한 번에 확인하실 수 있습니다.
+        <section className="lp-sec sec-rule" data-module="M04 M09">
+          <div className="wrap">
+            <div className="sec-head" data-align="stack">
+              <div className="sec-title" data-reveal="up">
+                <p className="label-mono">
+                  <span>{nextNo()}</span>
+                  <span aria-hidden>/</span>
+                  <span>지역 안내</span>
                 </p>
               </div>
-              <Link
-                href={`/${keyword.slug}`}
-                className="inline-flex flex-none items-center gap-2 rounded-full bg-[var(--ink)] px-6 py-3 text-[15px] font-extrabold text-[var(--paper)]"
-              >
-                {keyword.display_name} 전체 →
-              </Link>
+              <div className="sec-line" data-reveal="line" aria-hidden />
+            </div>
+
+            <div className="lp-prose">
+              <p className="prose-kr lp-lead mt-10" data-reveal="up">
+                {local.longform.lead}
+              </p>
+
+              {local.longform.sections.map((s, i) => (
+                <div key={i} className="lp-article" data-reveal="up">
+                  <h3 className="t-h3">
+                    {region.display_name} {keyword.display_name} — {s.title}
+                  </h3>
+                  <hr className="mt-4 border-[var(--line)]" />
+                  <p className="prose-kr mt-5">{s.body}</p>
+                  {/* 첫 소제목 아래에만 상황 목록을 붙인다. 문단마다 반복하면 목록이 본문을 덮는다. */}
+                  {i === 0 && local.top_requests.length > 3 && (
+                    <ul className="lp-list mt-6">
+                      {local.top_requests.slice(3).map((r, j) => (
+                        <li key={j}>
+                          <span aria-hidden className="tick" />
+                          <span>
+                            <b>{r.title}</b>{' '}
+                            <span className="text-[var(--ink-soft)]">— {r.desc}</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+
+              {/* 본문을 다 읽은 사람이 갈 곳을 만들어 준다 — 여기서 끊기면 이탈이다. */}
+              <div className="lp-next mt-14" data-reveal="up">
+                <div>
+                  <p className="text-[var(--ink-soft)]">다른 지역도 함께 보세요</p>
+                  <p className="mt-1 font-bold">
+                    {keyword.display_name} 지역별 안내를 한 번에 확인하실 수 있습니다.
+                  </p>
+                </div>
+                <Link href={`/${keyword.slug}`} className="btn-ghost">
+                  {keyword.display_name} 전체 →
+                </Link>
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* ── 서비스 안내 (키워드 자산) ── */}
+      {/* ── 서비스 안내 (키워드 자산) — 괘선 격자 ── */}
       {hasModule('M09') && kc && kc.services.length > 0 && (
-        <section id="services" className="scroll-mt-20 border-y border-[var(--line)] bg-[var(--paper)]" data-module="M09">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <Pill>SERVICE</Pill>
-            <h2 className="font-serif-kr mt-4 text-3xl font-black sm:text-[2.1rem]">
-              {keyword.display_name}, 어떤 상태든 살펴봅니다
-            </h2>
-            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
-              단순 외관 보수가 아니라 원인을 살펴 다음에도 같은 문제가 반복되지 않도록 마감합니다.
-            </p>
-            <ul className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <section id="services" className="lp-sec sec-rule scroll-mt-20" data-module="M09">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="서비스"
+              title={<>{keyword.display_name}, 어떤 상태든 살펴봅니다</>}
+              desc="단순 외관 보수가 아니라 원인을 살펴 다음에도 같은 문제가 반복되지 않도록 마감합니다."
+            />
+            <ul className="lp-grid mt-10" data-cols="3" data-reveal="stagger">
               {kc.services.map((sv, i) => (
-                <li key={i} className="rounded-lg border border-[var(--line)] bg-white p-7">
-                  <h3 className="text-lg font-extrabold">{sv.title}</h3>
-                  <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
-                    {sv.desc}
+                <li key={i} style={nth(i)}>
+                  <p className="lp-num" aria-hidden>
+                    {String(i + 1).padStart(2, '0')}
                   </p>
+                  <h3 className="t-h3 mt-5">{sv.title}</h3>
+                  <p className="mt-3 text-[var(--ink-soft)]">{sv.desc}</p>
                 </li>
               ))}
             </ul>
@@ -623,67 +637,76 @@ export default async function LandingPage({
         </section>
       )}
 
-      {/* ── 표준 시공 절차 ── */}
+      {/* ── 표준 시공 절차 — 단계 + 현장 사진(데스크톱은 오른쪽 고정) ── */}
       {(hasModule('M08') || hasModule('M09') || hasModule('M10')) && steps.length > 0 && (
-        <section id="process" className="scroll-mt-20 mx-auto max-w-3xl px-4 py-14 sm:px-6" data-module={hasModule('M08') ? 'M08' : hasModule('M10') ? 'M10' : 'M09'}>
-          <Pill>PROCESS</Pill>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black sm:text-[1.7rem]">
-            {region.display_name} {keyword.display_name} 진행 절차
-          </h2>
-          <p className="mt-2 text-sm text-[var(--ink-soft)]">
-            {region.display_name} 현장에서 실제로 진행되는 순서입니다.
-          </p>
+        <section id="process" className="lp-sec sec-rule scroll-mt-20" data-module={hasModule('M08') ? 'M08' : hasModule('M10') ? 'M10' : 'M09'}>
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="진행 절차"
+              title={
+                <>
+                  {region.display_name} {keyword.display_name} 진행 절차
+                </>
+              }
+              desc={<>{region.display_name} 현장에서 실제로 진행되는 순서입니다.</>}
+            />
 
-          {photoB && (
-            <div className="hero-photo mt-6 aspect-[16/7]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img referrerPolicy="no-referrer" src={photoB.src} alt={photoB.note ?? ''} loading="lazy" />
-              <span className="tag">{photoB.label}</span>
-            </div>
-          )}
-
-          <ol className="step-rail mt-8 space-y-7">
-            {steps.map((step) => (
-              <li key={step.num} className="flex gap-4">
-                <span className="step-num" aria-hidden>
-                  {String(step.num).padStart(2, '0')}
-                </span>
-                <div className="pt-1">
-                  <h3 className="font-extrabold">{step.title}</h3>
-                  <p className="mt-1 text-sm text-[var(--ink-soft)]">{step.desc}</p>
-                  {step.tip && (
-                    <p className="step-tip mt-2.5 rounded-r-lg px-3.5 py-2.5 text-[13px] font-medium">
-                      <span className="font-extrabold">현장 팁</span> · {step.tip}
-                    </p>
-                  )}
+            <div className={`lp-process mt-10 ${photoB ? 'has-photo' : ''}`}>
+              {photoB && (
+                <div className="hero-photo lp-process-photo" data-reveal="photo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img referrerPolicy="no-referrer" src={photoB.src} alt={photoB.note ?? ''} loading="lazy" />
+                  <span className="tag">{photoB.label}</span>
                 </div>
-              </li>
-            ))}
-          </ol>
+              )}
+
+              <ol className="step-rail space-y-8" data-reveal="stagger">
+                {steps.map((step, i) => (
+                  <li key={step.num} className="flex gap-4" style={nth(i)}>
+                    <span className="step-num" aria-hidden>
+                      {String(step.num).padStart(2, '0')}
+                    </span>
+                    <div className="min-w-0 pt-1.5">
+                      <h3 className="text-lg font-bold leading-snug">{step.title}</h3>
+                      <p className="mt-1.5 text-[var(--ink-soft)]">{step.desc}</p>
+                      {step.tip && (
+                        <p className="step-tip mt-3 rounded-r-[var(--r-control)] px-4 py-3 text-[0.9375rem]">
+                          <span className="font-bold">현장 팁</span> · {step.tip}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
         </section>
       )}
 
-      {/* ── M07 수리·교체 기준 (또는 자가수리 vs 전문가) ── */}
+      {/* ── M07 수리·교체 기준 (또는 자가수리 vs 전문가) — 괘선 기준 행 ── */}
       {hasModule('M07') && (page.diy_vs_pro || kc?.repair_vs_replace) && (
-        <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6" data-module="M07">
-          <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
-            <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--gold)]">
-              {kc?.repair_vs_replace ? kc.repair_vs_replace.title : '직접 할까, 맡길까'}
-            </p>
+        <section className="lp-sec sec-rule" data-module="M07">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="수리·교체"
+              title={kc?.repair_vs_replace ? kc.repair_vs_replace.title : '직접 할까, 맡길까'}
+            />
             {kc?.repair_vs_replace ? (
-              <ul className="mt-5 space-y-3">
+              <ul className="lp-rows mt-10" data-reveal="stagger">
                 {kc.repair_vs_replace.list.map((item: string, i: number) => {
                   const [badge, ...rest] = item.split(': ')
                   return (
-                    <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-[var(--on-ink)]">
-                      <span className="shrink-0 font-bold text-[var(--gold)]">{badge}</span>
-                      <span className="text-[var(--paper)] opacity-80">{rest.join(': ')}</span>
+                    <li key={i} style={nth(i)}>
+                      <span className="lp-row-key">{badge}</span>
+                      <span className="text-[var(--ink-soft)]">{rest.join(': ')}</span>
                     </li>
                   )
                 })}
               </ul>
             ) : (
-              <p className="prose-kr mt-3 text-[15px] leading-relaxed text-[var(--on-ink)]">
+              <p className="prose-kr mt-10 max-w-3xl" data-reveal="up">
                 {page.diy_vs_pro}
               </p>
             )}
@@ -693,66 +716,73 @@ export default async function LandingPage({
 
       {/* ── 재발 방지 ── */}
       {hasModule('M17') && guide && guide.prevention_tips.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6" data-module="M17">
-          <p className="eyebrow">Prevention</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {region.display_name} 시공 후 관리·재발 방지
-          </h2>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-1">
-            {guide.prevention_tips.map((tip, i) => (
-              <li key={i} className="card flex gap-3 p-4 text-sm">
-                <span aria-hidden className="mt-0.5 font-black text-[var(--teal)]">
-                  ✓
-                </span>
-                <span>{tip}</span>
-              </li>
-            ))}
-          </ul>
+        <section className="lp-sec sec-rule" data-module="M17">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="관리"
+              title={<>{region.display_name} 시공 후 관리·재발 방지</>}
+            />
+            <ul className="lp-list mt-10 max-w-3xl" data-reveal="stagger">
+              {guide.prevention_tips.map((tip, i) => (
+                <li key={i} style={nth(i)}>
+                  <span aria-hidden className="tick" />
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
-      {/* ── 전문 업체가 유리한 이유 (키워드 자산) ── */}
+      {/* ── 전문 업체가 유리한 이유 (키워드 자산) — 번호 격자 ── */}
       {hasModule('M09') && kc && kc.why_pro.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6" data-module="M09">
-          <p className="eyebrow">Why Pro</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {region.display_name} {keyword.display_name}, 전문 업체가 유리한 이유
-          </h2>
-          <ul className="mt-6 grid gap-3">
-            {kc.why_pro.map((r, i) => (
-              <li key={i} className="card flex gap-3 p-4 text-sm">
-                <span aria-hidden className="mt-0.5 font-black text-[var(--copper)]">
-                  ✓
-                </span>
-                <span>{r}</span>
-              </li>
-            ))}
-          </ul>
+        <section className="lp-sec sec-rule" data-module="M09">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="맡기는 이유"
+              title={
+                <>
+                  {region.display_name} {keyword.display_name}, 전문 업체가 유리한 이유
+                </>
+              }
+            />
+            <ul className="lp-grid mt-10" data-dense="" data-reveal="stagger">
+              {kc.why_pro.map((r, i) => (
+                <li key={i} className="flex gap-4" style={nth(i)}>
+                  <span className="lp-num mt-1 flex-none" aria-hidden>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span>{r}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
       {/* ── 시공 기록 발췌 ── */}
       {hasModule('M19') && casePage?.slug && (
-        <section className="border-y border-[var(--line)] bg-white" data-module="M19">
-          <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-            <p className="eyebrow">Field Record</p>
-            <h2 className="font-serif-kr mt-2 text-2xl font-black">
-              {region.display_name} {keyword.display_name} 시공 기록
-            </h2>
-            <Link
-              href={`/case/${casePage.slug}`}
-              className="card group mt-6 flex items-center justify-between gap-4 p-5 transition-shadow hover:shadow-lg"
-            >
-              <div>
-                <h3 className="font-extrabold leading-snug">{casePage.meta_title}</h3>
-                <p className="mt-1.5 text-sm text-[var(--ink-soft)]">
+        <section className="lp-sec sec-rule" data-module="M19">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="현장 기록"
+              title={
+                <>
+                  {region.display_name} {keyword.display_name} 시공 기록
+                </>
+              }
+            />
+            <Link href={`/case/${casePage.slug}`} className="lp-link-row mt-10" data-reveal="up">
+              <div className="min-w-0">
+                <h3 className="t-h3">{casePage.meta_title}</h3>
+                <p className="mt-1.5 text-[var(--ink-soft)]">
                   문제 → 판단 → 작업 → 검측 결과, 현장 순서 그대로 기록했습니다.
                 </p>
               </div>
-              <span
-                aria-hidden
-                className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-[var(--line)] text-[var(--copper)] group-hover:border-[var(--copper)]"
-              >
+              <span aria-hidden className="lp-arrow">
                 →
               </span>
             </Link>
@@ -762,127 +792,124 @@ export default async function LandingPage({
 
       {/* ── FAQ ── */}
       {hasModule('M21') && faqs.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6" data-module="M21">
-          <Pill>FAQ</Pill>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {region.display_name} {keyword.display_name} 자주 묻는 질문
-          </h2>
-          <div className="mt-6">
-            {faqs.map((f, i) => (
-              <details key={i} className="faq">
-                <summary>{f.q}</summary>
-                <div className="text-sm">{f.a}</div>
-              </details>
-            ))}
+        <section className="lp-sec sec-rule" data-module="M21">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="질문"
+              title={
+                <>
+                  {region.display_name} {keyword.display_name} 자주 묻는 질문
+                </>
+              }
+            />
+            <div className="mt-10 max-w-3xl" data-reveal="up">
+              {faqs.map((f, i) => (
+                <details key={i} className="faq">
+                  <summary>{f.q}</summary>
+                  <div>{f.a}</div>
+                </details>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       {/* ── 지역 마스터 ──
-          담당자 안내는 본문 모듈이 아니라 서비스 정보다. CT 조합표로 껐다 켜지 않는다. */}
+          담당자 안내는 본문 모듈이 아니라 서비스 정보다. CT 조합표로 껐다 켜지 않는다.
+          전화 버튼이 든 상담 박스라 렌더링 박스(.panel)로 둔다. */}
       {pros.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 pb-14 sm:px-6" data-chrome="local-masters">
-          <p className="eyebrow">Local Masters</p>
-          <h2 className="font-serif-kr mt-2 text-2xl font-black">
-            {region.display_name} {keyword.display_name} 담당 마스터
-          </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {pros.map((pro) => (
-              <div key={pro.id} className="card p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-extrabold">{pro.shop_name ?? `${region.display_name} 담당 마스터`}</h3>
+        <section className="lp-sec sec-rule" data-chrome="local-masters">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="담당"
+              title={
+                <>
+                  {region.display_name} {keyword.display_name} 담당 마스터
+                </>
+              }
+            />
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-reveal="stagger">
+              {pros.map((pro, i) => (
+                <div key={pro.id} className="panel flex flex-col p-6" style={nth(i)}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="t-h3">{pro.shop_name ?? `${region.display_name} 담당 마스터`}</h3>
+                    </div>
+                    {pro.master_grade && (
+                      <span className="flex-none rounded-[var(--r-chip)] bg-[var(--teal-soft)] px-2 py-1 text-xs font-bold text-[var(--teal)]">
+                        {pro.master_grade}
+                      </span>
+                    )}
                   </div>
-                  {pro.master_grade && (
-                    <span className="rounded-full bg-[var(--teal-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--teal)]">
-                      {pro.master_grade}
-                    </span>
+                  {pro.distance && (
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-[var(--ink-soft)]">
+                      <PinIcon />
+                      {pro.distance}
+                    </p>
                   )}
+                  {pro.badges.length > 0 && (
+                    <ul className="mt-4 flex flex-wrap gap-1.5">
+                      {pro.badges.map((b, j) => (
+                        <li
+                          key={j}
+                          className="rounded-[var(--r-chip)] border border-[var(--line)] px-2 py-0.5 text-xs font-medium text-[var(--ink-soft)]"
+                        >
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <a href={`tel:${pro.phone.replace(/-/g, '')}`} className="btn-call mt-6 w-full">
+                    <PhoneIcon />
+                    {pro.phone}
+                  </a>
                 </div>
-                {pro.distance && (
-                  <p className="mt-2 text-[13px] text-[var(--ink-soft)]">📍 {pro.distance}</p>
-                )}
-                {pro.badges.length > 0 && (
-                  <ul className="mt-3 flex flex-wrap gap-1.5">
-                    {pro.badges.map((b, i) => (
-                      <li
-                        key={i}
-                        className="rounded-md border border-[var(--line)] px-2 py-0.5 text-[11px] font-semibold text-[var(--ink-soft)]"
-                      >
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <a
-                  href={`tel:${pro.phone.replace(/-/g, '')}`}
-                  className="btn-call mt-4 w-full !py-2.5 text-sm"
-                >
-                  <PhoneIcon />
-                  {pro.phone}
-                </a>
-              </div>
-            ))}
+              ))}
+            </div>
+            {page.area_served && (
+              <p className="t-caption mt-5">출장 지역 · {page.area_served}</p>
+            )}
           </div>
-          {page.area_served && (
-            <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-              출장 지역 · {page.area_served}
-            </p>
-          )}
         </section>
       )}
 
       {/* ── 거미줄 내부링크 ──
           CT·MOD는 본문 모듈을 규정하지 사이트 내비게이션을 규정하지 않는다. CT1 옵션표에
           M22가 없다는 이유로 이 블록을 끄면 키워드끼리 홈을 거치지 않고는 서로 연결되지
-          않는다 — 실제로 한 번 꺼졌던 자리라 다시 모듈 게이트에 묶지 않는다. */}
-      {<section className="border-t border-[var(--line)] bg-white" data-chrome="related-links">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <p className="eyebrow">Related</p>
-          <h2 className="font-serif-kr mt-2 text-xl font-black">관련 서비스 페이지</h2>
+          않는다 — 실제로 한 번 꺼졌던 자리라 다시 모듈 게이트에 묶지 않는다.
+          카드 상자 대신 썸네일 행 목록(괘선) — 렌더링 박스는 전/후·사진·상담에만 쓴다. */}
+      <section className="lp-sec sec-rule" data-chrome="related-links">
+        <div className="wrap">
+          <SectionHead num={nextNo()} label="관련 페이지" title="관련 서비스 페이지" />
 
           {/* (a) 같은 키워드 · 다른 지역 */}
           {sameKeyword.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-sm font-extrabold">
-                {keyword.display_name} · 인근 지역
-              </h3>
-              <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
+            <div className="mt-10">
+              <h3 className="lp-sub">{keyword.display_name} · 인근 지역</h3>
+              <p className="t-caption mt-1">
                 실제로 다음에 보실 만한 동네부터 골랐습니다. 전체는 아래 사이트맵에 있습니다.
               </p>
-              <ul className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {sameKeyword.map((x) => {
+              <ul className="lp-links mt-5" data-reveal="stagger">
+                {sameKeyword.map((x, i) => {
                   const dong = x.chain[x.chain.length - 1]
                   const ph = keywordPhoto(keyword.slug, dong.slug)
                   return (
-                    <li key={x.page.id}>
-                      <Link
-                        href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`}
-                        className="card group block overflow-hidden transition-shadow hover:shadow-xl"
-                      >
+                    <li key={x.page.id} style={nth(i)}>
+                      <Link href={`/${keyword.slug}/${x.chain.map((r) => r.slug).join('/')}`} className="lp-card">
                         {ph && (
-                          <div className="aspect-[16/9] overflow-hidden">
+                          <div className="lp-card-thumb">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img referrerPolicy="no-referrer"
-                              src={ph}
-                              alt=""
-                              loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                            />
+                            <img referrerPolicy="no-referrer" src={ph} alt="" loading="lazy" />
                           </div>
                         )}
-                        <div className="p-4">
-                          <p className="text-base font-extrabold">
+                        <div className="lp-card-body">
+                          <p className="lp-card-title">
                             {dong.display_name} {keyword.display_name}
                           </p>
-                          {dong.profile?.near && (
-                            <p className="mt-1 truncate text-[12px] text-[var(--ink-soft)]">
-                              {dong.profile.near}
-                            </p>
-                          )}
-                          <p className="mt-3 text-[13px] font-extrabold text-[var(--copper)]">
-                            바로가기 →
-                          </p>
+                          {dong.profile?.near && <p className="lp-card-meta truncate">{dong.profile.near}</p>}
+                          <p className="lp-card-go">바로가기 →</p>
                         </div>
                       </Link>
                     </li>
@@ -893,71 +920,49 @@ export default async function LandingPage({
           )}
 
           {/* (b) 같은 지역 · 다른 키워드 — 이동해도 같은 틀에 키워드·내용만 바뀐 페이지가 나온다.
-                 지금 보고 있는 페이지를 맨 앞에 배지로 세워, 어디에서 어디로 가는지 보이게 한다. */}
+                 지금 보고 있는 페이지를 맨 앞에 표식으로 세워, 어디에서 어디로 가는지 보이게 한다. */}
           {sameRegion.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-sm font-extrabold">
-                {region.display_name}에서 함께 가능한 수리
-              </h3>
-              <ul className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12">
+              <h3 className="lp-sub">{region.display_name}에서 함께 가능한 수리</h3>
+              <ul className="lp-links mt-5" data-reveal="stagger">
                 {/* 첫 칸은 지금 보고 있는 페이지. 링크가 아니라 현재 위치 표시다 —
-                    어디에서 어디로 가는지 보여야 옆 카드를 누를 이유가 생긴다. */}
-                <li>
-                  <div className="card overflow-hidden border-[var(--ink)]">
-                    {photoA ? (
-                      <div className="relative aspect-[16/9] overflow-hidden">
+                    어디에서 어디로 가는지 보여야 옆 칸을 누를 이유가 생긴다. */}
+                <li style={nth(0)}>
+                  <div className="lp-card is-here">
+                    {photoA && (
+                      <div className="lp-card-thumb">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img referrerPolicy="no-referrer" src={photoA.src} alt="" loading="lazy" className="h-full w-full object-cover" />
-                        <span className="absolute right-2.5 top-2.5 rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
-                          현재 페이지
-                        </span>
+                        <img referrerPolicy="no-referrer" src={photoA.src} alt="" loading="lazy" />
                       </div>
-                    ) : (
-                      <p className="px-4 pt-4">
-                        <span className="rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-extrabold text-white">
-                          현재 페이지
-                        </span>
-                      </p>
                     )}
-                    <div className="p-4">
-                      <p className="text-base font-extrabold">
+                    <div className="lp-card-body">
+                      <span className="lp-here">현재 페이지</span>
+                      <p className="lp-card-title">
                         {region.display_name} {keyword.display_name}
                       </p>
-                      <p className="mt-1.5 line-clamp-2 text-[13px] text-[var(--ink-soft)]">
-                        {kc?.tagline ?? keyword.description ?? ''}
-                      </p>
+                      <p className="lp-card-meta line-clamp-2">{kc?.tagline ?? keyword.description ?? ''}</p>
                     </div>
                   </div>
                 </li>
-                {sameRegion.map(({ page: p, kw }) => {
+                {sameRegion.map(({ page: p, kw }, i) => {
                   const ph = keywordPhoto(kw!.slug, region.slug)
                   return (
-                    <li key={p.id}>
-                      <Link
-                        href={`/${kw!.slug}/${pathStr}`}
-                        className="card group block overflow-hidden transition-shadow hover:shadow-xl"
-                      >
+                    <li key={p.id} style={nth(i + 1)}>
+                      <Link href={`/${kw!.slug}/${pathStr}`} className="lp-card">
                         {ph && (
-                          <div className="aspect-[16/9] overflow-hidden">
+                          <div className="lp-card-thumb">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img referrerPolicy="no-referrer"
-                              src={ph}
-                              alt=""
-                              loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                            />
+                            <img referrerPolicy="no-referrer" src={ph} alt="" loading="lazy" />
                           </div>
                         )}
-                        <div className="p-4">
-                          <p className="text-base font-extrabold">
+                        <div className="lp-card-body">
+                          <p className="lp-card-title">
                             {region.display_name} {kw!.display_name}
                           </p>
-                          <p className="mt-1.5 line-clamp-2 text-[13px] text-[var(--ink-soft)]">
+                          <p className="lp-card-meta line-clamp-2">
                             {kw!.content?.tagline ?? kw!.description ?? ''}
                           </p>
-                          <p className="mt-3 text-[13px] font-extrabold text-[var(--copper)]">
-                            바로가기 →
-                          </p>
+                          <p className="lp-card-go">바로가기 →</p>
                         </div>
                       </Link>
                     </li>
@@ -968,24 +973,20 @@ export default async function LandingPage({
           )}
 
           {/* (c) 상위로 */}
-          <div className="mt-8">
-            <h3 className="text-sm font-extrabold">상위 페이지</h3>
-            <ul className="mt-3 flex flex-wrap gap-2.5">
+          <div className="mt-12">
+            <h3 className="lp-sub">상위 페이지</h3>
+            <ul className="region-cols mt-3">
               <li>
-                <Link
-                  href={`/${keyword.slug}`}
-                  className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
-                >
-                  {keyword.display_name} 전체
+                <Link href={`/${keyword.slug}`}>
+                  <span className="min-w-0 truncate">{keyword.display_name} 전체</span>
                 </Link>
               </li>
               {ancestorLinks.map((a) => (
                 <li key={a.region.id}>
-                  <Link
-                    href={`/${keyword.slug}/${a.path}`}
-                    className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
-                  >
-                    {a.region.display_name} {keyword.display_name}
+                  <Link href={`/${keyword.slug}/${a.path}`}>
+                    <span className="min-w-0 truncate">
+                      {a.region.display_name} {keyword.display_name}
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -994,90 +995,102 @@ export default async function LandingPage({
 
           {/* (d) 다른 수리 분야 */}
           {otherHubs.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-sm font-extrabold">다른 수리 항목</h3>
-              <ul className="mt-3 flex flex-wrap gap-2.5">
+            <div className="mt-12">
+              <h3 className="lp-sub">다른 수리 항목</h3>
+              <ul className="region-cols mt-3">
                 {otherHubs.map((k) => (
                   <li key={k.id}>
-                    <Link
-                      href={`/${k.slug}`}
-                      className="inline-block rounded-full border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-sm font-bold sm:py-2 hover:border-[var(--copper)] hover:text-[var(--copper)]"
-                    >
-                      {k.display_name}
+                    <Link href={`/${k.slug}`}>
+                      <span className="min-w-0 truncate">{k.display_name}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-[13px] text-[var(--ink-soft)]">
-                <Link href="/" className="tap44 font-bold text-[var(--teal)] hover:underline">
+              <p className="mt-4">
+                <Link
+                  href="/"
+                  className="inline-flex min-h-11 items-center font-bold text-[var(--copper)] hover:underline"
+                >
                   전체 수리 항목 보기
                 </Link>
               </p>
             </div>
           )}
         </div>
-      </section>}
+      </section>
 
-      {/* ── 최하단 CTA 밴드 ──
+      {/* ── 최하단 상담 박스 ──
           본문을 끝까지 읽은 사람이 마지막으로 만나는 화면이다. 여기서 아무 것도 제시하지
-          않으면 그대로 닫는다. */}
-      {hasModule('M24') && <section className="bg-[var(--ink)]" data-module="M24">
-        <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="font-serif-kr text-2xl font-black text-white sm:text-3xl">
-            {keyword.display_name} 상태 사진 한 장이면 충분합니다
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-[var(--on-ink-soft)]">
-            현장 상태에 맞춰 시공 가능 여부와 일정을 안내드립니다. 작업 중에는 통화가 어려우니
-            사진과 지역, 수리 내용을 남겨 주세요.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            {telHref && (
-              <a href={telHref} className="btn-call">
-                <PhoneIcon />
-                {phone} 상담문의
-              </a>
-            )}
-            <Link href="/" className="btn-ghost !border-white/60 !text-white">
-              메인페이지
-            </Link>
+          않으면 그대로 닫는다. 베이지 면 렌더링 박스 + 세리프 제목 + 버튼 두 개(전화 · 이 수리 전체 지역).
+          바로 아래 전역 상담 띠(어두운 면)와 겹치지 않게 이 자리는 밝은 면으로 둔다. */}
+      {hasModule('M24') && (
+        <section className="lp-sec sec-rule" data-module="M24">
+          <div className="wrap">
+            <div className="panel lp-consult" data-reveal="up">
+              <div className="min-w-0">
+                <p className="label-mono">상담</p>
+                <h2 className="lp-consult-title">
+                  {keyword.display_name} 상태 사진 한 장이면 충분합니다
+                </h2>
+                <p className="mt-4 max-w-xl text-[var(--ink-soft)]">
+                  현장 상태에 맞춰 시공 가능 여부와 일정을 안내드립니다. 작업 중에는 통화가 어려우니
+                  사진과 지역, 수리 내용을 남겨 주세요.
+                </p>
+                <ul className="lp-consult-facts">
+                  <li>
+                    <span className="tick" aria-hidden />
+                    {region.display_name} 전 지역 출장
+                  </li>
+                  <li>
+                    <span className="tick" aria-hidden />
+                    진단부터 마감까지 한 번에
+                  </li>
+                  <li>
+                    <span className="tick" aria-hidden />
+                    사진·문자 상담 환영
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-consult-btns">
+                {telHref && (
+                  <a href={telHref} className="btn-call">
+                    <PhoneIcon />
+                    {phone} 상담문의
+                  </a>
+                )}
+                <Link href={`/${keyword.slug}`} className="btn-ghost">
+                  {keyword.display_name} 전체 지역
+                </Link>
+              </div>
+            </div>
           </div>
-          <ul className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-2 text-[13px] text-[var(--on-ink-soft)]">
-            <li>{region.display_name} 전 지역 출장</li>
-            <li>진단부터 마감까지 한 번에</li>
-            <li>사진·문자 상담 환영</li>
-          </ul>
-        </div>
-      </section>}
+        </section>
+      )}
 
       {/* ── 사이트맵 ── */}
       {(sameRegion.length > 0 || otherHubs.length > 0) && (
-        <section id="sitemap" className="scroll-mt-20 border-t border-[var(--line)] bg-[var(--paper)]">
-          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <Pill>SITEMAP</Pill>
-            <h2 className="font-serif-kr mt-4 text-2xl font-black sm:text-3xl">
-              {region.display_name}에서 볼 수 있는 페이지
-            </h2>
-            <p className="mt-3 text-[15px] text-[var(--ink-soft)]">
-              아래 페이지들이 서로 연결되어 있습니다. 필요한 정보로 바로 이동해 보세요.
-            </p>
-            <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section id="sitemap" className="lp-sec sec-rule scroll-mt-20">
+          <div className="wrap">
+            <SectionHead
+              num={nextNo()}
+              label="페이지 색인"
+              title={<>{region.display_name}에서 볼 수 있는 페이지</>}
+              desc="아래 페이지들이 서로 연결되어 있습니다. 필요한 정보로 바로 이동해 보세요."
+            />
+            <ul className="region-cols mt-10" data-reveal="up">
               {sameRegion.map(({ page: p, kw }) => (
                 <li key={p.id}>
-                  <Link
-                    href={`/${kw!.slug}/${pathStr}`}
-                    className="block truncate rounded-md border border-[var(--line)] bg-white px-5 py-4 text-[15px] font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
-                  >
-                    {region.display_name} {kw!.display_name}
+                  <Link href={`/${kw!.slug}/${pathStr}`}>
+                    <span className="min-w-0 truncate">
+                      {region.display_name} {kw!.display_name}
+                    </span>
                   </Link>
                 </li>
               ))}
               {otherHubs.slice(0, 6).map((k) => (
                 <li key={`hub-${k.id}`}>
-                  <Link
-                    href={`/${k.slug}`}
-                    className="block truncate rounded-md border border-[var(--line)] bg-white px-5 py-4 text-[15px] font-bold hover:border-[var(--copper)] hover:text-[var(--copper)]"
-                  >
-                    {k.display_name}
+                  <Link href={`/${k.slug}`}>
+                    <span className="min-w-0 truncate">{k.display_name}</span>
                   </Link>
                 </li>
               ))}
@@ -1086,28 +1099,21 @@ export default async function LandingPage({
             {/* 권역별 전체 지역 색인 — 접혀 있어도 링크는 HTML에 그대로 남는다.
                 화면은 권역 수(4줄)만 쓰고, 크롤러는 형제 전부를 읽는다. */}
             {byCluster.size > 0 && (
-              <div className="mt-10">
-                <p className="text-sm font-extrabold">
-                  {keyword.display_name} 전체 지역
-                </p>
-                <div className="mt-3 border-t border-[var(--line)]">
+              <div className="mt-12">
+                <p className="lp-sub">{keyword.display_name} 전체 지역</p>
+                <div className="mt-3 border-t border-[var(--ink)]">
                   {CLUSTER_ORDER.filter((c) => byCluster.has(c)).map((cluster) => (
                     <details key={cluster} className="area-fold">
                       <summary>
                         <span>
                           {cluster}{' '}
-                          <span className="text-[13px] font-semibold text-[var(--ink-soft)]">
-                            {byCluster.get(cluster)!.length}
-                          </span>
+                          <span className="label-mono">{byCluster.get(cluster)!.length}</span>
                         </span>
                       </summary>
-                      <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 pb-5 sm:grid-cols-3 lg:grid-cols-4">
+                      <ul className="lp-fold-links">
                         {byCluster.get(cluster)!.map((e) => (
                           <li key={e.href}>
-                            <Link
-                              href={e.href}
-                              className="block truncate py-1 text-[13px] font-semibold text-[var(--ink-soft)] hover:text-[var(--copper)]"
-                            >
+                            <Link href={e.href}>
                               {e.name} {keyword.display_name}
                             </Link>
                           </li>
@@ -1118,7 +1124,7 @@ export default async function LandingPage({
                 </div>
                 <Link
                   href={`/${keyword.slug}`}
-                  className="mt-5 inline-block text-sm font-extrabold text-[var(--teal)] hover:underline"
+                  className="mt-5 inline-flex min-h-11 items-center font-bold text-[var(--copper)] hover:underline"
                 >
                   {keyword.display_name} 대표 페이지로 →
                 </Link>
@@ -1128,30 +1134,10 @@ export default async function LandingPage({
         </section>
       )}
 
+      {/* 모바일 하단 상담은 전역 MobileConsultBar가 맡는다(옛 .callbar 제거). 여기는 데스크톱 상담·맨 위로. */}
       <FloatingActions telHref={telHref} />
-
-      {/* ── 모바일 고정 상담바 ── */}
-      {mainPro && telHref && (
-        <div className="callbar">
-          <div className="min-w-0">
-            <p className="truncate text-[13px] font-bold">
-              {region.display_name} {keyword.display_name}
-            </p>
-            <p className="truncate text-[11px] text-[var(--on-ink-soft)]">사진·문자 상담 환영</p>
-          </div>
-          <a href={telHref} className="btn-call flex-none !px-4 !py-2 text-sm">
-            <PhoneIcon />
-            전화 상담
-          </a>
-        </div>
-      )}
     </main>
   )
-}
-
-/** 섹션 머리의 영문 라벨. 참고 스킨처럼 윗선 없는 모노 표식으로 둔다 (예전 알약 모양에서 바꿈). */
-function Pill({ children }: { children: ReactNode }) {
-  return <span className="eyebrow inline-block">{children}</span>
 }
 
 function PhoneIcon() {
@@ -1163,6 +1149,20 @@ function PhoneIcon() {
         strokeWidth="1.8"
         strokeLinejoin="round"
       />
+    </svg>
+  )
+}
+
+function PinIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden className="flex-none">
+      <path
+        d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="9.5" r="2.5" stroke="currentColor" strokeWidth="1.8" />
     </svg>
   )
 }
