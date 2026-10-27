@@ -462,7 +462,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="자가 진단"
+              label="자가 진단" align="stack"
               title={
                 <>
                   이런 증상이면 {region.display_name} {josa(keyword.display_name, '이', '가')} 필요합니다
@@ -520,7 +520,7 @@ export default async function LandingPage({
       {hasModule('M05') && kc?.status_criteria && (
         <section className="lp-sec sec-rule" data-module="M05">
           <div className="wrap">
-            <SectionHead num={nextNo()} label="진단 기준" title={kc.status_criteria.title} />
+            <SectionHead num={nextNo()} label="진단 기준" align="stack" title={kc.status_criteria.title} />
             <ul className="lp-rows mt-10" data-reveal="stagger">
               {kc.status_criteria.list.map((item: string, i: number) => {
                 const [badge, ...rest] = item.split(': ')
@@ -540,7 +540,7 @@ export default async function LandingPage({
       {hasModule('M06') && kc?.pro_judgment && (
         <section className="lp-sec sec-rule" data-module="M06">
           <div className="wrap">
-            <SectionHead num={nextNo()} label="현장 판단" title={kc.pro_judgment.title} />
+            <SectionHead num={nextNo()} label="현장 판단" align="stack" title={kc.pro_judgment.title} />
             <div className="lp-quote mt-10" data-reveal="up">
               <p className="prose-kr">{kc.pro_judgment.body}</p>
             </div>
@@ -690,7 +690,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="수리·교체"
+              label="수리·교체" align="stack"
               title={kc?.repair_vs_replace ? kc.repair_vs_replace.title : '직접 할까, 맡길까'}
             />
             {kc?.repair_vs_replace ? (
@@ -720,7 +720,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="관리"
+              label="관리" align="stack"
               title={<>{region.display_name} 시공 후 관리·재발 방지</>}
             />
             <ul className="lp-list mt-10 max-w-3xl" data-reveal="stagger">
@@ -741,7 +741,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="맡기는 이유"
+              label="맡기는 이유" align="stack"
               title={
                 <>
                   {region.display_name} {keyword.display_name}, 전문 업체가 유리한 이유
@@ -768,7 +768,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="현장 기록"
+              label="현장 기록" align="stack"
               title={
                 <>
                   {region.display_name} {keyword.display_name} 시공 기록
@@ -796,7 +796,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="질문"
+              label="질문" align="stack"
               title={
                 <>
                   {region.display_name} {keyword.display_name} 자주 묻는 질문
@@ -823,7 +823,7 @@ export default async function LandingPage({
           <div className="wrap">
             <SectionHead
               num={nextNo()}
-              label="담당"
+              label="담당" align="stack"
               title={
                 <>
                   {region.display_name} {keyword.display_name} 담당 마스터
@@ -882,7 +882,7 @@ export default async function LandingPage({
           카드 상자 대신 썸네일 행 목록(괘선) — 렌더링 박스는 전/후·사진·상담에만 쓴다. */}
       <section className="lp-sec sec-rule" data-chrome="related-links">
         <div className="wrap">
-          <SectionHead num={nextNo()} label="관련 페이지" title="관련 서비스 페이지" />
+          <SectionHead num={nextNo()} label="관련 페이지" align="stack" title="관련 서비스 페이지" />
 
           {/* (a) 같은 키워드 · 다른 지역 */}
           {sameKeyword.length > 0 && (
