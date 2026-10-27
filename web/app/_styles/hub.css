@@ -90,14 +90,8 @@
   font-size: 1.125rem; line-height: 1.65; word-break: keep-all;
 }
 
-/* ── 진행 과정: ProcessRail을 밝은 면에 놓는다.
-   공용 CSS에 .rail-light 정의가 없어(어두운 면 색 그대로라 종이 위에서 안 보인다) 여기서만 덧댄다. ── */
-.hub .rail-light .rail-line { background: var(--line); }
-.hub .rail-light .rail-step { border-left-color: var(--line); }
-.hub .rail-light .rail-step::before { background: var(--copper); }
-.hub .rail-light .rail-step .label-mono { color: var(--copper); }
-.hub .rail-light .rail-step h3 { color: var(--ink); }
-.hub .rail-light .rail-step p { color: var(--ink-soft); font-size: 1rem; }
+/* ── 진행 과정: ProcessRail dark={false} — 밝은 면 색은 globals.css .rail-light ── */
+.hub .rail-light .rail-step p { font-size: 1rem; }
 
 /* ── 서비스 지역 ── */
 .hub .hub-region-note { margin-top: 1.5rem; color: var(--ink-soft); word-break: keep-all; }

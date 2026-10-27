@@ -22,7 +22,7 @@ export interface FieldPhotoSet {
   /** 이 세트를 쓰는 대표 허브 — 캡션 아래 링크. 없으면 null */
   keywordSlug: string | null
   keywordName: string | null
-  /** 전/후를 같은 자리·같은 각도에서 찍었는지. false면 와이프 대신 2단 나란히로 보여 준다. 없으면 와이프. */
+  /** 전/후를 같은 자리·같은 각도에서 찍었는지(field-photos.json). false면 와이프 대신 2단 나란히로 보여 준다. */
   sameAngle?: boolean
 }
 

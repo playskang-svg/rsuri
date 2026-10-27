@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { resolveRegionByPath, buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
 import { blueprintBg } from '@/lib/blueprint'
-import { keywordPhoto, keywordPhotos } from '@/lib/photos'
+import { keywordPhoto, keywordPhotos, sameAngleByBefore } from '@/lib/photos'
 import { josa } from '@/lib/josa'
 import { getKeywordImages, groupSetsByKeyword, isIllustrationOnly } from '@/lib/keyword-images'
 import { composeLocal } from '@/lib/compose-local'
@@ -254,7 +254,7 @@ export default async function LandingPage({
   // 키워드 사진 상속: 키워드 × 지역 조합이 1,300건이라 조합마다 사진을 따로 넣을 수 없다.
   // 이 페이지 고유 사진이 있으면 그것이 우선하고, 없을 때만 키워드 세트를 물려받는다.
   const inheritedSets =
-    shots.length > 0 ? [] : (groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? [])
+    shots.length > 0 ? [] : (groupSetsByKeyword(await getKeywordImages(), sameAngleByBefore()).get(keyword.id) ?? [])
   // 실사가 아직 없어 개념도로 채운 세트인지. 사진으로 오인되면 안 되므로 화면에 밝힌다 —
   // 남의 현장 사진을 우리 시공 결과처럼 쓰는 것과 같은 종류의 문제를 여기서 차단한다.
   const casesAreIllustration = inheritedSets.length > 0 && isIllustrationOnly(inheritedSets)
@@ -418,7 +418,7 @@ export default async function LandingPage({
 
       {/* ── 시공 사례 (전/후) ──
           히어로 다음 첫 섹션. 두 사진을 겹쳐 두고 가운데 손잡이를 좌우로 밀면 '전'이 잘리고
-          '후'가 드러난다 — 나란히 놓는 것보다 같은 자리·같은 각도라는 게 드러나 비교가 된다.
+          '후'가 드러난다. 촬영 위치가 다른 세트(field-photos.json sameAngle)는 겹치지 않고 나란히 놓는다.
           실제 사진이 등록된 키워드에서만 나온다. 스톡 두 장을 전/후로 붙이면 서로 다른 현장을
           같은 집의 시공 결과인 것처럼 보이게 되므로 사진이 없으면 섹션을 만들지 않는다.
           렌더링 박스(.panel)는 이 페이지에서 전/후·사진·상담 박스에만 쓴다. */}
@@ -435,7 +435,7 @@ export default async function LandingPage({
                     {region.display_name} {keyword.display_name} 시공 전후
                   </>
                 }
-                desc="가운데 손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다."
+                desc="실제 현장에서 찍은 시공 전과 후입니다. 구분선이 있는 사진은 좌우로 움직여 비교해 보세요."
               />
               {casesAreIllustration && (
                 <p className="lp-note mt-5" data-reveal="up">

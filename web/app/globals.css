@@ -303,6 +303,7 @@ a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visibl
   background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control);
   font-size: 0.9rem; font-weight: 500; color: var(--ink); transition: border-color 120ms;
 }
+@media (max-width: 767px), (pointer: coarse) { .search-input { min-height: 44px; font-size: 16px; } } /* 16px 미만이면 iOS가 포커스 때 화면을 확대한다 */
 .search-input::placeholder { color: var(--ink-soft); font-weight: 400; }
 .search-input:focus { outline: 2px solid var(--copper); outline-offset: 1px; border-color: transparent; }
 .search-input::-webkit-search-decoration, .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
@@ -529,7 +530,7 @@ html:not(.has-js) .marquee-track[aria-hidden="true"] { display: none; }
 .sec-head[data-dark] .sec-desc { color: var(--on-ink-soft); }
 .sec-head[data-dark] .sec-line { background: var(--line-dark); }
 /* 진행 과정은 레일 선이 괘선 역할을 한다 — 섹션 머리 괘선까지 두면 이중 괘선 */
-#process .sec-head .sec-line { display: none; }
+#process.dark-2 .sec-head .sec-line { display: none; } /* 홈만 — 허브·지역의 #process는 섹션 괘선을 쓴다 */
 
 /* ══════════════════════════════════════════════════════════
    수리 분야 색인(CategoryIndex) — details 그룹, JS 0
@@ -581,6 +582,13 @@ html:not(.has-js) .marquee-track[aria-hidden="true"] { display: none; }
 .rail-step .label-mono { color: var(--gold); }
 .rail-step h3 { color: var(--on-ink); font-weight: 700; font-size: 1.25rem; line-height: 1.35; margin-top: 0.75rem; word-break: keep-all; }
 .rail-step p { color: var(--on-ink-soft); font-size: 1rem; line-height: 1.7; margin-top: 0.5rem; word-break: keep-all; }
+/* 밝은 면(허브·지역) 레일 — 어두운 면용 색을 종이 위 색으로 바꾼다 */
+.rail-light .rail-line { background: var(--line); }
+.rail-light .rail-step { border-left-color: var(--line); }
+.rail-light .rail-step::before { background: var(--copper); }
+.rail-light .rail-step .label-mono { color: var(--copper); }
+.rail-light .rail-step h3 { color: var(--ink); }
+.rail-light .rail-step p { color: var(--ink-soft); }
 @media (min-width: 1024px) {
   .rail { grid-template-columns: repeat(var(--steps, 5), 1fr); }
   .rail-step { padding: 28px 16px 0 0; border-left: 0; }
@@ -661,7 +669,8 @@ html:not(.has-js) .marquee-track[aria-hidden="true"] { display: none; }
 .page-hero[data-tone="dark"] .hero-photo, .page-hero[data-tone="blue"] .hero-photo { border-color: var(--line-dark); }
 .hero-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .hero-photo .tag { position: absolute; left: 10px; bottom: 10px; z-index: 2; font-family: var(--mono); font-size: 0.75rem; font-weight: 500; background: rgb(var(--shadow-rgb) / 0.85); color: var(--on-ink); padding: 4px 8px; border-radius: var(--r-chip); }
-@media (min-width: 1024px) { .page-hero .hero-photo { max-height: 70vh; margin-inline: auto; } }
+/* 폭을 명시한다 — 안의 사진이 전부 absolute(HeroSlider)라 margin-inline:auto면 칸 폭이 0으로 접혔다. */
+@media (min-width: 1024px) { .page-hero .hero-photo { max-height: 70vh; width: 100%; } }
 @media (max-width: 1023px) { .page-hero .hero-inner.photo-first > .hero-photo { order: -1; } }
 /* 지역 랜딩 히어로 안 슬라이더 — 사진 위 점 버튼을 44px 영역으로 */
 .page-hero.has-bg .btn-call { background: var(--cta); color: var(--card); }

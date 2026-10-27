@@ -26,7 +26,8 @@ export function Reveal(): null {
           io.unobserve(entry.target)
         }
       },
-      { rootMargin: '0px 0px -10% 0px', threshold: 0.15 },
+      // threshold 0 — 화면보다 긴 요소는 15%가 한 번에 보일 수 없어 끝내 숨은 채로 남을 수 있다.
+      { rootMargin: '0px 0px -10% 0px', threshold: 0 },
     )
     targets.forEach((el) => io.observe(el))
     return () => io.disconnect()

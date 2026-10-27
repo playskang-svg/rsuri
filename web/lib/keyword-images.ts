@@ -24,6 +24,8 @@ export interface PhotoSet {
   after: string | null
   process: string[]
   caption: string | null
+  /** 전/후를 같은 자리·각도에서 찍었는지. 모르면 undefined — 화면은 나란히로 보여 준다(개념도는 와이프). */
+  sameAngle?: boolean
 }
 
 export const getKeywordImages = cache(async (): Promise<KeywordImage[]> => {
@@ -37,7 +39,10 @@ function byOrder(a: KeywordImage, b: KeywordImage) {
   return a.sort_order - b.sort_order || a.id - b.id
 }
 
-export function groupSetsByKeyword(images: KeywordImage[]): Map<number, PhotoSet[]> {
+export function groupSetsByKeyword(
+  images: KeywordImage[],
+  sameAngleOf?: Map<string, boolean>,
+): Map<number, PhotoSet[]> {
   const grouped = new Map<number, Map<number, KeywordImage[]>>()
   for (const img of images) {
     let sets = grouped.get(img.repair_keyword_id)
@@ -55,13 +60,15 @@ export function groupSetsByKeyword(images: KeywordImage[]): Map<number, PhotoSet
     const photoSets: PhotoSet[] = []
     for (const [setNo, rows] of sets) {
       const sorted = [...rows].sort(byOrder)
+      const before = sorted.find((r) => r.role === 'BEFORE')?.url ?? null
       photoSets.push({
         setNo,
-        before: sorted.find((r) => r.role === 'BEFORE')?.url ?? null,
+        before,
         after: sorted.find((r) => r.role === 'AFTER')?.url ?? null,
         process: sorted.filter((r) => r.role === 'PROCESS').map((r) => r.url),
         // 세트 안에서는 같은 설명을 쓰지만, 한 행에만 적어 두는 운영도 허용한다.
         caption: sorted.find((r) => r.caption)?.caption ?? null,
+        sameAngle: before ? sameAngleOf?.get(before) : undefined,
       })
     }
     photoSets.sort((a, b) => a.setNo - b.setNo)

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { keywordPhotos } from '@/lib/photos'
+import { keywordPhotos, sameAngleByBefore } from '@/lib/photos'
 import { josa } from '@/lib/josa'
 import { PageHero, SectionHead } from '@/app/_components/PageHero'
 import { getKeywordImages, groupSetsByKeyword, isIllustrationOnly } from '@/lib/keyword-images'
@@ -104,7 +104,7 @@ export default async function KeywordHubPage({
     })
 
   // 사진은 키워드 단위로 등록하고 하위 지역 페이지가 전부 물려받는다.
-  const sets = groupSetsByKeyword(await getKeywordImages()).get(keyword.id) ?? []
+  const sets = groupSetsByKeyword(await getKeywordImages(), sameAngleByBefore()).get(keyword.id) ?? []
   const setsAreIllustration = sets.length > 0 && isIllustrationOnly(sets)
   // 히어로 사진은 이 키워드와 맞는 실사만. 없으면 사진 칸 대신 세부 항목 목록을 둔다.
   const heroPhoto = keywordPhotos(keyword.slug, 1)[0] ?? null // 첫 장 = 이 키워드 실사 세트의 대표 완성 사진
@@ -273,7 +273,7 @@ export default async function KeywordHubPage({
                 setsAreIllustration
                   ? `${keyword.display_name} 작업 내용을 나타낸 개념도입니다.`
                   : '실제 현장 사진입니다.'
-              } 손잡이를 좌우로 움직이면 같은 자리의 시공 전과 후가 겹쳐 보입니다.`}
+              } 구분선이 있는 사진은 좌우로 움직여 시공 전과 후를 비교해 보세요.`}
             />
             <div className="hub-cases mt-10">
               <div className="panel hub-compare overflow-hidden" data-reveal="photo">

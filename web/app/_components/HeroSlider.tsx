@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export interface HeroImage {
   src: string
@@ -8,17 +8,12 @@ export interface HeroImage {
   alt?: string
 }
 
-const INTERVAL_MS = 5000
-
 export function HeroSlider({ images, alt, isFullBleed }: { images: HeroImage[]; alt: string; isFullBleed?: boolean }) {
   const [i, setI] = useState(0)
   const n = images.length
 
-  useEffect(() => {
-    if (n <= 1) return
-    const t = setInterval(() => setI((v) => (v + 1) % n), INTERVAL_MS)
-    return () => clearInterval(t)
-  }, [n])
+  // 자동 전환은 하지 않는다 — 읽는 중에 사진이 바뀌면 시선을 뺏고, 움직임 줄이기 설정도 무시하게 된다.
+  // 넘기기는 화살표·점으로만.
 
   if (n === 0) return null
 

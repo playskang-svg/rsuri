@@ -17,7 +17,7 @@ export function RegionColumns({
   return (
     <div data-reveal="up">
       <p className="label-mono mb-4">
-        발행 지역 {total}곳 중 {shown.length}곳
+        {shown.length < total ? `발행 지역 ${total}곳 중 ${shown.length}곳` : `발행 지역 ${total}곳`}
       </p>
       <ul className="region-cols">
         {shown.map((d) => (

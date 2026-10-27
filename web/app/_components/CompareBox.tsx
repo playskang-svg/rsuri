@@ -48,7 +48,10 @@ function normalize(set: CompareSet, i: number): NormalSet {
     hrefLabel: field?.keywordName ?? null,
     // 개념도(svg)는 실제 현장으로 오인되지 않게 화면에 밝힌다.
     illustration: urls.length > 0 && urls.every((u) => u.startsWith('/illustrations/')),
-    sameAngle: field ? field.sameAngle !== false : true,
+    // 같은 자리라고 확인한 세트만 겹쳐 보여 준다. 모르면 실사는 나란히, 개념도는 와이프(같은 구도로 그렸다).
+    sameAngle: field
+      ? field.sameAngle !== false
+      : ((set as PhotoSet).sameAngle ?? (urls.length > 0 && urls.every((u) => u.startsWith('/illustrations/')))),
   }
 }
 

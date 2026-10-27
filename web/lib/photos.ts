@@ -60,3 +60,16 @@ export function homePhotoSets(): FieldPhotoSet[] {
   if (USE_FIXTURES) return []
   return loadSiteData().homePhotoSets
 }
+
+/**
+ * 시공 전 사진 주소 → 같은 자리·각도 여부. 키워드 사진 세트(허브·지역 페이지)는 DB 행 모양이라
+ * 이 값을 싣지 못한다 — 같은 세트 표(field-photos.json)에서 전 사진 주소로 찾아 붙인다.
+ */
+export function sameAngleByBefore(): Map<string, boolean> {
+  const map = new Map<string, boolean>()
+  if (USE_FIXTURES) return map
+  for (const s of loadSiteData().photoSets ?? []) {
+    if (s.before) map.set(s.before, s.sameAngle === true)
+  }
+  return map
+}
