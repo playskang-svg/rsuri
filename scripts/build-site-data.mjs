@@ -290,9 +290,23 @@ for (const kw of keywords) {
 
 // 홈 히어로·시공 전후 기록이 쓰는 실사 전/후 세트.
 // 경로를 TSX에 박지 않고 여기서 한 번만 고른다 — 사진이 바뀌면 field-photos.json만 고치면 된다.
-// 조건: before·after 둘 다 /photos/field/ 실사(개념도 svg·외부 URL 제외). 순서는 극적인 순.
+// 조건: before·after 둘 다 /photos/field/ 실사(개념도 svg·외부 URL 제외).
 // frame-corner는 반려견 울타리가 찍혀 대표 노출을 피한다(운영자 지적). frame-paint는 전 사진이 없다.
-const HOME_SET_ORDER = ['frame-bluedoor', 'frame-bath-rot', 'threshold-bath', 'frame-terrazzo', 'threshold-marble', 'frame-sliding']
+//
+// sameAngle — 전/후를 같은 자리·같은 각도에서 찍었는지(사진을 직접 보고 판단).
+//   true  = 구분선 와이프 박스로 보여도 전/후가 이어진다(문지방·문틀 위치가 좌우 같은 자리).
+//   false = 촬영 위치가 달라 와이프하면 다른 곳처럼 보인다 → 2단 나란히(data-layout=pair)로 보여 준다.
+// 순서: 와이프가 성립하는 세트를 앞에(0번 = 홈 히어로), 각도가 다른 세트는 뒤에.
+// frame-bluedoor는 가장 극적이지만 전(복도 쪽)·후(욕실 안쪽)가 반대편에서 찍혀 히어로 와이프에서
+// '파란 문을 새로 단 것'처럼 읽혔다(2026-10 비평) — 나란히 레이아웃으로 그리드에 둔다.
+const HOME_SET_ORDER = [
+  { key: 'frame-bath-rot', sameAngle: true },
+  { key: 'threshold-bath', sameAngle: true },
+  { key: 'threshold-marble', sameAngle: true },
+  { key: 'frame-terrazzo', sameAngle: false },
+  { key: 'frame-bluedoor', sameAngle: false },
+  { key: 'frame-sliding', sameAngle: false },
+]
 const isField = (u) => typeof u === 'string' && u.startsWith('/photos/field/')
 function setKind(set) {
   const urls = [set.before, set.after, ...(set.process ?? [])].filter(Boolean)
@@ -322,11 +336,11 @@ const photoSets = Object.entries(photos.sets).map(([key, set]) => {
   }
 })
 const photoSetByKey = new Map(photoSets.map((s) => [s.key, s]))
-const homePhotoSets = HOME_SET_ORDER.map((key) => {
+const homePhotoSets = HOME_SET_ORDER.map(({ key, sameAngle }) => {
   const s = photoSetByKey.get(key)
   if (!s) throw new Error(`field-photos.json에 없는 홈 세트: ${key}`)
   if (s.kind !== 'field' || !s.before || !s.after) throw new Error(`홈 세트 ${key}는 실사 전/후 쌍이어야 합니다`)
-  return s
+  return { ...s, sameAngle }
 })
 
 const out = {
