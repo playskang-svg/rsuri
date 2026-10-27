@@ -208,3 +208,10 @@ a.lp-card:hover .lp-card-title { color: var(--copper); }
   border-bottom: 1px solid var(--line-soft); transition: color 120ms, background-color 120ms;
 }
 .lp-fold-links a:hover { color: var(--copper); background: var(--card); }
+
+/* ══════════════════════════════════════════════════════════
+   공용 규칙과의 조율
+   ══════════════════════════════════════════════════════════ */
+/* globals.css의 `#process .sec-head .sec-line{display:none}`은 홈(가로 진행 레일이 괘선 역할)용이다.
+   지역 랜딩의 진행 절차는 세로 단계라 이중 괘선이 생기지 않으므로 다른 섹션처럼 머리 괘선을 둔다. */
+#process.lp-sec .sec-head .sec-line { display: block; }

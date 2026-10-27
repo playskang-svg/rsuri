@@ -978,13 +978,13 @@ export default async function LandingPage({
             <ul className="region-cols mt-3">
               <li>
                 <Link href={`/${keyword.slug}`}>
-                  <span className="min-w-0 truncate">{keyword.display_name} 전체</span>
+                  <span className="min-w-0 break-keep py-2">{keyword.display_name} 전체</span>
                 </Link>
               </li>
               {ancestorLinks.map((a) => (
                 <li key={a.region.id}>
                   <Link href={`/${keyword.slug}/${a.path}`}>
-                    <span className="min-w-0 truncate">
+                    <span className="min-w-0 break-keep py-2">
                       {a.region.display_name} {keyword.display_name}
                     </span>
                   </Link>
@@ -1001,7 +1001,7 @@ export default async function LandingPage({
                 {otherHubs.map((k) => (
                   <li key={k.id}>
                     <Link href={`/${k.slug}`}>
-                      <span className="min-w-0 truncate">{k.display_name}</span>
+                      <span className="min-w-0 break-keep py-2">{k.display_name}</span>
                     </Link>
                   </li>
                 ))}
@@ -1081,7 +1081,7 @@ export default async function LandingPage({
               {sameRegion.map(({ page: p, kw }) => (
                 <li key={p.id}>
                   <Link href={`/${kw!.slug}/${pathStr}`}>
-                    <span className="min-w-0 truncate">
+                    <span className="min-w-0 break-keep py-2">
                       {region.display_name} {kw!.display_name}
                     </span>
                   </Link>
@@ -1090,7 +1090,7 @@ export default async function LandingPage({
               {otherHubs.slice(0, 6).map((k) => (
                 <li key={`hub-${k.id}`}>
                   <Link href={`/${k.slug}`}>
-                    <span className="min-w-0 truncate">{k.display_name}</span>
+                    <span className="min-w-0 break-keep py-2">{k.display_name}</span>
                   </Link>
                 </li>
               ))}

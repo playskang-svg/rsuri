@@ -128,7 +128,11 @@ export default async function HomePage() {
     { value: regionCount, label: '안내 지역' },
     { value: landings.length, label: '안내 페이지' },
   ]
+  // 그리드 순서: 와이프(같은 각도) 카드 → 상담 패널 → 나란히(각도 다름) 카드. 박스 비율이 4:5와 3:2로 달라
+  // 섞어 놓으면 같은 행의 카드 높이가 어긋난다.
   const caseSets = photoSets.slice(1, 1 + CASE_GRID_LIMIT)
+  const wipeSets = caseSets.filter((s) => s.sameAngle !== false)
+  const pairSets = caseSets.filter((s) => s.sameAngle === false)
 
   return (
     <main>
@@ -217,7 +221,7 @@ export default async function HomePage() {
               desc="같은 현장에서 찍은 시공 전과 후입니다. 촬영 위치는 조금 다를 수 있습니다. 구분선이 있는 사진은 움직여 보세요."
             />
             <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3" data-reveal="stagger" style={{ ['--stagger' as string]: '90ms' }}>
-              {caseSets.map((set, i) => (
+              {wipeSets.map((set, i) => (
                 <li key={set.key} className="panel panel-lift overflow-hidden" style={{ ['--i' as string]: i }}>
                   <CompareBox sets={[set]} size="card" alt={`${set.keywordName ?? '현장'} 시공 전후`} showCaption={false} />
                   <div className="px-5 pb-5 pt-4">
@@ -232,8 +236,8 @@ export default async function HomePage() {
                   </div>
                 </li>
               ))}
-              {/* 마지막 칸 — 상담 패널. 5장을 3열에 깔면 빈 칸이 남는다. 문구는 히어로 lead 원문. */}
-              <li className="panel-dark case-cta on-dark" style={{ ['--i' as string]: caseSets.length }}>
+              {/* 상담 패널 — 5장을 3열에 깔면 빈 칸이 남는다. 문구는 히어로 lead·진행 과정 원문. */}
+              <li className="panel-dark case-cta on-dark" style={{ ['--i' as string]: wipeSets.length }}>
                 <div>
                   <p className="label-mono">기록 추가</p>
                   <p className="t-serif-line mt-4">사진 한 장이면 진단을 시작할 수 있어요.</p>
@@ -248,6 +252,21 @@ export default async function HomePage() {
                   </a>
                 </div>
               </li>
+              {pairSets.map((set, i) => (
+                <li key={set.key} className="panel panel-lift overflow-hidden" style={{ ['--i' as string]: wipeSets.length + 1 + i }}>
+                  <CompareBox sets={[set]} size="card" alt={`${set.keywordName ?? '현장'} 시공 전후`} showCaption={false} />
+                  <div className="px-5 pb-5 pt-4">
+                    <p className="t-serif-line">{set.caption}</p>
+                    {set.keywordSlug && (
+                      <p className="label-mono mt-2">
+                        <a href={`/${set.keywordSlug}`} className="inline-flex min-h-11 items-center hover:text-[var(--copper)] hover:underline">
+                          {set.keywordName} →
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
         </section>
