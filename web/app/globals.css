@@ -192,11 +192,26 @@ html.has-js [data-reveal="stagger"]:not([data-reveal-in]) > * { opacity: 0; tran
   background: var(--ink-2); border: 1px solid var(--line-dark); border-radius: var(--r-panel);
   box-shadow: var(--elev-2), inset 0 0 0 1px rgb(255 255 255 / 0.05);
 }
+/* .panel-dark의 background 축약형이 .blueprint 그리드를 지우므로 둘을 같이 쓸 때 다시 깐다 */
+.panel-dark.blueprint {
+  background-image:
+    linear-gradient(var(--grid-dark) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-dark) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
 /* 시공 전후 그리드 마지막 칸 — 상담 패널 */
 .case-cta { display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem; padding: 1.5rem; min-height: 18rem; color: var(--on-ink); }
 .case-cta .t-serif-line { color: var(--on-ink); font-size: 1.375rem; line-height: 1.4; }
 .case-cta p:not(.t-serif-line):not(.label-mono) { color: var(--on-ink-soft); }
 .case-cta .case-cta-btns { display: grid; gap: 0.625rem; }
+/* 패널 가운데 — 보낼 사진 목록과 약속 한 줄. 늘어난 높이는 이 블록이 받는다(flex:1, 가운데 정렬). */
+.case-cta .case-cta-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.875rem; border-top: 1px solid var(--line-dark); padding-top: 1.25rem; }
+.case-cta .case-cta-list { display: grid; }
+.case-cta .case-cta-list li { display: flex; align-items: baseline; gap: 0.875rem; padding: 0.7rem 0; border-bottom: 1px solid var(--line-dark); color: var(--on-ink); font-size: 1rem; line-height: 1.5; word-break: keep-all; }
+.case-cta .case-cta-list li:first-child { padding-top: 0.25rem; }
+.case-cta .case-cta-list .label-mono { color: var(--gold); flex: none; }
+.case-cta .case-cta-promise { display: flex; align-items: baseline; gap: 0.625rem; color: var(--on-ink-soft); font-size: 0.9375rem; line-height: 1.6; word-break: keep-all; }
+.case-cta .case-cta-promise .tick { transform: translateY(1px); }
 /* 옛 .card — 서브페이지가 쓴다. 룩만 렌더링 박스로. */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-panel); box-shadow: var(--elev-1); }
 
