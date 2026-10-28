@@ -21,12 +21,46 @@ const RULES = [
   [/문/, 'door'],
 ]
 
+// GitHub Actions(데이터센터 IP)에서 부르면 관리센터가 JSON 대신 HTML 페이지를 돌려줘 예비 목록으로
+// 떨어지고 있었다(2026-10-28 배포 로그: "Unexpected token '<'"). 같은 주소가 다른 곳에서는 JSON으로 온다 —
+// Cloudflare 보안(봇 차단·도전 페이지)이 앞에서 막는 것으로 보인다. JSON을 요청한다고 밝히고,
+// 실패하면 응답 코드·종류·Cloudflare 차단 표시(cf-mitigated)를 로그에 남겨 원인을 바로 읽게 한다.
+async function fetchOnce() {
+  const r = await fetch(SRC, {
+    signal: AbortSignal.timeout(8000),
+    headers: { accept: 'application/json', 'user-agent': 'suriwiki-build/1.0 (+https://suriwiki.com)' },
+  })
+  const type = r.headers.get('content-type') || ''
+  const text = await r.text()
+  if (!type.includes('application/json')) {
+    const why = [`HTTP ${r.status}`, type || '종류 없음', r.headers.get('cf-mitigated') && `cf-mitigated=${r.headers.get('cf-mitigated')}`, r.headers.get('server') && `server=${r.headers.get('server')}`]
+      .filter(Boolean)
+      .join(', ')
+    throw new Error(`JSON이 아님(${why}): ${text.slice(0, 80).replace(/\s+/g, ' ')}`)
+  }
+  const j = JSON.parse(text)
+  if (r.ok && j.ok && Array.isArray(j.partners)) return { source: 'admin', noindex: !!j.noindex, list: j.partners }
+  throw new Error(`HTTP ${r.status}`)
+}
+
+// 2026-10-28 CI 로그: 첫 요청이 Cloudflare 봇 확인(403, cf-mitigated=challenge)에 막히고 재시도에서 통과했다.
+// 차단이 간헐적이라 세 번까지 간격을 두고 시도한다. 근본 해결은 Cloudflare에서 /api/export/* 를 보안 검사에서 빼는 것.
+const ATTEMPTS = 3
 async function fetchPartners() {
   try {
-    const r = await fetch(SRC, { signal: AbortSignal.timeout(8000) })
-    const j = await r.json()
-    if (r.ok && j.ok && Array.isArray(j.partners)) return { source: 'admin', noindex: !!j.noindex, list: j.partners }
-    throw new Error(`HTTP ${r.status}`)
+    let last
+    for (let i = 1; i <= ATTEMPTS; i++) {
+      try {
+        return await fetchOnce()
+      } catch (e) {
+        last = e
+        if (i < ATTEMPTS) {
+          console.warn(`build-partners: ${i}번째 시도 실패(${e.message}) — 다시 시도`)
+          await new Promise((r) => setTimeout(r, 1500 * i))
+        }
+      }
+    }
+    throw last
   } catch (e) {
     const reg = readJson('bizhelp/registry/sites.json')
     const list = Object.entries(reg.site_meta || {}).map(([host, m]) => ({

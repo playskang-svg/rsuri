@@ -572,19 +572,50 @@ html:not(.has-js) .marquee-track[aria-hidden="true"] { display: none; }
 }
 .cat-list a:hover { background: var(--card); color: var(--copper); }
 .cat-list a .label-mono { white-space: nowrap; }
-.cat-photo { aspect-ratio: 3 / 4; overflow: hidden; }
-/* 모바일은 목록만 — 펼친 분야 아래 가로 100% 사진이 다른 분야 6개를 500px 밀어낸다 */
-@media (max-width: 1023px) { .cat-photo { display: none; } }
+.cat-photo { position: relative; aspect-ratio: 3 / 4; overflow: hidden; }
 .cat-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 모바일은 목록만 — 펼친 분야 아래 큰 시각물이 다른 분야 6개를 수백 px 밀어낸다. 전후 사진은 바로 위 #cases가 맡는다. */
+@media (max-width: 1023px) { .cat-visual { display: none; } }
+
+/* 기록 카드 — 분야의 실제 시공 전·후 두 장을 매트 위에 나란히. 가운데 화살표로 전→후를 읽게 한다. */
+.cat-record { padding: 10px; overflow: hidden; }
+.cat-record-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 2px 4px 10px; }
+.cat-record-head .label-mono:first-child { color: var(--copper); }
+.cat-record-pair { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.cat-record-pair::after {
+  content: "→"; position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2;
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px;
+  background: var(--card); color: var(--copper); font-weight: 700; font-size: 0.9375rem; box-shadow: var(--elev-1);
+}
+.cat-record-cell { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: var(--r-control); background: var(--line-soft); }
+.cat-record-cell img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms cubic-bezier(.2,.7,.2,1); }
+.cat-record:hover .cat-record-cell img { transform: scale(1.045); }
+.cat-record-chip { position: absolute; left: 8px; top: 8px; z-index: 1; }
+.cat-record-chip.is-after { background: var(--copper); color: var(--card); }
+.cat-record-cap { padding: 14px 4px 2px; }
+.cat-record-cap .t-serif-line { font-size: 1.0625rem; line-height: 1.5; word-break: keep-all; }
+.cat-record-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; font-size: 0.9375rem; color: var(--copper); }
+.cat-record-link:hover { color: var(--copper-deep); text-decoration: underline; }
+
+/* 맞는 현장 사진이 없는 분야 — 사진을 지어내지 않고 사진 상담 카드 */
+.cat-consult { background: var(--beige); border-color: var(--line); padding: 1.5rem 1.375rem; }
+.cat-consult > .label-mono { color: var(--copper); }
+.cat-consult .t-serif-line { font-size: 1.25rem; line-height: 1.45; word-break: keep-all; }
+.cat-consult-list { margin: 1.25rem 0 1.5rem; border-top: 1px solid var(--line); }
+.cat-consult-list li { display: flex; align-items: baseline; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px solid var(--line); font-size: 1rem; line-height: 1.5; }
+.cat-consult-list .label-mono { color: var(--copper); flex: none; }
 .cat-more { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--copper); font-size: 0.9375rem; }
 .cat-more:hover { color: var(--copper-deep); }
 @media (min-width: 1024px) {
-  .cat-index { grid-template-columns: 4fr 8fr; column-gap: 2rem; min-height: 30rem; }
+  .cat-index { grid-template-columns: 4fr 8fr; column-gap: 2rem; min-height: 33rem; }
   .cat-item { grid-column: 1; }
   /* 열린 분야의 패널만 오른쪽 8열에 띄운다. :has 미지원 브라우저는 세로로 떨어진다. */
   .cat-index:has(.cat-item[open]) .cat-item[open] > .cat-panel { position: absolute; top: 0; right: 0; width: calc((100% - 2rem) * 8 / 12); padding: 0; }
   .cat-panel-grid { grid-template-columns: 5fr 3fr; align-items: start; gap: 2rem; }
   .cat-panel-grid.no-photo { grid-template-columns: 1fr; }
+  /* 기록 카드는 전/후 두 장이라 폭이 필요하다 — 목록을 1열로 접고 카드에 절반 넘게 준다 */
+  .cat-panel-grid.has-visual { grid-template-columns: 4fr 5fr; }
+  .cat-panel-grid.has-visual .cat-list { grid-template-columns: 1fr; }
 }
 
 /* ══════════════════════════════════════════════════════════

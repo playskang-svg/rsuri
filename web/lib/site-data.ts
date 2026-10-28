@@ -37,6 +37,8 @@ export interface SiteData {
   photoPools: Record<string, string[]>
   /** 분야 slug → 대표 사진 (홈 분야 카드·분야 히어로) */
   categoryPhotos: Record<string, string>
+  /** 분야 slug → 홈 분야 색인 기록 카드용 전/후 세트 */
+  categorySets?: Record<string, FieldPhotoSet>
   /** 모든 사진 세트(실사·개념도·외부 구분 포함) */
   photoSets: FieldPhotoSet[]
   /** 홈 히어로·시공 전후 기록용 — 실사 전/후 쌍만, 극적인 순 */
