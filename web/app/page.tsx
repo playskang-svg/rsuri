@@ -52,6 +52,9 @@ export const metadata: Metadata = {
   },
 }
 
+// 상담 패널의 "보내 주실 것" — door-repair·doorframe.json 마지막 문단(문의 안내) 원문을 항목으로 나눴다.
+const CASE_CTA_SEND = ['전체가 나오는 사진 한 장', '손상 부위 근접 사진 한 장', '지역·동과 증상 한 줄']
+
 export default async function HomePage() {
   const { categories, keywords, pages, regions } = await getAllData()
   const { byId } = buildRegionIndex(regions)
@@ -237,11 +240,28 @@ export default async function HomePage() {
                 </li>
               ))}
               {/* 상담 패널 — 5장을 3열에 깔면 빈 칸이 남는다. 문구는 히어로 lead·진행 과정 원문. */}
-              <li className="panel-dark case-cta on-dark" style={{ ['--i' as string]: wipeSets.length }}>
+              <li className="panel-dark blueprint case-cta on-dark" style={{ ['--i' as string]: wipeSets.length }}>
                 <div>
                   <p className="label-mono">기록 추가</p>
                   <p className="t-serif-line mt-4">사진 한 장이면 진단을 시작할 수 있어요.</p>
                   <p className="mt-3 text-[0.9375rem] leading-relaxed">깨진 곳·상한 곳 사진과 지역, 증상을 남기면 먼저 확인합니다.</p>
+                </div>
+                {/* 옆 사진 카드 높이만큼 늘어나 가운데가 비던 자리. 키워드 본문(door-repair·doorframe.json)에
+                    이미 있는 "보내 주실 것"과 추가 비용 약속을 그대로 옮긴다 — 새로 지어낸 약속이 아니다. */}
+                <div className="case-cta-body">
+                  <p className="label-mono">보내 주실 것</p>
+                  <ol className="case-cta-list">
+                    {CASE_CTA_SEND.map((item, i) => (
+                      <li key={item}>
+                        <span className="label-mono">{String(i + 1).padStart(2, '0')}</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="case-cta-promise">
+                    <span className="tick tick-gold" aria-hidden />
+                    작업 전에 범위와 금액을 정하고, 작업 뒤에 추가 비용을 붙이지 않습니다.
+                  </p>
                 </div>
                 <div className="case-cta-btns">
                   <a href={KAKAO_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn-call">
