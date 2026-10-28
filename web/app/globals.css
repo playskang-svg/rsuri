@@ -364,7 +364,9 @@ a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visibl
   border: 1px solid var(--line-dark);
   box-shadow: var(--elev-2), inset 0 0 0 1px rgb(255 255 255 / 0.05);
 }
-@media (min-width: 1024px) { .compare[data-size="hero"] { max-height: 72vh; margin-inline: auto; } }
+/* 히어로 박스는 4:3 — 4:5로 두니 세로로 길어 모바일 첫 화면을 사진 한 장이 다 먹었다 */
+.compare[data-size="hero"] { aspect-ratio: 4 / 3; }
+@media (min-width: 1024px) { .compare[data-size="hero"] { max-height: 60vh; margin-inline: auto; } }
 .compare[data-size="card"] { border-radius: var(--r-panel) var(--r-panel) 0 0; }
 .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 70%; display: block; }
 .compare .compare-before { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
@@ -444,7 +446,39 @@ html.has-js .compare[data-auto] { animation: hero-wipe 2.4s cubic-bezier(.65,0,.
 /* ══════════════════════════════════════════════════════════
    홈 히어로
    ══════════════════════════════════════════════════════════ */
-.home-hero { padding-top: 28px; }
+.home-hero { padding-top: 28px; position: relative; overflow: hidden; isolation: isolate; }
+.home-hero > .wrap { position: relative; z-index: 1; }
+/* 히어로 모션 — 그리드가 천천히 흐르고, 오커·슬레이트 빛이 떠다니고, 측정선이 위에서 아래로 훑는다.
+   전부 transform·opacity·background-position만 움직여 레이아웃을 건드리지 않는다. */
+@keyframes grid-pan { to { background-position: 24px 24px, 24px 24px; } }
+@keyframes glow-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6%, 4%, 0) scale(1.12); }
+}
+@keyframes scan-line {
+  0% { transform: translateY(-10%); opacity: 0; }
+  10%, 80% { opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 0; }
+}
+html.has-js .home-hero.blueprint { animation: grid-pan 6s linear infinite; }
+.home-hero::before {
+  content: ""; position: absolute; inset: -20%; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 34% at 18% 22%, rgb(217 180 90 / 0.16), transparent 70%),
+    radial-gradient(42% 40% at 82% 70%, rgb(43 80 117 / 0.30), transparent 70%);
+  filter: blur(8px);
+}
+html.has-js .home-hero::before { animation: glow-drift 16s ease-in-out infinite; }
+.home-hero::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; z-index: 0; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(217 180 90 / 0.55) 30%, rgb(217 180 90 / 0.55) 70%, transparent);
+  box-shadow: 0 0 18px 2px rgb(217 180 90 / 0.25); opacity: 0;
+}
+html.has-js .home-hero::after { animation: scan-line 7s cubic-bezier(.45,0,.55,1) 1s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .home-hero.blueprint, .home-hero::before { animation: none !important; }
+  .home-hero::after { display: none; }
+}
 @media (min-width: 1024px) { .home-hero { padding-top: 64px; } }
 .home-hero .hero-grid { display: grid; gap: 1.75rem; }
 @media (min-width: 1024px) {
@@ -453,6 +487,8 @@ html.has-js .compare[data-auto] { animation: hero-wipe 2.4s cubic-bezier(.65,0,.
   .home-hero .hero-box { grid-column: span 7; }
 }
 .home-hero .hero-text .t-display { color: var(--on-ink); margin-top: 1rem; }
+/* 모바일 h1 — 세 줄 제목이 화면 절반을 먹지 않게 한 단계 줄인다 */
+@media (max-width: 639px) { .home-hero .t-display { font-size: 2rem; line-height: 1.22; } }
 .home-hero .hero-text .t-lead { color: var(--on-ink-soft); margin-top: 1.25rem; }
 .home-hero .hero-btns { display: grid; gap: 0.625rem; margin-top: 1.5rem; }
 @media (min-width: 640px) { .home-hero .hero-btns { display: flex; flex-wrap: wrap; } }
