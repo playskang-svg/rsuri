@@ -43,15 +43,24 @@ async function fetchOnce() {
   throw new Error(`HTTP ${r.status}`)
 }
 
+// 2026-10-28 CI 로그: 첫 요청이 Cloudflare 봇 확인(403, cf-mitigated=challenge)에 막히고 재시도에서 통과했다.
+// 차단이 간헐적이라 세 번까지 간격을 두고 시도한다. 근본 해결은 Cloudflare에서 /api/export/* 를 보안 검사에서 빼는 것.
+const ATTEMPTS = 3
 async function fetchPartners() {
   try {
-    // 일시 오류에 한 번 더 기회를 준다
-    try {
-      return await fetchOnce()
-    } catch (first) {
-      console.warn(`build-partners: 첫 시도 실패(${first.message}) — 다시 시도`)
-      return await fetchOnce()
+    let last
+    for (let i = 1; i <= ATTEMPTS; i++) {
+      try {
+        return await fetchOnce()
+      } catch (e) {
+        last = e
+        if (i < ATTEMPTS) {
+          console.warn(`build-partners: ${i}번째 시도 실패(${e.message}) — 다시 시도`)
+          await new Promise((r) => setTimeout(r, 1500 * i))
+        }
+      }
     }
+    throw last
   } catch (e) {
     const reg = readJson('bizhelp/registry/sites.json')
     const list = Object.entries(reg.site_meta || {}).map(([host, m]) => ({
