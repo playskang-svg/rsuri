@@ -44,6 +44,12 @@ export function categoryPhoto(categorySlug: string): string | null {
   return loadSiteData().categoryPhotos[categorySlug] ?? null
 }
 
+/** 분야 기록 카드용 전/후 세트 — field-photos.json categorySets. 없으면 null. */
+export function categorySet(categorySlug: string): FieldPhotoSet | null {
+  if (USE_FIXTURES) return null
+  return loadSiteData().categorySets?.[categorySlug] ?? null
+}
+
 /** 모든 사진 세트. 실사·개념도·외부를 kind로 구분한다. */
 export function fieldPhotoSets(): FieldPhotoSet[] {
   if (USE_FIXTURES) return []

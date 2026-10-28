@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getAllData, isPublished } from '@/lib/supabase'
 import { buildRegionIndex, getAncestorChain } from '@/lib/region-tree'
-import { categoryPhoto, homePhotoSets } from '@/lib/photos'
+import { categoryPhoto, homePhotoSets, categorySet } from '@/lib/photos'
 import { loadSiteData } from '@/lib/site-data'
 import { telHrefOf } from '@/lib/contact'
 import { SectionHead } from '@/app/_components/PageHero'
@@ -86,7 +86,7 @@ export default async function HomePage() {
         .filter((k) => k.category_id === category.id)
         .sort((a, b) => a.menu_order - b.menu_order)
         .map((k) => ({ ...k, regionCount: regionCountByKeyword.get(k.id) ?? 0 }))
-      return { category, items, photo: categoryPhoto(category.slug) }
+      return { category, items, photo: categoryPhoto(category.slug), set: categorySet(category.slug) }
     })
     .filter((x) => x.items.length > 0)
 

@@ -44,7 +44,7 @@
 | `BeforeAfterSlider` | 옛 이름 래퍼(`sets`, `alt`) → CompareBox card. 그대로 써도 된다. |
 | `SectionHead` | `num="01" label="시공 전후" title desc as align('split'/'stack') dark`. 옛 `eyebrow` prop도 받는다. 번호는 페이지 안에서 01부터. |
 | `PageHero` | `tone` 'paper'/'beige'/'dark'/'image'(옛 yellow→beige, blue→dark 매핑). `photo`가 있으면 우측 3:4 렌더링 박스(image). `images`는 첫 장만. `eyebrow`(한국어 라벨) · `above`(브레드크럼) · `aside` · `tags` · children(버튼). |
-| `CategoryIndex` | `panels=[{category, items(+regionCount), photo}]` · `defaultOpenSlug`. 분야 페이지는 해당 분야 open. |
+| `CategoryIndex` | `panels=[{category, items(+regionCount), photo, set}]` · `defaultOpenSlug`. 오른쪽 칸은 기록 카드 — `set`(field-photos.json `categorySets`)의 전·후 두 장을 나란히, 개념도는 '개념도' 표시. 세트가 없으면 `photo` 한 장, 둘 다 없으면 사진 상담 카드. 모바일(<1024)은 목록만. |
 | `RegionColumns` | `regions=[{dong, upper?, count, href}]` · `total` · `limit`. 허브·사이트맵 지역 목록. |
 | `ProcessRail` | `steps=[{title, desc}]`. 어두운 면 안에서. |
 | `PrincipleBand` · `Marquee` · `CountUp` | 홈 전용이지만 재사용 가능. CountUp 값은 계산값만. |

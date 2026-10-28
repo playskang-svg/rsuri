@@ -338,10 +338,21 @@ const homePhotoSets = HOME_SET_ORDER.map((key) => {
   return s
 })
 
+// 분야 색인 기록 카드 — 분야 slug → 세트(전/후). 없는 세트 이름은 빌드를 멈춘다.
+const categorySets = Object.fromEntries(
+  Object.entries(photos.categorySets ?? {}).map(([cat, key]) => {
+    const s = photoSetByKey.get(key)
+    if (!s) throw new Error(`field-photos.json categorySets.${cat}: 없는 세트 ${key}`)
+    if (!s.before || !s.after) throw new Error(`categorySets.${cat}: ${key}는 전/후가 모두 있어야 합니다`)
+    return [cat, s]
+  }),
+)
+
 const out = {
   _note: 'scripts/build-site-data.mjs가 만든 파일. 직접 고치지 말고 scripts/data/의 원본을 고친 뒤 다시 생성한다.',
   site: { phone: SITE_PHONE, homeHero: photos.homeHero },
   categoryPhotos: photos.categoryPhotos ?? {},
+  categorySets,
   categories,
   keywords,
   regions,

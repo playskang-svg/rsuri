@@ -250,5 +250,14 @@
     "doorframe": "/photos/field/frame-terrazzo-after.webp",
     "threshold": "/photos/field/threshold-marble-after.webp",
     "film": "/photos/field/frame-bath-rot-after.webp"
+  },
+  "_categorySets_note": "홈 '수리 분야' 색인에서 분야를 펼치면 오른쪽에 거는 전/후 기록 카드. 분야와 맞는 세트만 고른다(실사 우선, 없으면 개념도 — 개념도는 화면에 '개념도'로 표시). 맞는 세트가 없는 분야(마루)는 사진 대신 사진 상담 카드가 선다.",
+  "categorySets": {
+    "door": "frame-bluedoor",
+    "doorframe": "frame-terrazzo",
+    "threshold": "threshold-bath",
+    "film": "frame-bath-rot",
+    "stairs": "ill-stair-nosing",
+    "wallpaper": "wall-partial-1"
   }
 }
