@@ -47,7 +47,6 @@ export function SiteHeader({
         <div className="wrap head-row">
           <Link href="/" className="logo" aria-label="수리위키 홈">
             <b>수리위키</b>
-            <small>집수리 안내</small>
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex" aria-label="주요 메뉴">
