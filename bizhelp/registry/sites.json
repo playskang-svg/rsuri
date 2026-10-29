@@ -1,6 +1,6 @@
 {
  "business_name": "수리위키",
- "noindex": true,
+ "noindex": false,
  "site_meta": {
   "munjjak-film.suriwiki.com": {
    "main_keyword": "문짝필름시공",

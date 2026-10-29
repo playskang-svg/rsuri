@@ -169,12 +169,14 @@ const verifyTags = () => [
   ENV.SEO_GOOGLE_VERIFY ? `<meta name="google-site-verification" content="${esc(ENV.SEO_GOOGLE_VERIFY)}">` : "",
 ].join("");
 // 큰 이미지 미리보기·전체 스니펫을 허용(구글), 네이버는 robots 를 그대로 따른다
+// 네이버만 먼저 공개(2026-10-30): 지역명만 바뀐 지역 페이지가 많아 구글 복제 판정을 피하려고 구글봇만 막는다(교본 4-3 두 층 색인). 네이버 Yeti는 이 태그를 보지 않는다.
+const GOOGLE_HOLD = '<meta name="googlebot" content="noindex">';
 const robotsContent = (noindex, follow = true) => (noindex ? "noindex, nofollow" : `${follow ? "index, follow" : "noindex, follow"}, max-image-preview:large, max-snippet:-1, max-video-preview:-1`);
 
 const head = (c, { title, desc, keywords, canonical, ogImage, noindex = false }) => `<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="keywords" content="${esc(keywords)}">
-<meta name="robots" content="${robotsContent(c.noindex, !noindex)}"><link rel="canonical" href="${esc(canonical)}">${verifyTags()}
+<meta name="robots" content="${robotsContent(c.noindex, !noindex)}">${c.noindex ? "" : GOOGLE_HOLD}<link rel="canonical" href="${esc(canonical)}">${verifyTags()}
 <meta property="og:type" content="website"><meta property="og:site_name" content="${esc(c.kw)}"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">${ogImage ? `<meta property="og:image" content="${esc(ogImage)}"><meta property="og:image:alt" content="${esc(c.kw)}"><meta name="twitter:image" content="${esc(ogImage)}">` : ""}
 <meta name="twitter:card" content="${ogImage ? "summary_large_image" : "summary"}"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}">
 <link rel="icon" href="/favicon.svg"><meta name="theme-color" content="#12294d"><style>${CSS}${c.tpl.themeCss || ""}</style>`;
