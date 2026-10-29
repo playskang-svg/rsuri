@@ -101,7 +101,7 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
       if (!ph.before || !ph.after) continue;
       const pair = {};
       for (const phase of ['before', 'after']) {
-        const res = await fetch(`${baseUrl}/api/s/${sub}/ba/${region ? region + '/' : ''}${slot}/${phase}`, { signal: AbortSignal.timeout(20000) });
+        const res = await fetch(`${baseUrl}/api/s/${sub}/ba/${region ? region + '/' : ''}${slot}/${phase}`, { signal: AbortSignal.timeout(20000), headers: FETCH_HEADERS });
         if (!res.ok) continue;
         const ext = EXT_OF[ph[phase].type] || 'jpg', rel = `${region ? `r/${region}/` : ''}ba-${slot}-${phase}.${ext}`;
         mkdirSync(`dist-sites/s/${sub}/img/${region ? `r/${region}` : ''}`, { recursive: true });
