@@ -3,16 +3,16 @@
   "label": "수리위키",
   "domain": "suriwiki.com",
   "repo": "playskang-svg/rsuri",
-  "scannedAt": "2026-10-28T06:24:16.146Z",
+  "scannedAt": "2026-10-29T06:36:01.307Z",
   "pagesCrawled": 300,
   "sitemapUrls": 0,
-  "externalChecked": 13,
+  "externalChecked": 19,
   "summary": {
     "high": 1,
     "medium": 102,
-    "low": 2
+    "low": 8
   },
-  "occurrences": 403,
+  "occurrences": 409,
   "findings": [
     {
       "severity": "high",
@@ -973,6 +973,60 @@
         }
       ],
       "note": "299쪽 299건에 같은 결함이 있다. 페이지마다 고칠 문제가 아니라 공통 컴포넌트·레이아웃 한 곳의 문제다."
+    },
+    {
+      "severity": "low",
+      "kind": "external-unreachable",
+      "page": "https://suriwiki.com",
+      "href": "https://gagu-reform.suriwiki.com",
+      "status": 0,
+      "error": "fetch failed",
+      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
+    },
+    {
+      "severity": "low",
+      "kind": "external-unreachable",
+      "page": "https://suriwiki.com",
+      "href": "https://gyedan-suri.suriwiki.com",
+      "status": 0,
+      "error": "fetch failed",
+      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
+    },
+    {
+      "severity": "low",
+      "kind": "external-unreachable",
+      "page": "https://suriwiki.com",
+      "href": "https://robot-jikbaesu.suriwiki.com",
+      "status": 0,
+      "error": "fetch failed",
+      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
+    },
+    {
+      "severity": "low",
+      "kind": "external-unreachable",
+      "page": "https://suriwiki.com",
+      "href": "https://veranda-sigong.suriwiki.com",
+      "status": 0,
+      "error": "fetch failed",
+      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
+    },
+    {
+      "severity": "low",
+      "kind": "external-unreachable",
+      "page": "https://suriwiki.com",
+      "href": "https://silnae-jakeop.suriwiki.com",
+      "status": 0,
+      "error": "fetch failed",
+      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
+    },
+    {
+      "severity": "low",
+      "kind": "external-unreachable",
+      "page": "https://suriwiki.com",
+      "href": "https://siroe-jakeop.suriwiki.com",
+      "status": 0,
+      "error": "fetch failed",
+      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
     },
     {
       "severity": "low",
