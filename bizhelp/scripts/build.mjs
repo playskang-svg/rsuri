@@ -20,13 +20,15 @@ if (existsSync('site-images')) {
 if (existsSync('public')) cpSync('public', 'dist', { recursive: true });
 
 // 사이트·페이지 정의: 대시보드에서 만든 그룹(D1)이 원본이다. 불러오지 못하면 저장소의 registry/sites.json(시드)로 만든다.
+// 깃허브 러너에서 기본 UA로 부르면 Cloudflare가 막아(r.ok=false) 시드로 떨어졌다 — 브라우저 UA를 붙인다
+const FETCH_HEADERS = { 'user-agent': 'Mozilla/5.0 (compatible; suriwiki-build/1.0)', accept: 'application/json' };
 let data = JSON.parse(readFileSync('registry/sites.json', 'utf8'));
 if (process.env.BIZHELP_GROUPS_URL) {
   try {
-    const r = await fetch(process.env.BIZHELP_GROUPS_URL, { signal: AbortSignal.timeout(15000) });
+    const r = await fetch(process.env.BIZHELP_GROUPS_URL, { signal: AbortSignal.timeout(15000), headers: FETCH_HEADERS });
     const j = r.ok ? await r.json() : null;
     if (j && Array.isArray(j.groups) && j.groups.length) { setExtraRegions(j.regions || []); data = groupsToRegistry(j.groups, data); console.log(`그룹: ${j.groups.length}개 (대시보드)`); }
-    else console.log('그룹 조회 결과가 비어 있어 registry/sites.json 을 씁니다');
+    else console.log(`그룹 조회 결과가 비어 있어 registry/sites.json 을 씁니다 (HTTP ${r.status})`);
   } catch (e) { console.log('그룹 조회 실패, registry/sites.json 사용:', e.message); }
 }
 
@@ -34,7 +36,7 @@ if (process.env.BIZHELP_GROUPS_URL) {
 const baBySub = {}, capBySub = {}, introBySub = {};
 if (process.env.BIZHELP_BA_URL) {
   try {
-    const r = await fetch(process.env.BIZHELP_BA_URL, { signal: AbortSignal.timeout(15000) });
+    const r = await fetch(process.env.BIZHELP_BA_URL, { signal: AbortSignal.timeout(15000), headers: FETCH_HEADERS });
     if (r.ok) {
       const j = await r.json();
       for (const it of j.items || []) (((baBySub[it.slug] ||= {})[it.region || ''] ||= {})[it.slot] ||= {})[it.phase] = it;
@@ -50,7 +52,7 @@ const EXT_OF = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
 let profiles = {};
 if (process.env.BIZHELP_PROFILES_URL) {
   try {
-    const r = await fetch(process.env.BIZHELP_PROFILES_URL, { signal: AbortSignal.timeout(15000) });
+    const r = await fetch(process.env.BIZHELP_PROFILES_URL, { signal: AbortSignal.timeout(15000), headers: FETCH_HEADERS });
     if (r.ok) for (const p of (await r.json()).profiles || []) profiles[p.slug] = p;
     console.log(`profiles: ${Object.keys(profiles).length}개`);
   } catch (e) { console.log('profiles 조회 실패(무시):', e.message); }
