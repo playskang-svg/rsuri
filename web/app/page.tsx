@@ -37,7 +37,7 @@ const PRINCIPLES = [
 const REGION_CHIP_LIMIT = 60
 
 // 시공 전후 기록 그리드 — 0번은 히어로가 쓰므로 1번부터 최대 5장 + 마지막 칸은 상담 패널(3열에서 빈 칸이 남지 않게).
-const CASE_GRID_LIMIT = 5
+const CASE_GRID_LIMIT = 11
 
 // 지역 이름 정규화 — '강남'과 '강남구', '수원'과 '수원시'는 같은 동네다. 홈 목록·숫자에서만 합친다(URL·slug는 그대로).
 // '대구'·'중구'처럼 두 글자 이름은 접미사가 아니므로 건드리지 않는다.

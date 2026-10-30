@@ -57,9 +57,10 @@
 
   --section-y: clamp(4rem, 9vw, 7.5rem);
 
-  --serif: "Noto Serif KR", "Apple SD Gothic Neo", serif;
-  --sans: "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* 글꼴은 Pretendard 하나(2026-10-30). 토큰 이름(serif·mono)은 사용처가 많아 그대로 두고 값만 바꾼다. */
+  --serif: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --mono: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif;
 }
 
 /* 히어로 전/후 자동 와이프가 움직이는 값. 등록해야 keyframes로 보간된다.
@@ -862,3 +863,49 @@ details.faq > div { padding: 0 0.25rem 1.3rem; color: var(--ink-soft); line-heig
 }
 /* 페이지마다 흩어진 Tailwind 모서리 유틸을 디자인 시스템 반경으로 맞춘다. 원형(rounded-full)은 그대로. */
 main .rounded-lg, main .rounded-xl, main .rounded-2xl { border-radius: var(--r-panel); }
+
+
+/* ══════════════════════════════════════════════════════════
+   밝은 톤 전환(2026-10-30 운영자: "전체적으로 톤이 어둡다")
+   어두운 면(히어로·진행 과정·상담 띠·푸터·상담 패널)을 밝은 면으로 바꾼다. 컴포넌트는 그대로 두고,
+   어두운 면 전용 토큰(--on-ink·--line-dark·--grid-dark·--gold)을 그 면 안에서 밝은 면용 값으로 다시 정의한다.
+   ══════════════════════════════════════════════════════════ */
+:root {
+  --paper: #fbfaf7;
+  --beige: #f3f0ea;
+  --card: #ffffff;
+  --line: #e5e0d7;
+  --line-soft: #f0ece5;
+}
+body { letter-spacing: -0.01em; }
+.dark, .dark-2, .panel-dark, .cta-band, .site-foot, .on-dark,
+.page-hero[data-tone="dark"], .page-hero[data-tone="blue"] {
+  --on-ink: #1f1c19;
+  --on-ink-soft: #5b564f;
+  --line-dark: rgb(31 28 25 / 0.12);
+  --grid-dark: rgb(43 80 117 / 0.06);
+  --gold: #9a6d12;
+}
+.dark { background: #f5f2ec; color: var(--ink); }
+.dark-2 { background: #eef3f7; color: var(--ink); }
+.panel-dark { background: var(--card); box-shadow: var(--elev-1); }
+.cta-band { background: #eef3f7; }
+.site-foot { background: #f3f0ea; border-top-color: var(--line); }
+.page-hero[data-tone="dark"], .page-hero[data-tone="blue"] { background: #f5f2ec; }
+.dark a:hover, .dark-2 a:hover, .site-foot a:hover, .dark .compare-caption .meta a:hover { color: var(--copper); }
+.btn-ghost-dark { border-color: var(--line); color: var(--ink); background: var(--card); }
+.btn-ghost-dark:hover { background: var(--beige); color: var(--ink); }
+.dark a:focus-visible, .dark button:focus-visible, .dark-2 a:focus-visible, .dark-2 button:focus-visible { outline-color: var(--copper); }
+/* 히어로 모션: 밝은 면에서는 빛 번짐을 옅게 */
+.home-hero::before {
+  background:
+    radial-gradient(38% 34% at 18% 22%, rgb(217 180 90 / 0.18), transparent 70%),
+    radial-gradient(42% 40% at 82% 70%, rgb(43 80 117 / 0.12), transparent 70%);
+}
+/* 제목: 세리프 600 대신 산세리프 800로 또렷하게 */
+.t-display, .t-h2, .font-serif-kr { font-weight: 800; letter-spacing: -0.035em; }
+.stat-num { font-weight: 800; letter-spacing: -0.02em; }
+.t-serif-line, .compare-caption .cap, .principles p { font-weight: 500; }
+.label-mono, .eyebrow { letter-spacing: 0.02em; font-weight: 600; }
+/* 사진 위 칩(시공 전/후·개수)은 사진 위에 놓이는 어두운 칩 — 밝은 면 토큰을 따라가면 글자가 사라진다 */
+.chip-mono { color: #fff; }

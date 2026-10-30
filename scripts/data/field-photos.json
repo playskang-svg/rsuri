@@ -98,120 +98,550 @@
         "https://postfiles.pstatic.net/MjAyNjA4MTRfMjMx/MDAxNzg2Njk1Nzg1MjM5.5ENmfaQlUQ6vfy28UFnRo_P-wzVArzLe2CZ2CtEgKvwg.zuOtmmWt2_0dkQ17noLULkbyDTuTp93mJyKjV3rcVQEg.JPEG/KakaoTalk_Image_2026-06-08-09-32-41_021.jpeg?type=w773"
       ],
       "caption": "벽지 손상 상태 확인 및 부분도배 준비"
+    },
+    "drive-munjjak-film-ansan-5": {
+      "before": "/photos/field/drive/munjjak-film-ansan-5-before.webp",
+      "after": "/photos/field/drive/munjjak-film-ansan-5-after.webp",
+      "caption": "방문 구멍 파손 수리 부분복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-ansan-6": {
+      "before": "/photos/field/drive/munjjak-film-ansan-6-before.webp",
+      "after": "/photos/field/drive/munjjak-film-ansan-6-after.webp",
+      "caption": "방문 깨짐 복구 안방문 파손 수리 페인트 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-asan": {
+      "before": "/photos/field/drive/munjjak-film-asan-before.webp",
+      "after": "/photos/field/drive/munjjak-film-asan-after.webp",
+      "caption": "문수리 손잡이 옆 깨진 방문 부분 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bucheon-7": {
+      "before": "/photos/field/drive/munjjak-film-bucheon-7-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bucheon-7-after.webp",
+      "caption": "화장실문 수리 욕실 문깨짐 보수",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bupyeong": {
+      "before": "/photos/field/drive/munjjak-film-bupyeong-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bupyeong-after.webp",
+      "caption": "문수리 문구멍보수 방문 욕실문파손 깨짐 수리 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bupyeong-2": {
+      "before": "/photos/field/drive/munjjak-film-bupyeong-2-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bupyeong-2-after.webp",
+      "caption": "문수리 방문깨짐파손 수리보수 문구멍메꾸기 시공",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bupyeong-4": {
+      "before": "/photos/field/drive/munjjak-film-bupyeong-4-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bupyeong-4-after.webp",
+      "caption": "방문깨짐 수리 구멍난 방문 복원",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-cheongna": {
+      "before": "/photos/field/drive/dobae-jangpan-cheongna-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-cheongna-after.webp",
+      "caption": "마루바닥 찍힘 보수 마루부분수리 안전하게 복원",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-eunpyeong-4": {
+      "before": "/photos/field/drive/dobae-jangpan-eunpyeong-4-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-eunpyeong-4-after.webp",
+      "caption": "마루부분교체 거실마루교체",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-pyeongtaek-2": {
+      "before": "/photos/field/drive/dobae-jangpan-pyeongtaek-2-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-pyeongtaek-2-after.webp",
+      "caption": "강마루부분교체 불탄 마루보수 강마루변색 그을림 보수 교체",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-seosan": {
+      "before": "/photos/field/drive/dobae-jangpan-seosan-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-seosan-after.webp",
+      "caption": "거실마루 부분교체 마루바닥 수리",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-anyang": {
+      "before": "/photos/field/drive/dobae-jangpan-anyang-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-anyang-after.webp",
+      "caption": "마루변색 마루흠집 강마루부분보수 거실 마루부분교체",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-cheonan-2": {
+      "before": "/photos/field/drive/dobae-jangpan-cheonan-2-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-cheonan-2-after.webp",
+      "caption": "창틀누수로 변색된 마루바닥재 교체 시공 강마루보수 온돌마루보수 시공 사례",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-gangdong": {
+      "before": "/photos/field/drive/dobae-jangpan-gangdong-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-gangdong-after.webp",
+      "caption": "마루시트지 벗겨짐 뜯김 강마루 깨짐 부분보수 땜빵 수리",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-namyangju": {
+      "before": "/photos/field/drive/dobae-jangpan-namyangju-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-namyangju-after.webp",
+      "caption": "거실 강마루부분교체 마루변색 깨짐 벗겨짐 보수 교체",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-ansan": {
+      "before": "/photos/field/drive/gyedan-suri-ansan-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-ansan-after.webp",
+      "caption": "복층 나무계단보수 원목계단 강아지이빨자국 우드스테인 보수 수리",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-ansan-3": {
+      "before": "/photos/field/drive/gyedan-suri-ansan-3-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-ansan-3-after.webp",
+      "caption": "나무계단 수리 계단판 보강 강아지 이빨자국 복원",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-ansan-4": {
+      "before": "/photos/field/drive/gyedan-suri-ansan-4-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-ansan-4-after.webp",
+      "caption": "나무계단 수리 강아지 물어뜯은 복층 계단판 샌딩 보수",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-ansan-5": {
+      "before": "/photos/field/drive/gyedan-suri-ansan-5-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-ansan-5-after.webp",
+      "caption": "반려견 이빨자국 나무계단 수리 계단 모서리 샌딩",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-bucheon": {
+      "before": "/photos/field/drive/gyedan-suri-bucheon-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-bucheon-after.webp",
+      "caption": "복층나무계단 흠집찍힘 파손 우드퍼티 복원복구 시공",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-common-2": {
+      "before": "/photos/field/drive/gyedan-suri-common-2-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-common-2-after.webp",
+      "caption": "원목계단 복원 강아지가 물어뜯은 계단판 모서리 샌딩 복구",
+      "sameAngle": false
+    },
+    "drive-gyedan-suri-geumcheon-2": {
+      "before": "/photos/field/drive/gyedan-suri-geumcheon-2-before.webp",
+      "after": "/photos/field/drive/gyedan-suri-geumcheon-2-after.webp",
+      "caption": "복층계단수리 나무계단보수 원목계단 흠집 기스 실금 복원 보수",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-anyang-3": {
+      "before": "/photos/field/drive/dobae-jangpan-anyang-3-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-anyang-3-after.webp",
+      "caption": "천장 구멍 보수 석고보드 수리 천장 부분도배",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-bucheon-2": {
+      "before": "/photos/field/drive/dobae-jangpan-bucheon-2-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-bucheon-2-after.webp",
+      "caption": "에어컨구멍막기 원상복구 에어컨타공복원 도배 시공",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-bucheon-4": {
+      "before": "/photos/field/drive/dobae-jangpan-bucheon-4-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-bucheon-4-after.webp",
+      "caption": "걸레받이 코너몰딩 강아지몰딩 이빨자국 복원",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-bundang-3": {
+      "before": "/photos/field/drive/dobae-jangpan-bundang-3-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-bundang-3-after.webp",
+      "caption": "벽지 찢어짐 보수 여분 벽지 없어도 부분도배 가능합니다",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-bundang-5": {
+      "before": "/photos/field/drive/dobae-jangpan-bundang-5-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-bundang-5-after.webp",
+      "caption": "에어컨 타공구멍 복원 벽구멍 메꾸기",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-common-8": {
+      "before": "/photos/field/drive/dobae-jangpan-common-8-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-common-8-after.webp",
+      "caption": "천정 석고보드 보수 천장 부분도배 거실, 안방 구멍 복원",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-dongdaemun": {
+      "before": "/photos/field/drive/dobae-jangpan-dongdaemun-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-dongdaemun-after.webp",
+      "caption": "벽깨짐 수리 석고벽보수 벽지 부분도배",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-anyang": {
+      "before": "/photos/field/drive/munjjak-film-anyang-before.webp",
+      "after": "/photos/field/drive/munjjak-film-anyang-after.webp",
+      "caption": "물먹은 문틀 수리 썩은 화장실 문틀 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bupyeong-7": {
+      "before": "/photos/field/drive/munjjak-film-bupyeong-7-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bupyeong-7-after.webp",
+      "caption": "화장실 문틀 수리 물먹은 문틀 보수",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-dobong-3": {
+      "before": "/photos/field/drive/munjjak-film-dobong-3-before.webp",
+      "after": "/photos/field/drive/munjjak-film-dobong-3-after.webp",
+      "caption": "문파손 문틀수리 보수 모티스락손잡이 방문 교체",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-gangnam": {
+      "before": "/photos/field/drive/munjjak-film-gangnam-before.webp",
+      "after": "/photos/field/drive/munjjak-film-gangnam-after.webp",
+      "caption": "욕실 문틀 보수 물먹은 부분 수리 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-gwangju-5": {
+      "before": "/photos/field/drive/munjjak-film-gwangju-5-before.webp",
+      "after": "/photos/field/drive/munjjak-film-gwangju-5-after.webp",
+      "caption": "문틀 들뜸 파손수리 교체 없이 방문틀 보수 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-ilsan-2": {
+      "before": "/photos/field/drive/munjjak-film-ilsan-2-before.webp",
+      "after": "/photos/field/drive/munjjak-film-ilsan-2-after.webp",
+      "caption": "화장실 물먹은 문틀 수리 복원 문보수",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-incheon": {
+      "before": "/photos/field/drive/munjjak-film-incheon-before.webp",
+      "after": "/photos/field/drive/munjjak-film-incheon-after.webp",
+      "caption": "화장실 문틀 보수 깨진문틀 수리 복원",
+      "sameAngle": false
+    },
+    "drive-dobae-jangpan-yongsan-2": {
+      "before": "/photos/field/drive/dobae-jangpan-yongsan-2-before.webp",
+      "after": "/photos/field/drive/dobae-jangpan-yongsan-2-after.webp",
+      "caption": "물먹은 욕실 문지방 보수 철거 및 부분복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-dongjak-2": {
+      "before": "/photos/field/drive/munjjak-film-dongjak-2-before.webp",
+      "after": "/photos/field/drive/munjjak-film-dongjak-2-after.webp",
+      "caption": "이 발톱 문지방 수리 안방 문틀 부분복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-geumcheon-3": {
+      "before": "/photos/field/drive/munjjak-film-geumcheon-3-before.webp",
+      "after": "/photos/field/drive/munjjak-film-geumcheon-3-after.webp",
+      "caption": "화장실문틀수리 욕실문지방교체 썩은 욕실 문지방 부분수리",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-suwon-4": {
+      "before": "/photos/field/drive/munjjak-film-suwon-4-before.webp",
+      "after": "/photos/field/drive/munjjak-film-suwon-4-after.webp",
+      "caption": "문지방교체 나무문턱썩음 보수 수리 인조대리석문턱 교체 설치",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-yangpyeong": {
+      "before": "/photos/field/drive/munjjak-film-yangpyeong-before.webp",
+      "after": "/photos/field/drive/munjjak-film-yangpyeong-after.webp",
+      "caption": "욕실 문지방 수리 화장실 문틀 부분복원 전체 교체없이 해결",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-yongsan": {
+      "before": "/photos/field/drive/munjjak-film-yongsan-before.webp",
+      "after": "/photos/field/drive/munjjak-film-yongsan-after.webp",
+      "caption": "화장실 문틀 교체 욕실문턱수리 보수",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bucheon-3": {
+      "before": "/photos/field/drive/munjjak-film-bucheon-3-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bucheon-3-after.webp",
+      "caption": "욕실 문지방 인조대리석 교체 썩은 문지방 수리",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-ansan-7": {
+      "before": "/photos/field/drive/munjjak-film-ansan-7-before.webp",
+      "after": "/photos/field/drive/munjjak-film-ansan-7-after.webp",
+      "caption": "방문구멍수리 파손깨짐보수 필름복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-anseong-3": {
+      "before": "/photos/field/drive/munjjak-film-anseong-3-before.webp",
+      "after": "/photos/field/drive/munjjak-film-anseong-3-after.webp",
+      "caption": "아파트 방문 구멍 수리 필름시공",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-bundang-4": {
+      "before": "/photos/field/drive/munjjak-film-bundang-4-before.webp",
+      "after": "/photos/field/drive/munjjak-film-bundang-4-after.webp",
+      "caption": "문수리 방문 깨짐 복구 시트지 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-cheonan-3": {
+      "before": "/photos/field/drive/munjjak-film-cheonan-3-before.webp",
+      "after": "/photos/field/drive/munjjak-film-cheonan-3-after.webp",
+      "caption": "문수리 방문 깨짐 보수 필름 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-common-2": {
+      "before": "/photos/field/drive/munjjak-film-common-2-before.webp",
+      "after": "/photos/field/drive/munjjak-film-common-2-after.webp",
+      "caption": "안방문수리 방문 깨짐 하단 보수 인테리어 필름으로 깔끔하게 복원",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-eunpyeong-6": {
+      "before": "/photos/field/drive/munjjak-film-eunpyeong-6-before.webp",
+      "after": "/photos/field/drive/munjjak-film-eunpyeong-6-after.webp",
+      "caption": "방문 파손 수리 필름 부분복원으로 보수",
+      "sameAngle": false
+    },
+    "drive-munjjak-film-gangdong-5": {
+      "before": "/photos/field/drive/munjjak-film-gangdong-5-before.webp",
+      "after": "/photos/field/drive/munjjak-film-gangdong-5-after.webp",
+      "caption": "문수리 방문 파손 보수 필름 복원",
+      "sameAngle": false
     }
   },
   "_sameAngle_note": "sets.*.sameAngle — 전/후를 같은 자리·같은 각도에서 찍었는지(사진을 직접 보고 판단). true만 구분선 와이프로 겹쳐 보여 준다. false이거나 적지 않은 실사·외부 사진은 2단 나란히로 보여 준다 — '같은 자리'라는 주장은 확인한 세트에만 한다. 개념도(svg)는 같은 구도로 그렸으므로 와이프.",
   "_keywordSets_note": "키워드 slug → 시공 전후 세트. 여기 없는 키워드는 계열(family) 기본값을 쓴다. 실사와 개념도를 한 키워드에 섞지 않는다 — 섞으면 개념도 표기가 사라져 그림이 실제 현장처럼 보인다.",
   "familySets": {
-    "door": [],
+    "door": [
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7",
+      "drive-munjjak-film-bupyeong",
+      "drive-munjjak-film-bupyeong-2",
+      "drive-munjjak-film-bupyeong-4"
+    ],
     "frame": [
       "frame-bath-rot",
       "frame-terrazzo",
       "frame-bluedoor",
       "frame-sliding",
       "frame-corner",
-      "frame-paint"
+      "frame-paint",
+      "drive-munjjak-film-anyang",
+      "drive-munjjak-film-bupyeong-7",
+      "drive-munjjak-film-dobong-3",
+      "drive-munjjak-film-gangnam",
+      "drive-munjjak-film-gwangju-5",
+      "drive-munjjak-film-ilsan-2",
+      "drive-munjjak-film-incheon"
     ],
     "threshold": [
       "threshold-bath",
-      "threshold-marble"
+      "threshold-marble",
+      "drive-dobae-jangpan-yongsan-2",
+      "drive-munjjak-film-dongjak-2",
+      "drive-munjjak-film-geumcheon-3",
+      "drive-munjjak-film-suwon-4",
+      "drive-munjjak-film-yangpyeong",
+      "drive-munjjak-film-yongsan",
+      "drive-munjjak-film-bucheon-3"
     ],
     "film": [
       "frame-corner",
       "frame-bath-rot",
-      "frame-terrazzo"
+      "frame-terrazzo",
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3",
+      "drive-munjjak-film-common-2",
+      "drive-munjjak-film-eunpyeong-6",
+      "drive-munjjak-film-gangdong-5"
     ],
     "stair": [
-      "ill-stair-nosing"
+      "drive-gyedan-suri-ansan",
+      "drive-gyedan-suri-ansan-3",
+      "drive-gyedan-suri-ansan-4",
+      "drive-gyedan-suri-ansan-5",
+      "drive-gyedan-suri-bucheon",
+      "drive-gyedan-suri-common-2",
+      "drive-gyedan-suri-geumcheon-2"
     ],
-    "floor": [],
+    "floor": [
+      "drive-dobae-jangpan-cheongna",
+      "drive-dobae-jangpan-eunpyeong-4",
+      "drive-dobae-jangpan-pyeongtaek-2",
+      "drive-dobae-jangpan-seosan",
+      "drive-dobae-jangpan-anyang",
+      "drive-dobae-jangpan-cheonan-2",
+      "drive-dobae-jangpan-gangdong",
+      "drive-dobae-jangpan-namyangju"
+    ],
     "wall": [
-      "ill-wall-mold",
-      "ill-wall-tear"
+      "drive-dobae-jangpan-anyang-3",
+      "drive-dobae-jangpan-bucheon-2",
+      "drive-dobae-jangpan-bucheon-4",
+      "drive-dobae-jangpan-bundang-3",
+      "drive-dobae-jangpan-bundang-5",
+      "drive-dobae-jangpan-common-8",
+      "drive-dobae-jangpan-dongdaemun"
     ]
   },
   "keywordSets": {
     "door-repair": [
       "frame-bluedoor",
-      "frame-corner"
+      "frame-corner",
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "apartment-door-repair": [
       "frame-bluedoor",
-      "frame-terrazzo"
+      "frame-terrazzo",
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "bangmunbosu": [
       "frame-corner",
-      "frame-sliding"
+      "frame-sliding",
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "wood-door-repair": [
-      "ill-door-hinge",
-      "ill-door-panel"
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "broken-door-repair": [
-      "ill-door-panel"
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "broken-wood-door": [
-      "ill-door-panel"
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "door-hole-restoration": [
-      "ill-door-panel"
+      "drive-munjjak-film-ansan-5",
+      "drive-munjjak-film-ansan-6",
+      "drive-munjjak-film-asan",
+      "drive-munjjak-film-bucheon-7"
     ],
     "doorframe-touchup": [
       "frame-corner",
-      "frame-sliding"
+      "frame-sliding",
+      "drive-munjjak-film-anyang",
+      "drive-munjjak-film-bupyeong-7",
+      "drive-munjjak-film-dobong-3",
+      "drive-munjjak-film-gangnam"
     ],
     "wood-doorframe-repair": [
       "frame-bath-rot",
       "frame-terrazzo",
-      "frame-paint"
+      "frame-paint",
+      "drive-munjjak-film-anyang",
+      "drive-munjjak-film-bupyeong-7",
+      "drive-munjjak-film-dobong-3",
+      "drive-munjjak-film-gangnam"
     ],
     "leak-doorframe-repair": [
       "frame-bath-rot",
       "frame-bluedoor",
-      "frame-terrazzo"
+      "frame-terrazzo",
+      "drive-munjjak-film-anyang",
+      "drive-munjjak-film-bupyeong-7",
+      "drive-munjjak-film-dobong-3",
+      "drive-munjjak-film-gangnam"
     ],
     "water-damaged-doorframe": [
       "frame-bath-rot",
       "frame-bluedoor",
-      "frame-terrazzo"
+      "frame-terrazzo",
+      "drive-munjjak-film-anyang",
+      "drive-munjjak-film-bupyeong-7",
+      "drive-munjjak-film-dobong-3",
+      "drive-munjjak-film-gangnam"
     ],
     "apartment-doorframe-repair": [
       "frame-terrazzo",
       "frame-bluedoor",
       "frame-sliding",
-      "frame-bath-rot"
+      "frame-bath-rot",
+      "drive-munjjak-film-anyang",
+      "drive-munjjak-film-bupyeong-7",
+      "drive-munjjak-film-dobong-3",
+      "drive-munjjak-film-gangnam"
     ],
     "doorsill-repair": [
       "threshold-marble",
-      "threshold-bath"
+      "threshold-bath",
+      "drive-dobae-jangpan-yongsan-2",
+      "drive-munjjak-film-dongjak-2",
+      "drive-munjjak-film-geumcheon-3",
+      "drive-munjjak-film-suwon-4"
     ],
-    "threshold-film": [],
+    "threshold-film": [
+      "drive-dobae-jangpan-yongsan-2",
+      "drive-munjjak-film-dongjak-2",
+      "drive-munjjak-film-geumcheon-3",
+      "drive-munjjak-film-suwon-4"
+    ],
     "doorframe-film": [
       "frame-corner",
       "frame-bath-rot",
-      "frame-terrazzo"
+      "frame-terrazzo",
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3"
     ],
     "rotten-door-film": [
       "frame-bath-rot",
-      "frame-terrazzo"
+      "frame-terrazzo",
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3"
     ],
     "door-film-wrapping": [
       "frame-corner",
-      "frame-sliding"
+      "frame-sliding",
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3"
     ],
     "door-film": [
       "frame-corner",
-      "frame-sliding"
+      "frame-sliding",
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3"
     ],
     "partial-film-work": [
       "frame-corner",
-      "frame-sliding"
+      "frame-sliding",
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3"
     ],
-    "molding-film": [],
+    "molding-film": [
+      "drive-munjjak-film-ansan-7",
+      "drive-munjjak-film-anseong-3",
+      "drive-munjjak-film-bundang-4",
+      "drive-munjjak-film-cheonan-3"
+    ],
     "partial-wallpapering": [
       "wall-partial-1",
       "wall-partial-2",
-      "wall-partial-3"
+      "wall-partial-3",
+      "drive-dobae-jangpan-anyang-3",
+      "drive-dobae-jangpan-bucheon-2",
+      "drive-dobae-jangpan-bucheon-4",
+      "drive-dobae-jangpan-bundang-3"
     ]
   },
   "_familyPhotos_note": "히어로·카드용 대표 사진(완성 모습 위주). 키워드에 실사 세트가 있으면 그 세트의 사진이 먼저 쓰이고, 없을 때 계열 사진으로 내려간다. 빈 배열이면 사진 칸 없이 글만 둔다.",
@@ -246,18 +676,23 @@
   "homeHero": "/photos/field/frame-bluedoor-after.webp",
   "_categoryPhotos_note": "홈 분야 카드·분야 페이지 히어로에 거는 대표 사진. 분야마다 가장 잘 보이는 완성 사진을 직접 고른다(무작위로 고르면 반려견 울타리가 걸린 장면 같은 게 대표가 된다). 없는 분야는 글만.",
   "categoryPhotos": {
-    "door": "/photos/field/frame-white-hinge.webp",
+    "door": "/photos/field/drive/munjjak-film-ansan-5-after.webp",
     "doorframe": "/photos/field/frame-terrazzo-after.webp",
     "threshold": "/photos/field/threshold-marble-after.webp",
-    "film": "/photos/field/frame-bath-rot-after.webp"
+    "film": "/photos/field/frame-bath-rot-after.webp",
+    "stairs": "/photos/field/drive/gyedan-suri-ansan-after.webp",
+    "floor": "/photos/field/drive/dobae-jangpan-cheongna-after.webp",
+    "wallpaper": "/photos/field/drive/dobae-jangpan-anyang-3-after.webp"
   },
   "_categorySets_note": "홈 '수리 분야' 색인에서 분야를 펼치면 오른쪽에 거는 전/후 기록 카드. 분야와 맞는 세트만 고른다(실사 우선, 없으면 개념도 — 개념도는 화면에 '개념도'로 표시). 맞는 세트가 없는 분야(마루)는 사진 대신 사진 상담 카드가 선다.",
   "categorySets": {
-    "door": "frame-bluedoor",
+    "door": "drive-munjjak-film-ansan-5",
     "doorframe": "frame-terrazzo",
     "threshold": "threshold-bath",
     "film": "frame-bath-rot",
-    "stairs": "ill-stair-nosing",
-    "wallpaper": "wall-partial-1"
-  }
+    "stairs": "drive-gyedan-suri-ansan",
+    "wallpaper": "drive-dobae-jangpan-anyang-3",
+    "floor": "drive-dobae-jangpan-cheongna"
+  },
+  "_drive_note": "2026-10-30 공수리홈케어 드라이브 현장 사진(사용 허락된 공유 폴더)에서 고른 전후 쌍. 글자 띠 크롭·4:3·좌우 반전·WebP(교본 8-3). sameAngle은 확인 전이라 false(나란히)."
 }

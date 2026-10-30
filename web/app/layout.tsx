@@ -61,13 +61,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* 스크롤 등장 효과의 게이트. 이 클래스가 붙은 뒤에만 초기 숨김이 걸린다 —
             크롤러·JS 실패 시에는 전부 보인다. 반드시 CSS보다 먼저, 동기로 실행된다. */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('has-js')" }} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* 화면에서 실제로 쓰는 굵기만 받는다.
-            본문·UI(Noto Sans KR) 400·500·700 / 제목·인용(Noto Serif KR) 400·600 / 번호·메타(IBM Plex Mono) 500.
-            800·900은 쓰지 않는다 — 굵기로 누르지 않고 세리프와 여백으로 세운다. */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        {/* 글꼴은 Pretendard 하나로 통일(2026-10-30 — 세리프 제목·모노 라벨이 무겁고 낡아 보인다는 운영자 의견).
+            dynamic-subset은 화면에 나온 글자 조각만 받아 한글 웹폰트치고 가볍다. */}
         <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
           rel="stylesheet"
         />
       </head>
