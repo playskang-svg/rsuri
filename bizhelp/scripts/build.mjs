@@ -114,7 +114,10 @@ for (const [site, m] of Object.entries(data.site_meta || {})) {
   // 페이지(공통/지역)별 사진 경로 지도: 지역 쌍 > 공통 쌍 > 기본 사진
   const apply = (region) => {
     const names = new Set(imgNames), src = {};
+    // 공통 칸은 지역 쌍을 톤만 바꿔 다시 쓴 것이라, 캡션이 이 지역 칸과 같으면 같은 작업이 두 번 보인다 → 그 칸은 비운다
+    const ownCaps = new Set(Object.values((region && capBySub[sub]?.[region]) || {}));
     for (const slot of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      if (region && !fetched[`${region}/${slot}`] && ownCaps.has(capBySub[sub]?.['']?.[slot])) { names.delete(`ba-${slot}-before`); names.delete(`ba-${slot}-after`); continue; }
       const pair = (region && fetched[`${region}/${slot}`]) || fetched[`/${slot}`];
       if (pair) { src[`ba-${slot}-before`] = pair.before; src[`ba-${slot}-after`] = pair.after; names.add(`ba-${slot}-before`); names.add(`ba-${slot}-after`); }
     }
