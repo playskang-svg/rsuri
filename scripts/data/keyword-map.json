@@ -14,6 +14,10 @@
       "name": "계단수리"
     },
     {
+      "slug": "kitchen",
+      "name": "주방작업"
+    },
+    {
       "slug": "bathroom",
       "name": "화장실 욕실시공"
     },
@@ -26,8 +30,16 @@
       "name": "창틀샷시"
     },
     {
+      "slug": "furniture",
+      "name": "가구수리 리폼"
+    },
+    {
       "slug": "balcony",
       "name": "베란다시공"
+    },
+    {
+      "slug": "robot-vacuum",
+      "name": "로봇청소기직배수설치"
     },
     {
       "slug": "indoor-work",
@@ -90,6 +102,18 @@
     "window": {
       "category": "window-sash",
       "content": "window.json"
+    },
+    "furniture": {
+      "category": "furniture",
+      "content": "furniture.json"
+    },
+    "kitchen": {
+      "category": "kitchen",
+      "content": "kitchen.json"
+    },
+    "robot-vacuum": {
+      "category": "robot-vacuum",
+      "content": "robot-vacuum.json"
     }
   },
   "keywords": [
@@ -417,6 +441,51 @@
       "name": "샷시레일보수",
       "slug": "window-rail-reinforcement",
       "family": "window"
+    },
+    {
+      "name": "원목식탁리폼",
+      "slug": "wood-table-refinishing",
+      "family": "furniture"
+    },
+    {
+      "name": "아일랜드식탁리폼",
+      "slug": "kitchen-island-reform",
+      "family": "furniture"
+    },
+    {
+      "name": "붙박이장수리",
+      "slug": "built-in-closet-repair",
+      "family": "furniture"
+    },
+    {
+      "name": "싱크대상부장수리",
+      "slug": "kitchen-upper-cabinet-repair",
+      "family": "kitchen"
+    },
+    {
+      "name": "싱크볼교체",
+      "slug": "sink-bowl-replacement",
+      "family": "kitchen"
+    },
+    {
+      "name": "가스레인지설치",
+      "slug": "gas-range-installation",
+      "family": "kitchen"
+    },
+    {
+      "name": "싱크대상판수리",
+      "slug": "countertop-crack-repair",
+      "family": "kitchen"
+    },
+    {
+      "name": "로봇청소기직배수설치",
+      "slug": "robot-vacuum-drain-installation",
+      "family": "robot-vacuum"
+    },
+    {
+      "name": "로봇청소기장설치",
+      "slug": "robot-vacuum-cabinet-installation",
+      "family": "robot-vacuum"
     }
   ],
   "aliases": {
