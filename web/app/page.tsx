@@ -180,7 +180,7 @@ export default async function HomePage() {
                   size="hero"
                   autoWipe
                   showThumbs
-                  thumbsPosition="side"
+                  thumbsPosition="bottom"
                   alt={`${photoSets[0].keywordName ?? '현장'} 시공 전후`}
                   eager
                   dark
