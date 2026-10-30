@@ -301,7 +301,8 @@ for (const kw of keywords) {
 // frame-bluedoor는 가장 극적이지만 전(복도 쪽)·후(욕실 안쪽)가 반대편에서 찍혀 히어로 와이프에서
 // '파란 문을 새로 단 것'처럼 읽혔다(2026-10 비평) — 나란히 레이아웃으로 그리드에 둔다.
 // drive-* = 2026-10-30 공수리홈케어 드라이브 현장 사진(분야마다 한 쌍씩 — 문·마루·계단·벽·문지방·문틀·필름)
-const HOME_SET_ORDER = ['frame-bath-rot', 'drive-munjjak-film-ansan-5', 'drive-dobae-jangpan-cheongna', 'drive-gyedan-suri-ansan', 'threshold-bath', 'drive-dobae-jangpan-anyang-3', 'threshold-marble', 'drive-dobae-jangpan-yongsan-2', 'frame-terrazzo', 'drive-munjjak-film-anyang', 'frame-bluedoor', 'drive-munjjak-film-ansan-7', 'frame-sliding']
+// frame-bath-rot(썩은 욕실 문틀)은 히어로 첫 장으로 너무 지저분하다는 운영자 의견(2026-10-30)으로 홈에서 뺐다 — 문틀 허브에는 남는다.
+const HOME_SET_ORDER = ['drive-munjjak-film-ansan-5', 'drive-dobae-jangpan-cheongna', 'drive-gyedan-suri-ansan', 'threshold-bath', 'drive-dobae-jangpan-anyang-3', 'threshold-marble', 'drive-dobae-jangpan-yongsan-2', 'frame-terrazzo', 'drive-munjjak-film-anyang', 'frame-bluedoor', 'drive-munjjak-film-ansan-7', 'frame-sliding']
 const isField = (u) => typeof u === 'string' && u.startsWith('/photos/field/')
 function setKind(set) {
   const urls = [set.before, set.after, ...(set.process ?? [])].filter(Boolean)
