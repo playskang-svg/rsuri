@@ -413,3 +413,7 @@
 /wallpaper-restoration/yongin
 /wallpaper-restoration/yongsan
 /absdoeokkaejim/cheonan-buldang
+/category/doorframe
+/category/threshold
+/category/film
+/category/floor
