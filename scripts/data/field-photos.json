@@ -103,7 +103,7 @@
       "before": "/photos/field/drive/munjjak-film-ansan-5-before.webp",
       "after": "/photos/field/drive/munjjak-film-ansan-5-after.webp",
       "caption": "방문 구멍 파손 수리 부분복원",
-      "sameAngle": false
+      "sameAngle": true
     },
     "drive-munjjak-film-ansan-6": {
       "before": "/photos/field/drive/munjjak-film-ansan-6-before.webp",
