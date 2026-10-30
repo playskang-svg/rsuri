@@ -209,7 +209,8 @@ const heroBlock = (c, { h1, headline, lead, crumb }) => {
 <p class="hl">${esc(headline)}</p><p class="lead">${esc(lead)}</p>${c.tpl.hero === "split" ? "" : actions}
 ${c.tpl.hero === "split" ? "" : `<p class="cta-note">📷 사진 한 장이면 가능 여부를 먼저 안내합니다.</p>`}${ev}</div>${card}</div></div>`;
 };
-const captionOf = (c, slot) => (c.media.captions && c.media.captions[slot]) || (c.subs[slot - 1] ? `${c.subs[slot - 1]} 사례` : `${c.kw} 사례`);
+// 캡션이 없을 때 칸 번호로 서브키워드를 짝지으면 사진과 다른 작업명이 붙는다(로봇청소기장 사진에 '수전 교체 사례') — 메인 키워드만 쓴다
+const captionOf = (c, slot) => (c.media.captions && c.media.captions[slot]) || `${c.kw} 사례`;
 
 const badgesBlock = (c) => `<div class="badges"><div>사진 보고 가능 여부 안내</div><div>${c.pages.length}개 지역 상담</div><div>문자 · 전화 상담</div><div>비용은 현장 확인 후 안내</div></div>`;
 
