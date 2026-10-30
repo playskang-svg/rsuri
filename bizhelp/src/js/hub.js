@@ -21,12 +21,6 @@ const S = { data: null, q: '', seg: '', sort: 'activity', closed: new Set(), shu
 try { S.closed = new Set(JSON.parse(localStorage.getItem('hub-closed') || '[]')); S.sort = localStorage.getItem('hub-sort') || S.sort; } catch (_) { /* 저장소 없음 */ }
 const saveUi = () => { try { localStorage.setItem('hub-closed', JSON.stringify([...S.closed])); localStorage.setItem('hub-sort', S.sort); } catch (_) { /* 저장소 없음 */ } };
 
-// ── 상단 통계
-function renderStats(t) {
-  const st = (v, l, sub) => `<div class="hh-stat"><b>${v}</b><span>${l}</span>${sub ? `<small>${sub}</small>` : ''}</div>`;
-  $('hub-stats').innerHTML = st(num(t.sites), '등록 업체', `지역 페이지 ${num(t.regions)}개`) + st(num(t.files), '업로드 파일') + st(num(t.photos), '사진') + st(num(t.videos), '동영상')
-    + st(bytes(t.bytes), '사용 용량') + st(num(t.cases), '전후 사례', `완성도 70%+ 사이트 ${t.ready}곳`);
-}
 
 function ring(score) {
   const c = score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#dc2626';
@@ -182,7 +176,7 @@ async function load() {
   let d;
   try { d = await fetch('/api/hub', { cache: 'no-store' }).then((r) => r.json()); } catch (_) { d = null; }
   if (!d || !d.ok) { $('hub').innerHTML = '<div class="empty">업체 현황을 불러올 수 없습니다. 잠시 후 새로고침해 주세요.</div>'; return; }
-  S.data = d; renderStats(d.totals); renderHub();
+  S.data = d; renderHub(); // 상단 통계 띠는 운영자 의견(2026-10-30, 의미 없음)으로 뺐다
 }
 initGroups();
 loadPages().then(refreshPages);
