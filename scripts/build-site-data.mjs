@@ -30,7 +30,8 @@ const SITE_PHONE = '010-4684-8838'
 function parseGroups(md) {
   const groups = new Map()
   let current = null
-  for (const line of md.split('\n')) {
+  // 윈도 체크아웃(CRLF)에서 줄 끝 \r 때문에 '- 항목'이 안 잡혀 빌드가 멈췄다 — \r\n도 끊는다
+  for (const line of md.split(/\r?\n/)) {
     const head = line.match(/^## (.+?) \((\d+)개\)\s*$/)
     if (head) {
       current = head[1].trim()
@@ -299,7 +300,8 @@ for (const kw of keywords) {
 // 순서: 와이프가 성립하는 세트를 앞에(0번 = 홈 히어로), 각도가 다른 세트는 뒤에.
 // frame-bluedoor는 가장 극적이지만 전(복도 쪽)·후(욕실 안쪽)가 반대편에서 찍혀 히어로 와이프에서
 // '파란 문을 새로 단 것'처럼 읽혔다(2026-10 비평) — 나란히 레이아웃으로 그리드에 둔다.
-const HOME_SET_ORDER = ['frame-bath-rot', 'threshold-bath', 'threshold-marble', 'frame-terrazzo', 'frame-bluedoor', 'frame-sliding']
+// drive-* = 2026-10-30 공수리홈케어 드라이브 현장 사진(분야마다 한 쌍씩 — 문·마루·계단·벽·문지방·문틀·필름)
+const HOME_SET_ORDER = ['frame-bath-rot', 'drive-munjjak-film-ansan-5', 'drive-dobae-jangpan-cheongna', 'drive-gyedan-suri-ansan', 'threshold-bath', 'drive-dobae-jangpan-anyang-3', 'threshold-marble', 'drive-dobae-jangpan-yongsan-2', 'frame-terrazzo', 'drive-munjjak-film-anyang', 'frame-bluedoor', 'drive-munjjak-film-ansan-7', 'frame-sliding']
 const isField = (u) => typeof u === 'string' && u.startsWith('/photos/field/')
 function setKind(set) {
   const urls = [set.before, set.after, ...(set.process ?? [])].filter(Boolean)
