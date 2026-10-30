@@ -264,6 +264,42 @@
     "window-rail-reinforcement": {
       "ct": "CT1",
       "question": "{region}에서 샷시레일보수이 필요할 때 원인은 무엇이고 어떻게 고치는가?"
+    },
+    "wood-table-refinishing": {
+      "ct": "CT1",
+      "question": "{region}에서 원목식탁리폼이 필요할 때 원인은 무엇이고 어떻게 고치는가?"
+    },
+    "kitchen-island-reform": {
+      "ct": "CT1",
+      "question": "{region}에서 아일랜드식탁리폼이 필요할 때 원인은 무엇이고 어떻게 고치는가?"
+    },
+    "built-in-closet-repair": {
+      "ct": "CT1",
+      "question": "{region}에서 붙박이장수리이 필요할 때 원인은 무엇이고 어떻게 고치는가?"
+    },
+    "kitchen-upper-cabinet-repair": {
+      "ct": "CT1",
+      "question": "{region}에서 싱크대상부장수리이 필요할 때 원인은 무엇이고 어떻게 고치는가?"
+    },
+    "sink-bowl-replacement": {
+      "ct": "CT5",
+      "question": "{region}에서 싱크볼교체이 필요할 때 무엇을 보고 교체·설치 범위를 정하는가?"
+    },
+    "gas-range-installation": {
+      "ct": "CT5",
+      "question": "{region}에서 가스레인지설치이 필요할 때 무엇을 보고 교체·설치 범위를 정하는가?"
+    },
+    "countertop-crack-repair": {
+      "ct": "CT1",
+      "question": "{region}에서 싱크대상판수리이 필요할 때 원인은 무엇이고 어떻게 고치는가?"
+    },
+    "robot-vacuum-drain-installation": {
+      "ct": "CT5",
+      "question": "{region}에서 로봇청소기직배수설치이 필요할 때 무엇을 보고 교체·설치 범위를 정하는가?"
+    },
+    "robot-vacuum-cabinet-installation": {
+      "ct": "CT5",
+      "question": "{region}에서 로봇청소기장설치이 필요할 때 무엇을 보고 교체·설치 범위를 정하는가?"
     }
   }
 }
