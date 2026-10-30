@@ -3,16 +3,16 @@
   "label": "수리위키",
   "domain": "suriwiki.com",
   "repo": "playskang-svg/rsuri",
-  "scannedAt": "2026-10-29T06:36:01.307Z",
+  "scannedAt": "2026-10-30T06:35:09.820Z",
   "pagesCrawled": 300,
   "sitemapUrls": 0,
   "externalChecked": 19,
   "summary": {
     "high": 1,
-    "medium": 102,
-    "low": 8
+    "medium": 54,
+    "low": 2
   },
-  "occurrences": 409,
+  "occurrences": 355,
   "findings": [
     {
       "severity": "high",
@@ -113,7 +113,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/doorframe",
+      "page": "https://suriwiki.com/category/wallpaper",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -122,7 +122,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/doorframe",
+      "page": "https://suriwiki.com/category/wallpaper",
       "href": "#process",
       "text": "진행 과정",
       "nav": true,
@@ -131,7 +131,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/doorframe",
+      "page": "https://suriwiki.com/category/wallpaper",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -140,79 +140,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/doorframe",
-      "href": "#process",
-      "text": "진행 과정",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/threshold",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/threshold",
-      "href": "#process",
-      "text": "진행 과정",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/threshold",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/threshold",
-      "href": "#process",
-      "text": "진행 과정",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/film",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/film",
-      "href": "#process",
-      "text": "진행 과정",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/film",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/film",
+      "page": "https://suriwiki.com/category/wallpaper",
       "href": "#process",
       "text": "진행 과정",
       "nav": true,
@@ -257,7 +185,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/floor",
+      "page": "https://suriwiki.com/category/kitchen",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -266,7 +194,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/floor",
+      "page": "https://suriwiki.com/category/kitchen",
       "href": "#process",
       "text": "진행 과정",
       "nav": true,
@@ -275,7 +203,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/floor",
+      "page": "https://suriwiki.com/category/kitchen",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -284,7 +212,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/floor",
+      "page": "https://suriwiki.com/category/kitchen",
       "href": "#process",
       "text": "진행 과정",
       "nav": true,
@@ -293,7 +221,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/floor-restoration",
+      "page": "https://suriwiki.com/category/bathroom",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -302,43 +230,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/floor-restoration",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/wallpaper",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/wallpaper",
+      "page": "https://suriwiki.com/category/bathroom",
       "href": "#process",
       "text": "진행 과정",
       "nav": true,
@@ -347,7 +239,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/wallpaper",
+      "page": "https://suriwiki.com/category/bathroom",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -356,7 +248,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/category/wallpaper",
+      "page": "https://suriwiki.com/category/bathroom",
       "href": "#process",
       "text": "진행 과정",
       "nav": true,
@@ -365,7 +257,7 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/lifted-wood-door",
+      "page": "https://suriwiki.com/category/tile",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -374,7 +266,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/lifted-wood-door",
+      "page": "https://suriwiki.com/category/tile",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/tile",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -383,7 +284,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/wood-door-molding",
+      "page": "https://suriwiki.com/category/tile",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/window-sash",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -392,7 +302,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/wood-door-molding",
+      "page": "https://suriwiki.com/category/window-sash",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/window-sash",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -401,7 +320,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/threshold-film",
+      "page": "https://suriwiki.com/category/window-sash",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/furniture",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -410,7 +338,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/threshold-film",
+      "page": "https://suriwiki.com/category/furniture",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/furniture",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -419,7 +356,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/molding-film",
+      "page": "https://suriwiki.com/category/furniture",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/balcony",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -428,7 +374,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/molding-film",
+      "page": "https://suriwiki.com/category/balcony",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/balcony",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -437,7 +392,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/flooring-scratch-repair",
+      "page": "https://suriwiki.com/category/balcony",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/robot-vacuum",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -446,7 +410,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/flooring-scratch-repair",
+      "page": "https://suriwiki.com/category/robot-vacuum",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/robot-vacuum",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -455,7 +428,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/floor-discoloration-restoration",
+      "page": "https://suriwiki.com/category/robot-vacuum",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/indoor-work",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -464,7 +446,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/floor-discoloration-restoration",
+      "page": "https://suriwiki.com/category/indoor-work",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/indoor-work",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -473,7 +464,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/partial-floor-restoration",
+      "page": "https://suriwiki.com/category/indoor-work",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/outdoor-work",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -482,7 +482,16 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/partial-floor-restoration",
+      "page": "https://suriwiki.com/category/outdoor-work",
+      "href": "#process",
+      "text": "진행 과정",
+      "nav": true,
+      "note": "같은 문서에 그 id가 없다"
+    },
+    {
+      "severity": "medium",
+      "kind": "dead-anchor",
+      "page": "https://suriwiki.com/category/outdoor-work",
       "href": "#cases",
       "text": "시공사례",
       "nav": true,
@@ -491,450 +500,9 @@
     {
       "severity": "medium",
       "kind": "dead-anchor",
-      "page": "https://suriwiki.com/rental-floor-restoration",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/rental-floor-restoration",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/mapo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/mapo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/songpa",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/songpa",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gangnam",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gangnam",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/suwon",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/suwon",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/nowon",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/nowon",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gangseo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gangseo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/bucheon",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/bucheon",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/bupyeong",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/bupyeong",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/yongin",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/yongin",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/guro",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/guro",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/bundang",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/bundang",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/seocho",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/seocho",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gwangmyeong",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gwangmyeong",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gimpo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/gimpo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/siheung",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/siheung",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/ansan",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/ansan",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/yeongdeungpo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/yeongdeungpo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/ilsan",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/ilsan",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/paju",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/paju",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/dongtan",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/dongtan",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/namyangju",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/namyangju",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/guri",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/guri",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/mokdong",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/mokdong",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/songdo",
-      "href": "#cases",
-      "text": "시공사례",
-      "nav": true,
-      "note": "같은 문서에 그 id가 없다"
-    },
-    {
-      "severity": "medium",
-      "kind": "dead-anchor",
-      "page": "https://suriwiki.com/laminate-floor-repair/songdo",
-      "href": "#cases",
-      "text": "시공사례",
+      "page": "https://suriwiki.com/category/outdoor-work",
+      "href": "#process",
+      "text": "진행 과정",
       "nav": true,
       "note": "같은 문서에 그 id가 없다"
     },
@@ -954,7 +522,7 @@
           "nav": false
         },
         {
-          "page": "https://suriwiki.com/doorframe-repair",
+          "page": "https://suriwiki.com/door-repair",
           "href": null,
           "text": null,
           "nav": false
@@ -978,60 +546,6 @@
       "severity": "low",
       "kind": "external-unreachable",
       "page": "https://suriwiki.com",
-      "href": "https://gagu-reform.suriwiki.com",
-      "status": 0,
-      "error": "fetch failed",
-      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
-    },
-    {
-      "severity": "low",
-      "kind": "external-unreachable",
-      "page": "https://suriwiki.com",
-      "href": "https://gyedan-suri.suriwiki.com",
-      "status": 0,
-      "error": "fetch failed",
-      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
-    },
-    {
-      "severity": "low",
-      "kind": "external-unreachable",
-      "page": "https://suriwiki.com",
-      "href": "https://robot-jikbaesu.suriwiki.com",
-      "status": 0,
-      "error": "fetch failed",
-      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
-    },
-    {
-      "severity": "low",
-      "kind": "external-unreachable",
-      "page": "https://suriwiki.com",
-      "href": "https://veranda-sigong.suriwiki.com",
-      "status": 0,
-      "error": "fetch failed",
-      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
-    },
-    {
-      "severity": "low",
-      "kind": "external-unreachable",
-      "page": "https://suriwiki.com",
-      "href": "https://silnae-jakeop.suriwiki.com",
-      "status": 0,
-      "error": "fetch failed",
-      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
-    },
-    {
-      "severity": "low",
-      "kind": "external-unreachable",
-      "page": "https://suriwiki.com",
-      "href": "https://siroe-jakeop.suriwiki.com",
-      "status": 0,
-      "error": "fetch failed",
-      "note": "응답없음 — 일시적일 수 있어 다음 회차에 다시 본다"
-    },
-    {
-      "severity": "low",
-      "kind": "external-unreachable",
-      "page": "https://suriwiki.com",
       "href": "sms:01046848838",
       "status": 0,
       "error": "fetch failed",
@@ -1048,7 +562,7 @@
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/doorframe-repair"
+        "page": "https://suriwiki.com/door-repair"
       },
       {
         "severity": "low",
@@ -1063,47 +577,17 @@
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/door-repair"
+        "page": "https://suriwiki.com/category/wallpaper"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/category/doorframe"
+        "page": "https://suriwiki.com/wallpaper-patch"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/doorframe-replacement"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/category/threshold"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/doorsill-repair"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/category/film"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/film-wrapping"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/door-film"
+        "page": "https://suriwiki.com/partial-wallpapering"
       },
       {
         "severity": "low",
@@ -1123,7 +607,142 @@
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/category/floor"
+        "page": "https://suriwiki.com/category/kitchen"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/kitchen-upper-cabinet-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/sink-bowl-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/bathroom"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/sink-basin-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/bathtub-crack-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/tile"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/tile-partial-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/floor-tile-lifting-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/window-sash"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/window-frame-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/sash-crack-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/furniture"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/wood-table-refinishing"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/kitchen-island-reform"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/balcony"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/pigeon-droppings-cleaning"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/pigeon-barrier-net"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/robot-vacuum"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/robot-vacuum-drain-installation"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/robot-vacuum-cabinet-installation"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/indoor-work"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/wall-hole-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/wall-paint-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/category/outdoor-work"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/parking-corner-guard-installation"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/car-stopper-installation"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/threshold-repair"
       },
       {
         "severity": "low",
@@ -1133,22 +752,17 @@
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/laminate-floor-repair"
+        "page": "https://suriwiki.com/wallpaper-restoration"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/category/wallpaper"
+        "page": "https://suriwiki.com/doorframe-repair"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/wallpaper-patch"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering"
+        "page": "https://suriwiki.com/film-wrapping"
       },
       {
         "severity": "low",
@@ -1188,6 +802,11 @@
       {
         "severity": "low",
         "kind": "no-canonical",
+        "page": "https://suriwiki.com/doorframe-replacement"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
         "page": "https://suriwiki.com/doorframe-touchup"
       },
       {
@@ -1213,6 +832,11 @@
       {
         "severity": "low",
         "kind": "no-canonical",
+        "page": "https://suriwiki.com/doorsill-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
         "page": "https://suriwiki.com/bathroom-threshold"
       },
       {
@@ -1224,6 +848,11 @@
         "severity": "low",
         "kind": "no-canonical",
         "page": "https://suriwiki.com/door-film-wrapping"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/door-film"
       },
       {
         "severity": "low",
@@ -1244,6 +873,56 @@
         "severity": "low",
         "kind": "no-canonical",
         "page": "https://suriwiki.com/partial-film-work"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/laminate-floor-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/flooring-scratch-repair"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/floor-discoloration-restoration"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/partial-floor-restoration"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/rental-floor-restoration"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/wallpaper-recovery"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/cracked-wall-wallpaper"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/drywall-patch-wallpaper"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/ac-mark-wallpaper"
+      },
+      {
+        "severity": "low",
+        "kind": "no-canonical",
+        "page": "https://suriwiki.com/ceiling-wallpaper"
       },
       {
         "severity": "low",
@@ -1283,52 +962,32 @@
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/flooring-scratch-repair"
+        "page": "https://suriwiki.com/gas-range-installation"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/floor-discoloration-restoration"
+        "page": "https://suriwiki.com/countertop-crack-repair"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-floor-restoration"
+        "page": "https://suriwiki.com/bathroom-tile-replacement"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/rental-floor-restoration"
+        "page": "https://suriwiki.com/polished-tile-repair"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/wallpaper-restoration"
+        "page": "https://suriwiki.com/window-rail-reinforcement"
       },
       {
         "severity": "low",
         "kind": "no-canonical",
-        "page": "https://suriwiki.com/wallpaper-recovery"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/cracked-wall-wallpaper"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/drywall-patch-wallpaper"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/ac-mark-wallpaper"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/ceiling-wallpaper"
+        "page": "https://suriwiki.com/built-in-closet-repair"
       },
       {
         "severity": "low",
@@ -2389,151 +2048,6 @@
         "severity": "low",
         "kind": "no-canonical",
         "page": "https://suriwiki.com/threshold-repair/seocho"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/seongnam"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/songpa"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/suwon"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/suji"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/ansan"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/yangju"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/yangpyeong"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/yeoju"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/yongsan"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/yongin"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/eunpyeong"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/uiwang"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/uijeongbu"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/incheon"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/incheonnamdong"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/incheonmichuhol"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/incheonbupyeong"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/incheonyeonsu"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/jongro"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/jungrang"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/pyeongtaek"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/pocheon"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/threshold-repair/hanam"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering/gangnam"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering/gangdong"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering/gangseo"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering/gyeyang"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering/goyang"
-      },
-      {
-        "severity": "low",
-        "kind": "no-canonical",
-        "page": "https://suriwiki.com/partial-wallpapering/gwanak"
       }
     ]
   },
