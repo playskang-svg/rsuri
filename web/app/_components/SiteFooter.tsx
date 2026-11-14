@@ -124,6 +124,8 @@ export async function SiteFooter() {
           <a href="https://isatips.adbles.com/" className="flex min-h-11 items-center">이사팁스 · 이사·입주 준비</a>
           <a href="https://gajun.kr/" className="flex min-h-11 items-center">가전비교연구소 · 가전 고르기</a>
           <a href="https://tipspedia.kr/" className="flex min-h-11 items-center">팁스피디아 · 생활꿀팁</a>
+          <a href="https://local.bizhelp.kr/" className="flex min-h-11 items-center">로컬브릿지 · 동네 생활 업체 찾기</a>
+          <a href="https://batterycall.kr/" className="flex min-h-11 items-center">배터리콜 · 자동차 출장 배터리 교체</a>
         </nav>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line-dark)] pt-6 text-xs">
